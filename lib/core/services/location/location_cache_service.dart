@@ -77,11 +77,34 @@ class LocationCacheService {
   static const int cacheValidityMinutes =
       5;
 
+  // PHASE A (A3) — rider GPS write throttle.
+  //
+  // The Flutter writer still updates ONLY public.riders (see updateRiderLocation
+  // below); the A1 DB bridge trigger trg_riders_gps_bridge_to_rider_locations
+  // mirrors every one of those writes into public.rider_locations, which is the
+  // lean (REPLICA IDENTITY DEFAULT) high-frequency table the passenger tracking
+  // stream now subscribes to (realtime_order_controller._subscribeRider).
+  //
+  // riders carries REPLICA IDENTITY FULL + 13 indexes + the bridge/near-dest
+  // triggers, so every GPS UPDATE is a full-row WAL record fanned out to the
+  // logical-decode pipeline. Widening the write cadence from 10 m / 30 s to
+  // 150 m / 60 s cuts the steady-state riders GPS write rate to ~1/min per
+  // online rider (~65-80% fewer writes) — the dominant contributor to the
+  // Realtime WAL-decode overload traced in
+  // docs/PERF_slowdown_after_few_rides_analysis.md — while still refreshing the
+  // passenger map about every ~60 s / ~150 m of rider movement and keeping
+  // dispatch's very lenient staleness gate (>= now()-24h OR NULL) satisfied.
   static const int movementThresholdMeters =
-      10;
+      150;
 
   static const int heartbeatSeconds =
-      30;
+      60;
+
+  // Kept explicit (was heartbeatSeconds * 4) so raising heartbeatSeconds to 60
+  // above does not also widen the "is the cached position too stale to trust in
+  // the heartbeat path" tolerance — it stays at ~2 min, unchanged from before.
+  static const int _heartbeatStaleCacheToleranceSeconds =
+      120;
 
   // =====================================================
   // INITIALIZE LOCATION
@@ -332,7 +355,8 @@ class LocationCacheService {
         // tolerance for a stationary rider, whose distanceFilter:5m stream legitimately won't
         // emit new positions) -- otherwise treat it as stale and fall through to a real read.
         final cacheAge = lastUpdated == null ? null : DateTime.now().difference(lastUpdated!);
-        position = (cacheAge != null && cacheAge < const Duration(seconds: heartbeatSeconds * 4))
+        position = (cacheAge != null &&
+                cacheAge < const Duration(seconds: _heartbeatStaleCacheToleranceSeconds))
             ? cachedPosition
             : null;
         position ??= await Geolocator.getLastKnownPosition();

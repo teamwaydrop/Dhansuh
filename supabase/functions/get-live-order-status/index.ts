@@ -285,6 +285,42 @@ serve(async (req) => {
     );
 
     // ---------------------------------------------------
+    // PHASE A (A2): rider live GPS -- PRIMARY public.rider_locations, FALLBACK the
+    // embedded riders.current_* above.
+    //
+    // rider_locations is one-row-per-rider (rider_id PK), kept in sync with riders
+    // by the A1 bridge trigger today and made the fresh high-frequency source by the
+    // A3 Flutter writer; riders.current_* stays as a low-frequency compatibility
+    // mirror (still read by dispatch / find_nearby_riders, unchanged here). This is
+    // one small service-role point read (rider_id = PK), isolated: if it errors or
+    // the row is missing / has no usable coordinates, `hasUsableRiderLocation` is
+    // false and every downstream consumer falls back to exactly the riders.* values
+    // used before A2 -- response shape, null handling and data exposed are identical
+    // (rider_locations exposes the same four GPS fields riders already did).
+    // ---------------------------------------------------
+    const { data: riderLocationRow } = await supabaseAdmin
+      .from("rider_locations")
+      .select("current_lat, current_lng, current_heading, last_location_updated_at")
+      .eq("rider_id", order.rider_id)
+      .maybeSingle();
+
+    const hasUsableRiderLocation =
+      riderLocationRow != null &&
+      riderLocationRow.current_lat != null &&
+      riderLocationRow.current_lng != null;
+
+    const effectiveRiderLat: number | null =
+      hasUsableRiderLocation ? riderLocationRow!.current_lat : (rider.current_lat ?? null);
+    const effectiveRiderLng: number | null =
+      hasUsableRiderLocation ? riderLocationRow!.current_lng : (rider.current_lng ?? null);
+    const effectiveRiderHeading: number | null =
+      hasUsableRiderLocation ? riderLocationRow!.current_heading : (rider.current_heading ?? null);
+    const effectiveRiderLocationUpdatedAt: string | null =
+      hasUsableRiderLocation
+        ? riderLocationRow!.last_location_updated_at
+        : (rider.last_location_updated_at ?? null);
+
+    // ---------------------------------------------------
     // ENRICHMENT: signed rider photo URL, the OLA Maps ETA, and the intercity plan vehicle-type
     // lookup are all independent of each other and of everything already fetched above -- run
     // concurrently. R7 perf fix: the intercity lookup used to be awaited sequentially before this
@@ -322,8 +358,9 @@ serve(async (req) => {
       // getEtaWithBudget adds a short-TTL cache + a 2s race bound in front of this same fetch --
       // see _shared/eta_cache.ts for why fetchFresh must throw (not return a value) on failure.
       getEtaWithBudget(orderId, async () => {
-          const riderLat = rider.current_lat;
-          const riderLng = rider.current_lng;
+          // A2: rider_locations-first, riders.* fallback (resolved above).
+          const riderLat = effectiveRiderLat;
+          const riderLng = effectiveRiderLng;
           const pickupLat = order.pickup_lat;
           const pickupLng = order.pickup_lng;
           try {
@@ -501,17 +538,18 @@ phone:
         },
 
         live_location: {
+          // A2: rider_locations-first, riders.* fallback (resolved above).
           latitude:
-            rider.current_lat,
+            effectiveRiderLat,
 
           longitude:
-            rider.current_lng,
+            effectiveRiderLng,
 
           heading:
-            rider.current_heading,
+            effectiveRiderHeading,
 
           updated_at:
-            rider.last_location_updated_at,
+            effectiveRiderLocationUpdatedAt,
         },
 
         tracking: {

@@ -20,6 +20,12 @@ class RealtimeOrderController {
 
   String? _orderSubId;
   String? _riderSubId;
+  // PHASE A (A3): the rider's live GPS now streams from the lean public.rider_locations
+  // table (REPLICA IDENTITY DEFAULT, 1 index) instead of the fat public.riders row
+  // (REPLICA IDENTITY FULL, 33 cols, 13 indexes). The _riderSubId channel above is kept
+  // ONLY for mid-ride rider profile changes (rating / rider_kyc_id); its callback no
+  // longer reads coordinates. See _subscribeRider below.
+  String? _riderLocationSubId;
   String? _currentRiderId;
   Timer? _pollingTimer;
   DateTime? _lastRealtimeDeliveryAt;
@@ -450,6 +456,33 @@ class RealtimeOrderController {
       flat.remove('users');
 
       flat['id'] = riderId;
+
+      // PHASE A (A3): live GPS — PRIMARY public.rider_locations, FALLBACK the
+      // riders.current_* values already selected above. One isolated point read
+      // (rider_id = PK); if the row is missing / has no usable coordinates / the
+      // query fails, `flat` keeps the riders.* values it already holds — i.e.
+      // exactly the pre-A3 behaviour. RLS on rider_locations allows this read
+      // while the passenger has an active order assigned to this rider.
+      try {
+        final riderLocationRow = await supabase
+            .from('rider_locations')
+            .select('current_lat, current_lng, current_heading')
+            .eq('rider_id', riderId)
+            .maybeSingle();
+        if (!_isDisposed &&
+            riderLocationRow != null &&
+            riderLocationRow['current_lat'] != null &&
+            riderLocationRow['current_lng'] != null) {
+          flat['current_lat'] = riderLocationRow['current_lat'];
+          flat['current_lng'] = riderLocationRow['current_lng'];
+          flat['current_heading'] = riderLocationRow['current_heading'];
+        }
+      } catch (e) {
+        if (!_isDisposed) {
+          debugPrint('REALTIME RIDER LOCATION (rider_locations) FETCH ERROR => $e');
+        }
+      }
+
       if (_isDisposed) return;
       // Database profile is the absolute source of truth. Always set it.
       riderNotifier.value = flat;
@@ -504,13 +537,29 @@ class RealtimeOrderController {
     );
   }
 
-  /// Registers rider database listeners
+  /// Registers rider database listeners.
+  ///
+  /// PHASE A (A3): this now opens TWO pooled channels for the assigned rider:
+  ///   1. `realtime-rider-loc-<id>` on public.rider_locations (filter rider_id) —
+  ///      the high-frequency live GPS feed. rider_locations is the lean table
+  ///      (REPLICA IDENTITY DEFAULT, PK-only index) kept in sync with riders by
+  ///      the A1 DB bridge trigger; the Flutter writer's riders GPS cadence was
+  ///      also widened in A3, so this is the authoritative fresh position source.
+  ///   2. `realtime-rider-<id>` on public.riders (filter id) — kept ONLY to catch
+  ///      a mid-ride rider profile change (rating / rider_kyc_id). Its callback no
+  ///      longer touches coordinates, so it does not matter that a throttled
+  ///      riders GPS write also lands on it.
   void _subscribeRider(String riderId) {
     if (_isDisposed) return;
     if (_currentRiderId == riderId && _riderSubId != null) return;
     if (_riderSubId != null) {
       RealtimeManager.instance.unsubscribe('realtime-rider-$_currentRiderId', _riderSubId!);
       _riderSubId = null;
+    }
+    if (_riderLocationSubId != null) {
+      RealtimeManager.instance
+          .unsubscribe('realtime-rider-loc-$_currentRiderId', _riderLocationSubId!);
+      _riderLocationSubId = null;
     }
 
     // RESET PREVIOUS RIDER STATE ONLY IF DIFFERENT AND NOT PRE-FETCHED
@@ -522,12 +571,13 @@ class RealtimeOrderController {
       }
     }
 
-    _riderSubId = RealtimeManager.instance.subscribe(
-      channelName: 'realtime-rider-$riderId',
-      table: 'riders',
+    // 1. LIVE GPS — public.rider_locations (lean, high-frequency)
+    _riderLocationSubId = RealtimeManager.instance.subscribe(
+      channelName: 'realtime-rider-loc-$riderId',
+      table: 'rider_locations',
       owner: 'RealtimeOrderController',
       event: PostgresChangeEvent.update,
-      filterColumn: 'id',
+      filterColumn: 'rider_id',
       filterValue: riderId,
       callback: (payload) async {
         if (_isDisposed) return;
@@ -540,7 +590,21 @@ class RealtimeOrderController {
         if (lat != null && lng != null && !_isDisposed) {
           riderLocationNotifier.value = {'lat': lat, 'lng': lng, 'heading': heading};
         }
+      },
+    );
 
+    // 2. PROFILE CHANGES — public.riders (rating / KYC only, no coordinates)
+    _riderSubId = RealtimeManager.instance.subscribe(
+      channelName: 'realtime-rider-$riderId',
+      table: 'riders',
+      owner: 'RealtimeOrderController',
+      event: PostgresChangeEvent.update,
+      filterColumn: 'id',
+      filterValue: riderId,
+      callback: (payload) async {
+        if (_isDisposed) return;
+        _lastRealtimeDeliveryAt = DateTime.now();
+        final newRecord = payload.newRecord;
         if (riderNotifier.value != null && !_isDisposed) {
           final oldVal = riderNotifier.value!;
           final ratingChanged = newRecord['rating']?.toString() != oldVal['rating']?.toString();
@@ -564,6 +628,11 @@ class RealtimeOrderController {
     if (_riderSubId != null && _currentRiderId != null) {
       RealtimeManager.instance.unsubscribe('realtime-rider-$_currentRiderId', _riderSubId!);
       _riderSubId = null;
+    }
+    if (_riderLocationSubId != null && _currentRiderId != null) {
+      RealtimeManager.instance
+          .unsubscribe('realtime-rider-loc-$_currentRiderId', _riderLocationSubId!);
+      _riderLocationSubId = null;
     }
     orderNotifier.dispose();
     riderLocationNotifier.dispose();
