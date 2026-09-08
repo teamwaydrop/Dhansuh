@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waydrop Location Picker Map</title>
+    <link rel="preconnect" href="https://api.olamaps.io">
+    <link rel="dns-prefetch" href="https://api.olamaps.io">
+    <link href="maplibre-gl.css" rel="stylesheet"/>
+    <script src="maplibre-gl.js"></script>
+    <script src="ola_map_core.js"></script>
+    <style>
+        html, body, #map {
+            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+            background: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body.dark-theme, body.dark-theme #map { background: #090D1A !important; }
+        .maplibregl-control-container { display: none !important; }
+        .maplibregl-ctrl-attrib { display: none !important; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        // Override initializeMap in core to default to zoom 16 for picker
+        const originalInitializeMap = window.initializeMap;
+        window.initializeMap = function(apiKey, arg1, arg2, arg3) {
+            let initialLat = 12.9716;
+            let initialLng = 77.5946;
+            let themeMode = 'light';
+            if (typeof arg1 === 'number' && typeof arg2 === 'number') {
+                initialLat = arg1;
+                initialLng = arg2;
+                themeMode = arg3 || 'light';
+            } else {
+                themeMode = arg1 || 'light';
+            }
+            originalInitializeMap(apiKey, initialLat, initialLng, themeMode, {
+                zoom: 16,
+                addInitialPickupMarker: false
+            });
+        };
+
+        // Override markers to zoom in to 16 for location picking
+        window.addPickupMarker = function(lat, lng) {
+            window.removeMarker('pickup');
+            if (!window.MapState.map) return;
+
+            const el = document.createElement('div');
+            el.style.cssText = `
+                width: 36px;
+                height: 45px;
+                cursor: pointer;
+                filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.18));
+            `;
+            el.innerHTML = `
+            <svg viewBox="0 0 24 30" width="36" height="45" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="12" cy="28" rx="6" ry="2" fill="rgba(0,0,0,0.25)" />
+                <path d="M12 2 C6.48 2 2 6.48 2 12 C2 19.5 12 28 12 28 C12 28 22 19.5 22 12 C22 6.48 17.52 2 12 2 Z" fill="#10B981" stroke="#FFFFFF" stroke-width="1.8" />
+                <circle cx="12" cy="12" r="4.5" fill="#FFFFFF" />
+            </svg>
+            `;
+
+            const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+                .setLngLat([lng, lat])
+                .addTo(window.MapState.map);
+
+            window.MapState.markers['pickup'] = marker;
+
+            window.MapState.map.flyTo({
+                center: [lng, lat],
+                padding: window.getDynamicPadding({ top: 220, bottom: 80 }),
+                zoom: 16,
+                duration: 1000
+            });
+        };
+
+        window.addDestinationMarker = function(lat, lng) {
+            window.removeMarker('destination');
+            if (!window.MapState.map) return;
+
+            const el = document.createElement('div');
+            el.style.cssText = `
+                width: 36px;
+                height: 45px;
+                cursor: pointer;
+                filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.18));
+            `;
+            el.innerHTML = `
+            <svg viewBox="0 0 24 30" width="36" height="45" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="12" cy="28" rx="6" ry="2" fill="rgba(0,0,0,0.25)" />
+                <path d="M12 2 C6.48 2 2 6.48 2 12 C2 19.5 12 28 12 28 C12 28 22 19.5 22 12 C22 6.48 17.52 2 12 2 Z" fill="#EF4444" stroke="#FFFFFF" stroke-width="1.8" />
+                <circle cx="12" cy="12" r="4.5" fill="#FFFFFF" />
+            </svg>
+            `;
+
+            const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+                .setLngLat([lng, lat])
+                .addTo(window.MapState.map);
+
+            window.MapState.markers['destination'] = marker;
+
+            window.MapState.map.flyTo({
+                center: [lng, lat],
+                padding: window.getDynamicPadding({ top: 220, bottom: 80 }),
+                zoom: 16,
+                duration: 1000
+            });
+        };
+
+        window.recenterMap = function(lat, lng) {
+            if (window.MapState.map) {
+                window.MapState.map.flyTo({
+                    center: [lng, lat],
+                    zoom: 16,
+                    duration: 1000
+                });
+            }
+        };
+
+        window.addEventListener('unload', () => {
+            if (typeof window.destroyMap === 'function') {
+                window.destroyMap();
+            }
+        });
+    </script>
+</body>
+</html>

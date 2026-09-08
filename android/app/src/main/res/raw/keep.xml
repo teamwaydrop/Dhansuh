@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Root cause (WayDrop notification icon regression): release builds set isMinifyEnabled and
+  isShrinkResources to true (android/app/build.gradle.kts). Android's resource shrinker only
+  reliably tracks resources referenced from compiled code (R.drawable.X) or layout XML; it
+  cannot see flutter_local_notifications' runtime resolution of the icon string
+  ('@drawable/ic_stat_notify') via Android's Resources.getIdentifier() reflection, which Android's
+  own shrinker documentation explicitly calls out as unsafe. ic_stat_notify and
+  notification_icon_color are otherwise only referenced from AndroidManifest.xml's
+  meta-data android:resource="..." tags for FCM's default_notification_icon and
+  default_notification_color, which is not reliably protected either. Debug builds
+  (isMinifyEnabled = false) never hit this, so the bug is invisible until a signed release build,
+  exactly matching "previously fixed, but has regressed."
+  This file explicitly force-keeps both resources regardless of what the shrinker's static
+  analysis can trace, per Android's documented tools:keep mechanism for this exact scenario.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_notify,@color/notification_icon_color" />

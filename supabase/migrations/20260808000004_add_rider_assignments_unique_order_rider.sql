@@ -1,0 +1,41 @@
+-- Migration: add the UNIQUE constraint on rider_assignments(order_id, rider_id) that
+-- start-dispatch's own write path has always assumed exists.
+-- Date: 2026-08-05
+--
+-- ROOT CAUSE (live production reproduction, proven via direct evidence -- not assumed):
+--   Reproduced order 70efbe7e-0ada-4255-8d47-3184342c58ee (booked 2026-08-05 08:48:15 IST) live:
+--   rider 47d54d1a-99cb-4d2d-be64-434cb1f9c94d was online, 10 meters from pickup, fully eligible.
+--   - public.find_nearby_riders() called directly via SQL: correctly returns this rider.
+--   - The exact PostgREST HTTP RPC endpoint start-dispatch calls
+--     (POST /rest/v1/rpc/find_nearby_riders) also correctly returns this rider (HTTP 200).
+--   - Yet start-dispatch's active per-order loop ran continuously across multiple ~100s
+--     self-chained worker generations (dispatch_worker_started_at kept refreshing) for 3+ minutes
+--     and never wrote a single rider_assignments row for this order.
+--   - supabase/functions/start-dispatch/index.ts writes new assignments via:
+--       supabase.from("rider_assignments").upsert(dispatchRows, { onConflict: "order_id,rider_id" })
+--     PostgREST/PostgreSQL requires a UNIQUE constraint or unique index matching the onConflict
+--     target columns to exist; without one this call unconditionally throws "there is no unique or
+--     exclusion constraint matching the ON CONFLICT specification" on every invocation. Confirmed
+--     against the live schema: rider_assignments has only a PRIMARY KEY on id and plain (non-unique)
+--     btree indexes on order_id and rider_id individually -- no unique constraint/index on the pair
+--     ever existed. The resulting error is caught, logged via console.error, and the round is
+--     silently skipped (`continue`) -- with no DB-visible or user-visible failure signal -- forever,
+--     for as long as the order keeps searching.
+--   - By contrast, the online-transition and order-freed triggers
+--     (assign_nearby_searching_orders_to_rider / assign_nearby_searching_orders_core, added
+--     20260806000002 / 20260808000000) write via a manual
+--     `SELECT ... INTO v_existing_id ... IF v_existing_id IS NULL THEN INSERT ...` -- a plain INSERT
+--     with no ON CONFLICT clause -- which never touches this missing constraint. That is exactly why
+--     toggling offline->online "immediately" works: it is the one write path that was never broken.
+--     A brand-new order arriving to an already-online, idle rider has no trigger to rescue it; it
+--     depends entirely on start-dispatch's active loop, which this missing constraint breaks
+--     unconditionally, regardless of how many correct matches the loop finds.
+--
+-- FIX: add the missing UNIQUE constraint. This is purely additive -- it makes the application code
+-- (already written assuming this constraint exists) behave as originally intended. No rider_id has
+-- more than one row for the same order_id today (verified live: zero duplicates), so this applies
+-- cleanly. No timers, polling, or application code changes -- the write path was always meant to be
+-- an upsert; it only needed the constraint upsert requires to function at all.
+
+ALTER TABLE public.rider_assignments
+    ADD CONSTRAINT rider_assignments_order_id_rider_id_key UNIQUE (order_id, rider_id);

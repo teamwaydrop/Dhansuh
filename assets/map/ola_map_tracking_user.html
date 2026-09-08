@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waydrop Passenger Tracking Map</title>
+    <link rel="preconnect" href="https://api.olamaps.io">
+    <link rel="dns-prefetch" href="https://api.olamaps.io">
+    <link href="maplibre-gl.css" rel="stylesheet"/>
+    <script src="maplibre-gl.js"></script>
+    <script src="vehicle_marker_templates.js"></script>
+    <script src="ola_map_core.js"></script>
+    <script src="tracking_engine.js"></script>
+    <style>
+        html, body, #map {
+            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+            background: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body.dark-theme, body.dark-theme #map { background: #090D1A !important; }
+        .maplibregl-control-container { display: none !important; }
+        .maplibregl-ctrl-attrib { display: none !important; }
+        
+        .pickup-pin, .dest-pin {
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.25));
+        }
+        .pickup-pin svg, .dest-pin svg {
+            transition: transform 0.2s ease;
+        }
+        .pickup-pin:hover svg, .dest-pin:hover svg {
+            transform: scale(1.15);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        // Global variables referenced inside tracking engine
+        window.PICKUP_LAT = 0;
+        window.PICKUP_LNG = 0;
+        window.DEST_LAT = 0;
+        window.DEST_LNG = 0;
+
+        function initTrackingMap(apiKey, themeMode, pickupLat, pickupLng, destLat, destLng, initialRouteGeometry, initialRiderRouteGeometry) {
+            window.PICKUP_LAT = pickupLat;
+            window.PICKUP_LNG = pickupLng;
+            window.DEST_LAT = destLat;
+            window.DEST_LNG = destLng;
+
+            window.initializeMap(apiKey, pickupLat, pickupLng, themeMode, {
+                zoom: 14,
+                addInitialPickupMarker: false
+            });
+
+            if (window.MapState.map) {
+                if (window.MapState.map.loaded()) {
+                    window.drawRouteAndMarkers(pickupLat, pickupLng, destLat, destLng, initialRouteGeometry, initialRiderRouteGeometry);
+                } else {
+                    window.MapState.map.on('load', () => {
+                        window.drawRouteAndMarkers(pickupLat, pickupLng, destLat, destLng, initialRouteGeometry, initialRiderRouteGeometry);
+                    });
+                }
+            }
+        }
+
+        window.addEventListener('unload', () => {
+            if (typeof window.destroyTrackingEngine === 'function') {
+                window.destroyTrackingEngine();
+            }
+            if (typeof window.destroyMap === 'function') {
+                window.destroyMap();
+            }
+        });
+    </script>
+</body>
+</html>

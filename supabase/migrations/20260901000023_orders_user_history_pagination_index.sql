@@ -1,0 +1,21 @@
+-- Migration: Composite index backing keyset (cursor) pagination of a passenger's own order
+-- history in the Activity screen (lib/features/user/activity/activity_tab.dart).
+-- Date: 2026-08-22
+--
+-- The Rides/Parcels "past" lists are now paginated with `.eq('user_id', ...).order('created_at',
+-- desc).order('id', desc).limit(10)` for page 1, and a `(created_at, id) < cursor` keyset filter
+-- (via `.or('created_at.lt.X,and(created_at.eq.X,id.lt.Y)')`) for every subsequent page, instead of
+-- the old single mixed-type `.range()` offset query. Every existing index on `orders` is either a
+-- single-column index (idx_orders_user_id, idx_orders_created_at, idx_orders_order_status,
+-- idx_orders_order_type, ...) or a partial index scoped to 'searching' orders only
+-- (20260806000003) -- none of them let Postgres satisfy "this user's rows, newest first" with a
+-- single ordered index scan, so every page (including page 1) would fall back to a bitmap-or-scan
+-- on idx_orders_user_id followed by a full sort of that user's entire order history.
+--
+-- This composite index lets both the ACTIVE query (already filtered by user_id, ordered by
+-- created_at desc) and every PAST/keyset page (filtered by user_id, ordered by created_at desc,
+-- id desc) use one ordered index scan each, with LIMIT able to stop after the first page-size rows
+-- instead of touching the user's full row count -- the entire point of switching to keyset
+-- pagination in the first place.
+CREATE INDEX IF NOT EXISTS idx_orders_user_created_id
+    ON public.orders (user_id, created_at DESC, id DESC);

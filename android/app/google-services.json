@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "735016218742",
+    "project_id": "waydrop-india",
+    "storage_bucket": "waydrop-india.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:735016218742:android:117fa9e7293f50cfaf2f57",
+        "android_client_info": {
+          "package_name": "com.waydrop.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDF7PrOD8wSCOjoMlLB8-iIcXlIu2vXRzU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

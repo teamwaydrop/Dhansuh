@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waydrop Booking Map</title>
+    <link rel="preconnect" href="https://api.olamaps.io">
+    <link rel="dns-prefetch" href="https://api.olamaps.io">
+    <link href="maplibre-gl.css" rel="stylesheet"/>
+    <script src="maplibre-gl.js"></script>
+    <script src="vehicle_marker_templates.js"></script>
+    <script src="ola_map_core.js"></script>
+    <style>
+        html, body, #map {
+            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+            background: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body.dark-theme, body.dark-theme #map { background: #090D1A !important; }
+        .maplibregl-control-container { display: none !important; }
+        .maplibregl-ctrl-attrib { display: none !important; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        // Initialize booking map
+        function initBookingMap(apiKey, themeMode, lat, lng) {
+            window.initializeMap(apiKey, lat, lng, themeMode, {
+                zoom: 14,
+                addInitialPickupMarker: false
+            });
+
+            // Listen to zoom to adjust Marker Level of Detail (LOD)
+            if (window.MapState.map) {
+                window.MapState.map.on('zoom', () => {
+                    if (typeof window.refreshMarkerLOD === 'function') {
+                        window.refreshMarkerLOD();
+                    }
+                });
+            }
+        }
+
+        window.addEventListener('unload', () => {
+            if (typeof window.destroyNearbyRidersEngine === 'function') {
+                window.destroyNearbyRidersEngine();
+            }
+            if (typeof window.destroyMap === 'function') {
+                window.destroyMap();
+            }
+        });
+    </script>
+</body>
+</html>

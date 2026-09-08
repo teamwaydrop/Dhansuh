@@ -1,0 +1,24 @@
+<!--
+    WayDrop status-bar notification icon.
+
+    Android renders notification small icons as a flat monochrome (alpha-only) silhouette;
+    the OS ignores color entirely and re-tints every pixel, and it must read clearly at a fixed
+    ~24dp. The full WayDrop marketing logo (assets/images/waydrop_logo_transparent.png) is thin
+    multi-element line art (car outline + sunburst + rider + parcel) that was test-rendered at
+    24/36/48px and came out as an illegible faint blur at any of those sizes; there is no
+    resampling that fixes that, the source art itself is too fine-detailed for this slot. This is
+    a simplified, bold, solid silhouette of the car, the dominant shape in the actual logo,
+    which is what's actually legible in a status bar. A vector drawable is used (not a rasterized
+    PNG set) so it stays crisp at every density without needing five separate exported bitmaps.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFF">
+
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M18.92,6.01C18.72,5.42 18.16,5 17.5,5h-11c-0.66,0 -1.21,0.42 -1.42,1.01L3,12v8c0,0.55 0.45,1 1,1h1c0.55,0 1,-0.45 1,-1v-1h12v1c0,0.55 0.45,1 1,1h1c0.55,0 1,-0.45 1,-1v-8l-2.08,-5.99zM6.5,16C5.67,16 5,15.33 5,14.5S5.67,13 6.5,13s1.5,0.67 1.5,1.5S7.33,16 6.5,16zM17.5,16c-0.83,0 -1.5,-0.67 -1.5,-1.5s0.67,-1.5 1.5,-1.5s1.5,0.67 1.5,1.5S18.33,16 17.5,16zM5,11l1.5,-4.5h11L19,11H5z"/>
+</vector>

@@ -1,0 +1,32 @@
+-- Migration: Composite index backing find_nearby_riders()'s eligibility pre-filter.
+-- Date: 2026-08-01
+--
+-- ROOT CAUSE (WayDrop Progressive Degradation Audit, finding DB-3): find_nearby_riders()
+-- (20260729000001_find_nearby_riders_security_definer_and_authz.sql) filters
+-- `r.account_status = 'online' AND r.service_mode = v_required_mode` before computing a per-row
+-- haversine distance and sorting by it. Only single-column indexes exist on riders
+-- (idx_riders_account_status, idx_riders_current_lat, idx_riders_current_lng individually) -- none
+-- of them let the planner jump straight to "online riders in this service mode" as one lookup, so
+-- every call scans and evaluates every row in `riders` (haversine formula included) regardless of
+-- how few are actually online and eligible.
+--
+-- SCOPE DECISION: the audit's ideal fix is a true geospatial index (PostGIS geography + GiST, or
+-- cube/earthdistance) so the radius filter itself is index-backed. That requires rewriting the
+-- function's WHERE-clause distance predicate to a form the planner can match to such an index --
+-- and this specific function has been touched by three consecutive migrations
+-- (20260718000010, 20260726000004, 20260729000001), each explicitly documenting that it changes
+-- "ONLY" one narrow thing and preserves "every other line... byte-for-byte", because its
+-- eligibility predicate (service-mode/vehicle/KYC/tax-due/busy-order rules) is exactly the kind of
+-- revenue- and safety-relevant business logic this phase must not alter. A full geospatial rewrite
+-- is deferred as a follow-up requiring its own dedicated review; this migration takes the safe,
+-- purely-additive half of the fix instead.
+--
+-- This composite index exactly matches the two equality predicates already in the function's
+-- WHERE clause (account_status, service_mode), with the columns the rest of the predicate and the
+-- SELECT list need included so most matching rows can be satisfied index-only. It narrows the set
+-- of rows the haversine formula and the remaining eligibility checks ever have to run against from
+-- "every rider" to "every currently-online rider in the requested service mode" -- a pure query-
+-- plan change; the function body, its result set, and its business rules are untouched.
+CREATE INDEX IF NOT EXISTS idx_riders_account_status_service_mode
+    ON public.riders (account_status, service_mode)
+    INCLUDE (current_lat, current_lng, user_id, last_location_updated_at);

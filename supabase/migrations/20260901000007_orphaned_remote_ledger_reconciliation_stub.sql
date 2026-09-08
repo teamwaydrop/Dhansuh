@@ -1,0 +1,12 @@
+-- RECONCILIATION STUB, not a real migration -- see 20260901000022's deployment for context.
+--
+-- Production's supabase_migrations.schema_migrations ledger contains a row for version
+-- 20260901000007 with no corresponding local migration file ever having existed in this repo --
+-- i.e. someone applied SQL directly to production under this version stamp without committing the
+-- file. The actual SQL that was applied is unknown/undocumented; it is NOT reconstructed here.
+--
+-- This file exists ONLY so `supabase migration repair --status applied 20260901000007` has a local
+-- file to register against the ledger (required by the CLI), unblocking `supabase db push` for
+-- unrelated, actually-pending migrations. It intentionally contains ZERO SQL, so it can never be
+-- mistakenly re-applied with any effect, and never claims to represent whatever was really run
+-- under this version.

@@ -1,0 +1,1080 @@
+<!-- [DEPRECATED] This file is temporarily kept for backward compatibility. Use specialized html files instead. -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waydrop Ola Map</title>
+    <link rel="preconnect" href="https://api.olamaps.io">
+    <link rel="dns-prefetch" href="https://api.olamaps.io">
+
+    <!-- MapLibre v3.6.2 — WebGL1 compatible for Android WebView -->
+    <link href="maplibre-gl.css" rel="stylesheet"/>
+    <script src="maplibre-gl.js"></script>
+    <script src="vehicle_marker_templates.js"></script>
+
+    <style>
+        html, body, #map {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body.dark-theme, body.dark-theme #map {
+            background: #090D1A !important;
+        }
+
+        /* Hide default MapLibre controls */
+        .maplibregl-control-container { display: none !important; }
+        .maplibregl-ctrl-attrib { display: none !important; }
+
+        /* =============================================
+           PREMIUM VEHICLE MARKER STYLES
+        ============================================= */
+
+        /* Base marker wrapper */
+        .rider-marker {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Outer pulse ring */
+        .rider-marker::before {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            animation: markerPulse 2s ease-out infinite;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Bike — teal glow */
+        .rider-marker.bike::before {
+            width: 44px;
+            height: 44px;
+            background: radial-gradient(circle, rgba(20,184,166,0.35) 0%, transparent 70%);
+            box-shadow: 0 0 0 0 rgba(20,184,166,0.5);
+        }
+        /* Auto — amber glow */
+        .rider-marker.auto::before {
+            width: 44px;
+            height: 44px;
+            background: radial-gradient(circle, rgba(245,158,11,0.35) 0%, transparent 70%);
+            box-shadow: 0 0 0 0 rgba(245,158,11,0.5);
+        }
+        /* Cab — indigo glow */
+        .rider-marker.cab::before {
+            width: 44px;
+            height: 44px;
+            background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%);
+            box-shadow: 0 0 0 0 rgba(99,102,241,0.5);
+        }
+
+        @keyframes markerPulse {
+            0%   { transform: scale(0.85); opacity: 0.7; }
+            70%  { transform: scale(2.2);  opacity: 0; }
+            100% { transform: scale(2.2);  opacity: 0; }
+        }
+
+        @keyframes riderPulse {
+            0%   { transform: scale(0.85); opacity: 0.8; }
+            70%  { transform: scale(1.8);  opacity: 0; }
+            100% { transform: scale(1.8);  opacity: 0; }
+        }
+
+        /* Icon pill container */
+        .rider-icon {
+            position: relative;
+            z-index: 2;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.22);
+            transition: transform 0.15s ease;
+        }
+        .rider-icon:active { transform: scale(0.92); }
+
+        .rider-marker.bike  .rider-icon { background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%); }
+        .rider-marker.auto  .rider-icon { background: linear-gradient(135deg, #D97706 0%, #F59E0B 100%); }
+        .rider-marker.cab   .rider-icon { background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%); }
+
+        /* Tiny triangle pointer */
+        .rider-icon::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+        }
+        .rider-marker.bike  .rider-icon::after { border-top: 6px solid #0D9488; }
+        .rider-marker.auto  .rider-icon::after { border-top: 6px solid #D97706; }
+        .rider-marker.cab   .rider-icon::after { border-top: 6px solid #4338CA; }
+
+        /* =============================================
+           PREMIUM TOP-VIEW VEHICLE SVGs (inline)
+        ============================================= */
+
+        /* Bike SVG — minimal top-view */
+        .icon-bike {
+            width: 22px;
+            height: 22px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Ccircle cx='6' cy='16' r='3' stroke='white' stroke-width='1.5' fill='none'/%3E%3Ccircle cx='18' cy='16' r='3' stroke='white' stroke-width='1.5' fill='none'/%3E%3Cpath d='M6 16L9 9h6l3 7' stroke='white' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='9' r='1.5' fill='white'/%3E%3Cpath d='M9 9h6' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+        }
+
+        /* Auto SVG — top-view auto-rickshaw */
+        .icon-auto {
+            width: 22px;
+            height: 22px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect x='5' y='7' width='14' height='10' rx='3' stroke='white' stroke-width='1.5'/%3E%3Ccircle cx='7.5' cy='17' r='2' fill='white'/%3E%3Ccircle cx='16.5' cy='17' r='2' fill='white'/%3E%3Crect x='7' y='9' width='10' height='5' rx='1.5' fill='white' opacity='0.4'/%3E%3Cline x1='12' y1='7' x2='12' y2='5' stroke='white' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+        }
+
+        /* Cab SVG — minimal sedan top-view */
+        .icon-cab {
+            width: 22px;
+            height: 22px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect x='3' y='8' width='18' height='10' rx='2' stroke='white' stroke-width='1.5'/%3E%3Crect x='6' y='9.5' width='12' height='4.5' rx='1' fill='white' opacity='0.45'/%3E%3Ccircle cx='6.5' cy='18' r='2' fill='white'/%3E%3Ccircle cx='17.5' cy='18' r='2' fill='white'/%3E%3Cpath d='M3 13h18' stroke='white' stroke-width='0.8' opacity='0.4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Chromakey filters to remove backgrounds from 3D png/jpg markers -->
+    <svg width="0" height="0" style="position:absolute; display:none;">
+      <defs>
+        <filter id="remove-white-bg">
+          <feColorMatrix type="matrix" values="
+            1 0 0 0 0
+            0 1 0 0 0
+            0 0 1 0 0
+            -1 -1 -1 3 0
+          "/>
+        </filter>
+        <filter id="remove-black-bg">
+          <feColorMatrix type="matrix" values="
+            1 0 0 0 0
+            0 1 0 0 0
+            0 0 1 0 0
+            3 3 3 0 -0.12
+          "/>
+        </filter>
+      </defs>
+    </svg>
+    <div id="map"></div>
+
+    <script>
+        let map;
+        let pickupMarker = null;
+        let destinationMarker = null;
+        let routeLoaded = false;
+        let activeRouteCoordinates = null;
+        let storedApiKey = '';
+        let nearbyRiderMarkers = [];
+        let allRidersData = [];       // full list kept for re-filtering
+        let activeFilterType = null;  // null = show all
+        let isFollowingRider = true;
+
+        function getDynamicPadding(defaultPadding) {
+            const mapEl = document.getElementById('map');
+            const mapHeight = mapEl ? mapEl.clientHeight : window.innerHeight;
+            if (mapHeight < 400) {
+                const tinyPadding = {};
+                if ('top' in defaultPadding) tinyPadding.top = 20;
+                if ('bottom' in defaultPadding) tinyPadding.bottom = 20;
+                if ('left' in defaultPadding) tinyPadding.left = 20;
+                if ('right' in defaultPadding) tinyPadding.right = 20;
+                return tinyPadding;
+            }
+            return defaultPadding;
+        }
+
+        let isDarkModeActive = false;
+
+        let initialLat = 12.9716;
+        let initialLng = 77.5946;
+
+        function initializeMap(apiKey, arg1, arg2, arg3) {
+            storedApiKey = apiKey;
+            
+            // Check if arguments correspond to (apiKey, themeMode) or (apiKey, lat, lng, themeMode)
+            if (typeof arg1 === 'number' && typeof arg2 === 'number') {
+                initialLat = arg1;
+                initialLng = arg2;
+                isDarkModeActive = (arg3 === 'dark');
+            } else {
+                isDarkModeActive = (arg1 === 'dark');
+            }
+
+            if (isDarkModeActive) {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+
+            if (!apiKey || apiKey.trim() === '') {
+                console.warn('[OlaMap] No API key.');
+            }
+            
+            const styleName = isDarkModeActive ? 'default-dark-standard' : 'default-light-standard';
+            const styleUrl = 'https://api.olamaps.io/tiles/vector/v1/styles/' + styleName + '/style.json?api_key=' + apiKey;
+            loadOlaMap(styleUrl, initialLng, initialLat);
+            
+            if (typeof arg1 === 'number' && typeof arg2 === 'number') {
+                addPickupMarker(initialLat, initialLng);
+            }
+        }
+
+        function setTheme(theme) {
+            const isDark = (theme === 'dark');
+            if (isDarkModeActive === isDark) return;
+            isDarkModeActive = isDark;
+            
+            if (isDarkModeActive) {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+            
+            if (map && storedApiKey) {
+                const styleName = isDarkModeActive ? 'default-dark-standard' : 'default-light-standard';
+                const styleUrl = 'https://api.olamaps.io/tiles/vector/v1/styles/' + styleName + '/style.json?api_key=' + storedApiKey;
+                map.setStyle(styleUrl);
+                
+                map.once('style.load', () => {
+                    setTimeout(() => {
+                        if (activeRouteCoordinates) {
+                            routeLoaded = false;
+                            updateRoute(activeRouteCoordinates);
+                        }
+                        map.resize();
+                    }, 200);
+                });
+            }
+        }
+
+        function setupMapEvents(mapObj) {
+            mapObj.on('dragstart', () => {
+                isFollowingRider = false;
+                try {
+                    if (window.Flutter) {
+                        window.Flutter.postMessage(JSON.stringify({
+                            type: 'camera_move_start'
+                        }));
+                    }
+                } catch (e) {}
+            });
+            mapObj.on('zoomstart', () => {
+                try {
+                    if (window.Flutter) {
+                        window.Flutter.postMessage(JSON.stringify({
+                            type: 'camera_move_start'
+                        }));
+                    }
+                } catch (e) {}
+            });
+            mapObj.on('moveend', () => {
+                try {
+                    if (window.Flutter) {
+                        const center = mapObj.getCenter();
+                        window.Flutter.postMessage(JSON.stringify({
+                            type: 'camera_move_end',
+                            lat: center.lat,
+                            lng: center.lng
+                        }));
+                    }
+                } catch (e) {}
+            });
+        }
+
+        function loadOlaMap(styleUrl, centerLng, centerLat) {
+            map = new maplibregl.Map({
+                failIfMajorPerformanceCaveat: false,
+                antialias: false,
+                pitchWithRotate: false,
+                dragRotate: false,
+                container: 'map',
+                style: styleUrl,
+                center: [centerLng || 77.5946, centerLat || 12.9716],
+                zoom: 13,
+                attributionControl: false,
+                transformRequest: (url, resourceType) => {
+                    if (url.includes('olamaps.io') && storedApiKey) {
+                        const cleanUrl = url.replace(/[?&](api_key|key)=[^&]*/g, '');
+                        const sep = cleanUrl.includes('?') ? '&' : '?';
+                        url = cleanUrl + sep + 'api_key=' + storedApiKey;
+                    }
+                    return { url: url };
+                }
+            });
+
+            setupMapEvents(map);
+
+            map.on('zoom', () => {
+                if (typeof refreshMarkerLOD === 'function') {
+                    refreshMarkerLOD();
+                }
+            });
+
+            map.on('style.load', () => {
+                setTimeout(() => {
+                    if (activeRouteCoordinates) {
+                        routeLoaded = false;
+                        updateRoute(activeRouteCoordinates);
+                    }
+                    map.resize();
+                }, 100);
+            });
+
+            map.on('error', (e) => {
+                console.error('[OlaMap] Error event:', e);
+            });
+        }
+
+        // =========================================================
+        // PICKUP / DESTINATION MARKERS
+        // =========================================================
+        function clearMarkers() {
+            if (!map) return;
+            if (pickupMarker)      { pickupMarker.remove();      pickupMarker = null; }
+            if (destinationMarker) { destinationMarker.remove(); destinationMarker = null; }
+        }
+
+        function addPickupMarker(lat, lng) {
+            if (!map) { setTimeout(() => addPickupMarker(lat, lng), 100); return; }
+            if (pickupMarker) pickupMarker.remove();
+
+            // Custom lime pickup marker
+            const el = document.createElement('div');
+            el.style.cssText = `
+                width:18px; height:18px;
+                background:#C5FF30;
+                border:3px solid white;
+                border-radius:50%;
+                box-shadow:0 0 0 4px rgba(197,255,48,0.22), 0 3px 10px rgba(0,0,0,0.22);
+            `;
+            pickupMarker = new maplibregl.Marker({ element: el })
+                .setLngLat([lng, lat])
+                .addTo(map);
+
+            map.flyTo({ center: [lng, lat], padding: getDynamicPadding({ top: 220, bottom: 80 }), zoom: 13, duration: 1000 });
+        }
+
+        function addDestinationMarker(lat, lng) {
+            if (!map) { setTimeout(() => addDestinationMarker(lat, lng), 100); return; }
+            if (destinationMarker) destinationMarker.remove();
+
+            // Custom red destination marker
+            const el = document.createElement('div');
+            el.style.cssText = `
+                width:18px; height:18px;
+                background:#EF4444;
+                border:3px solid white;
+                border-radius:50%;
+                box-shadow:0 0 0 4px rgba(239,68,68,0.22), 0 3px 10px rgba(0,0,0,0.22);
+            `;
+            destinationMarker = new maplibregl.Marker({ element: el })
+                .setLngLat([lng, lat])
+                .addTo(map);
+
+            map.flyTo({ center: [lng, lat], padding: getDynamicPadding({ top: 220, bottom: 80 }), zoom: 13, duration: 1000 });
+        }
+
+        // =========================================================
+        // ROUTE
+        // =========================================================
+        function clearRoute() {
+            if (!map) return;
+            try {
+                if (map.getLayer('route-line')) map.removeLayer('route-line');
+            } catch (e) {}
+            try {
+                if (map.getSource('route')) map.removeSource('route');
+            } catch (e) {}
+            routeLoaded = false;
+        }
+
+        function drawRoute(coords) {
+            if (!map || !map.isStyleLoaded()) { setTimeout(() => drawRoute(coords), 100); return; }
+            clearRoute();
+            if (!coords || coords.length < 2) return;
+            const formattedCoords = coords.map(c => [c.lng, c.lat]);
+            activeRouteCoordinates = formattedCoords;
+            map.addSource('route', {
+                type: 'geojson',
+                data: { type: 'Feature', geometry: { type: 'LineString', coordinates: formattedCoords } }
+            });
+            map.addLayer({
+                id: 'route-line',
+                type: 'line',
+                source: 'route',
+                paint: { 'line-color': '#C5FF30', 'line-width': 6, 'line-opacity': 0.85 }
+            });
+            routeLoaded = true;
+        }
+
+        function fitRouteBounds() {
+            if (!map) { setTimeout(fitRouteBounds, 100); return; }
+            const bounds = new maplibregl.LngLatBounds();
+            if (pickupMarker)      bounds.extend(pickupMarker.getLngLat());
+            if (destinationMarker) bounds.extend(destinationMarker.getLngLat());
+            if (!bounds.isEmpty()) {
+                map.fitBounds(bounds, { padding: getDynamicPadding({ top: 220, bottom: 320, left: 50, right: 50 }), duration: 1200 });
+            }
+        }
+
+        // =========================================================
+        // PREMIUM NEARBY RIDER MARKERS
+        //   riders     — array of {id, current_lat, current_lng, vehicle_type}
+        //   filterType — 'bike' | 'auto' | 'cab' | null (show all)
+        // =========================================================
+        // =========================================================
+        // Centralized Configurations & Analytics
+        // =========================================================
+        const MODEL_CONFIGS = {
+          bike: { modelId: "449314d6b3ed45d29f65c876e7896386", scale: 1, baseRotation: 0 },
+          auto: { modelId: "5d3b827310e747a8b5b4079f26ebb221", scale: 1, baseRotation: 0 },
+          cab:  { modelId: "ab237b19c503414690dbe78612871754", scale: 1, baseRotation: 0 }
+        };
+
+        function trackEvent(name, metadata) {
+            console.log(`[Analytics] Event: ${name}`, metadata || '');
+            try {
+                if (window.Flutter) {
+                    window.Flutter.postMessage(JSON.stringify({
+                        type: 'analytics',
+                        event: name,
+                        data: metadata
+                    }));
+                }
+            } catch (e) {}
+        }
+
+        // =========================================================
+        // Interpolation & Math Helpers
+        // =========================================================
+        function lerp(start, end, t) {
+            return start + (end - start) * t;
+        }
+
+        function lerpAngle(a, b, t) {
+            let difference = (b - a) % 360;
+            if (difference > 180) difference -= 360;
+            if (difference < -180) difference += 360;
+            return a + difference * t;
+        }
+
+        // =========================================================
+        // Centralized Animation Loop Manager
+        // =========================================================
+        const AnimationManager = {
+            markers: {}, // id -> { marker, currentLat, currentLng, targetLat, targetLng, currentHeading, targetHeading, name, vehicleType, presenceState }
+            loopActive: false,
+            performanceMode: 'HIGH', // 'HIGH' (60 FPS, LOD) | 'MEDIUM' (30 FPS, no driver) | 'LOW' (15 FPS, silhouettes)
+
+            register(id, marker, data) {
+                this.markers[id] = {
+                    marker: marker,
+                    currentLat: data.currentLat,
+                    currentLng: data.currentLng,
+                    targetLat: data.targetLat,
+                    targetLng: data.targetLng,
+                    currentHeading: data.currentHeading,
+                    targetHeading: data.targetHeading,
+                    name: data.name,
+                    vehicleType: data.vehicleType,
+                    presenceState: data.presenceState || 'available'
+                };
+                if (!this.loopActive) {
+                    this.loopActive = true;
+                    this.animate();
+                }
+            },
+
+            unregister(id) {
+                if (this.markers[id]) {
+                    delete this.markers[id];
+                }
+                if (Object.keys(this.markers).length === 0) {
+                    this.loopActive = false;
+                }
+            },
+
+            // Perf fix (WayDrop Phase 2F, F1): true when every registered marker's rendered
+            // position and heading are within animate()'s own per-step epsilons of its target --
+            // i.e. another frame would move nothing visible. Reuses the exact 0.000005 deg / 1 deg
+            // thresholds animate() already applies below.
+            _allConverged() {
+                const ids = Object.keys(this.markers);
+                for (let i = 0; i < ids.length; i++) {
+                    const m = this.markers[ids[i]];
+                    if (!m) continue;
+                    if (Math.abs(m.targetLat - m.currentLat) > 0.000005) return false;
+                    if (Math.abs(m.targetLng - m.currentLng) > 0.000005) return false;
+                    if (Math.abs(m.targetHeading - m.currentHeading) > 1) return false;
+                }
+                return true;
+            },
+
+            // Perf fix (WayDrop Phase 2F, F1): re-arm the loop after it has stopped from
+            // convergence. Safe to call any number of times -- it only ever starts a loop when one
+            // is not already running AND there is something left to animate, so it can never create
+            // a second concurrent requestAnimationFrame chain.
+            _rearm() {
+                if (this.loopActive) return;
+                if (Object.keys(this.markers).length === 0) return;
+                if (this._allConverged()) return;
+                this.loopActive = true;
+                this.animate();
+            },
+
+            animate() {
+                if (!AnimationManager.loopActive) return;
+
+                const factor = AnimationManager.performanceMode === 'HIGH' ? 0.08 : (AnimationManager.performanceMode === 'MEDIUM' ? 0.05 : 0.03);
+                const fpsInterval = AnimationManager.performanceMode === 'HIGH' ? 0 : (AnimationManager.performanceMode === 'MEDIUM' ? 33 : 66);
+                
+                const zoom = map ? map.getZoom() : 13;
+                const bounds = map ? map.getBounds().expand(0.15) : null;
+
+                Object.keys(AnimationManager.markers).forEach(id => {
+                    const m = AnimationManager.markers[id];
+                    if (!m || !m.marker) return;
+
+                    // 1. Visibility Culling
+                    const pos = [m.currentLng, m.currentLat];
+                    const isVisible = bounds ? bounds.contains(pos) : true;
+
+                    if (!isVisible) {
+                        m.currentLat = m.targetLat;
+                        m.currentLng = m.targetLng;
+                        m.currentHeading = m.targetHeading;
+                        m.marker.setLngLat([m.currentLng, m.currentLat]);
+                        return;
+                    }
+
+                    // 2. Position Interpolation
+                    m.currentLat = lerp(m.currentLat, m.targetLat, factor);
+                    m.currentLng = lerp(m.currentLng, m.targetLng, factor);
+                    m.marker.setLngLat([m.currentLng, m.currentLat]);
+
+                    // Calculate direction from movement
+                    const dx = m.targetLng - m.currentLng;
+                    const dy = m.targetLat - m.currentLat;
+                    if (Math.abs(dx) > 0.000005 || Math.abs(dy) > 0.000005) {
+                        m.targetHeading = Math.atan2(dx, dy) * (180 / Math.PI);
+                    }
+
+                    // 3. Heading Rotation & Smoothing
+                    const headingDiff = m.targetHeading - m.currentHeading;
+                    if (Math.abs(headingDiff) > 1) {
+                        let step = lerpAngle(m.currentHeading, m.targetHeading, factor) - m.currentHeading;
+                        const maxRotate = 8;
+                        if (Math.abs(step) > maxRotate) {
+                            step = Math.sign(step) * maxRotate;
+                        }
+                        m.currentHeading = (m.currentHeading + step) % 360;
+
+                        const iconEl = m.marker.getElement().querySelector('.rider-vehicle-icon');
+                        if (iconEl) {
+                            iconEl.style.transform = `rotate(${m.currentHeading}deg)`;
+                        }
+                    }
+                });
+
+                // Perf fix (WayDrop Phase 2F, F1): every registered marker has visually converged
+                // onto its target -- stop scheduling frames instead of redrawing stationary markers
+                // forever. Re-armed by register() (new marker) and by _rearm() from
+                // applyBufferedUpdates() (existing marker gets a new target).
+                if (AnimationManager._allConverged()) {
+                    AnimationManager.loopActive = false;
+                    return;
+                }
+
+                if (fpsInterval > 0) {
+                    setTimeout(() => {
+                        requestAnimationFrame(AnimationManager.animate);
+                    }, fpsInterval);
+                } else {
+                    requestAnimationFrame(AnimationManager.animate);
+                }
+            }
+        };
+
+        // =========================================================
+        // LOD (Level of Detail) & Clustering Hooks
+        // =========================================================
+        const ENABLE_CLUSTERING = true;
+
+        function refreshMarkerLOD() {
+            if (!map || !allRidersData) return;
+            const zoom = map.getZoom();
+
+            // Cluster hook
+            if (ENABLE_CLUSTERING && zoom < 11) {
+                trackEvent('cluster_expanded', { count: Object.keys(AnimationManager.markers).length });
+            }
+
+            Object.keys(AnimationManager.markers).forEach(id => {
+                const m = AnimationManager.markers[id];
+                if (!m || !m.marker) return;
+                const html = window.getVehicleMarkerHTML(m.vehicleType, m.name, zoom, false, m.presenceState);
+                
+                const el = m.marker.getElement();
+                el.innerHTML = html;
+
+                const iconEl = el.querySelector('.rider-vehicle-icon');
+                if (iconEl) {
+                    iconEl.style.transform = `rotate(${m.currentHeading}deg)`;
+                }
+            });
+        }
+
+        // =========================================================
+        // Throttled Nearby Rider Update
+        // =========================================================
+        let locationUpdateBuffer = {};
+        let bufferTimeout = null;
+
+        function showNearbyRiders(riders, filterType) {
+            if (riders !== undefined) allRidersData = riders;
+            activeFilterType = (filterType !== undefined) ? filterType : null;
+
+            if (!map || !allRidersData) return;
+
+            // Clear buffer so old or filtered-out riders are removed
+            locationUpdateBuffer = {};
+
+            const visibleRiders = activeFilterType
+                ? allRidersData.filter(r => r.vehicle_type === activeFilterType)
+                : allRidersData;
+
+            // Buffer location updates
+            visibleRiders.forEach(rider => {
+                if (!rider.current_lng || !rider.current_lat) return;
+                locationUpdateBuffer[rider.id] = rider;
+            });
+
+            if (!bufferTimeout) {
+                bufferTimeout = setTimeout(() => {
+                    try {
+                        applyBufferedUpdates();
+                    } catch (e) {
+                        console.error("[OlaMap] Error inside applyBufferedUpdates:", e);
+                    } finally {
+                        bufferTimeout = null;
+                    }
+                }, 250); // Throttling updates (LOCATION_BUFFER_MS = 250)
+            }
+        }
+
+        function applyBufferedUpdates() {
+            const currentRiderIds = new Set();
+            const zoom = map ? map.getZoom() : 13;
+
+            const ridersToUpdate = Object.values(locationUpdateBuffer);
+            
+            // Resolve overlap collisions among the riders to be updated
+            const resolvedCoords = {}; // riderId -> {lat, lng}
+            ridersToUpdate.forEach(rider => {
+                resolvedCoords[rider.id] = { lat: rider.current_lat, lng: rider.current_lng };
+            });
+
+            const visited = new Set();
+            for (let i = 0; i < ridersToUpdate.length; i++) {
+                const r1 = ridersToUpdate[i];
+                if (visited.has(r1.id)) continue;
+
+                const group = [r1.id];
+                visited.add(r1.id);
+
+                for (let j = i + 1; j < ridersToUpdate.length; j++) {
+                    const r2 = ridersToUpdate[j];
+                    if (visited.has(r2.id)) continue;
+
+                    // Compute approximate distance in degrees
+                    const dLat = r1.current_lat - r2.current_lat;
+                    const dLng = r1.current_lng - r2.current_lng;
+                    const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+
+                    // If distance is less than 0.00015 degrees (approx 15-20m)
+                    if (dist < 0.00015) {
+                        group.push(r2.id);
+                        visited.add(r2.id);
+                    }
+                }
+
+                if (group.length > 1) {
+                    // Calculate center point of the group
+                    let avgLat = 0;
+                    let avgLng = 0;
+                    group.forEach(id => {
+                        avgLat += resolvedCoords[id].lat;
+                        avgLng += resolvedCoords[id].lng;
+                    });
+                    avgLat /= group.length;
+                    avgLng /= group.length;
+
+                    // Arrange them in a small circle of 0.00010 degrees radius (approx 10-12m)
+                    const radius = 0.00010;
+                    group.forEach((id, idx) => {
+                        const angle = (idx * 2 * Math.PI) / group.length;
+                        resolvedCoords[id].lat = avgLat + radius * Math.sin(angle);
+                        resolvedCoords[id].lng = avgLng + radius * Math.cos(angle);
+                    });
+                }
+            }
+
+            ridersToUpdate.forEach(rider => {
+                currentRiderIds.add(rider.id.toString());
+                const lat = resolvedCoords[rider.id].lat;
+                const lng = resolvedCoords[rider.id].lng;
+
+                let mState = AnimationManager.markers[rider.id];
+
+                if (!mState) {
+                    const el = document.createElement('div');
+                    el.className = 'rider-vehicle-marker-wrapper';
+
+                    const html = window.getVehicleMarkerHTML(rider.vehicle_type, rider.rider_name || 'Rider', zoom, false, 'available');
+                    el.innerHTML = html;
+
+                    const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+                        .setLngLat([lng, lat])
+                        .addTo(map);
+
+                    AnimationManager.register(rider.id, marker, {
+                        currentLat: lat,
+                        currentLng: lng,
+                        targetLat: lat,
+                        targetLng: lng,
+                        currentHeading: rider.current_heading || 0,
+                        targetHeading: rider.current_heading || 0,
+                        name: rider.rider_name || 'Rider',
+                        vehicleType: rider.vehicle_type,
+                        presenceState: 'available'
+                    });
+                } else {
+                    // Check if vehicle type has changed dynamically
+                    if (mState.vehicleType !== rider.vehicle_type) {
+                        mState.vehicleType = rider.vehicle_type;
+                        const html = window.getVehicleMarkerHTML(rider.vehicle_type, rider.rider_name || 'Rider', zoom, false, 'available');
+                        mState.marker.getElement().innerHTML = html;
+                    }
+
+                    // GPS Drift protection (MAX_MOVEMENT_METERS = 150)
+                    const dx = lng - mState.currentLng;
+                    const dy = lat - mState.currentLat;
+                    const distanceMeters = Math.sqrt(dx*dx + dy*dy) * 111000;
+
+                    if (distanceMeters > 150) {
+                        mState.currentLat = lat;
+                        mState.currentLng = lng;
+                    }
+
+                    mState.targetLat = lat;
+                    mState.targetLng = lng;
+                    mState.targetHeading = rider.current_heading || 0;
+                    mState.presenceState = 'available';
+                }
+            });
+
+            // Remove disappeared markers
+            Object.keys(AnimationManager.markers).forEach(id => {
+                if (!currentRiderIds.has(id.toString())) {
+                    const mState = AnimationManager.markers[id];
+                    if (mState && mState.marker) {
+                        mState.marker.remove();
+                    }
+                    AnimationManager.unregister(id);
+                }
+            });
+
+            // Perf fix (WayDrop Phase 2F, F1): a marker registered above or given a new target
+            // must run the animation loop even if it had stopped from a prior convergence. No-op
+            // when the loop is already running (or nothing is left to animate).
+            AnimationManager._rearm();
+
+            locationUpdateBuffer = {};
+        }
+
+        function filterRidersByType(type) {
+            showNearbyRiders(undefined, type);
+        }
+
+        // =========================================================
+        // MAP CONTROLS
+        // =========================================================
+        function zoomIn()  { if (map) map.zoomIn(); }
+        function zoomOut() { if (map) map.zoomOut(); }
+
+        function recenterToPickup() {
+            if (map && pickupMarker) {
+                map.flyTo({ center: pickupMarker.getLngLat(), padding: getDynamicPadding({ bottom: 320 }), zoom: 15, duration: 900 });
+            }
+        }
+
+        // =========================================================
+        // active rider (tracking) with 3D model & 3-tier fallback
+        // =========================================================
+        let riderMarker = null;
+        let activeRiderState = null;
+        
+        // Offline Fallback Cache
+        let lastKnownVehicleType = 'bike';
+        let lastKnownHeading = 0;
+        let isFallbackActive = false;
+
+        function updateRiderLocation(lat, lng, avatarUrl, name, vehicleType) {
+            if (lat === null || lat === undefined || isNaN(lat) || lng === null || lng === undefined || isNaN(lng)) return;
+            if (!map || !map.isStyleLoaded()) {
+                setTimeout(() => updateRiderLocation(lat, lng, avatarUrl, name, vehicleType), 100);
+                return;
+            }
+
+            const heading = 0;
+            const isFirstLoad = !riderMarker;
+
+            // Cache fallback data
+            if (vehicleType) lastKnownVehicleType = vehicleType;
+
+            const vehicle = vehicleType || lastKnownVehicleType;
+            if (vehicle !== 'bike' && vehicle !== 'cab' && vehicle !== 'auto') {
+                if (riderMarker) {
+                    riderMarker.remove();
+                    riderMarker = null;
+                }
+                return;
+            }
+
+            if (!riderMarker) {
+                const el = document.createElement('div');
+                el.className = 'rider-3d-marker-wrapper';
+                el.style.cssText = 'display:flex; flex-direction:column; align-items:center; position:relative; overflow:visible;';
+
+                const container = document.createElement('div');
+                container.className = 'rider-3d-container';
+                const size = (vehicle === 'bike') ? '68px' : (vehicle === 'auto' ? '72px' : '76px');
+                container.style.cssText = `
+                    width: ${size};
+                    height: ${size};
+                    position: relative;
+                    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.25));
+                `;
+
+                const initialHeading = heading || 0;
+                container.style.transform = `rotate(${initialHeading % 360}deg)`;
+
+                 let markerElement;
+                 if (vehicle === 'bike') {
+                     markerElement = document.createElement('img');
+                     markerElement.src = '3d_bike.png';
+                     markerElement.style.cssText = `width:100%; height:100%; object-fit:contain; pointer-events:none; transform: scale(1.35);`;
+                 } else {
+                     markerElement = document.createElement('img');
+                     let imgUrl = '3d_car.png';
+                     let filterStr = '';
+                     let transformStr = 'scale(1.35)';
+
+                     if (vehicle === 'auto') {
+                         imgUrl = '3d_auto.png';
+                         transformStr = 'scale(1.35)';
+                     }
+
+                     markerElement.src = imgUrl;
+                     markerElement.style.cssText = `width:100%; height:100%; object-fit:contain; pointer-events:none; filter: ${filterStr}; transform: ${transformStr};`;
+
+                     markerElement.onload = () => {
+                         trackEvent('vehicle_marker_rendered', { vehicleType: vehicle, type: '3d_image' });
+                     };
+                 }
+
+                 container.appendChild(markerElement);
+                el.appendChild(container);
+
+                riderMarker = new maplibregl.Marker({ 
+                    element: el, 
+                    anchor: 'center',
+                    pitchAlignment: 'map',
+                    rotationAlignment: 'map'
+                })
+                    .setLngLat([lng, lat])
+                    .addTo(map);
+
+                activeRiderState = {
+                    currentLat: lat,
+                    currentLng: lng,
+                    targetLat: lat,
+                    targetLng: lng,
+                    currentHeading: heading,
+                    targetHeading: heading,
+                    vehicleType: vehicle,
+                    name: name
+                };
+
+                animateActiveRider();
+            } else {
+                // Update vehicle type if it changed
+                if (vehicle && activeRiderState.vehicleType !== vehicle) {
+                    activeRiderState.vehicleType = vehicle;
+                    const oldElement = riderMarker.getElement().querySelector('img') || riderMarker.getElement().querySelector('model-viewer');
+                    if (oldElement) {
+                        let newElement;
+                        if (vehicle === 'bike') {
+                            newElement = document.createElement('img');
+                            newElement.src = '3d_bike.png';
+                            newElement.style.cssText = `width:100%; height:100%; object-fit:contain; pointer-events:none; transform: scale(1.35);`;
+                        } else {
+                            newElement = document.createElement('img');
+                            let imgUrl = '3d_car.png';
+                            let transformStr = 'scale(1.35)';
+                            if (vehicle === 'auto') {
+                                imgUrl = '3d_auto.png';
+                                transformStr = 'scale(1.35)';
+                            }
+                            newElement.src = imgUrl;
+                            newElement.style.cssText = `width:100%; height:100%; object-fit:contain; pointer-events:none; transform: ${transformStr};`;
+                        }
+                        oldElement.parentNode.replaceChild(newElement, oldElement);
+                    }
+                }
+
+                activeRiderState.targetLat = lat;
+                activeRiderState.targetLng = lng;
+
+                const dx = lng - activeRiderState.currentLng;
+                const dy = lat - activeRiderState.currentLat;
+                const distanceMeters = Math.sqrt(dx*dx + dy*dy) * 111000;
+
+                if (distanceMeters > 150) {
+                    activeRiderState.currentLat = lat;
+                    activeRiderState.currentLng = lng;
+                }
+            }
+
+            if (isFirstLoad || isFollowingRider) {
+                map.easeTo({ center: [lng, lat], padding: getDynamicPadding({ top: 80, bottom: 340 }), duration: 1000 });
+            }
+        }
+
+        function animateActiveRider() {
+            if (!activeRiderState || !riderMarker) return;
+            const factor = 0.08;
+
+            activeRiderState.currentLat = lerp(activeRiderState.currentLat, activeRiderState.targetLat, factor);
+            activeRiderState.currentLng = lerp(activeRiderState.currentLng, activeRiderState.targetLng, factor);
+            riderMarker.setLngLat([activeRiderState.currentLng, activeRiderState.currentLat]);
+
+            // Calculate heading based on direction of travel
+            const dx = activeRiderState.targetLng - activeRiderState.currentLng;
+            const dy = activeRiderState.targetLat - activeRiderState.currentLat;
+            if (Math.abs(dx) > 0.00001 || Math.abs(dy) > 0.00001) {
+                const targetAngle = Math.atan2(dx, dy) * (180 / Math.PI);
+                const headingDiff = targetAngle - activeRiderState.currentHeading;
+
+                if (Math.abs(headingDiff) > 3) {
+                    let step = lerpAngle(activeRiderState.currentHeading, targetAngle, factor) - activeRiderState.currentHeading;
+                    const maxRotate = 8;
+                    if (Math.abs(step) > maxRotate) {
+                        step = Math.sign(step) * maxRotate;
+                    }
+                    activeRiderState.currentHeading = (activeRiderState.currentHeading + step) % 360;
+                    lastKnownHeading = activeRiderState.currentHeading;
+
+                    const iconEl = riderMarker.getElement().querySelector('.rider-3d-container');
+                    if (iconEl) {
+                        iconEl.style.transform = `rotate(${activeRiderState.currentHeading % 360}deg)`;
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateActiveRider);
+        }
+
+        function recenterToRider() {
+            isFollowingRider = true;
+            if (map && riderMarker) {
+                map.flyTo({ center: riderMarker.getLngLat(), padding: getDynamicPadding({ top: 80, bottom: 340 }), zoom: 15, duration: 900 });
+            } else if (map && pickupMarker) {
+                map.flyTo({ center: pickupMarker.getLngLat(), padding: getDynamicPadding({ top: 80, bottom: 340 }), zoom: 15, duration: 900 });
+            }
+        }
+
+        function setDestination(lat, lng) {
+            if (!map || !map.isStyleLoaded()) {
+                setTimeout(() => setDestination(lat, lng), 100);
+                return;
+            }
+            addDestinationMarker(lat, lng);
+        }
+
+        function updateRoute(coordinates) {
+            if (!map || !map.isStyleLoaded()) {
+                setTimeout(() => updateRoute(coordinates), 100);
+                return;
+            }
+            activeRouteCoordinates = coordinates;
+            clearRoute();
+            if (!coordinates || coordinates.length < 2) return;
+            
+            map.addSource('route', {
+                type: 'geojson',
+                data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coordinates } }
+            });
+            map.addLayer({
+                id: 'route-line',
+                type: 'line',
+                source: 'route',
+                paint: { 'line-color': '#C5FF30', 'line-width': 6, 'line-opacity': 0.85 }
+            });
+            routeLoaded = true;
+
+            const bounds = new maplibregl.LngLatBounds();
+            coordinates.forEach(coord => {
+                bounds.extend(coord);
+            });
+            if (!bounds.isEmpty()) {
+                map.fitBounds(bounds, { padding: getDynamicPadding({ top: 80, bottom: 340, left: 50, right: 50 }), duration: 1200 });
+            }
+        }
+
+        // Phase 2F-B -- defense-in-depth teardown on document unload. This self-contained (and
+        // deprecated) map page had no 'unload' handler, so the MapLibre GL context and the
+        // AnimationManager RAF loop leaked whenever the platform WebView was disposed. The Dart
+        // side's dispose() teardown remains the primary explicit path; this fires only if a
+        // navigation/reload does unload the document. Both calls are `typeof`-guarded so this is a
+        // safe no-op if those helpers are not present. Does not touch AnimationManager (F1), map
+        // initialization, or route behaviour.
+        window.addEventListener('unload', () => {
+            try {
+                if (typeof window.destroyNearbyRidersEngine === 'function') {
+                    window.destroyNearbyRidersEngine();
+                }
+                if (typeof window.destroyMap === 'function') {
+                    window.destroyMap();
+                }
+            } catch (e) {}
+        });
+    </script>
+</body>
+</html>

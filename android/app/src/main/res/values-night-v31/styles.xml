@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- API 31+ AND dark mode. Required because uiMode (night) outranks the
+         version qualifier: without this file, dark-mode API 31+ devices would
+         resolve to values-night/styles.xml, which has no Android 12 splash
+         items and would fall back to a dark window. Keeping the splash white in
+         both modes matches the branded splash shown by Flutter. -->
+    <style name="LaunchTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:windowSplashScreenBackground">@color/launch_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/launcher_icon</item>
+        <item name="android:windowSplashScreenAnimationDuration">200</item>
+    </style>
+</resources>

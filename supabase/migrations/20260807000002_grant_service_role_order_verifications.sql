@@ -1,0 +1,50 @@
+-- Migration: grant service_role access to public.order_verifications.
+-- Date: 2026-08-07
+--
+-- PRODUCTION ERROR: "FunctionException (status: 500): permission denied for table
+-- order_verifications", raised on every pickup/dropoff photo verification attempt.
+--
+-- ROOT CAUSE (confirmed against both migration source and the live database, not assumed):
+--   - order_verifications was created by 20260622000002_smart_matching_final_production.sql,
+--     which enables RLS and adds two policies for `authenticated` (participant SELECT, assigned-
+--     rider INSERT), then explicitly grants only:
+--         GRANT SELECT ON public.order_verifications TO authenticated;
+--         GRANT INSERT ON public.order_verifications TO authenticated;
+--     `service_role` is never mentioned anywhere in that migration, or in any later one --
+--     confirmed by grepping every migration in this repo for "order_verifications".
+--   - supabase/functions/process-verification-photo/index.ts (the function every pickup/dropoff
+--     photo upload calls) authenticates the connecting Postgres client with
+--     SUPABASE_SERVICE_ROLE_KEY, then, after successfully inserting into order_parcel_photos and
+--     updating orders (both of which DO work -- service_role has effective access to those tables),
+--     tries `.from("order_verifications").insert(...)`. This fails with Postgres error 42501
+--     ("permission denied for table order_verifications") BEFORE row-level security is even
+--     evaluated -- a missing table-level GRANT is checked ahead of, and independently of, RLS
+--     policies. The function's catch block returns this exact Postgres error string as the HTTP 500
+--     body, which the Flutter client (rider_active_order_screen.dart, `_takeVerificationPhoto`)
+--     surfaces as `FunctionException(status: 500)` and reacts to by opening the "bypass verification"
+--     dialog -- the dialog is a correct reaction to a real failure, not itself a bug.
+--   - Verified directly against the live database with the authoritative `has_table_privilege()`
+--     check (not just raw information_schema.role_table_grants rows, which can miss inherited
+--     privileges): `has_table_privilege('service_role', 'public.order_verifications', 'INSERT')` and
+--     the SELECT/UPDATE equivalents all returned false, while the same check against
+--     public.orders (a table service_role routinely writes to across many edge functions) returned
+--     true -- confirming order_verifications is the anomaly, not a project-wide misconfiguration.
+--     `public.order_parcel_photos` and `public.parcel_security_logs` (the two other tables this same
+--     edge function writes to in the same request) both returned true, consistent with the reported
+--     error occurring specifically and only at the order_verifications insert.
+--
+-- WHY THIS HAPPENED: order_verifications was added by a migration written after the project's
+-- initial baseline schema, and its author granted only the `authenticated`-facing privileges the
+-- table's two RLS policies were designed around (direct client reads/writes) -- never anticipating
+-- the later service-role-based edge-function write path (process-verification-photo,
+-- bypass-verification-photo) that now also needs to reach this table.
+--
+-- FIX: grant service_role the same SELECT/INSERT/UPDATE access pattern already established for
+-- comparable trusted-server-write tables in this schema (e.g. public.orders). service_role already
+-- bypasses RLS by design -- the two existing RLS policies for `authenticated` are completely
+-- unchanged by this migration, and continue to gate direct client access exactly as before; this
+-- migration only adds the missing table-level grant that the service-role code path requires to
+-- reach the table at all. DELETE is intentionally not granted: no current code path (edge function
+-- or RPC) ever deletes from order_verifications, and this migration adds only what's needed to fix
+-- the reported error, nothing more.
+GRANT SELECT, INSERT, UPDATE ON public.order_verifications TO service_role;

@@ -1,0 +1,106 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:label="Waydrop"
+        android:name="${applicationName}"
+        android:icon="@mipmap/launcher_icon"
+        android:enableOnBackInvokedCallback="true"
+        android:hardwareAccelerated="true">
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="high_importance_channel" />
+
+        <!-- Used by FCM for any notification that doesn't set its own icon (background/killed-app
+             notifications); without this, Android falls back to the launcher icon or a generic
+             system default, which is the bug being fixed here. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_notify" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_icon_color" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize"
+            android:supportsPictureInPicture="true"
+            android:resizeableActivity="false">
+
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+
+            <intent-filter>
+
+                <action
+                    android:name="android.intent.action.MAIN"/>
+
+                <category
+                    android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+        </activity>
+
+        <service
+            android:name="com.baseflow.geolocator.GeolocatorForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+
+    </application>
+
+    <queries>
+
+        <intent>
+
+            <action
+                android:name="android.intent.action.PROCESS_TEXT"/>
+
+            <data
+                android:mimeType="text/plain"/>
+        </intent>
+
+        <!-- Required on Android 11+ so the app can detect whether specific UPI apps are
+             installed and open them to their own home screen (never a upi://pay payment intent;
+             see UpiAppLauncher). Only used to let the passenger pick which app to open before
+             using ITS OWN QR scanner on the driver's displayed Personal QR.
+             NOTE (Cashfree QR investigation): flutter_cashfree_pg_sdk's own plugin manifest
+             declares no <queries> of its own (verified against its pub cache source; it only
+             sets flutterEmbedding). If a real-device test ever shows the Cashfree hosted
+             checkout's UPI intent-app tiles (GPay/PhonePe/etc., inside CFWebCheckoutPaymentBuilder)
+             failing to open while its "Scan and Pay" QR image still renders fine, the next thing
+             to check is whether Cashfree's own native Android AAR (pulled via Gradle, not visible
+             in this repo) bundles its own <queries> declaration; test/payment_flow_regression_test.dart
+             deliberately locks this manifest to NOT have a generic upi:// scheme query (guarding
+             against regressing the retired direct-to-driver upi://pay flow), so don't re-add one
+             here without updating that test AND confirming Cashfree's checkout actually needs it. -->
+        <package android:name="com.google.android.apps.nbu.paisa.user"/>
+        <package android:name="com.phonepe.app"/>
+        <package android:name="net.one97.paytm"/>
+        <package android:name="in.org.npci.upiapp"/>
+
+    </queries>
+
+</manifest>

@@ -1,0 +1,12 @@
+-- Migration: Add 'upi' payment_mode for direct passenger-to-driver UPI intent payments.
+-- Date: 2026-07-22
+--
+-- CONTEXT: Cashfree is being scoped to driver subscriptions only (see the
+-- create-payment/verify-payment/cashfree-webhook edge function rewrites in this same
+-- deploy). Passenger ride/parcel/intercity/ride-sharing fares no longer go through any
+-- payment gateway -- they are settled directly between passenger and driver, either in
+-- cash (existing 'cash' payment_mode) or via an Android UPI intent (new 'upi' payment_mode)
+-- launched at trip completion, with the driver swiping to confirm receipt (mirroring the
+-- existing cash-collection swipe). The 'online' value is left in place, unused going
+-- forward, purely so historical rows that used it remain readable.
+ALTER TYPE public.payment_mode_enum ADD VALUE IF NOT EXISTS 'upi';

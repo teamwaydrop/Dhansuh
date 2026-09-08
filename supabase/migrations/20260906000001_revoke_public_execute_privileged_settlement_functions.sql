@@ -1,0 +1,109 @@
+-- Migration: lock down 4 privileged SECURITY DEFINER functions left PUBLIC-executable.
+-- Date: 2026-09-06
+-- Audit findings C1 + H1 (WayDrop Production Release Readiness & Security Audit, 2026-09-06).
+--
+-- ============================================================================================
+-- ROOT CAUSE
+-- ============================================================================================
+-- Each function below was only ever `GRANT ... TO service_role` and was NEVER `REVOKE`d from
+-- PUBLIC. PostgreSQL's default `EXECUTE TO PUBLIC` therefore remained in force, so `anon` and
+-- `authenticated` retained EXECUTE and PostgREST exposed each as a callable
+-- `POST /rest/v1/rpc/<name>` endpoint -- despite none of them performing any caller-identity
+-- check of their own. Verified against the 2026-09-01 production `pg_dump` ACL section (each has
+-- exactly one line: `GRANT ALL ON FUNCTION ... TO "service_role"`, and no matching
+-- `REVOKE ALL ON FUNCTION public.<name>(...) FROM PUBLIC`). Migration
+-- `20260902000000_waydrop_rewards_system.sql` explicitly acknowledges this as unfixed prior
+-- finding "B8" while hardening only its own new functions.
+--
+--   * credit_rider_for_completed_order(uuid, numeric, boolean, numeric)  -- C1 / CRITICAL
+--       SECURITY DEFINER; sets `app.bypass_rider_financial_guard` and does
+--       `UPDATE public.riders SET wallet_balance = wallet_balance + p_rider_earning,
+--        total_earnings = ... + p_rider_earning, today_earnings = ... + p_rider_earning,
+--        cod_pending_amount = ... WHERE id = p_rider_id` for a CALLER-SUPPLIED rider_id and a
+--       CALLER-SUPPLIED amount, with no `auth.uid()` check. Directly callable => any signed-in
+--       rider inflates their own wallet_balance and withdraws real money through the normal
+--       Cashfree payout flow (`initiate_withdrawal` only checks `wallet_balance >= amount`).
+--
+--   * apply_government_tax_payment(uuid, uuid, numeric)  -- H1
+--       Decrements `riders.government_tax_due_balance` by a caller-supplied amount (no floor).
+--       Directly callable => a rider zeroes their own tax-due balance, evading the >= threshold
+--       dispatch block (`is_rider_blocked_by_tax_due`) and never remitting owed government tax.
+--
+--   * apply_order_government_tax(uuid, uuid, text, numeric, boolean)  -- H1
+--       Writes `government_tax_ledger` and mutates `riders.government_tax_due_balance`.
+--       Directly callable => forged ORDER_TAX / ORDER_TAX_WITHHELD ledger rows.
+--
+--   * assign_nearby_searching_orders_core(uuid, uuid, double precision, double precision,
+--                                         public.partner_service_mode_enum)  -- H1
+--       Force-INSERTs `rider_assignments` / `order_assignment_logs` rows for an arbitrary
+--       rider/order pair (subject only to its own radius/vehicle/tax/COD checks). Directly
+--       callable => unauthorized dispatch injection.
+--
+-- ============================================================================================
+-- LEGITIMATE CALLERS  (traced exhaustively: `grep` over lib/*.dart, supabase/functions/*.ts,
+-- supabase/migrations/*.sql for each function name)
+-- ============================================================================================
+--   credit_rider_for_completed_order:
+--     - NO Flutter `supabase.rpc(...)` call.  NO edge-function `supabaseAdmin.rpc(...)` call.
+--     - ONLY `PERFORM public.credit_rider_for_completed_order(...)` from inside:
+--         * public.complete_order_and_settle(...)                    (SECURITY DEFINER, OWNER postgres)
+--         * public.confirm_intercity_parcel_payment_received(uuid)   (SECURITY DEFINER, OWNER postgres)
+--
+--   apply_government_tax_payment:
+--     - supabase/functions/cashfree-webhook/index.ts  -> supabaseAdmin.rpc("apply_government_tax_payment", ...)
+--     - supabase/functions/verify-payment/index.ts    -> supabaseAdmin.rpc("apply_government_tax_payment", ...)
+--       `supabaseAdmin` in both files is built with `SUPABASE_SERVICE_ROLE_KEY` => PostgREST role
+--       `service_role`.  NO Flutter call.  NO internal PL/pgSQL caller.
+--
+--   apply_order_government_tax:
+--     - NO Flutter call.  NO edge-function call.
+--     - ONLY `v_tax_result := public.apply_order_government_tax(...)` from inside:
+--         * public.complete_order_and_settle(...)                    (SECURITY DEFINER, OWNER postgres)
+--         * public.confirm_intercity_parcel_payment_received(uuid)   (SECURITY DEFINER, OWNER postgres)
+--         * public.complete_intercity_parcel_delivery(uuid, text)    (SECURITY DEFINER, OWNER postgres)
+--
+--   assign_nearby_searching_orders_core:
+--     - NO Flutter call.  NO edge-function `.rpc(...)` call.
+--     - Internal `PERFORM public.assign_nearby_searching_orders_core(...)` from:
+--         assign_nearby_searching_orders_on_rider_freed, assign_new_order_to_nearby_online_riders_core,
+--         redispatch_freed_riders, redispatch_stalled_searching_orders, rider_self_rematch
+--         (all SECURITY DEFINER, OWNER postgres -- verified in the live schema dump).
+--     - ONE async `net.http_post(url := ... || '/rest/v1/rpc/assign_nearby_searching_orders_core',
+--       headers := { 'Authorization': 'Bearer ' || v_service_role_key, 'apikey': v_service_role_key })`
+--       where `v_service_role_key` is `SELECT decrypted_secret FROM vault.decrypted_secrets
+--       WHERE name = 'supabase_service_role_key'` => PostgREST role `service_role`
+--       (20260809000001_async_rider_freed_rematch.sql).
+--
+-- ============================================================================================
+-- WHY `REVOKE ... FROM PUBLIC` DOES NOT BREAK ANY LEGITIMATE CALLER
+-- ============================================================================================
+--   1. A `PERFORM` / assignment call to one of these functions from inside a SECURITY DEFINER
+--      function OWNED BY `postgres` executes with `current_user = postgres`. The function owner
+--      ALWAYS retains EXECUTE on its own function regardless of any REVOKE. Every internal caller
+--      listed above is such a function.
+--   2. Every existing `GRANT ALL ON FUNCTION ... TO service_role` is left in place (and defensively
+--      re-asserted below), so the `service_role` edge-function callers of
+--      `apply_government_tax_payment` and the vault-key async HTTP path of
+--      `assign_nearby_searching_orders_core` keep working unchanged.
+--   3. After this migration the EXECUTE grant on each function is exactly { OWNER postgres,
+--      service_role }. `anon` / `authenticated` get `42501 permission denied for function` on a
+--      direct PostgREST RPC call -- which is the exact fix.
+--
+-- This is the identical posture already applied to complete_order_and_settle, initiate_withdrawal,
+-- complete_withdrawal, fail_withdrawal, apply_cod_settlement_payment, check_otp_lockout,
+-- log_otp_attempt, audit_rider_wallets, delete_user_account (the functions correctly locked
+-- down). NOTHING ELSE is changed by this migration: no function body, no business/settlement/
+-- tax/wallet/pricing logic, no RLS policy, no trigger, no schema.
+-- ============================================================================================
+
+REVOKE ALL ON FUNCTION public.credit_rider_for_completed_order(uuid, numeric, boolean, numeric) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.apply_government_tax_payment(uuid, uuid, numeric) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.apply_order_government_tax(uuid, uuid, text, numeric, boolean) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.assign_nearby_searching_orders_core(uuid, uuid, double precision, double precision, public.partner_service_mode_enum) FROM PUBLIC;
+
+-- Idempotent re-assert of the sole intended grant (already present on all four -- this line only
+-- guarantees it, and makes the intent explicit alongside the REVOKE).
+GRANT EXECUTE ON FUNCTION public.credit_rider_for_completed_order(uuid, numeric, boolean, numeric) TO service_role;
+GRANT EXECUTE ON FUNCTION public.apply_government_tax_payment(uuid, uuid, numeric) TO service_role;
+GRANT EXECUTE ON FUNCTION public.apply_order_government_tax(uuid, uuid, text, numeric, boolean) TO service_role;
+GRANT EXECUTE ON FUNCTION public.assign_nearby_searching_orders_core(uuid, uuid, double precision, double precision, public.partner_service_mode_enum) TO service_role;

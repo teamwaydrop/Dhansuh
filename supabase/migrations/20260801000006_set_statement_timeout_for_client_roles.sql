@@ -1,0 +1,27 @@
+-- Migration: Cap query duration for client-originated database sessions.
+-- Date: 2026-08-01
+--
+-- ROOT CAUSE (WayDrop Progressive Degradation Audit, finding DB-5, deferred at implementation time
+-- pending explicit authorization): no statement_timeout was ever codified anywhere in this
+-- repository's migration history. The reported Postgres 57014 ("canceling statement due to
+-- statement timeout") on review submission proved some timeout already exists in production, but it
+-- lives outside version control (Supabase dashboard/pooler config), so it could not be reviewed,
+-- reasoned about, or reproduced locally.
+--
+-- SCOPE: this sets statement_timeout on the two roles the Flutter client ever connects as --
+-- `authenticated` (a signed-in passenger/rider's own queries and RPC calls via PostgREST) and `anon`
+-- (pre-auth, e.g. OTP-related lookups) -- and nothing else. `service_role` (every edge function,
+-- pg_cron job, and admin/migration operation) is deliberately left unbounded: those legitimately run
+-- longer operations (the KYC cleanup sweep, bulk reconciliation, migrations themselves) that must
+-- not be capped by a client-facing limit. This mirrors the existing architecture, where every
+-- transactional/long-running operation already goes through an edge function using the service-role
+-- key -- direct client-to-Postgres calls (`.from(...).select()`, `.rpc(...)` under the caller's own
+-- JWT) are expected to be short, interactive, user-facing reads/writes.
+--
+-- VALUE: 20 seconds. Chosen to sit below every client-side edge-function-invoke timeout already in
+-- place (25-30s, see the Flutter client's CLIENT-1 fixes) so a genuinely runaway query fails with a
+-- clear, logged 57014 from Postgres itself first, rather than the symptom always presenting as an
+-- opaque client-side timeout/connection-abort with no server-side signal of what actually happened.
+-- Generous enough that no currently-known legitimate client query/RPC should ever approach it.
+ALTER ROLE authenticated SET statement_timeout = '20s';
+ALTER ROLE anon SET statement_timeout = '20s';

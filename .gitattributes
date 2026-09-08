@@ -1,0 +1,64 @@
+# Ensure a single, consistent line-ending convention regardless of OS/editor/git config, so
+# structural regression tests (test/*_regression_test.dart, which read source files as text and
+# assert on exact multi-line substrings) don't fail purely because a local Windows checkout
+# converted LF to CRLF via core.autocrlf. Committed blobs are always LF; * text=auto lets Git
+# still auto-detect genuinely text vs binary files it isn't told about explicitly below.
+* text=auto eol=lf
+
+# Source code -- force LF on checkout on every platform.
+*.dart text eol=lf
+*.ts   text eol=lf
+*.js   text eol=lf
+*.sql  text eol=lf
+*.py   text eol=lf
+*.swift text eol=lf
+*.kt   text eol=lf
+*.kts  text eol=lf
+*.h    text eol=lf
+*.cpp  text eol=lf
+*.cc   text eol=lf
+*.cmake text eol=lf
+
+# Config / data / docs -- force LF on checkout.
+*.md   text eol=lf
+*.txt  text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml  text eol=lf
+*.toml text eol=lf
+*.xml  text eol=lf
+*.html text eol=lf
+*.css  text eol=lf
+*.properties text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+*.pro  text eol=lf
+*.iml  text eol=lf
+*.lock text eol=lf
+*.svg  text eol=lf
+*.pem  text eol=lf
+
+# Windows-native scripts -- these are conventionally CRLF; leave them as such rather than
+# forcing LF, since that's what native Windows tools (double-click, cmd.exe) expect.
+*.bat  text eol=crlf
+*.ps1  text eol=crlf
+
+# True binaries -- never let line-ending normalization touch these; forcing `binary` also
+# disables git diff on them, which is correct (a text diff of binary bytes is meaningless).
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.aac  binary
+*.mp3  binary
+*.wav  binary
+*.ttf  binary
+*.otf  binary
+*.woff binary
+*.woff2 binary
+*.jar  binary
+*.aar  binary
+*.keystore binary
+*.p12  binary

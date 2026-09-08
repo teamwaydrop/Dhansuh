@@ -1,0 +1,16 @@
+-- Migration: Wire up the passenger-facing UPI intent step that was missing end-to-end.
+-- Date: 2026-07-24
+--
+-- CONTEXT: 20260722000000 added the 'upi' payment_mode and 20260722000001 added the RPC the
+-- passenger's UPI panel uses to fetch the driver's VPA, but nothing ever put the order into a
+-- state where the passenger's app knew to show that panel -- for order_type IN ('ride',
+-- 'intercity_ride', 'ride_sharing') the DB only ever allowed 'ongoing' -> 'completed' directly, and
+-- that single update already flips payment_status to 'paid' in the same write (see
+-- update-order-status/index.ts), so the passenger never had a window to actually pay before the
+-- trip was recorded as settled. This migration adds a real intermediate step for 'upi' orders:
+-- ongoing -> payment_pending (passenger is shown the UPI intent) -> completed (driver confirms
+-- receipt). 'cash' orders are untouched and keep going straight ongoing -> completed.
+--
+-- 1. New order_status_enum value for the intermediate "trip finished, waiting on the passenger's
+--    UPI payment" step.
+ALTER TYPE public.order_status_enum ADD VALUE IF NOT EXISTS 'payment_pending';

@@ -1,0 +1,45 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit",
+      "Write",
+      "Read",
+      "Grep",
+      "Glob"
+    ],
+    "ask": [
+      "Bash(git commit*)",
+      "Bash(git push*)",
+      "Bash(git reset*)",
+      "Bash(git rebase*)",
+      "Bash(git merge*)",
+      "Bash(git branch -d*)",
+      "Bash(git branch -D*)",
+      "Bash(git branch --delete*)",
+      "PowerShell(git commit*)",
+      "PowerShell(git push*)",
+      "PowerShell(git reset*)",
+      "PowerShell(git rebase*)",
+      "PowerShell(git merge*)",
+      "PowerShell(git branch -d*)",
+      "PowerShell(git branch -D*)",
+      "PowerShell(git branch --delete*)",
+
+      "Bash(supabase functions deploy*)",
+      "Bash(supabase db push*)",
+      "Bash(supabase db reset*)",
+      "Bash(supabase migration up*)",
+      "Bash(psql*)",
+      "PowerShell(supabase functions deploy*)",
+      "PowerShell(supabase db push*)",
+      "PowerShell(supabase db reset*)",
+      "PowerShell(supabase migration up*)",
+      "PowerShell(psql*)",
+
+      "Bash(rm *)",
+      "PowerShell(Remove-Item*)",
+      "PowerShell(rm*)",
+      "PowerShell(del*)"
+    ]
+  }
+}
