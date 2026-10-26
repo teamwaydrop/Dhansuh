@@ -1,5 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:waydrop/core/services/session/identity_operation_scope.dart';
+import 'earnings_threshold_read.dart';
+import 'earnings_profile_read.dart';
+import 'earnings_activity_read.dart';
+import 'recent_completed_read.dart';
+import 'recent_withdrawals_read.dart';
+import 'active_order_timestamp_read.dart';
+import 'earnings_order_completeness.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/features/rider/onboarding/screens/rider_payout_details_screen.dart';
 import 'package:waydrop/shared/widgets/app_snackbar.dart';
@@ -31,6 +39,15 @@ class RiderEarningsTab extends StatefulWidget {
 
 class _RiderEarningsTabState extends State<RiderEarningsTab> {
   final supabase = Supabase.instance.client;
+  String? _earningsDataUserId;
+  final _thresholdReads = EarningsThresholdRead();
+  final _profileReads = EarningsProfileRead();
+  final _activityReads = EarningsActivityRead();
+  final _recentCompletedReads = RecentCompletedRead();
+  final _withdrawalReads = RecentWithdrawalsRead();
+  final _activeTimestampReads = ActiveOrderTimestampRead();
+  StreamSubscription<AuthState>? _thresholdAuthSubscription;
+  String? _thresholdUserId;
   Map<String, dynamic>? rider;
   double todayEarnings = 0.0;
   // Distinguishes "today's gross earnings is genuinely ₹0 (no completed rides today)" from "the
@@ -44,6 +61,10 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
   // authoritative one. This flag exists purely so a genuine fetch failure is visibly distinct from
   // a real zero, never to change what counts as gross earnings.
   bool _todayEarningsUnavailable = false;
+  bool _hasCompleteOrders = false;
+  int _ordersRevision = 0;
+  int _ordersAttempt = 0;
+  int _ordersApplied = 0;
   List<Map<String, dynamic>> recentOrders = [];
   // Latest 3 completed rides EVER (no 30-day restriction) -- distinct from `recentOrders` above,
   // which is deliberately windowed to the last 30 days for the analytics chart/averages below and
@@ -127,6 +148,42 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
   @override
   void initState() {
     super.initState();
+    _thresholdUserId = supabase.auth.currentUser?.id;
+    _thresholdAuthSubscription = supabase.auth.onAuthStateChange.listen((event) {
+      final next = event.session?.user.id;
+      if (next != _thresholdUserId) {
+        final previous = _thresholdUserId;
+        if (previous != null) {
+          _thresholdReads.invalidate(previous);
+          _profileReads.invalidate(previous);
+          _activityReads.invalidate(previous);
+          _recentCompletedReads.invalidate(previous);
+          _withdrawalReads.invalidate(previous);
+          _activeTimestampReads.invalidate(previous);
+        }
+        _thresholdUserId = next;
+        _ordersRevision++;
+        if (mounted) {
+          setState(() {
+            _earningsDataUserId = null;
+            _hasCompleteOrders = false;
+            _todayEarningsUnavailable = true;
+            recentOrders = [];
+            recentCompletedRides = [];
+            recentWithdrawals = [];
+            rider = null;
+            activeOrder = null;
+            payoutAccount = null;
+            isPayoutActive = false;
+            todayEarnings = thisWeekEarnings = thisMonthEarnings = 0;
+            avgEarningsPerDay = avgOrdersPerDay = avgEarningsPerOrder = 0;
+            dailyMetricsList = [];
+            selectedDay = null;
+            loading = false;
+          });
+        }
+      }
+    });
     fetchData();
     syncWithdrawals();
     _subscribeWithdrawals();
@@ -139,7 +196,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
       if (widget.isActive) {
         // Tab became visible again -- refresh immediately (the realtime subscription was paused,
         // so the displayed data may be stale) then let _subscribeRider() re-attach as normal.
-        fetchData();
+        fetchData(fresh: true);
       } else if (_riderSubChannel != null && _riderSubId != null) {
         RealtimeManager.instance.unsubscribe(_riderSubChannel!, _riderSubId!);
         _riderSubChannel = null;
@@ -151,6 +208,13 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
 
   @override
   void dispose() {
+    _thresholdAuthSubscription?.cancel();
+    _thresholdReads.dispose();
+    _profileReads.dispose();
+    _activityReads.dispose();
+    _recentCompletedReads.dispose();
+    _withdrawalReads.dispose();
+    _activeTimestampReads.dispose();
     if (_withdrawalsSubChannel != null && _withdrawalsSubId != null) {
       RealtimeManager.instance.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!);
       _withdrawalsSubChannel = null;
@@ -191,7 +255,8 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
       filterColumn: 'user_id',
       filterValue: user.id,
       callback: (payload) {
-        fetchData();
+        if (!mounted || supabase.auth.currentUser?.id != user.id) return;
+        fetchData(fresh: true);
       },
     );
   }
@@ -199,6 +264,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
   String? _subscribedRiderId;
 
   void _subscribeRider(String riderId) {
+    final ownerUserId = supabase.auth.currentUser?.id;
     if (_subscribedRiderId == riderId) return;
     _subscribedRiderId = riderId;
     if (_riderSubChannel != null && _riderSubId != null) {
@@ -224,7 +290,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
       filterColumn: 'id',
       filterValue: riderId,
       callback: (payload) {
-        if (!mounted) return;
+        if (!mounted || supabase.auth.currentUser?.id != ownerUserId) return;
         final oldData = payload.oldRecord;
         final newData = payload.newRecord;
         // Conservative fallback (matches RiderHomeTab's own gating): if oldRecord is empty (no
@@ -234,7 +300,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
                 .where((key) => !oldData.containsKey(key) || oldData[key] != newData[key])
                 .any(_earningsUiRelevantFields.contains);
         if (isEarningsUiRelevantUpdate) {
-          fetchData();
+          fetchData(fresh: true);
         }
       },
     );
@@ -251,54 +317,72 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
     }
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchData({bool fresh = false}) async {
+    if (!mounted) return;
+    final initiatingUserId = supabase.auth.currentUser?.id;
+    final ordersAttempt = ++_ordersAttempt;
+    var ordersRevision = _ordersRevision;
     try {
       final user = supabase.auth.currentUser;
       if (user == null) return;
+      if (fresh) {
+        _ordersRevision++;
+        _thresholdReads.invalidate(user.id);
+        _profileReads.invalidate(user.id);
+        _activityReads.invalidate(user.id);
+        _recentCompletedReads.invalidate(user.id);
+        _withdrawalReads.invalidate(user.id);
+        _activeTimestampReads.invalidate(user.id);
+      }
+      ordersRevision = _ordersRevision;
 
       // Finding A (WayDrop Performance Roadmap Phase 5): government_tax_config has no dependency
       // on riderData, so it's started here -- concurrently with the riders fetch below -- instead
       // of after every other query has already finished. Same query, same try/catch, same fallback
       // value; only when it starts changes.
-      double fetchedTaxDueThreshold = 100.0;
-      final taxDueFuture = () async {
-        try {
-          final thresholdRow = await supabase
+      final taxDueFuture = _thresholdReads.read(user.id, () async {
+          if (!mounted || supabase.auth.currentUser?.id != user.id) throw StateError('Threshold read retired');
+          return await supabase
               .from('government_tax_config')
               .select('threshold_amount')
               .eq('is_active', true)
               .order('updated_at', ascending: false)
               .limit(1)
               .maybeSingle();
-          if (thresholdRow != null) {
-            fetchedTaxDueThreshold = double.tryParse('${thresholdRow['threshold_amount']}') ?? 100.0;
-          }
-        } catch (err) {
-          debugPrint('Error fetching government tax due threshold: $err');
-        }
-      }();
+      });
 
       // R1 FIX #5: a true cold start reuses AppStartScreen's already-fetched riders row instead
       // of re-querying an identical row a moment later -- safe because nothing can have changed
       // server-side between that fetch and this mount. The seed is a `select('*', ...)` fetch of
       // the same table/row, so it covers every field this tab reads.
-      final seedRider = providerContainer.read(initialRiderDataProvider)?.rider;
+      final initialData = providerContainer.read(initialRiderDataProvider);
+      final seedRider = initialData?.belongsTo(user.id) == true ? initialData?.rider : null;
       final Map<String, dynamic> riderData;
+      final EarningsProfileObservation profile;
       if (seedRider != null && seedRider['id'] != null && !_hasConsumedColdStartSeed) {
         _hasConsumedColdStartSeed = true;
         riderData = seedRider;
+        profile = _profileReads.seed(user.id, riderData);
       } else {
         // Egress fix: narrowed from `*` to the exact columns this tab reads (grepped
         // exhaustively across every `rider?['...']`/`rider!['...']` access in this file --
         // matches the existing _earningsUiRelevantFields allowlist above plus `id`, needed
         // for _subscribeRider() and the per-order queries below).
-        riderData = await supabase
+        profile = await _profileReads.read(user.id, () async {
+          if (!mounted || supabase.auth.currentUser?.id != user.id) {
+            throw StateError('Earnings profile read retired');
+          }
+          return await supabase
             .from('riders')
             .select('id, total_earnings, wallet_balance, cod_pending_amount, cod_limit, government_tax_due_balance, subscription_active')
             .eq('user_id', user.id)
             .single();
+        });
+        riderData = profile.row;
       }
 
+      if (!mounted || supabase.auth.currentUser?.id != user.id) return;
+      if (!_profileReads.isCurrent(profile, user.id)) return;
       _subscribeRider(riderData['id']);
 
       final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30)).toUtc();
@@ -308,6 +392,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
       // exact original try/catch body and fallback value; they now just run concurrently via
       // Future.wait below instead of sequentially.
       List<Map<String, dynamic>> ordersData = [];
+      var fetchedTodayEarningsUnavailable = false;
       final ordersFuture = () async {
         try {
           // Egress fix: narrowed from `*` to the exact columns read from this result
@@ -319,15 +404,16 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
               .eq('rider_id', riderData['id'])
               .inFilter('order_status', ['completed', 'delivered'])
               .gte('completed_at', thirtyDaysAgo.toIso8601String())
-              .order('completed_at', ascending: false);
-          ordersData = List<Map<String, dynamic>>.from(res);
-          _todayEarningsUnavailable = false;
+              .order('completed_at', ascending: false)
+              .count(CountOption.exact);
+          ordersData = completeEarningsOrders(res.data, res.count);
+          fetchedTodayEarningsUnavailable = false;
         } catch (err) {
           debugPrint('Error fetching orders: $err');
           // Previously this failure was invisible: ordersData stayed [], and every downstream
           // figure (Today's Gross Earnings included) silently rendered as a confident "₹0.00"
           // indistinguishable from a real zero. Flagging it lets the UI show the difference.
-          _todayEarningsUnavailable = true;
+          fetchedTodayEarningsUnavailable = true;
         }
       }();
 
@@ -335,22 +421,30 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
       // history) -- same status filter/ordering Order History already uses for the identical
       // "has this rider ever completed a ride" question, just capped to 3 rows here instead of 50.
       List<Map<String, dynamic>> recentCompletedRidesData = [];
+      RecentCompletedObservation? recentCompletedObservation;
       final recentCompletedRidesFuture = () async {
         try {
-          final res = await supabase
+          recentCompletedObservation = await _recentCompletedReads.read(user.id, riderData['id'], () async {
+            if (!mounted || supabase.auth.currentUser?.id != user.id) {
+              throw StateError('Recent completed read retired');
+            }
+            final res = await supabase
               .from('orders')
               .select('id, order_code, order_type, completed_at, created_at, picked_up_at, accepted_at, rider_earning, boost_amount, distance_km, time_taken_seconds, vehicle_type, final_fare, current_fare, gst_amount, gst_percentage, pg_charge_amount, commission_amount, commission_percentage, subscription_commission_waived, fare_payment_method, payment_mode, payment_status')
               .eq('rider_id', riderData['id'])
               .inFilter('order_status', ['completed', 'delivered'])
               .order('completed_at', ascending: false)
               .limit(3);
-          recentCompletedRidesData = List<Map<String, dynamic>>.from(res);
+            return List<Map<String, dynamic>>.from(res);
+          });
+          recentCompletedRidesData = recentCompletedObservation!.rows;
         } catch (err) {
           debugPrint('Error fetching recent completed rides: $err');
         }
       }();
 
       List<Map<String, dynamic>> activityData = [];
+      EarningsActivityObservation? activityObservation;
       final activityFuture = () async {
         try {
           final thirtyDaysAgoLocal = DateTime.now().subtract(const Duration(days: 30));
@@ -358,48 +452,67 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
           // Egress fix: narrowed from `*` to the exact columns read (grepped
           // exhaustively -- only date/online_seconds/last_online_toggle_at are ever
           // read off `act` in the day-grouping loop above).
-          final res = await supabase
+          activityObservation = await _activityReads.read(user.id, riderData['id'], thirtyDaysAgoStr, () async {
+            if (!mounted || supabase.auth.currentUser?.id != user.id) {
+              throw StateError('Earnings activity read retired');
+            }
+            final res = await supabase
               .from('rider_daily_activity')
               .select('date, online_seconds, last_online_toggle_at')
               .eq('rider_id', riderData['id'])
               .gte('date', thirtyDaysAgoStr)
               .order('date', ascending: true);
-          activityData = List<Map<String, dynamic>>.from(res);
+            return List<Map<String, dynamic>>.from(res);
+          });
+          activityData = activityObservation!.rows;
         } catch (err) {
           debugPrint('Error fetching daily activity (table might not exist yet): $err');
         }
       }();
 
       Map<String, dynamic>? activeOrderData;
+      ActiveOrderTimestampObservation? activeTimestampObservation;
       final activeOrderFuture = () async {
         try {
           // Egress fix: narrowed from `*` to the exact columns read (grepped
           // exhaustively -- activeOrder is only ever used for a null-check plus
           // picked_up_at/accepted_at/created_at, to compute activeOrderStart above).
-          final res = await supabase
+          activeTimestampObservation = await _activeTimestampReads.read(user.id, riderData['id'], () async {
+            if (!mounted || supabase.auth.currentUser?.id != user.id) {
+              throw StateError('Active timestamp read retired');
+            }
+            return await supabase
               .from('orders')
               .select('picked_up_at, accepted_at, created_at')
               .eq('rider_id', riderData['id'])
               .inFilter('order_status', ['accepted', 'rider_arrived', 'picked_up', 'rider_at_drop', 'ongoing'])
               .maybeSingle();
-          activeOrderData = res;
+          });
+          activeOrderData = activeTimestampObservation!.row;
         } catch (err) {
           debugPrint('Error fetching active order on earnings tab: $err');
         }
       }();
 
       List<Map<String, dynamic>> withdrawalsData = [];
+      RecentWithdrawalsObservation? withdrawalObservation;
       final withdrawalsFuture = () async {
         try {
           // Egress fix: narrowed from `*` to the exact columns read (grepped
           // exhaustively across _WithdrawalRow -- the only consumer of these rows).
-          final res = await supabase
+          withdrawalObservation = await _withdrawalReads.read(user.id, riderData['id'], () async {
+            if (!mounted || supabase.auth.currentUser?.id != user.id) {
+              throw StateError('Recent withdrawal read retired');
+            }
+            final res = await supabase
               .from('rider_withdrawals')
               .select('amount, status, created_at, cashfree_response, transfer_id, cashfree_reference_id')
               .eq('rider_id', riderData['id'])
               .order('created_at', ascending: false)
               .limit(10);
-          withdrawalsData = List<Map<String, dynamic>>.from(res);
+            return List<Map<String, dynamic>>.from(res);
+          });
+          withdrawalsData = withdrawalObservation!.rows;
         } catch (err) {
           debugPrint('Error fetching withdrawals: $err');
         }
@@ -440,26 +553,69 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
         taxDueFuture,
       ]);
 
-      if (!mounted) return;
+      if (!mounted || supabase.auth.currentUser?.id != user.id) return;
+      final threshold = await taxDueFuture;
+      if (!mounted || supabase.auth.currentUser?.id != user.id) return;
+      if (threshold.failed) debugPrint('Tax threshold: request_failed');
+      if (!_profileReads.isCurrent(profile, user.id)) return;
+      if (ordersRevision != _ordersRevision || ordersAttempt < _ordersApplied) return;
+      if (activeTimestampObservation != null && !_activeTimestampReads.isCurrent(activeTimestampObservation!, user.id)) {
+        return;
+      }
+      if (withdrawalObservation != null && !_withdrawalReads.isCurrent(withdrawalObservation!, user.id)) {
+        return;
+      }
+      if (recentCompletedObservation != null &&
+          !_recentCompletedReads.isCurrent(recentCompletedObservation!, user.id)) {
+        return;
+      }
+      if (activityObservation != null && !_activityReads.accept(activityObservation!, user.id)) return;
+      if (recentCompletedObservation != null) {
+        _recentCompletedReads.accept(recentCompletedObservation!, user.id);
+      }
+      if (!_profileReads.accept(profile, user.id)) return;
+      if (activeTimestampObservation != null) {
+        _activeTimestampReads.accept(activeTimestampObservation!, user.id);
+      }
+      if (withdrawalObservation != null) {
+        _withdrawalReads.accept(withdrawalObservation!, user.id);
+      }
+      final applyOrders = fetchedTodayEarningsUnavailable
+          ? null : processOrdersData(ordersData, activityData, activeOrderData);
       setState(() {
+        _ordersApplied = ordersAttempt;
+        _earningsDataUserId = user.id;
         rider = riderData;
-        recentOrders = ordersData;
+        if (!fetchedTodayEarningsUnavailable) {
+          recentOrders = ordersData;
+          _hasCompleteOrders = true;
+          applyOrders!();
+        }
         recentCompletedRides = recentCompletedRidesData;
         recentWithdrawals = withdrawalsData;
         payoutAccount = payoutData;
         isPayoutActive = payoutData != null && payoutData!['cashfree_beneficiary_status'] == 'active';
         activeOrder = activeOrderData;
-        taxDueThreshold = fetchedTaxDueThreshold;
+        _todayEarningsUnavailable = fetchedTodayEarningsUnavailable;
+        loading = false;
+        if (_thresholdReads.accept(threshold, user.id)) taxDueThreshold = threshold.value;
       });
 
-      processOrdersData(ordersData, activityData);
     } catch (e) {
       debugPrint('Critical error in fetchData: $e');
-      if (mounted) setState(() => loading = false);
+      if (mounted && supabase.auth.currentUser?.id == initiatingUserId &&
+          ordersRevision == _ordersRevision && ordersAttempt >= _ordersApplied) {
+        setState(() {
+          _todayEarningsUnavailable = true;
+          loading = false;
+        });
+      }
     }
   }
 
-  void processOrdersData(List<Map<String, dynamic>> orders, List<Map<String, dynamic>> activity) {
+  VoidCallback processOrdersData(List<Map<String, dynamic>> orders,
+      List<Map<String, dynamic>> activity, Map<String, dynamic>? refreshedActiveOrder) {
+    final activeOrder = refreshedActiveOrder;
     final nowLocal = DateTime.now();
     final todayStart = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
 
@@ -562,7 +718,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
           dayDate.month == todayStart.month &&
           dayDate.day == todayStart.day &&
           activeOrder != null) {
-        final startStr = activeOrder!['picked_up_at'] ?? activeOrder!['accepted_at'] ?? activeOrder!['created_at'];
+        final startStr = activeOrder['picked_up_at'] ?? activeOrder['accepted_at'] ?? activeOrder['created_at'];
         if (startStr != null) {
           activeOrderStart = DateTime.tryParse(startStr.toString());
         }
@@ -592,7 +748,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
     final avgOPerDay = total30DayOrders / 30.0;
     final avgEPerOrder = total30DayOrders > 0 ? total30DayEarnings / total30DayOrders : 0.0;
 
-    setState(() {
+    return () {
       todayEarnings = todayE;
       thisWeekEarnings = weekE;
       thisMonthEarnings = monthE;
@@ -604,7 +760,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
       // Default selected day is today start
       selectedDay ??= todayStart;
       loading = false;
-    });
+    };
   }
 
 
@@ -651,6 +807,12 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
                   const Text('Earnings', 
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -0.5)),
                   const SizedBox(height: 20),
+
+                  if (_todayEarningsUnavailable)
+                    Text(_hasCompleteOrders
+                        ? '30-day totals and history are stale. Refresh failed.'
+                        : '30-day totals and history are unavailable.',
+                        style: const TextStyle(color: textGray)),
 
                   // Today's earnings overview card
                   Container(
@@ -737,7 +899,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
                                   context,
                                   MaterialPageRoute(builder: (_) => const RiderPayoutDetailsScreen()),
                                 );
-                                if (res == true) fetchData();
+                                if (res == true) fetchData(fresh: true);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryLime,
@@ -783,7 +945,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
                                     context,
                                     MaterialPageRoute(builder: (_) => const RiderPayoutDetailsScreen()),
                                   );
-                                  if (res == true) fetchData();
+                                  if (res == true) fetchData(fresh: true);
                                 },
                               ),
                             ],
@@ -912,7 +1074,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
                     const Text('Recent Completed Rides', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -0.3)),
                     const SizedBox(height: 12),
                     ...recentCompletedRides.map(
-                      (o) => _ExpandableOrderCard(key: ValueKey('recent-${o['id'] ?? o['order_code']}'), order: o),
+                      (o) => _ExpandableOrderCard(key: ValueKey('$_earningsDataUserId:recent-${o['id'] ?? o['order_code']}'), order: o, ownerUserId: _earningsDataUserId),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -1201,7 +1363,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
                                       response.data?['message'] ?? 'Withdrawal processed successfully',
                                       type: SnackBarType.success,
                                     );
-                                    fetchData();
+                                    fetchData(fresh: true);
                                   } else {
                                     setSheetState(() => sheetLoading = false);
                                     showAppSnackBar(
@@ -1490,7 +1652,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
 
       if (result['success'] == true) {
         showAppSnackBar(context, 'Cash dues payment successful.', type: SnackBarType.success);
-        await fetchData();
+        await fetchData(fresh: true);
         PaymentTrace.end('cod_settlement');
       } else {
         final message = result['message']?.toString() ?? 'Payment was not completed';
@@ -1542,7 +1704,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
 
       if (result['success'] == true) {
         showAppSnackBar(context, 'Government Tax Due payment successful.', type: SnackBarType.success);
-        await fetchData();
+        await fetchData(fresh: true);
         PaymentTrace.end('tax_due');
       } else {
         final message = result['message']?.toString() ?? 'Payment was not completed';
@@ -1934,7 +2096,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
               style: TextStyle(fontSize: 9, color: textGray, fontWeight: FontWeight.bold, letterSpacing: 0.5),
             ),
             const SizedBox(height: 8),
-            ...day.orders.map((o) => _ExpandableOrderCard(key: ValueKey(o['id'] ?? o['order_code']), order: o)),
+            ...day.orders.map((o) => _ExpandableOrderCard(key: ValueKey('$_earningsDataUserId:${o['id'] ?? o['order_code']}'), order: o, ownerUserId: _earningsDataUserId)),
           ],
         ],
       ),
@@ -2353,13 +2515,16 @@ class DailyMetrics {
 
 class _ExpandableOrderCard extends StatefulWidget {
   final Map<String, dynamic> order;
-  const _ExpandableOrderCard({super.key, required this.order});
+  final String? ownerUserId;
+  const _ExpandableOrderCard({super.key, required this.order, required this.ownerUserId});
 
   @override
   State<_ExpandableOrderCard> createState() => _ExpandableOrderCardState();
 }
 
 class _ExpandableOrderCardState extends State<_ExpandableOrderCard> {
+  late final _taxOperations = IdentityOperationScope.forWidget(() => mounted,
+      onIdentityChanged: () => setState(() {}));
   bool _expanded = false;
 
   // Fetched once (not per-rebuild/per-expand-toggle) so the collapsed headline figure and the
@@ -2378,7 +2543,11 @@ class _ExpandableOrderCardState extends State<_ExpandableOrderCard> {
   }
 
   Future<void> _loadGovernmentTax() async {
+    if (!mounted) return;
+    if (Supabase.instance.client.auth.currentUser?.id != widget.ownerUserId) return;
+    final operation = _taxOperations.begin();
     final orderId = widget.order['id']?.toString();
+    final riderId = widget.order['rider_id'];
     if (orderId == null) {
       if (mounted) setState(() => _taxLoading = false);
       return;
@@ -2398,20 +2567,30 @@ class _ExpandableOrderCardState extends State<_ExpandableOrderCard> {
             .eq('entry_type', 'ORDER_TAX')
             .maybeSingle(),
       );
-      if (!mounted) return;
+      if (!operation.isCurrent || widget.order['id']?.toString() != orderId ||
+          widget.order['rider_id'] != riderId || operation.userId != widget.ownerUserId) {
+        return;
+      }
       setState(() {
         _govTaxAmount = double.tryParse(row?['amount']?.toString() ?? '0') ?? 0.0;
         _govTaxRate = double.tryParse(row?['rate_percent']?.toString() ?? '0') ?? 0.0;
         _taxLoading = false;
       });
     } catch (_) {
-      if (mounted) setState(() => _taxLoading = false);
+      if (operation.isCurrent && widget.order['id']?.toString() == orderId &&
+          widget.order['rider_id'] == riderId && operation.userId == widget.ownerUserId) {
+        setState(() => _taxLoading = false);
+      }
     }
   }
 
   @override
+  void dispose() { _taxOperations.dispose(); super.dispose(); }
+
+  @override
   Widget build(BuildContext context) {
     final order = widget.order;
+    if (Supabase.instance.client.auth.currentUser?.id != widget.ownerUserId) return const SizedBox.shrink();
     final code = order['order_code']?.toString() ?? '';
     final type = order['order_type']?.toString() ?? 'ride';
     // Canonical commission-waiver read -- same source rider_activity_tab.dart's completed-ride

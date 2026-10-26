@@ -30,6 +30,8 @@ void main() {
   final addVehicleScreen =
       _read('lib/features/rider/vehicles/screens/add_vehicle_screen.dart');
 
+  final submission = _read('lib/features/rider/vehicles/vehicle_submission.dart');
+
   group('add_vehicle_screen.dart stores bare storage paths for rider_vehicles image columns', () {
     test('no longer calls .getPublicUrl() against the private rider_kyc bucket', () {
       // Checks for an actual method call (leading dot), not the explanatory comment mentioning
@@ -38,12 +40,9 @@ void main() {
     });
 
     test('inserts the bare uploaded paths directly for rc_front_image/rc_back_image/vehicle_image', () {
-      final start = addVehicleScreen.indexOf("await supabase.from('rider_vehicles').insert({");
-      final end = addVehicleScreen.indexOf('});', start);
-      final body = addVehicleScreen.substring(start, end);
-      expect(body.contains("'rc_front_image': paths[0],"), isTrue);
-      expect(body.contains("'rc_back_image': paths[1],"), isTrue);
-      expect(body.contains("'vehicle_image': paths[2],"), isTrue);
+      expect(submission.contains("'rc_front_image': paths[0]"), isTrue);
+      expect(submission.contains("'rc_back_image': paths[1]"), isTrue);
+      expect(submission.contains("'vehicle_image': paths[2]"), isTrue);
     });
 
     test('upload path is still scoped under the uploading rider\'s own auth uid folder (storage '
@@ -54,11 +53,12 @@ void main() {
       );
     });
 
-    test('upload/compress/validate pipeline and rollback-on-failure are untouched', () {
+    test('validation/compression/upload remain wired; uncertain outcomes never trigger deletion', () {
       expect(addVehicleScreen.contains('RiderKycUploadService.validateImage'), isTrue);
       expect(addVehicleScreen.contains('RiderKycUploadService.compressImageSmart'), isTrue);
       expect(addVehicleScreen.contains('RiderKycUploadService.uploadCompressedFile'), isTrue);
-      expect(addVehicleScreen.contains('RiderKycUploadService.rollbackFiles(uploadedPaths)'), isTrue);
+      expect(addVehicleScreen.contains('RiderKycUploadService.rollbackFiles('), isFalse);
+      expect(submission.contains('.remove('), isFalse);
     });
   });
 

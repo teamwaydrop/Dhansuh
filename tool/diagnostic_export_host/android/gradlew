@@ -1,0 +1,4 @@
+#!/bin/sh
+# Reuse the existing wrapper; execute only the standalone host Gradle project.
+host_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+exec sh "$host_dir/../../../android/gradlew" -p "$host_dir" "$@"

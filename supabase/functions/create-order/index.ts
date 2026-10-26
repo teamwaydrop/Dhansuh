@@ -296,8 +296,13 @@ serve(async (req) => {
     let initialStatus =
       "searching";
 
+    // local_ride default. Kept aligned with dispatch_config.max_search_duration_sec
+    // (420s = 7min, migration 20260913000000_local_search_duration_420sec.sql) so this
+    // informational search_expires_at value never implies a longer window than the
+    // DB-authoritative expiry (expire_stale_searching_orders()) / dispatch loop
+    // (start-dispatch, via _shared/dispatch_config_cache.ts) actually enforce.
     let searchExpiryMinutes =
-      15;
+      7;
 
     if (
       order_type === "local_parcel"
@@ -317,8 +322,9 @@ serve(async (req) => {
       } else {
         normalizedVehicleType = calculatedParcelVehicle;
       }
+      // Aligned with dispatch_config.max_search_duration_sec -- see comment above.
       searchExpiryMinutes =
-        20;
+        7;
     }
 
     if (

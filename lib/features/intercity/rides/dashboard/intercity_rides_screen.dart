@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:waydrop/features/rider/home/pending_assignment_read.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -17,6 +18,21 @@ import 'package:waydrop/shared/widgets/skeleton_loader.dart';
 import 'package:waydrop/shared/helpers/location_display_service.dart';
 import 'package:waydrop/models/transport_order.dart';
 
+// Injectable resource binding: tests can replay retired callbacks without sockets.
+final intercityRidesOrdersBindingProvider = Provider<
+    VoidCallback Function(String accountId, VoidCallback onChange)>((ref) {
+  return (accountId, onChange) {
+    final channel = 'intercity-rides-orders-$accountId';
+    final id = RealtimeManager.instance.subscribe(
+      channelName: channel, table: 'orders', owner: 'IntercityRidesScreen',
+      event: PostgresChangeEvent.all, schema: 'public',
+      filterColumn: 'user_id', filterValue: accountId,
+      callback: (_) => onChange(),
+    );
+    return () => RealtimeManager.instance.unsubscribe(channel, id);
+  };
+});
+
 class IntercityRidesScreen extends ConsumerStatefulWidget {
   const IntercityRidesScreen({super.key});
 
@@ -31,8 +47,52 @@ class _IntercityRidesScreenState extends ConsumerState<IntercityRidesScreen> {
   List<Map<String, dynamic>> historyOrders = [];
   // P2 #3 (WayDrop production-scale audit): now routed through RealtimeManager (the app's single
   // multiplexed realtime channel system) instead of its own raw supabase.channel() connection.
-  String? _ordersSubId;
-  String? _ordersSubChannel;
+  VoidCallback? _retireOrders;
+  StreamSubscription<AuthState>? _authSubscription;
+  String? _accountId;
+  int _generation = 0;
+  bool _accountBound = false;
+  final _ordersReads = InFlightRead<({int revision, List<Map<String, dynamic>> rows})>();
+  int _loadAttempt = 0;
+
+  bool _isCurrent(String? account, int generation) => mounted &&
+      account != null && account == _accountId &&
+      account == supabase.auth.currentUser?.id && generation == _generation;
+
+  void _retireAccount() {
+    _ordersDebounceTimer?.cancel();
+    _ordersDebounceTimer = null;
+    final retire = _retireOrders;
+    _retireOrders = null;
+    retire?.call();
+  }
+
+  void _bindAccount(String? account) {
+    if (!mounted) return;
+    if (_accountBound && account == _accountId) return;
+    _accountBound = true;
+    ++_generation;
+    _retireAccount();
+    setState(() {
+      _accountId = account;
+      activeOrders = [];
+      historyOrders = [];
+      kycCompleted = true; // Unknown: retain the existing loading presentation.
+      loading = account != null;
+    });
+    if (account != null) {
+      _subscribeToOrders();
+      _loadOrders();
+    }
+  }
+
+  void Function(dynamic) _refreshOnReturn() {
+    final account = _accountId;
+    final generation = _generation;
+    return (_) {
+      if (_isCurrent(account, generation)) _loadOrders();
+    };
+  }
   bool kycCompleted = true;
   // Egress fix (Fix #7): same 500ms-debounce pattern already used by the sibling
   // passenger/rider activity tabs for the identical "orders realtime event -> full reload"
@@ -54,32 +114,43 @@ class _IntercityRidesScreenState extends ConsumerState<IntercityRidesScreen> {
     // Lifecycle method called once when the stateful widget initialized for the first time
     super.initState();
     debugPrint('[RUNTIME_TRACE] ENTER IntercityRidesScreen (intercity_rides_screen.dart)');
-    _loadOrders();
-    _subscribeToOrders();
+    _authSubscription = supabase.auth.onAuthStateChange.listen((event) => _bindAccount(event.session?.user.id));
+    _bindAccount(supabase.auth.currentUser?.id);
   }
 
   @override
   // Lifecycle method called before the widget is removed permanently from the tree to clean resources
   void dispose() {
-    _ordersDebounceTimer?.cancel();
-    if (_ordersSubId != null && _ordersSubChannel != null) {
-      RealtimeManager.instance.unsubscribe(_ordersSubChannel!, _ordersSubId!);
-    }
+    ++_generation;
+    _ordersReads.dispose();
+    _authSubscription?.cancel();
+    _retireAccount();
     // Lifecycle method called before the widget is removed permanently from the tree to clean resources
     super.dispose();
   }
 
   Future<void> _loadOrders() async {
+    final account = _accountId;
+    final generation = _generation;
+    if (!_isCurrent(account, generation)) return;
+    final key = '$generation:$account';
+    final attempt = ++_loadAttempt;
+    // Every existing trigger requests fresh Orders evidence. Overlap retains one
+    // trailing Orders read; KYC remains a separate read for every current caller.
+    _ordersReads.invalidate(key);
     try {
       // Perform an asynchronous database operation using the Supabase client wrapper
       final user = supabase.auth.currentUser;
-      if (user == null) return;
+      if (user == null || user.id != account) return;
 
       // Egress fix: narrowed from `*` to the fields read off `order` in this file (grepped
       // exhaustively -- order['id'] is passed onward as a plain string, never the whole map).
       // distance_meters stays filter-only (Postgrest filters apply to the underlying table
       // columns regardless of what's selected, so it doesn't need to be in this list).
-      final response = await supabase
+      final observation = await _ordersReads.read(key, () async {
+        if (!_isCurrent(account, generation)) throw StateError('Retired Orders scope');
+        final revision = _ordersReads.revisionFor(key);
+        final response = await supabase
           .from('orders')
           .select(
             'id, order_status, pickup_city, pickup_address, destination_city, '
@@ -88,9 +159,13 @@ class _IntercityRidesScreenState extends ConsumerState<IntercityRidesScreen> {
           .eq('user_id', user.id)
           .or('order_type.eq.intercity_ride,and(order_type.eq.ride,distance_meters.gt.20000)')
           .order('created_at', ascending: false);
+        return (revision: revision, rows: List<Map<String, dynamic>>.from(response));
+      });
+
+      if (!_isCurrent(account, generation)) return;
 
       final List<Map<String, dynamic>> allOrders =
-          List<Map<String, dynamic>>.from(response);
+          observation.rows;
 
       final kycResponse = await supabase
           .from('rider_kyc')
@@ -100,7 +175,8 @@ class _IntercityRidesScreenState extends ConsumerState<IntercityRidesScreen> {
 
       final kycStatus = kycResponse?['kyc_status']?.toString();
 
-      if (mounted) {
+      if (_isCurrent(account, generation) && attempt == _loadAttempt &&
+          observation.revision == _ordersReads.revisionFor(key)) {
         // Update the widget state to trigger a UI rebuild with the new variables
         setState(() {
           kycCompleted = kycResponse != null && kycStatus == 'approved';
@@ -122,8 +198,9 @@ class _IntercityRidesScreenState extends ConsumerState<IntercityRidesScreen> {
         });
       }
     } catch (e) {
+      if (!_isCurrent(account, generation) || attempt != _loadAttempt) return;
       debugPrint('Error loading intercity rides: $e');
-      if (mounted) {
+      if (_isCurrent(account, generation)) {
         // Update the widget state to trigger a UI rebuild with the new variables
         setState(() => loading = false);
       }
@@ -131,31 +208,16 @@ class _IntercityRidesScreenState extends ConsumerState<IntercityRidesScreen> {
   }
 
   void _subscribeToOrders() {
-    // Perform an asynchronous database operation using the Supabase client wrapper
-    final user = supabase.auth.currentUser;
-    if (user == null) return;
-
-    if (_ordersSubId != null && _ordersSubChannel != null) {
-      RealtimeManager.instance.unsubscribe(_ordersSubChannel!, _ordersSubId!);
-      _ordersSubId = null;
-      _ordersSubChannel = null;
-    }
-    _ordersSubChannel = 'intercity-rides-orders-${user.id}';
-    _ordersSubId = RealtimeManager.instance.subscribe(
-      channelName: _ordersSubChannel!,
-      table: 'orders',
-      owner: 'IntercityRidesScreen',
-      event: PostgresChangeEvent.all,
-      schema: 'public',
-      filterColumn: 'user_id',
-      filterValue: user.id,
-      callback: (payload) {
-        _ordersDebounceTimer?.cancel();
-        _ordersDebounceTimer = Timer(const Duration(milliseconds: 500), () {
-          if (mounted) _loadOrders();
-        });
-      },
-    );
+    final account = _accountId;
+    final generation = _generation;
+    if (!_isCurrent(account, generation)) return;
+    _retireOrders = ref.read(intercityRidesOrdersBindingProvider)(account!, () {
+      if (!_isCurrent(account, generation)) return;
+      _ordersDebounceTimer?.cancel();
+      _ordersDebounceTimer = Timer(const Duration(milliseconds: 500), () {
+        if (_isCurrent(account, generation)) _loadOrders();
+      });
+    });
   }
 
   void _navigateToOrder(Map<String, dynamic> order) {
@@ -310,7 +372,7 @@ class _IntercityRidesScreenState extends ConsumerState<IntercityRidesScreen> {
                                       builder: (_) => const IntercityLocationScreen(
                                           orderType: 'ride'),
                                     ),
-                                  ).then((_) => _loadOrders());
+                                  ).then(_refreshOnReturn());
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
@@ -785,7 +847,7 @@ class _IntercityRidesScreenState extends ConsumerState<IntercityRidesScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const RiderEntryHandler()),
-                ).then((_) => _loadOrders());
+                ).then(_refreshOnReturn());
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF10B981),

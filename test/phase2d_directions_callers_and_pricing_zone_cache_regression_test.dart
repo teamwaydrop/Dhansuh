@@ -197,13 +197,13 @@ void main() {
     test('calculate-order-pricing now reads zones through the cache in BOTH call sites, and no '
         'longer issues an inline pricing_zones query', () {
       expect(pricingIndex.contains('import { getActivePricingZones } from "../_shared/pricing_zones_cache.ts";'), isTrue);
-      expect('getActivePricingZones(supabase)'.allMatches(pricingIndex).length, 2,
-          reason: 'resolveZone() + the intercity/developer/long-ride fallback both use the cache');
+      expect('getActivePricingZones(supabase)'.allMatches(pricingIndex).length, 3,
+          reason: 'the eager normal-path read, resolver default, and fallback retry all use the cache');
       expect(pricingIndex.contains('.from("pricing_zones")'), isFalse,
           reason: 'the inline pricing_zones SELECT (both shapes) must be gone from index.ts');
       // resolveZone still returns null on a null cache result — same short-circuit as before.
       expect(
-        RegExp(r'const activeZones = await getActivePricingZones\(supabase\);\s*\n\s*if \(activeZones === null\) \{\s*\n\s*return null;')
+        RegExp(r'const activeZones = await \(activeZonesPromise \?\? getActivePricingZones\(supabase\)\);\s*\n\s*if \(activeZones === null\) \{\s*\n\s*return null;')
             .hasMatch(pricingIndex),
         isTrue,
       );
@@ -224,7 +224,9 @@ void main() {
       expect(pricingIndex.contains('const { baseFare, extraData } = calculateFare(rules, rawDistance, weight_kg, weight_category);'), isTrue);
       expect(pricingIndex.contains('const result = buildPricingResponse('), isTrue);
       // The pricing_config (rate) cache is also untouched.
-      expect(pricingIndex.contains('const allConfigs = await getActivePricingConfigs(supabase);'), isTrue);
+      expect(pricingIndex.contains(
+        'const allConfigs = await (activeConfigsPromise ?? getActivePricingConfigs(supabase));',
+      ), isTrue);
     });
   });
 }

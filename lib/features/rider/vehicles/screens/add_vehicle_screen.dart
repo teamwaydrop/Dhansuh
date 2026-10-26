@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waydrop/core/services/session/identity_operation_scope.dart';
+import 'package:waydrop/features/rider/vehicles/vehicle_submission.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/features/rider/onboarding/services/rider_kyc_upload_service.dart';
@@ -15,27 +18,69 @@ import 'package:waydrop/shared/widgets/kyc/kyc_upload_widgets.dart';
 /// (shared/widgets/kyc/kyc_upload_widgets.dart) and RiderKycUploadService's
 /// validate/compress/upload pipeline — no new upload widgets or storage
 /// bucket were created for this screen.
-class AddVehicleScreen extends StatefulWidget {
+final vehicleSubmissionProvider = Provider<VehicleSubmission>((ref) => VehicleSubmission(
+  ownsRider: (account, rider) async => await Supabase.instance.client.from('riders')
+      .select('id').eq('id', rider).eq('user_id', account).maybeSingle() != null,
+  validate: RiderKycUploadService.validateImage,
+  compress: RiderKycUploadService.compressImageSmart,
+  upload: (file, name, folder, current) => RiderKycUploadService.uploadCompressedFile(
+      file: file, fileName: name, folderName: folder, isCurrent: current),
+  insert: (row) async { await Supabase.instance.client.from('rider_vehicles').insert(row); },
+));
+
+class AddVehicleScreen extends ConsumerStatefulWidget {
   final String riderId;
 
   const AddVehicleScreen({super.key, required this.riderId});
 
   @override
-  State<AddVehicleScreen> createState() => _AddVehicleScreenState();
+  ConsumerState<AddVehicleScreen> createState() => _AddVehicleScreenState();
 }
 
-class _AddVehicleScreenState extends State<AddVehicleScreen> {
+class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
   final supabase = Supabase.instance.client;
   final vehicleNumberController = TextEditingController();
 
   String? vehicleType;
   XFile? rcFront, rcBack, vehiclePhoto;
   bool submitting = false;
+  bool _retired = false;
+  bool _writeUnconfirmed = false;
+  int _routeGeneration = 0;
+  late final IdentityOperationScope _operations;
+
+  @override
+  void initState() {
+    super.initState();
+    _operations = IdentityOperationScope.forWidget(() => mounted,
+      onIdentityChanged: () {
+        setState(() {
+          ++_routeGeneration;
+          _retired = true; submitting = false;
+          vehicleType = null; rcFront = null; rcBack = null; vehiclePhoto = null;
+          vehicleNumberController.clear();
+        });
+      });
+  }
+
+  @override
+  void didUpdateWidget(covariant AddVehicleScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.riderId != widget.riderId) {
+      ++_routeGeneration;
+      _operations.begin(); // Retire the previous rider's in-flight operation.
+      _retired = false; _writeUnconfirmed = false; submitting = false;
+      vehicleType = null; rcFront = null; rcBack = null; vehiclePhoto = null;
+      vehicleNumberController.clear();
+    }
+  }
 
   static const primary = kKycPrimaryColor;
 
   @override
   void dispose() {
+    ++_routeGeneration;
+    _operations.dispose();
     vehicleNumberController.dispose();
     super.dispose();
   }
@@ -54,65 +99,47 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
   }
 
   Future<void> _submit() async {
-    if (!_validate()) return;
-
+    if (!mounted || submitting || _retired || _writeUnconfirmed || !_validate()) return;
     final user = supabase.auth.currentUser;
     if (user == null) { showError('Session expired'); return; }
-
+    final operation = _operations.begin();
+    final rider = widget.riderId;
+    final generation = _routeGeneration;
+    final type = vehicleType!;
+    final number = vehicleNumberController.text.trim().toUpperCase();
+    final files = [rcFront!, rcBack!, vehiclePhoto!];
+    bool current() => !_retired && operation.isCurrent && widget.riderId == rider &&
+        generation == _routeGeneration;
     setState(() => submitting = true);
-
     final folder = '${user.id}/vehicles/${DateTime.now().millisecondsSinceEpoch}';
-    final uploadedPaths = <String>[];
-
     try {
-      await Future.wait([
-        RiderKycUploadService.validateImage(rcFront!),
-        RiderKycUploadService.validateImage(rcBack!),
-        RiderKycUploadService.validateImage(vehiclePhoto!),
-      ]);
-
-      final compressed = await Future.wait([
-        RiderKycUploadService.compressImageSmart(rcFront!),
-        RiderKycUploadService.compressImageSmart(rcBack!),
-        RiderKycUploadService.compressImageSmart(vehiclePhoto!),
-      ]);
-
-      final paths = await Future.wait([
-        RiderKycUploadService.uploadCompressedFile(file: compressed[0], fileName: 'rc_front', folderName: folder),
-        RiderKycUploadService.uploadCompressedFile(file: compressed[1], fileName: 'rc_back', folderName: folder),
-        RiderKycUploadService.uploadCompressedFile(file: compressed[2], fileName: 'vehicle_image', folderName: folder),
-      ]);
-      uploadedPaths.addAll(paths);
-
-      // Store the bare storage path, not a public URL: the rider_kyc bucket is private
-      // (20260731000004_rider_kyc_bucket_private.sql), so a getPublicUrl() value is dead on
-      // arrival. This matches the already-fixed pattern in create-rider-kyc/index.ts -- any
-      // future read site resolves a fresh signed URL from the path on demand.
-      await supabase.from('rider_vehicles').insert({
-        'rider_id': widget.riderId,
-        'vehicle_type': vehicleType,
-        'vehicle_number': vehicleNumberController.text.trim().toUpperCase(),
-        'rc_front_image': paths[0],
-        'rc_back_image': paths[1],
-        'vehicle_image': paths[2],
-      });
-
-      if (!mounted) return;
+      await ref.read(vehicleSubmissionProvider).run(account: user.id, rider: rider,
+        type: type, number: number, files: files, folder: folder, isCurrent: current);
+      if (!mounted || !current()) return;
       showAppSnackBar(context, 'Vehicle submitted for verification', type: SnackBarType.success);
       Navigator.pop(context, true);
+    } on RetiredVehicleSubmission {
+      // Retired operations never navigate or give feedback to a replacement account.
+    } on VehicleSubmissionWriteUnconfirmed {
+      if (!mounted || !current()) return;
+      setState(() => _writeUnconfirmed = true);
+      showError('Confirmation unavailable. Refresh My Vehicles before retrying.');
     } catch (e) {
-      debugPrint('ADD VEHICLE ERROR => $e');
-      await RiderKycUploadService.rollbackFiles(uploadedPaths);
-      if (!mounted) return;
+      if (!current()) return;
+      debugPrint('ADD_VEHICLE outcome=submission_failure');
       final detail = e is PostgrestException ? e.message : e.toString();
-      showError('Failed to add vehicle: $detail');
+      showError('Failed to confirm vehicle submission: $detail');
     } finally {
-      if (mounted) setState(() => submitting = false);
+      if (current()) setState(() => submitting = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_retired) {
+      return Scaffold(appBar: AppBar(title: const Text('Add Vehicle')),
+        body: const Center(child: Text('Account changed. Return to My Vehicles to continue.')));
+    }
     return PopScope(
       canPop: !submitting,
       child: Scaffold(
@@ -202,7 +229,11 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                           description: 'Front side of the Vehicle Registration Certificate (RC)',
                           image: rcFront,
                           onTap: () async {
+                            final account = supabase.auth.currentUser?.id;
+                            final rider = widget.riderId;
+                            final generation = _routeGeneration;
                             final img = await pickKycImage(context);
+                            if (!mounted || _retired || account != supabase.auth.currentUser?.id || rider != widget.riderId || generation != _routeGeneration) return;
                             if (img != null) setState(() => rcFront = img);
                           },
                         ),
@@ -211,7 +242,11 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                           description: 'Back side of the Vehicle Registration Certificate (RC)',
                           image: rcBack,
                           onTap: () async {
+                            final account = supabase.auth.currentUser?.id;
+                            final rider = widget.riderId;
+                            final generation = _routeGeneration;
                             final img = await pickKycImage(context);
+                            if (!mounted || _retired || account != supabase.auth.currentUser?.id || rider != widget.riderId || generation != _routeGeneration) return;
                             if (img != null) setState(() => rcBack = img);
                           },
                         ),
@@ -220,7 +255,11 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                           description: 'Full photo of the vehicle showing the registration plate clearly',
                           image: vehiclePhoto,
                           onTap: () async {
+                            final account = supabase.auth.currentUser?.id;
+                            final rider = widget.riderId;
+                            final generation = _routeGeneration;
                             final img = await pickKycImage(context);
+                            if (!mounted || _retired || account != supabase.auth.currentUser?.id || rider != widget.riderId || generation != _routeGeneration) return;
                             if (img != null) setState(() => vehiclePhoto = img);
                           },
                           last: true,
@@ -233,7 +272,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                     width: double.infinity,
                     height: 54,
                     child: ElevatedButton(
-                      onPressed: submitting ? null : _submit,
+                      onPressed: submitting || _writeUnconfirmed ? null : _submit,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primary,
                         foregroundColor: Colors.white,
@@ -242,7 +281,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                       ),
                       child: submitting
                           ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                          : const Text('SUBMIT FOR VERIFICATION', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+                          : Text(_writeUnconfirmed ? 'REFRESH MY VEHICLES BEFORE RETRYING' : 'SUBMIT FOR VERIFICATION', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
                     ),
                   ),
                   const SizedBox(height: 16),

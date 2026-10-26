@@ -1,5 +1,15 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'package:waydrop/features/rider/home/active_order_refresh_coordinator.dart';
+import 'package:waydrop/features/rider/home/offline_tracking_rollback.dart';
+import 'package:waydrop/features/rider/home/pending_assignment_read.dart';
+import 'package:waydrop/features/rider/home/travel_plan_refresh.dart';
+import 'package:waydrop/features/rider/home/rider_profile_read.dart';
+import 'package:waydrop/features/rider/home/today_earnings_refresh.dart';
+import 'package:waydrop/features/rider/home/incoming_order_type_read.dart';
+import 'package:waydrop/core/models/today_earnings_seed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -54,10 +64,35 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   final supabase = Supabase.instance.client;
   Map<String, dynamic>? rider;
   double todayEarnings = 0.0;
+  EarningsScope? _grossEarningsScope;
+  TodayEarningsSeed? _initialEarningsSeed;
   // Item 4: a traveller can have several concurrently active intercity passengers under one
   // travel plan (each their own `orders` row, same rider_id) -- this must be a list, not a single
   // nullable order, or every entry past the first silently disappears from Rider Home.
   List<Map<String, dynamic>> activeOrders = [];
+  late final ActiveOrderRefreshCoordinator<ActiveOrderReconciliation>
+      _activeOrderRefresh;
+  final RiderActiveOrderVerification _activeOrderVerification = RiderActiveOrderVerification();
+  RiderOfflineContext? _trackingRecoveryFailure;
+  final OfflineStatusEvidence _offlineStatusEvidence = OfflineStatusEvidence();
+  String? _offlineStatusUserId;
+  final PendingAssignmentRead _pendingAssignmentRead = PendingAssignmentRead();
+  late final TravelPlanRefresh _travelPlanRefresh;
+  final RiderProfileRead _riderProfileRead = RiderProfileRead();
+  String? _riderProfileOwnerUserId;
+  late final TodayEarningsRefresh _todayEarningsRefresh;
+  final IncomingOrderTypeRead _incomingOrderTypeRead = IncomingOrderTypeRead();
+  bool get _trackingRecoveryUnavailable {
+    final failure = _trackingRecoveryFailure;
+    return failure != null && _activeOrderVerification.sameOfflineIdentity(
+        failure, rider?['id']?.toString(), supabase.auth.currentUser?.id) &&
+        !LocationCacheService.isRiderLiveTrackingActive;
+  }
+  bool get _activeOrderEvidenceUnresolved =>
+      _offlineStatusEvidence.unknown ||
+      _activeOrderVerification.unresolvedFor(rider?['id']?.toString(),
+          orderRevision: _activeOrderRefresh.invalidationRevision);
+  final ActiveOrderEventMetadata _activeOrderEvents = ActiveOrderEventMetadata();
   bool isOnline = false;
   bool statusUpdating = false;
   bool loading = true;
@@ -136,18 +171,32 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
     'cod_pending_amount',
   };
 
-  // Egress fix (Fix #8): a single completion writes both `orders.order_status` and (via
-  // credit_rider_for_completed_order()) an earnings-relevant `riders` column in the same
-  // transaction -- two independent realtime deliveries (the orders-table event driving
-  // subscribeActiveOrder's loadRider() call, and the riders-table event driving subscribeRider's
-  // own isEarningsRelevantUpdate branch below) that both then ran the identical "sum today's
-  // completed orders" query moments apart for that same completion. _lastEarningsFetchAt lets the
-  // second of the two reuse the result the first one just fetched instead of re-querying -- same
-  // calculation, same filters, just not run twice for one real-world event. 3s comfortably covers
-  // realtime delivery jitter between the two channels while staying far below the 30s window
-  // anything else here treats as "fresh enough" (_startSilentRefreshTimer's own gate).
-  static const Duration _earningsFetchDedupeWindow = Duration(seconds: 3);
-  DateTime? _lastEarningsFetchAt;
+  // The coordinator scopes its existing 3s recency window to identity/day and
+  // invalidation revision. Distinct events are not assumed to be one transaction.
+  EarningsScope? get _currentEarningsScope {
+    final userId = supabase.auth.currentUser?.id;
+    final riderId = rider?['id']?.toString();
+    return userId == null || riderId == null ? null : EarningsScope(userId, riderId, DateTime.now());
+  }
+  Future<EarningsSnapshot?> _readTodayEarnings(String riderId) {
+    final userId = supabase.auth.currentUser?.id;
+    return userId == null ? Future.value() :
+        _todayEarningsRefresh.read(EarningsScope(userId, riderId, DateTime.now()));
+  }
+  Future<void> _refreshEarningsOnly(String riderId) async {
+    try {
+      final snapshot = await _readTodayEarnings(riderId);
+      if (mounted && snapshot != null &&
+          _todayEarningsRefresh.markApplied(snapshot, _currentEarningsScope)) {
+        setState(() {
+          todayEarnings = snapshot.total;
+          _grossEarningsScope = snapshot.scope;
+        });
+      }
+    } catch (_) {
+      debugPrint('Error calculating today earnings: request_failed');
+    }
+  }
 
   // "Today's Gross Earnings" (Phase 2 reconciliation): must use the SAME authoritative
   // gross-fare definition as rider_earnings_tab.dart's todayE -- final_fare ?? current_fare,
@@ -156,21 +205,22 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   // orders.rider_earning (a NET figure), which is why Home and Earnings could disagree even
   // though both already correctly date-filter by completed_at's local day. Payment method is
   // deliberately not filtered on -- Cashfree/Personal QR/Cash all contribute their full gross fare.
-  Future<double> _fetchTodayEarnings(String riderId) async {
-    final nowLocal = DateTime.now();
+  Future<double> _fetchTodayEarnings(String riderId, DateTime nowLocal) async {
     final startOfToday = DateTime(nowLocal.year, nowLocal.month, nowLocal.day).toUtc();
-    final ordersData = await supabase
+    final response = await supabase
         .from('orders')
         .select('final_fare, current_fare')
         .eq('rider_id', riderId)
         .inFilter('order_status', ['completed', 'delivered'])
-        .gte('completed_at', startOfToday.toIso8601String());
+        .gte('completed_at', startOfToday.toIso8601String())
+        .count(CountOption.exact);
+    final ordersData = response.data;
 
     double total = 0.0;
+    TodayEarningsRefresh.validateCompleteRows(ordersData, response.count);
     for (var o in ordersData) {
       total += double.tryParse((o['final_fare'] ?? o['current_fare'])?.toString() ?? '0') ?? 0.0;
     }
-    _lastEarningsFetchAt = DateTime.now();
     return total;
   }
 
@@ -186,9 +236,43 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   // RiderEarningsTab's, and RiderProfileTab's own identically-shaped flags.
   static bool _hasConsumedColdStartSeed = false;
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   void initState() {
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.riderHome);
+    _todayEarningsRefresh = TodayEarningsRefresh(
+        fetch: (scope) => _fetchTodayEarnings(scope.riderId, scope.localNow));
+    _travelPlanRefresh = TravelPlanRefresh(
+      currentRiderId: () => mounted && _riderProfileOwnerUserId != null &&
+          _riderProfileOwnerUserId == supabase.auth.currentUser?.id &&
+          serviceMode == PartnerServiceMode.intercity
+          ? (rider?['id'])?.toString() : null,
+      fetchPlans: (riderId) async => List<Map<String, dynamic>>.from(await supabase
+          .from('rider_travel_plans').select().eq('rider_id', riderId)
+          .inFilter('status', ['active', 'fully_booked']).order('travel_date', ascending: true)),
+      fetchRequests: (ids) async => List<Map<String, dynamic>>.from(await supabase
+          .from('intercity_requests').select('route_id, status').inFilter('route_id', ids)),
+      apply: (snapshot) => setState(() {
+        travelPlans = snapshot.plans;
+        _planAcceptedCounts = snapshot.acceptedCounts;
+        _planPendingCounts = snapshot.pendingCounts;
+      }),
+      onFailure: () => debugPrint('Error loading travel plans: request_failed'),
+    );
+    _activeOrderRefresh = ActiveOrderRefreshCoordinator(
+      currentRiderId: () => mounted ? (rider?['id'])?.toString() : null,
+      fetch: _fetchActiveOrders,
+      apply: (result) {
+        if (mounted && _activeOrderVerification.apply(rider?['id']?.toString(), result,
+            orderRevision: _activeOrderRefresh.invalidationRevision)) {
+          setState(() {
+            activeOrders = result.orders;
+          });
+        }
+      },
+    );
     // Feature 1: start the realtime-driven unread notification badge (safe to call repeatedly).
     NotificationBadgeService.instance.startListening();
     _audioPlayer.setAudioContext(AudioContext(
@@ -211,12 +295,27 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
     // not yet consumed this process. A mid-session recreation finds _hasConsumedColdStartSeed
     // already true and falls through to the unconditional live fetch below, exactly like every
     // other loadRider() caller.
-    final seedUsable = initialData != null && !_hasConsumedColdStartSeed;
+    final seedUsable = initialData != null && initialData.belongsTo(supabase.auth.currentUser?.id) &&
+        !_hasConsumedColdStartSeed;
     if (seedUsable) {
       _hasConsumedColdStartSeed = true;
       rider = initialData.rider;
+      _riderProfileOwnerUserId = supabase.auth.currentUser?.id;
+      if (_riderProfileOwnerUserId != null && rider?['id'] != null) {
+        _todayEarningsRefresh.bindIdentity(_riderProfileOwnerUserId!, rider!['id'].toString());
+      }
+      _activeOrderVerification.beginIdentity(rider?['id']?.toString());
       isOnline = rider?['account_status'] == 'online';
-      todayEarnings = initialData.todayEarnings;
+      _initialEarningsSeed = initialData.earningsSeed;
+      final scope = _currentEarningsScope;
+      final grossSeed = _initialEarningsSeed != null && scope != null
+          ? _todayEarningsRefresh.seedGross(_initialEarningsSeed!, scope) : null;
+      if (grossSeed != null && _todayEarningsRefresh.markApplied(grossSeed, scope)) {
+        todayEarnings = grossSeed.total;
+        _grossEarningsScope = grossSeed.scope;
+      } else if (rider?['id'] != null) {
+        unawaited(_refreshEarningsOnly(rider!['id'].toString()));
+      }
       loading = false;
     }
     // R1 FIX #3 (rider cold-start duplicate riders query): initialData was just applied above
@@ -295,6 +394,15 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
 
   @override
   void dispose() {
+    _rideDiagnosticOwner.dispose();
+    _incomingOrderTypeRead.dispose();
+    _todayEarningsRefresh.dispose();
+    _riderProfileRead.dispose();
+    _travelPlanRefresh.dispose();
+    _pendingAssignmentRead.dispose();
+    _activeOrderRefresh.dispose();
+    _activeOrderVerification.dispose();
+    _activeOrderEvents.clear();
     ActiveOrderScreenState.isOpen.removeListener(_onActiveOrderScreenVisibilityChanged);
     _riderSilentRefreshTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
@@ -333,14 +441,26 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
       final user = supabase.auth.currentUser;
       if (user == null) return;
 
+      if (_offlineStatusUserId != user.id) {
+        final changedIdentity = _offlineStatusUserId != null;
+        if (changedIdentity) _travelPlanRefresh.invalidate();
+        if (changedIdentity) _todayEarningsRefresh.retireIdentity();
+        _offlineStatusUserId = user.id;
+        _offlineStatusEvidence.resetIdentity();
+        if (changedIdentity) _offlineStatusEvidence.markUnknown();
+      }
+
+      final statusReadRevision = _offlineStatusEvidence.readRevision;
+
       if (!skipQuery) {
+        final profileRevision = _riderProfileRead.prepare(user.id, statusReadRevision);
         // Egress fix: narrowed from `*` to the exact columns this screen reads
         // (grepped exhaustively across every `rider?['...']`/`rider!['...']`
         // access in this file) -- `riders` also carries current_lat/lng,
         // heading, cod_pending_amount, government_tax_due_balance, timestamps
         // etc. that this tab never touches, and this query runs on initState,
         // the 30s silent-refresh timer, app resume, and every realtime callback.
-        final data = await supabase
+        final data = await _riderProfileRead.read(user.id, () async => await supabase
             .from('riders')
             .select('''
               id,
@@ -358,10 +478,14 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
               )
             ''')
             .eq('user_id', user.id)
-            .maybeSingle();
-        if (!mounted) return;
+            .maybeSingle());
+        if (!mounted || supabase.auth.currentUser?.id != user.id ||
+            !_offlineStatusEvidence.acceptsRead(statusReadRevision) ||
+            !_riderProfileRead.isCurrent(user.id, profileRevision)) {
+          return;
+        }
 
-        double calculatedTodayEarnings = 0.0;
+        EarningsSnapshot? earningsSnapshot;
         if (data != null) {
           final kyc = data['rider_kyc!riders_kyc_id_fkey'] ?? data['rider_kyc'];
           if (kyc is Map) {
@@ -369,25 +493,60 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
             data['rider_image'] = kyc['rider_image'];
           }
 
-          final lastFetch = _lastEarningsFetchAt;
-          if (lastFetch != null && DateTime.now().difference(lastFetch) < _earningsFetchDedupeWindow) {
-            // subscribeRider's own riders-row realtime callback already refreshed this within the
-            // dedupe window (same underlying completion event) -- reuse it instead of re-querying.
-            calculatedTodayEarnings = todayEarnings;
-          } else {
-            try {
-              calculatedTodayEarnings = await _fetchTodayEarnings(data['id'].toString());
-            } catch (err) {
-              debugPrint('Error calculating today earnings in loadRider: $err');
-            }
+          _todayEarningsRefresh.bindIdentity(user.id, data['id'].toString());
+          try {
+            earningsSnapshot = await _readTodayEarnings(data['id'].toString());
+          } catch (_) {
+            debugPrint('Error calculating today earnings: request_failed');
           }
+        } else {
+          _todayEarningsRefresh.retireIdentity();
         }
 
-        if (!mounted) return;
+        if (!mounted || supabase.auth.currentUser?.id != user.id ||
+            !_offlineStatusEvidence.acceptsRead(statusReadRevision) ||
+            !_riderProfileRead.isCurrent(user.id, profileRevision)) {
+          return;
+        }
+        // A fresh existing read can resolve a lost acknowledgement. If it
+        // confirms offline, retire restored tracking before publishing that state.
+        if (_offlineStatusEvidence.unknown && data?['account_status'] == 'offline') {
+          await LocationCacheService.stopRiderLiveTracking();
+          if (!mounted || supabase.auth.currentUser?.id != user.id ||
+              !_offlineStatusEvidence.acceptsRead(statusReadRevision) ||
+              !_riderProfileRead.isCurrent(user.id, profileRevision)) {
+            return;
+          }
+        }
         setState(() {
+          _riderProfileRead.applied();
+          if (rider?['id'] != data?['id']) {
+            _activeOrderRefresh.invalidate();
+            _travelPlanRefresh.invalidate();
+            travelPlans = [];
+            _planAcceptedCounts = {};
+            _planPendingCounts = {};
+            loadingPlans = false;
+            _activeOrderEvents.clear();
+            _activeOrderVerification.beginIdentity(data?['id']?.toString());
+            _trackingRecoveryFailure = null;
+            todayEarnings = 0.0;
+            _grossEarningsScope = null;
+            _initialEarningsSeed = null;
+            _offlineStatusEvidence.resetIdentity();
+            activeOrders = [];
+          }
           rider = data;
-          isOnline = rider?['account_status'] == 'online';
-          todayEarnings = calculatedTodayEarnings;
+          _riderProfileOwnerUserId = user.id;
+          _offlineStatusEvidence.confirmRead(
+              _offlineStatusEvidence.readRevision, rider?['account_status']);
+          isOnline = !_offlineStatusEvidence.unknown && rider?['account_status'] == 'online';
+          if (data == null) todayEarnings = 0.0;
+          if (earningsSnapshot != null &&
+              _todayEarningsRefresh.markApplied(earningsSnapshot, _currentEarningsScope)) {
+            todayEarnings = earningsSnapshot.total;
+            _grossEarningsScope = earningsSnapshot.scope;
+          }
           loading = false;
         });
       }
@@ -452,12 +611,14 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   // (rider_assignments itself has no order_type column -- it's a shared offer ledger for both
   // local dispatch and intercity manual offers -- so this join is the only source for it here).
   Future<List<Map<String, dynamic>>> _fetchPendingSentAssignments(String riderId) async {
+    return _pendingAssignmentRead.read(riderId, () async {
     final rows = await supabase
         .from('rider_assignments')
         .select('order_id, expires_at, orders(order_status, order_type)')
         .eq('rider_id', riderId)
         .eq('assignment_status', 'sent');
     return (rows as List).cast<Map<String, dynamic>>();
+    });
   }
 
   void _updateActiveAssignmentsBadgeFromRows(List<Map<String, dynamic>> rows) {
@@ -485,9 +646,15 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   }
 
   Future<void> _reconcilePendingAssignments(String riderId) async {
+    if (!mounted || rider?['id']?.toString() != riderId) return;
+    final revision = _pendingAssignmentRead.revisionFor(riderId);
     debugPrint('[INSTR-HOME] ${DateTime.now().toIso8601String()} _reconcilePendingAssignments() CALLED for riderId=$riderId');
     try {
       final rows = await _fetchPendingSentAssignments(riderId);
+      if (!mounted || rider?['id']?.toString() != riderId ||
+          revision != _pendingAssignmentRead.revisionFor(riderId)) {
+        return;
+      }
       debugPrint('[INSTR-HOME] ${DateTime.now().toIso8601String()} _reconcilePendingAssignments() SQL returned ${rows.length} row(s) with assignment_status=sent');
       _updateActiveAssignmentsBadgeFromRows(rows);
 
@@ -517,8 +684,10 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
     }
   }
 
-  Future<void> loadActiveOrder(String riderId) async {
-    try {
+  Future<void> loadActiveOrder(String riderId) =>
+      _activeOrderRefresh.request(riderId);
+
+  Future<ActiveOrderReconciliation> _fetchActiveOrders(String riderId) async {
       // Egress fix audit: deliberately left broad, not narrowed. The result (`activeOrders`) is
       // passed wholesale into TravelPlanDetailsScreen as `activeOrder:` (see _showTravelPlanDetails
       // below) -- the same ~2500-line, 30+-field screen already flagged unsafe to narrow for in
@@ -529,7 +698,9 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
           .select('*, users(full_name, gender, profile_photo_url)')
           .eq('rider_id', riderId)
           .inFilter('order_status', ['accepted', 'rider_arrived', 'picked_up', 'rider_at_drop', 'ongoing', 'payment_pending']);
-      final busyRows = (rows as List).cast<Map<String, dynamic>>().where(_isOrderActivelyBusy).toList();
+      final orderRows = (rows as List).cast<Map<String, dynamic>>();
+      final reconciliation = _activeOrderEvents.reconcile(orderRows, activeOrders, _isOrderActivelyBusy);
+      final busyRows = reconciliation.orders;
       // [TRACE_ACTIVEORDER] TEMPORARY diagnostic instrumentation -- investigating "Active Ride In
       // Progress" staying stuck after a rider cancels an accepted order. Delete after root-cause
       // capture.
@@ -538,27 +709,19 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
         'active row(s): ${busyRows.map((e) => '${e['id']}:${e['order_status']}').toList()} '
         'epoch=${DateTime.now().millisecondsSinceEpoch}',
       );
-      if (mounted) setState(() => activeOrders = busyRows);
-    } catch (_) {}
+      return reconciliation;
   }
 
   // Mirrors public.rider_is_on_active_trip(): a local job is busy the instant it's accepted, but
   // an intercity/long-distance job accepted-but-"Waiting for Travel Day" (trip_started_at still
   // null) is only a future reservation, not an active job — it must not surface here as "your
   // current order" or block going offline / accepting a different job.
-  bool _isOrderActivelyBusy(Map<String, dynamic> order) {
-    final status = order['order_status']?.toString();
-    if (status != 'accepted') return true;
-    final type = order['order_type']?.toString() ?? '';
-    final distanceMeters = double.tryParse(order['distance_meters']?.toString() ?? '0') ?? 0.0;
-    final isIntercity = type.startsWith('intercity') || (type == 'ride' && distanceMeters > 20000);
-    if (!isIntercity) return true;
-    return order['trip_started_at'] != null;
-  }
+  bool _isOrderActivelyBusy(Map<String, dynamic> order) => isRiderOrderActivelyBusy(order);
 
   String? _subscribedRiderId;
 
   void subscribeRider(String riderId) {
+    final subscribedUserId = supabase.auth.currentUser?.id;
     if (_subscribedRiderId == riderId) return;
     _subscribedRiderId = riderId;
     if (riderSubId != null && riderSubChannel != null) {
@@ -576,7 +739,10 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
       filterColumn: 'id',
       filterValue: riderId,
       callback: (payload) async {
-        if (!mounted) return;
+        if (!mounted || supabase.auth.currentUser?.id != subscribedUserId ||
+            rider?['id']?.toString() != riderId) {
+          return;
+        }
         final data = payload.newRecord;
 
         // PERF FIX (rider-location-realtime-fanout, Phase 1): during an active ride, GPS pushes a
@@ -604,6 +770,13 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
           }
           return;
         }
+        final profileUserId = supabase.auth.currentUser?.id;
+        if (profileUserId == null || rider?['id']?.toString() != riderId) return;
+        final profileRevision = _riderProfileRead.invalidate(profileUserId);
+        final applicationRevision = _riderProfileRead.applicationRevision;
+        if (oldData.isEmpty || oldData['service_mode'] != data['service_mode']) {
+          _travelPlanRefresh.invalidate();
+        }
 
         // PERF FIX (P1, WayDrop duplicate-realtime audit): a non-location `riders` change (e.g. a
         // plain Go Online/Offline toggle, which only ever writes account_status) previously still
@@ -619,24 +792,25 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
             .where((key) => !oldData.containsKey(key) || oldData[key] != data[key]);
         final isEarningsRelevantUpdate = changedKeys.any(_earningsRelevantFields.contains);
 
-        double calculatedTodayEarnings = todayEarnings;
+        EarningsSnapshot? earningsSnapshot;
         if (isEarningsRelevantUpdate) {
-          final lastFetch = _lastEarningsFetchAt;
-          if (lastFetch != null && DateTime.now().difference(lastFetch) < _earningsFetchDedupeWindow) {
-            // loadRider() (triggered by the sibling orders-table realtime event for this same
-            // completion) already refreshed this within the dedupe window -- reuse it.
-            calculatedTodayEarnings = todayEarnings;
-          } else {
-            try {
-              calculatedTodayEarnings = await _fetchTodayEarnings(data['id'].toString());
-            } catch (err) {
-              debugPrint('Error calculating today earnings in subscribeRider callback: $err');
-              calculatedTodayEarnings = 0.0;
-            }
+          _initialEarningsSeed = null;
+          _todayEarningsRefresh.invalidate();
+          try {
+            earningsSnapshot = await _readTodayEarnings(data['id'].toString());
+          } catch (_) {
+            debugPrint('Error calculating today earnings: request_failed');
           }
         }
 
+        if (!mounted || supabase.auth.currentUser?.id != profileUserId ||
+            rider?['id']?.toString() != riderId ||
+            !_riderProfileRead.isCurrent(profileUserId, profileRevision) ||
+            _riderProfileRead.applicationRevision != applicationRevision) {
+          return;
+        }
         setState(() {
+          _riderProfileRead.applied();
           if (rider != null) {
             rider = {
               ...rider!,
@@ -645,8 +819,15 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
           } else {
             rider = data;
           }
-          isOnline = rider?['account_status'] == 'online';
-          todayEarnings = calculatedTodayEarnings;
+          // Realtime callbacks may have been queued before the failed write;
+          // they cannot resolve its outcome without a fresh profile read.
+          isOnline = !statusUpdating && !_offlineStatusEvidence.unknown &&
+              rider?['account_status'] == 'online';
+          if (earningsSnapshot != null &&
+              _todayEarningsRefresh.markApplied(earningsSnapshot, _currentEarningsScope)) {
+            todayEarnings = earningsSnapshot.total;
+            _grossEarningsScope = earningsSnapshot.scope;
+          }
         });
       },
     );
@@ -658,13 +839,15 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   // Task 2), which fetches the superset select it already needs and reuses that same logic instead
   // of this function's query.
   Future<void> _updateActiveAssignmentsBadge(String rId) async {
+    if (!mounted || rider?['id']?.toString() != rId) return;
+    final revision = _pendingAssignmentRead.revisionFor(rId);
     try {
-      final data = await supabase
-          .from('rider_assignments')
-          .select('expires_at, orders(order_status)')
-          .eq('rider_id', rId)
-          .eq('assignment_status', 'sent');
-      _updateActiveAssignmentsBadgeFromRows((data as List).cast<Map<String, dynamic>>());
+      final data = await _fetchPendingSentAssignments(rId);
+      if (!mounted || rider?['id']?.toString() != rId ||
+          revision != _pendingAssignmentRead.revisionFor(rId)) {
+        return;
+      }
+      _updateActiveAssignmentsBadgeFromRows(data);
     } catch (e) {
       debugPrint('Error updating active assignments badge: $e');
     }
@@ -689,8 +872,11 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
       filterColumn: 'rider_id',
       filterValue: riderId,
       callback: (payload) {
+        _rideDiagnosticOwner.receipt(payload.newRecord['order_id'] ?? payload.oldRecord['order_id'],
+          endpoint: RideEndpoint.assignmentFeed);
         debugPrint('[INSTR-HOME] ${DateTime.now().toIso8601String()} rider_assignments REALTIME EVENT RECEIVED (RiderHomeTab) => type=${payload.eventType}, orderId=${payload.newRecord['order_id']}, status=${payload.newRecord['assignment_status']}, mounted=$mounted');
-        if (!mounted) return;
+        if (!mounted || rider?['id']?.toString() != riderId) return;
+        _pendingAssignmentRead.invalidate(riderId);
 
         // Compute and update server clock skew to eliminate client-side skew
         if (payload.eventType == PostgresChangeEvent.insert) {
@@ -764,8 +950,20 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
       filterValue: riderId,
       callback: (payload) async {
         if (!mounted) return;
+        _rideDiagnosticOwner.receipt(payload.newRecord['id'] ?? payload.oldRecord['id'],
+          status: payload.newRecord['order_status'], version: payload.newRecord['updated_at']);
         final record = payload.newRecord;
         final oldRecord = payload.oldRecord;
+        if (rider?['id']?.toString() != riderId) return;
+        final earningsChanged = TodayEarningsRefresh.orderEventAffectsEarnings(record, oldRecord);
+        if (earningsChanged) {
+          _initialEarningsSeed = null;
+          _todayEarningsRefresh.invalidate();
+        }
+        _activeOrderRefresh.invalidate();
+        _pendingAssignmentRead.invalidate(riderId);
+        _activeOrderEvents.record(record, oldRecord,
+            deleted: payload.eventType == PostgresChangeEvent.delete);
         final orderId = record['id']?.toString();
         final orderStatus = record['order_status']?.toString();
         // [TRACE_ACTIVEORDER] TEMPORARY diagnostic instrumentation -- investigating "Active Ride
@@ -787,6 +985,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
         // stays stale. The subscription itself stays live either way -- only these two calls are
         // gated.
         if (!ActiveOrderScreenState.isOpen.value) {
+          if (earningsChanged) unawaited(_refreshEarningsOnly(riderId));
           // loadActiveOrder() is unconditional -- it's the only thing that keeps `activeOrders`
           // (rider-visible active-order UI) correct, and it must run on every event regardless of
           // which column changed, exactly as before.
@@ -859,13 +1058,15 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
       filterColumn: 'rider_id',
       filterValue: riderId,
       callback: (payload) {
-        if (!mounted) return;
+        if (!mounted || rider?['id']?.toString() != riderId) return;
+        _travelPlanRefresh.invalidate();
         loadTravelPlans(riderId);
       },
     );
   }
 
   void _unsubscribeTravelPlans() {
+    _travelPlanRefresh.invalidate();
     if (travelPlansSubId != null && travelPlansSubChannel != null) {
       RealtimeManager.instance.unsubscribe(travelPlansSubChannel!, travelPlansSubId!);
       travelPlansSubId = null;
@@ -888,21 +1089,34 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   // haptic+sound never fires for an intercity match. A single narrow lookup, fired only for a
   // genuinely new unannounced 'sent' assignment, so it doesn't add meaningful egress.
   Future<void> _resolveOrderTypeAndShowIncomingOrder(Map<String, dynamic> assignment) async {
+    final userId = supabase.auth.currentUser?.id;
+    final riderId = rider?['id']?.toString();
+    if (!mounted || userId == null || riderId == null ||
+        _riderProfileOwnerUserId != userId) {
+      return;
+    }
     final orderId = assignment['order_id']?.toString();
     String? orderType;
     if (orderId != null) {
       try {
-        final row = await supabase.from('orders').select('order_type').eq('id', orderId).maybeSingle();
-        orderType = row?['order_type']?.toString();
-      } catch (e) {
-        debugPrint('Error resolving order_type for incoming assignment orderId=$orderId: $e');
+        orderType = await _incomingOrderTypeRead.read(
+          userId: userId, riderId: riderId, orderId: orderId,
+          fetch: () async => await supabase.from('orders').select('order_type').eq('id', orderId).maybeSingle(),
+        );
+      } catch (_) {
+        debugPrint('Error resolving incoming order type: request_failed');
       }
     }
-    if (!mounted) return;
+    if (!mounted || supabase.auth.currentUser?.id != userId ||
+        rider?['id']?.toString() != riderId || _riderProfileOwnerUserId != userId) {
+      return;
+    }
     _showIncomingOrder(assignment, orderType: orderType);
   }
 
   void _showIncomingOrder(Map<String, dynamic> assignment, {String? orderType}) {
+    // Partial evidence cannot prove that the rider is free.
+    if (_activeOrderEvidenceUnresolved) return;
     debugPrint('[INSTR-HOME] ${DateTime.now().toIso8601String()} _showIncomingOrder() ENTERED for orderId=${assignment['order_id']}, activeOrders.length=${activeOrders.length}');
     // A busy rider (already has an active order) must never be announced a new incoming order.
     // start-dispatch/find_nearby_riders already excludes busy riders from new assignments, but
@@ -962,13 +1176,13 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   }
 
   Future<void> toggleOnlineStatus() async {
-    if (statusUpdating) return;
+    if (statusUpdating || _offlineStatusEvidence.unknown) return;
     
     final newStatus = isOnline ? 'offline' : 'online';
 
     // 1. If going offline, block if there's any active order
     if (newStatus == 'offline') {
-      if (activeOrders.isNotEmpty) {
+      if (_activeOrderEvidenceUnresolved || activeOrders.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Cannot go offline while you have an active order.'),
@@ -979,6 +1193,20 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
       }
 
       // Show confirmation sheet
+      final offlineOperation = _activeOrderVerification.captureOfflineContext(
+        riderId: rider?['id']?.toString(),
+        userId: supabase.auth.currentUser?.id,
+        hasActiveOrders: activeOrders.isNotEmpty,
+        orderRevision: _activeOrderRefresh.invalidationRevision,
+      );
+      if (offlineOperation == null) return;
+      bool stillPermitted() => mounted && _activeOrderVerification.permitsOffline(
+        offlineOperation,
+        riderId: rider?['id']?.toString(),
+        userId: supabase.auth.currentUser?.id,
+        hasActiveOrders: activeOrders.isNotEmpty,
+        orderRevision: _activeOrderRefresh.invalidationRevision,
+      );
       final confirm = await showModalBottomSheet<bool>(
         context: context,
         backgroundColor: darkCard,
@@ -1033,10 +1261,12 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
           ),
         ),
       );
-      if (confirm != true) return;
+      if (confirm != true || statusUpdating || !isOnline || !stillPermitted()) return;
+      var offlineWriteAttempted = false;
       try {
         HapticFeedback.mediumImpact();
         statusUpdating = true;
+        _offlineStatusEvidence.beginWrite();
         setState(() {
           isOnline = false;
           if (rider != null) {
@@ -1046,18 +1276,56 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
 
         await LocationCacheService.stopRiderLiveTracking();
 
+        // Never target a different session or act on an expired order context.
+        if (!stillPermitted()) throw StateError('Offline operation context changed');
+
+        offlineWriteAttempted = true;
         await supabase.from('riders').update({
           'account_status': 'offline',
           'updated_at': DateTime.now().toUtc().toIso8601String(),
-        }).eq('user_id', supabase.auth.currentUser!.id);
+        }).eq('user_id', offlineOperation.userId);
       } catch (_) {
-        setState(() {
-          isOnline = true;
-          if (rider != null) {
-            rider!['account_status'] = 'online';
+        bool ownsRollback() => mounted && _activeOrderVerification.sameOfflineIdentity(
+            offlineOperation, rider?['id']?.toString(), supabase.auth.currentUser?.id);
+        if (ownsRollback() && offlineWriteAttempted) {
+          setState(() {
+            _offlineStatusEvidence.markUnknown();
+            isOnline = false;
+          });
+        }
+        final recovery = await restoreOfflineTracking(
+          isCurrentIdentity: ownsRollback,
+          isTrackingActive: () => LocationCacheService.isRiderLiveTrackingActive,
+          restartTracking: () => LocationCacheService.startRiderLiveTracking(canStart: ownsRollback),
+          stopIncompleteTracking: () => LocationCacheService.stopRiderLiveTracking(),
+        );
+        if (mounted && ownsRollback()) {
+          final restored = recovery == OfflineTrackingRollback.restored &&
+              LocationCacheService.isRiderLiveTrackingActive;
+          setState(() {
+            isOnline = _offlineStatusEvidence.permitsOnline(restored);
+            _trackingRecoveryFailure = restored ? null : offlineOperation;
+            if (rider != null && !_offlineStatusEvidence.unknown) {
+              rider!['account_status'] = restored ? 'online' : 'offline';
+            }
+          });
+          if (_offlineStatusEvidence.unknown) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Account status is awaiting confirmation. Online actions are paused until the next refresh.'),
+              backgroundColor: Colors.orange,
+            ));
+          } else if (!restored) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Location tracking could not restart. Check GPS and location permission before trying again.'),
+              backgroundColor: Colors.orange,
+            ));
           }
-        });
+        }
       } finally {
+        if (mounted && _activeOrderVerification.sameOfflineIdentity(
+            offlineOperation, rider?['id']?.toString(), supabase.auth.currentUser?.id)) {
+          _offlineStatusEvidence.finishWrite();
+        }
         statusUpdating = false;
       }
       return;
@@ -1133,6 +1401,15 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   /// is disabled, permission is denied, or a fresh fix could not be obtained within 8 seconds --
   /// never silently reports misleading availability.
   Future<bool> _bringRiderOnline() async {
+    if (_offlineStatusEvidence.unknown) return false;
+    final onlineUserId = supabase.auth.currentUser?.id;
+    final onlineRiderId = rider?['id']?.toString();
+    final onlineRevision = _offlineStatusEvidence.readRevision;
+    bool ownsOnlineOperation() => _offlineStatusEvidence.permitsOnlineOperation(
+        onlineRevision, mounted: mounted, userId: onlineUserId, riderId: onlineRiderId,
+        currentUserId: supabase.auth.currentUser?.id,
+        currentRiderId: rider?['id']?.toString());
+    if (!ownsOnlineOperation()) return false;
     // Check location service
     final gpsEnabled = await Geolocator.isLocationServiceEnabled();
     if (!gpsEnabled) {
@@ -1204,6 +1481,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
       return false;
     }
 
+    if (!ownsOnlineOperation()) return false;
     try {
       HapticFeedback.mediumImpact();
       statusUpdating = true;
@@ -1214,7 +1492,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
         }
       });
 
-      await LocationCacheService.startRiderLiveTracking();
+      await LocationCacheService.startRiderLiveTracking(canStart: ownsOnlineOperation);
+      if (!ownsOnlineOperation()) return false;
 
       final nowIso = DateTime.now().toUtc().toIso8601String();
       await supabase.from('riders').update({
@@ -1223,7 +1502,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
         'current_lat': freshLat,
         'current_lng': freshLng,
         'last_location_updated_at': nowIso,
-      }).eq('user_id', supabase.auth.currentUser!.id);
+      }).eq('user_id', onlineUserId!);
+      if (!ownsOnlineOperation()) return false;
 
       // subscribeAssignments()'s realtime channel is established once, early, independent of
       // online status, so it should already be live by the time this runs -- but a rider tapping
@@ -1241,6 +1521,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
 
       return true;
     } catch (_) {
+      if (!ownsOnlineOperation()) return false;
       setState(() {
         isOnline = false;
         if (rider != null) {
@@ -2940,64 +3221,23 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
     );
   }
 
-  Future<void> loadTravelPlans(String riderId) async {
-    if (!mounted) return;
+  Future<void> loadTravelPlans(String riderId, {bool authoritativeChange = false}) async {
+    if (!mounted || rider?['id']?.toString() != riderId ||
+        serviceMode != PartnerServiceMode.intercity) {
+      return;
+    }
+    if (authoritativeChange) _travelPlanRefresh.invalidate();
     if (travelPlans.isEmpty) {
       setState(() => loadingPlans = true);
     }
     try {
-      // ROOT CAUSE FIX ("Travel Plan disappears after one request is accepted"): a DB trigger
-      // (20260617000001_intercity_workflow_updates.sql) automatically flips
-      // rider_travel_plans.status from 'active' to 'fully_booked' the instant confirmed/paid/
-      // in_progress bookings reach max_bookings -- which, for the common single-seat plan, is the
-      // very first acceptance. This screen used to query status='active' only, so the plan card
-      // vanished from "Intercity Travel Plans" at exactly the moment a request was accepted,
-      // leaving only the disconnected Upcoming-tab card behind. 'fully_booked' is still an
-      // in-flight plan (the traveller hasn't started the trip yet) and must stay visible here.
-      //
-      // Egress fix audit: deliberately left broad, not narrowed. Individual plan rows from this
-      // result are passed wholesale into TravelPlanDetailsScreen as `plan:` (see
-      // _showTravelPlanDetails) -- the same screen already flagged unsafe to narrow for in
-      // intercity_bookings_screen.dart's identical `rider_travel_plans(*)` join.
-      final res = await supabase
-          .from('rider_travel_plans')
-          .select()
-          .eq('rider_id', riderId)
-          .inFilter('status', ['active', 'fully_booked'])
-          .order('travel_date', ascending: true);
-      final plans = List<Map<String, dynamic>>.from(res);
-
-      final planIds = plans.map((p) => p['id'].toString()).toList();
-      final Map<String, int> acceptedCounts = {};
-      final Map<String, int> pendingCounts = {};
-      if (planIds.isNotEmpty) {
-        final reqRes = await supabase
-            .from('intercity_requests')
-            .select('route_id, status')
-            .inFilter('route_id', planIds);
-        for (final row in List<Map<String, dynamic>>.from(reqRes)) {
-          final routeId = row['route_id']?.toString();
-          if (routeId == null) continue;
-          final status = row['status']?.toString();
-          if (['confirmed', 'paid', 'in_progress'].contains(status)) {
-            acceptedCounts[routeId] = (acceptedCounts[routeId] ?? 0) + 1;
-          } else if (['request_sent', 'discussion_started', 'fare_agreed'].contains(status)) {
-            pendingCounts[routeId] = (pendingCounts[routeId] ?? 0) + 1;
-          }
-        }
-      }
-
-      if (mounted) {
-        setState(() {
-          travelPlans = plans;
-          _planAcceptedCounts = acceptedCounts;
-          _planPendingCounts = pendingCounts;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error loading travel plans: $e');
+      // Keep complete plan rows and the existing status/count predicates. The
+      // coordinator publishes both query results together, never partial data.
+      await _travelPlanRefresh.request(riderId);
     } finally {
-      if (mounted) setState(() => loadingPlans = false);
+      if (mounted && rider?['id']?.toString() == riderId) {
+        setState(() => loadingPlans = false);
+      }
     }
   }
 
@@ -3028,7 +3268,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
           const SnackBar(content: Text('Travel plan cancelled successfully.'), backgroundColor: Colors.green),
         );
         Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) loadTravelPlans(rider!['id']);
+          if (mounted) loadTravelPlans(rider!['id'], authoritativeChange: true);
         });
       } else {
         final msg = (result['message'] as String?) ?? 'Could not cancel this travel plan.';
@@ -3180,10 +3420,11 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
     }
 
     final String? assignmentStatus = order['assignment_status']?.toString();
+    final diagnosticAttempt = _rideDiagnosticOwner.begin(ride: order['id']?.toString(), endpoint: RideEndpoint.acceptance, status: 'accepted');
 
     if (assignmentStatus == 'accepted_by_user') {
       // Step 2: Passenger accepted rider -> Rider does final confirmation to start!
-      if (activeOrders.isNotEmpty) {
+      if (_activeOrderEvidenceUnresolved || activeOrders.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('You cannot accept another order while having an active order in progress.'),
@@ -3194,13 +3435,13 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
       }
 
       try {
-        final response = await supabase.functions.invoke(
+        final response = await _rideDiagnosticOwner.api(RideEndpoint.acceptance, order['id']?.toString(), () => supabase.functions.invoke(
           'accept-order',
           body: {
             'order_id': order['id'],
             'rider_id': riderId,
           },
-        );
+        ), status: 'accepted', attempt: diagnosticAttempt);
 
         if (response.data == null || response.data['success'] != true) {
           throw Exception(response.data?['message'] ?? 'Failed to accept order');
@@ -3221,7 +3462,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
             builder: (_) => RiderActiveOrderScreen(
               orderId: order['id'],
               initialRiderProfile: rider,
-              initialTodayEarnings: todayEarnings,
+              initialRiderProfileUserId: _riderProfileOwnerUserId,
+              initialEarningsSeed: _initialEarningsSeed,
             ),
           ),
         );
@@ -3347,7 +3589,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
                         builder: (_) => const IntercityBookingsScreen(),
                       ),
                     ).then((_) {
-                      if (rider != null) loadTravelPlans(rider!['id']);
+                      if (rider != null) loadTravelPlans(rider!['id'], authoritativeChange: true);
                     });
                   },
                 ),
@@ -3378,7 +3620,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
                       onPlanPosted: (insertedPlan) {
                         if (mounted) {
                           _showTravelPlanDetails(context, Map<String, dynamic>.from(insertedPlan));
-                          loadTravelPlans(rider!['id']);
+                          loadTravelPlans(rider!['id'], authoritativeChange: true);
                         }
                       },
                     ),
@@ -3735,6 +3977,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
 
   Widget _buildTodayEarningsCard() {
     final today = todayEarnings;
+    final grossAvailable = _grossEarningsScope?.key == _currentEarningsScope?.key &&
+        _grossEarningsScope != null;
     final wallet = rider?['wallet_balance'] ?? 0;
     return Container(
       width: double.infinity,
@@ -3797,7 +4041,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '₹${_fmt(today)}',
+                        grossAvailable ? '₹${_fmt(today)}' : 'Unavailable',
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
@@ -3962,12 +4206,16 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isOnline ? 'You are Online' : 'You are Offline',
+                  _offlineStatusEvidence.unknown ? 'Account status unconfirmed' :
+                  _trackingRecoveryUnavailable ? 'Location tracking unavailable' :
+                      (isOnline ? 'You are Online' : 'You are Offline'),
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  isOnline ? 'Active & receiving orders' : 'Inactive, tap to go online',
+                  _offlineStatusEvidence.unknown ? 'Online actions paused until refresh' :
+                  _trackingRecoveryUnavailable ? 'Check GPS and location permission' :
+                      (isOnline ? 'Active & receiving orders' : 'Inactive, tap to go online'),
                   style: const TextStyle(fontSize: 12, color: textGray, fontWeight: FontWeight.w500),
                 ),
               ],
@@ -4063,7 +4311,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
               builder: (_) => RiderActiveOrderScreen(
                 orderId: order['id'],
                 initialRiderProfile: rider,
-                initialTodayEarnings: todayEarnings,
+                initialRiderProfileUserId: _riderProfileOwnerUserId,
+                initialEarningsSeed: _initialEarningsSeed,
               ),
             ),
           );

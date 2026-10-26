@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:waydrop/core/services/cache/identity_scoped_future.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -49,6 +50,25 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
   bool loading = true;
   String? _riderSubChannel;
   String? _riderSubId;
+  int _loadRevision = 0;
+  int _subscriptionRevision = 0;
+  String? _profileUserId;
+  bool _disposed = false;
+
+  bool _loadIsCurrent(String userId, int revision) => mounted && !_disposed &&
+      supabase.auth.currentUser?.id == userId && _loadRevision == revision;
+
+  void _releaseRiderSubscription() {
+    _subscriptionRevision++;
+    final channel = _riderSubChannel;
+    final id = _riderSubId;
+    _riderSubChannel = null;
+    _riderSubId = null;
+    _subscribedRiderId = null;
+    if (channel != null && id != null) {
+      RealtimeManager.instance.unsubscribe(channel, id);
+    }
+  }
 
   // R1 FIX #6: distinguishes a true cold-start mount (initialRiderDataProvider's snapshot is
   // guaranteed fresh -- fetched by AppStartScreen moments earlier in the same navigation
@@ -89,13 +109,32 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
   String? _subscribedRiderId;
   // [PERF] Issue #2: cached admin-role query — created once, not per rebuild.
   late Future<Map<String, dynamic>?> _adminRoleFuture;
-  late Future<Map<String, dynamic>> _rewardStatusFuture;
+  late Future<Map<String, dynamic>?> _rewardStatusFuture;
+  late final IdentityScopedFuture<Map<String, dynamic>> _roleCache;
+  late final IdentityScopedFuture<Map<String, dynamic>> _rewardCache;
+  StreamSubscription<AuthState>? _cacheAuthSubscription;
+  String? _cacheUserId;
+
+  void _bindIdentityFutures() {
+    _cacheUserId = supabase.auth.currentUser?.id;
+    _adminRoleFuture = _roleCache.read('users:role', _loadAdminRole);
+    _rewardStatusFuture = _rewardCache.read('rewards:rider', () => RewardService.fetchStatus('rider'));
+  }
 
   @override
   void initState() {
     super.initState();
-    _adminRoleFuture = _loadAdminRole();
-    _rewardStatusFuture = RewardService.fetchStatus('rider');
+    _roleCache = IdentityScopedFuture(() => supabase.auth.currentUser?.id);
+    _rewardCache = IdentityScopedFuture(() => supabase.auth.currentUser?.id);
+    _bindIdentityFutures();
+    _cacheAuthSubscription = supabase.auth.onAuthStateChange.listen((_) {
+      if (!mounted || _disposed || _cacheUserId == supabase.auth.currentUser?.id) return;
+      setState(_bindIdentityFutures);
+      // Retire the old subscription immediately, even when the new identity is null.
+      _loadRevision++;
+      _releaseRiderSubscription();
+      loadProfileData();
+    });
     loadProfileData();
   }
 
@@ -116,28 +155,32 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
         // so the displayed data may be stale) then let _subscribeRider() re-attach as normal.
         loadProfileData();
       } else if (_riderSubChannel != null && _riderSubId != null) {
-        RealtimeManager.instance.unsubscribe(_riderSubChannel!, _riderSubId!);
-        _riderSubChannel = null;
-        _riderSubId = null;
-        _subscribedRiderId = null;
+        _releaseRiderSubscription();
       }
     }
   }
 
   @override
   void dispose() {
-    if (_riderSubChannel != null && _riderSubId != null) {
-      RealtimeManager.instance.unsubscribe(_riderSubChannel!, _riderSubId!);
-      _riderSubChannel = null;
-      _riderSubId = null;
-    }
+    _disposed = true;
+    _cacheAuthSubscription?.cancel();
+    _roleCache.dispose();
+    _rewardCache.dispose();
+    _loadRevision++;
+    _releaseRiderSubscription();
     super.dispose();
   }
 
   Future<void> loadProfileData() async {
+    if (!mounted || _disposed) return;
+    final user = supabase.auth.currentUser;
+    if (user == null) return;
+    final revision = ++_loadRevision;
+    if (_profileUserId != user.id) {
+      _releaseRiderSubscription();
+      _profileUserId = user.id;
+    }
     try {
-      final user = supabase.auth.currentUser;
-      if (user == null) return;
 
       // 1. Fetch user_code
       final userData = await supabase
@@ -145,6 +188,7 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
           .select('user_code')
           .eq('id', user.id)
           .maybeSingle();
+      if (!_loadIsCurrent(user.id, revision)) return;
       final fetchedUserCode = userData?['user_code']?.toString() ?? '...';
 
       // 2. Fetch Rider details
@@ -154,7 +198,8 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
       // the same table/row, so it covers every field this tab reads. The rider_kyc fetch below is
       // untouched -- the seed's own rider_kyc embed doesn't carry vehicle_number/vehicle_type,
       // so it can never replace this screen's own kyc query.
-      final seedRider = providerContainer.read(initialRiderDataProvider)?.rider;
+      final initialData = providerContainer.read(initialRiderDataProvider);
+      final seedRider = initialData?.belongsTo(user.id) == true ? initialData?.rider : null;
       final Map<String, dynamic>? riderData;
       if (seedRider != null && seedRider['id'] != null && !_hasConsumedColdStartSeed) {
         _hasConsumedColdStartSeed = true;
@@ -169,6 +214,7 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
             .eq('user_id', user.id)
             .maybeSingle();
       }
+      if (!_loadIsCurrent(user.id, revision)) return;
 
       if (riderData != null) {
         // 3. Fetch KYC details (contains profile picture and vehicle number)
@@ -178,6 +224,7 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
             .select('full_name, vehicle_number, vehicle_type, rider_image')
             .eq('id', riderData['kyc_id'])
             .maybeSingle();
+        if (!_loadIsCurrent(user.id, revision)) return;
 
         if (mounted) {
           setState(() {
@@ -187,7 +234,7 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
             loading = false;
           });
         }
-        _subscribeRider(riderData['id']);
+        _subscribeRider(riderData['id'], user.id);
       } else {
         if (mounted) {
           setState(() {
@@ -198,18 +245,19 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
       }
     } catch (e) {
       debugPrint('LOAD PROFILE DATA ERROR => $e');
-      if (mounted) setState(() => loading = false);
+      if (_loadIsCurrent(user.id, revision)) setState(() => loading = false);
     }
   }
 
-  void _subscribeRider(String riderId) {
-    if (_subscribedRiderId == riderId) return;
-    _subscribedRiderId = riderId;
-    if (_riderSubChannel != null && _riderSubId != null) {
-      RealtimeManager.instance.unsubscribe(_riderSubChannel!, _riderSubId!);
-      _riderSubChannel = null;
-      _riderSubId = null;
+  void _subscribeRider(String riderId, String userId) {
+    if (!mounted || _disposed || !widget.isActive ||
+        supabase.auth.currentUser?.id != userId || _profileUserId != userId) {
+      return;
     }
+    if (_subscribedRiderId == riderId) return;
+    _releaseRiderSubscription();
+    _subscribedRiderId = riderId;
+    final subscriptionRevision = _subscriptionRevision;
     // PERF FIX (P0/P7): join the same pooled channel RiderHomeTab/RiderOrdersScreen already use
     // for this exact rider row (table='riders', event=update, filterColumn='id', filterValue=
     // riderId all identical -- confirmed against RiderHomeTab.subscribeRider() and
@@ -228,7 +276,12 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
       filterColumn: 'id',
       filterValue: riderId,
       callback: (payload) {
-        if (!mounted) return;
+        if (!mounted || _disposed || !widget.isActive ||
+            supabase.auth.currentUser?.id != userId ||
+            _profileUserId != userId || _subscribedRiderId != riderId ||
+            _subscriptionRevision != subscriptionRevision) {
+          return;
+        }
         final oldData = payload.oldRecord;
         final newData = payload.newRecord;
         // Conservative fallback (matches RiderHomeTab's own gating): if oldRecord is empty (no
@@ -245,6 +298,7 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
   }
 
   Future<void> logout() async {
+    final logoutUserId = supabase.auth.currentUser?.id;
     final confirm = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: darkBg,
@@ -351,10 +405,12 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
     );
 
     if (confirm != true) return;
+    if (!mounted || logoutUserId == null || supabase.auth.currentUser?.id != logoutUserId) return;
 
     try {
       await NotificationService().removeToken();
     } catch (_) {}
+    if (!mounted || supabase.auth.currentUser?.id != logoutUserId) return;
     await supabase.auth.signOut();
     await CacheCleanupHelper.clearAllCaches();
     AuthSession.clear();
@@ -384,7 +440,7 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
           .select('account_status')
           .eq('user_id', user.id)
           .maybeSingle();
-      if (!mounted) return;
+      if (!mounted || supabase.auth.currentUser?.id != user.id) return;
       if (dbRider != null && dbRider['account_status'] == 'online') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -396,7 +452,7 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
       }
     } catch (e) {
       debugPrint('Direct status check failed: $e');
-      if (!mounted) return;
+      if (!mounted || supabase.auth.currentUser?.id != user.id) return;
       if (rider != null && rider?['account_status'] == 'online') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -463,9 +519,10 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
     );
 
     if (confirm != true) return;
-    if (!mounted) return;
+    if (!mounted || supabase.auth.currentUser?.id != user.id) return;
 
     await supabase.from('users').update({'preferred_mode': 'user'}).eq('id', user.id);
+    if (!mounted || supabase.auth.currentUser?.id != user.id) return;
     ref.read(appModeProvider.notifier).switchToUser();
     if (!mounted) return;
     Navigator.pushAndRemoveUntil(
@@ -698,7 +755,8 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
                           }
                         },
                       ),
-                      FutureBuilder<Map<String, dynamic>>(
+                      FutureBuilder<Map<String, dynamic>?>(
+                        key: ValueKey('rider-rewards:$_cacheUserId'),
                         future: _rewardStatusFuture,
                         builder: (context, snapshot) {
                           final status = snapshot.data;
@@ -742,7 +800,7 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => MyVehiclesScreen(riderId: riderId, kyc: kyc),
+                                builder: (_) => MyVehiclesScreen(riderId: riderId, kyc: kyc, accountId: _profileUserId, kycId: rider?['kyc_id']?.toString()),
                               ),
                             );
                           }
@@ -790,6 +848,7 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
                       ),
                       // Conditional Admin support panel tile
                       FutureBuilder<Map<String, dynamic>?>(
+                        key: ValueKey('rider-role:$_cacheUserId'),
                         future: _adminRoleFuture,
                         builder: (context, snapshot) {
                           if (snapshot.hasData && (snapshot.data?['role'] == 'admin' || snapshot.data?['role'] == 'support')) {

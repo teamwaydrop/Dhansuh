@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:waydrop/core/services/cache/identity_scoped_future.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/features/user/profile/services/passenger_photo_service.dart';
@@ -36,7 +38,22 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   // [PERF] Issue #2: cached futures — created once, recreated only on explicit refresh.
   late Future<Map<String, dynamic>?> _userInfoFuture;
   late Future<Map<String, dynamic>?> _adminRoleFuture;
-  late Future<Map<String, dynamic>> _rewardStatusFuture;
+  late Future<Map<String, dynamic>?> _rewardStatusFuture;
+  late final IdentityScopedFuture<Map<String, dynamic>> _initialProfileCache;
+  late final IdentityScopedFuture<Map<String, dynamic>> _rewardCache;
+  StreamSubscription<AuthState>? _cacheAuthSubscription;
+  String? _cacheUserId;
+  int _identityRevision = 0;
+
+  void _bindIdentityFutures() {
+    _identityRevision++;
+    _isSwitching = false;
+    _cacheUserId = Supabase.instance.client.auth.currentUser?.id;
+    final profile = _initialProfileCache.read('users:profile-and-role', _loadInitialProfileData);
+    _userInfoFuture = profile;
+    _adminRoleFuture = profile;
+    _rewardStatusFuture = _rewardCache.read('rewards:user', () => RewardService.fetchStatus('user'));
+  }
 
   @override
   void initState() {
@@ -49,10 +66,21 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     // so every existing `data?['...']` read on either future keeps working unchanged); only how
     // many network calls it took to get there changed. _loadUserInfo() itself is untouched and
     // still used verbatim by every post-edit refresh call site below.
-    final initialProfileFuture = _loadInitialProfileData();
-    _userInfoFuture = initialProfileFuture;
-    _adminRoleFuture = initialProfileFuture;
-    _rewardStatusFuture = RewardService.fetchStatus('user');
+    _initialProfileCache = IdentityScopedFuture(() => Supabase.instance.client.auth.currentUser?.id);
+    _rewardCache = IdentityScopedFuture(() => Supabase.instance.client.auth.currentUser?.id);
+    _bindIdentityFutures();
+    _cacheAuthSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((_) {
+      if (!mounted || _cacheUserId == Supabase.instance.client.auth.currentUser?.id) return;
+      setState(_bindIdentityFutures);
+    });
+  }
+
+  @override
+  void dispose() {
+    _cacheAuthSubscription?.cancel();
+    _initialProfileCache.dispose();
+    _rewardCache.dispose();
+    super.dispose();
   }
 
   Future<Map<String, dynamic>?> _loadInitialProfileData() {
@@ -591,6 +619,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
 
             // User Info Card with edit pencil
             FutureBuilder<Map<String, dynamic>?>(
+              key: ValueKey('passenger-info:$_cacheUserId'),
               future: _userInfoFuture,
               builder: (context, snapshot) {
                 final userCode = snapshot.data?['user_code']?.toString() ?? '...';
@@ -791,7 +820,11 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                         )
                       : null,
                   onTap: () async {
-                    if (user == null) return;
+                    if (user == null || Supabase.instance.client.auth.currentUser?.id != user.id) return;
+                    final identityRevision = _identityRevision;
+                    bool operationCurrent() => mounted &&
+                        Supabase.instance.client.auth.currentUser?.id == user.id &&
+                        _identityRevision == identityRevision;
                     setState(() => _isSwitching = true);
 
                     try {
@@ -805,7 +838,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                           .select('blocked_until, kyc_status, activation_status')
                           .eq('user_id', user.id)
                           .maybeSingle();
+                      if (!operationCurrent()) return;
                       final riderResponse = await supabase.from('riders').select('id').eq('user_id', user.id).maybeSingle();
+                      if (!operationCurrent()) return;
                       final payoutResponse = await supabase
                           .from('rider_payout_accounts')
                           .select('id')
@@ -813,7 +848,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                           .eq('cashfree_beneficiary_status', 'active')
                           .maybeSingle();
 
-                      if (!mounted) return;
+                      if (!operationCurrent()) return;
 
                       bool isBlocked = false;
                       if (kycResponse != null) {
@@ -913,13 +948,16 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                           ),
                         );
 
-                        if (confirm == true && mounted) {
+                        if (confirm == true && operationCurrent()) {
                           ref.read(modeSwitchOverlayProvider.notifier).trigger(
                             asyncAction: () async {
+                              if (!operationCurrent()) return;
                               await RiderStatusService.switchToRiderMode();
+                              if (!operationCurrent()) return;
                               ref.read(appModeProvider.notifier).switchToRider();
                             },
                             onMidpoint: () {
+                              if (!operationCurrent()) return;
                               Navigator.pushAndRemoveUntil(
                                 context,
                                 PageRouteBuilder(
@@ -931,6 +969,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                               );
                             },
                             onError: (err) {
+                              if (!operationCurrent()) return;
                               final errorMsg = err.toString();
                               if (errorMsg.contains('Payout details not registered')) {
                                 Navigator.push(context, MaterialPageRoute(builder: (_) => const RiderPayoutDetailsScreen()));
@@ -946,14 +985,15 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const RiderEntryHandler()));
                       }
                     } catch (e) {
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                      if (operationCurrent()) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
                     } finally {
-                      if (mounted) setState(() => _isSwitching = false);
+                      if (operationCurrent()) setState(() => _isSwitching = false);
                     }
                   },
                 ),
                 // Conditional Admin support panel tile
                 FutureBuilder<Map<String, dynamic>?>(
+                  key: ValueKey('passenger-role:$_cacheUserId'),
                   future: _adminRoleFuture,
                   builder: (context, snapshot) {
                     if (snapshot.hasData && (snapshot.data?['role'] == 'admin' || snapshot.data?['role'] == 'support')) {
@@ -983,7 +1023,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
             _buildGroupedCard(
               isDark: isDark,
               children: [
-                FutureBuilder<Map<String, dynamic>>(
+                FutureBuilder<Map<String, dynamic>?>(
+                  key: ValueKey('passenger-rewards:$_cacheUserId'),
                   future: _rewardStatusFuture,
                   builder: (context, snapshot) {
                     final status = snapshot.data;

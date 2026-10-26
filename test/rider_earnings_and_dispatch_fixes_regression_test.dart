@@ -424,8 +424,9 @@ void main() {
         'every unannounced "sent" assignment', () {
       final idx = homeTab.indexOf('Future<void> _reconcilePendingAssignments(String riderId) async {');
       expect(idx, greaterThan(-1));
-      final end = homeTab.indexOf('Future<void> loadActiveOrder(String riderId) async {');
-      final body = homeTab.substring(idx, end > idx ? end : idx + 1500);
+      final end = homeTab.indexOf('Future<void> loadActiveOrder(String riderId)', idx);
+      expect(end, greaterThan(idx));
+      final body = homeTab.substring(idx, end);
       expect(body.contains('_showIncomingOrder(row)'), isTrue);
     });
   });

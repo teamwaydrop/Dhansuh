@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:waydrop/core/services/session/identity_operation_scope.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waydrop/core/providers/app_mode_provider.dart';
 import 'package:waydrop/features/rider/onboarding/screens/rider_kyc_screen.dart';
@@ -370,12 +371,23 @@ class KycVerifiedWaitingScreen extends StatelessWidget {
 // WELCOME RIDER SCREEN
 // =============================================
 
-class WelcomeRiderScreen extends ConsumerWidget {
+class WelcomeRiderScreen extends ConsumerStatefulWidget {
   const WelcomeRiderScreen({super.key});
+  @override
+  ConsumerState<WelcomeRiderScreen> createState() => _WelcomeRiderScreenState();
+}
+
+class _WelcomeRiderScreenState extends ConsumerState<WelcomeRiderScreen> {
+  late final _modeOperations = IdentityOperationScope.forWidget(() => mounted);
+  @override
+  void dispose() { _modeOperations.dispose(); super.dispose(); }
 
   Future<void> switchMode(BuildContext context, WidgetRef ref) async {
+    final operation = _modeOperations.begin();
     try {
+      operation.requireCurrent();
       await RiderStatusService.switchToRiderMode();
+      operation.requireCurrent();
       ref.read(appModeProvider.notifier).switchToRider();
       if (context.mounted) {
         Navigator.pushAndRemoveUntil(
@@ -385,7 +397,7 @@ class WelcomeRiderScreen extends ConsumerWidget {
         );
       }
     } catch (e) {
-      if (context.mounted) {
+      if (operation.isCurrent) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString().replaceFirst('Exception: ', '')),
@@ -397,7 +409,7 @@ class WelcomeRiderScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
       body: SafeArea(
@@ -458,12 +470,16 @@ class WelcomeRiderScreen extends ConsumerWidget {
                     ),
                   ),
                   onPressed: () {
+                    final operation = _modeOperations.begin();
                     ref.read(modeSwitchOverlayProvider.notifier).trigger(
                       asyncAction: () async {
+                        operation.requireCurrent();
                         await RiderStatusService.switchToRiderMode();
+                        operation.requireCurrent();
                         ref.read(appModeProvider.notifier).switchToRider();
                       },
                       onMidpoint: () {
+                        if (!operation.isCurrent) return;
                         Navigator.pushAndRemoveUntil(
                           context,
                           PageRouteBuilder(
@@ -475,6 +491,7 @@ class WelcomeRiderScreen extends ConsumerWidget {
                         );
                       },
                       onError: (err) {
+                        if (!operation.isCurrent) return;
                         final errorMsg = err.toString();
                         if (errorMsg.contains('Payout details not registered')) {
                           Navigator.push(

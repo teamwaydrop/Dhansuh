@@ -151,9 +151,9 @@ void main() {
 
     test('a single shared _fetchTodayEarnings() helper exists and both call sites use it instead '
         'of inlining their own query', () {
-      expect(homeTab.contains('Future<double> _fetchTodayEarnings(String riderId) async {'), isTrue);
+      expect(homeTab.contains('Future<double> _fetchTodayEarnings(String riderId, DateTime nowLocal) async {'), isTrue);
       // The exact original calculation/filters must survive inside the helper.
-      final helperStart = homeTab.indexOf('Future<double> _fetchTodayEarnings(String riderId) async {');
+      final helperStart = homeTab.indexOf('Future<double> _fetchTodayEarnings(String riderId, DateTime nowLocal) async {');
       final helperEnd = homeTab.indexOf('\n  }', helperStart);
       final helperBody = homeTab.substring(helperStart, helperEnd);
       // Phase 2 earnings-reconciliation fix (rider_today_gross_earnings_regression_test.dart):
@@ -164,9 +164,10 @@ void main() {
       expect(helperBody.contains(".gte('completed_at', startOfToday.toIso8601String())"), isTrue);
 
       // Both call sites invoke the shared helper.
-      final callSites = '_fetchTodayEarnings('.allMatches(homeTab).length;
-      expect(callSites, greaterThanOrEqualTo(3),
-          reason: 'the helper definition itself plus its 2 call sites (loadRider(), subscribeRider())');
+      expect('_fetchTodayEarnings('.allMatches(homeTab).length, 2,
+          reason: 'one raw query definition and one coordinator fetch binding');
+      expect('_readTodayEarnings('.allMatches(homeTab).length, greaterThanOrEqualTo(3),
+          reason: 'both callers must use the independent scoped coordinator');
 
       // The old duplicated inline query body no longer appears twice.
       final inlineQueryCount = ".select('final_fare, current_fare')".allMatches(homeTab).length;
@@ -175,12 +176,11 @@ void main() {
 
     test('a recency guard skips the second fetch when both realtime paths fire for the same '
         'underlying completion within the dedupe window', () {
-      expect(homeTab.contains('DateTime? _lastEarningsFetchAt;'), isTrue);
-      expect(homeTab.contains('static const Duration _earningsFetchDedupeWindow = Duration(seconds: 3);'),
-          isTrue);
-      final guardCount = '_earningsFetchDedupeWindow'.allMatches(homeTab).length;
-      expect(guardCount, greaterThanOrEqualTo(3),
-          reason: 'declaration plus a check at both call sites');
+      final coordinator = _read('lib/features/rider/home/today_earnings_refresh.dart');
+      expect(coordinator, contains('static const dedupeWindow = Duration(seconds: 3);'));
+      expect(coordinator, contains('cached.scope.key == scope.key'));
+      expect(coordinator, contains('cached.revision == _revision'));
+      expect(homeTab, contains('_todayEarningsRefresh.markApplied'));
     });
   });
 

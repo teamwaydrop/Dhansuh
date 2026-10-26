@@ -32,11 +32,15 @@ void main() {
     test('_pollActiveOrderFallback() still snapshots wasBusy and forces a refetch on the '
         'busy->free transition', () {
       expect(pollBody.contains('final wasBusy = hasActiveOrder;'), isTrue);
-      final ifIndex = pollBody.indexOf('if (wasBusy && !hasActiveOrder)');
-      final catchIndex = pollBody.indexOf('} catch (_) {}');
+      final ifIndex = pollBody.indexOf('if ((wasBusy || isFirstPollForThisInstance) && !hasActiveOrder)');
+      final catchIndex = pollBody.indexOf('} catch (_) {', ifIndex);
       expect(ifIndex, greaterThanOrEqualTo(0));
       expect(catchIndex, greaterThan(ifIndex));
       expect(pollBody.substring(ifIndex, catchIndex).contains('fetchSearchingOrders();'), isTrue);
+      final recovery = pollBody.substring(ifIndex, catchIndex);
+      expect(recovery, contains("await supabase.rpc('rider_self_rematch')"));
+      expect(recovery, contains('catch (e, stackTrace)'));
+      expect(recovery.indexOf('fetchSearchingOrders();'), greaterThan(recovery.indexOf('catch (e, stackTrace)')));
     });
 
     test('hasActiveOrder is only ever written inside _pollActiveOrderFallback() -- no other path '

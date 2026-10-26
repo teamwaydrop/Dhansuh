@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waydrop/core/services/session/identity_operation_scope.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waydrop/features/rider/onboarding/screens/rider_entry_handler.dart';
 import 'package:waydrop/features/rider/onboarding/screens/service_mode_selection_screen.dart';
@@ -7,7 +8,7 @@ import 'package:waydrop/features/rider/services/rider_status_service.dart';
 import 'package:waydrop/features/rider/navigation/rider_main_navigation_screen.dart';
 import 'package:waydrop/shared/animations/waydrop_bike_animation.dart';
 
-class NotServiceableScreen extends ConsumerWidget {
+class NotServiceableScreen extends ConsumerStatefulWidget {
   final bool isRiderReady;
 
   const NotServiceableScreen({
@@ -16,7 +17,15 @@ class NotServiceableScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotServiceableScreen> createState() => _NotServiceableScreenState();
+}
+
+class _NotServiceableScreenState extends ConsumerState<NotServiceableScreen> {
+  late final _modeOperations = IdentityOperationScope.forWidget(() => mounted);
+  @override
+  void dispose() { _modeOperations.dispose(); super.dispose(); }
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final subtitleColor = isDark ? const Color(0xFF94A3B8) : Colors.grey.shade700;
@@ -276,9 +285,12 @@ class NotServiceableScreen extends ConsumerWidget {
                 ),
                 child: ElevatedButton(
                   onPressed: () async {
-                    if (isRiderReady) {
+                    if (widget.isRiderReady) {
+                      final operation = _modeOperations.begin();
                       try {
+                        operation.requireCurrent();
                         await RiderStatusService.switchToRiderMode();
+                        operation.requireCurrent();
                         ref.read(appModeProvider.notifier).switchToRider();
                         if (!context.mounted) return;
                         Navigator.pushAndRemoveUntil(
@@ -287,7 +299,7 @@ class NotServiceableScreen extends ConsumerWidget {
                           (_) => false,
                         );
                       } catch (e) {
-                        if (!context.mounted) return;
+                        if (!operation.isCurrent) return;
                         final errorMsg = e.toString();
                         if (errorMsg.contains('Service Mode not chosen')) {
                           Navigator.push(
@@ -318,7 +330,7 @@ class NotServiceableScreen extends ConsumerWidget {
                     ),
                   ),
                   child: Text(
-                    isRiderReady ? "Switch to Drop Partner Mode" : "Become a Drop Partner",
+                    widget.isRiderReady ? "Switch to Drop Partner Mode" : "Become a Drop Partner",
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,

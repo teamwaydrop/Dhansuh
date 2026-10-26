@@ -1,9 +1,25 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waydrop/features/rider/home/pending_assignment_read.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/core/services/realtime/realtime_manager.dart';
 import 'package:waydrop/shared/widgets/skeleton_loader.dart';
 
-class RiderPayoutsScreen extends StatefulWidget {
+final payoutsWithdrawalsBindingProvider = Provider<
+    VoidCallback Function(String account, VoidCallback callback)>((ref) {
+  return (account, callback) {
+    final channel = 'rider-withdrawals-$account';
+    final id = RealtimeManager.instance.subscribe(
+      channelName: channel, table: 'rider_withdrawals',
+      owner: 'RiderPayoutsScreen_Withdrawals', event: PostgresChangeEvent.all,
+      schema: 'public', filterColumn: 'user_id', filterValue: account,
+      callback: (_) => callback());
+    return () => RealtimeManager.instance.unsubscribe(channel, id);
+  };
+});
+
+class RiderPayoutsScreen extends ConsumerStatefulWidget {
   final String riderId;
 
   const RiderPayoutsScreen({
@@ -12,18 +28,63 @@ class RiderPayoutsScreen extends StatefulWidget {
   });
 
   @override
-  State<RiderPayoutsScreen> createState() => _RiderPayoutsScreenState();
+  ConsumerState<RiderPayoutsScreen> createState() => _RiderPayoutsScreenState();
 }
 
-class _RiderPayoutsScreenState extends State<RiderPayoutsScreen> {
+class _RiderPayoutsScreenState extends ConsumerState<RiderPayoutsScreen> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> payoutTransactions = [];
   bool loading = true;
   // Egress fix: migrated from a raw supabase.channel() with a fixed (non-per-user) name -- the
   // exact same bug already fixed once in rider_earnings_tab.dart's own withdrawal channel, missed
   // here. Now pools with that screen's identical table/event/filter subscription.
-  String? _withdrawalsSubChannel;
-  String? _withdrawalsSubId;
+  VoidCallback? _retireWithdrawals;
+  StreamSubscription<AuthState>? _authSubscription;
+  String? _account;
+  String? _rider;
+  int _generation = 0;
+  bool _bound = false;
+  final _reads = InFlightRead<({int revision, List<Map<String, dynamic>> rows})>();
+
+  bool _current(String? account, int generation) => mounted && account != null &&
+      _account == account && supabase.auth.currentUser?.id == account &&
+      _generation == generation;
+
+  void _retire() {
+    final retire = _retireWithdrawals;
+    _retireWithdrawals = null;
+    retire?.call();
+  }
+
+  Future<void> _bind(String? account, {String? requestedRider, bool initial = false}) async {
+    if (!mounted) return;
+    if (!initial && requestedRider == null && _bound && account == _account) return;
+    _bound = true;
+    final generation = ++_generation;
+    _retire();
+    setState(() { _account = account; _rider = null; payoutTransactions = []; loading = account != null; });
+    if (account == null) return;
+    try {
+      // Confirm the externally supplied route ID against the authenticated owner.
+      // Account replacement resolves its own unique rider, never A's route ID.
+      var query = supabase.from('riders').select('id').eq('user_id', account);
+      final candidate = initial ? widget.riderId : requestedRider;
+      if (candidate != null) query = query.eq('id', candidate);
+      final row = await query.maybeSingle();
+      if (!_current(account, generation)) return;
+      final rider = row?['id'] as String?;
+      if (rider == null || rider.isEmpty) { setState(() => loading = false); return; }
+      _rider = rider;
+      _retireWithdrawals = ref.read(payoutsWithdrawalsBindingProvider)(account, () {
+        if (_current(account, generation)) fetchWithdrawalsOnly();
+      });
+      await loadPayouts();
+    } catch (e) {
+      if (!_current(account, generation)) return;
+      debugPrint('LOAD PAYOUTS ERROR => $e');
+      setState(() => loading = false);
+    }
+  }
 
   static const Color primaryLime = Color(0xFFC5FF30);
   static const Color darkBg = Color(0xFF0B0F19);
@@ -33,19 +94,31 @@ class _RiderPayoutsScreenState extends State<RiderPayoutsScreen> {
   @override
   void initState() {
     super.initState();
-    loadPayouts();
-    _subscribeWithdrawals();
+    _authSubscription = supabase.auth.onAuthStateChange.listen((event) => _bind(event.session?.user.id));
+    _bind(supabase.auth.currentUser?.id, initial: true);
   }
 
   @override
   void dispose() {
-    if (_withdrawalsSubChannel != null && _withdrawalsSubId != null) {
-      RealtimeManager.instance.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!);
-    }
+    ++_generation;
+    _authSubscription?.cancel();
+    _reads.dispose();
+    _retire();
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(covariant RiderPayoutsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.riderId != widget.riderId) {
+      _bind(supabase.auth.currentUser?.id, requestedRider: widget.riderId);
+    }
+  }
+
   Future<void> loadPayouts() async {
+    final account = _account;
+    final generation = _generation;
+    if (!_current(account, generation) || _rider == null) return;
     try {
       // Sync pending/processing withdrawals from Cashfree
       try {
@@ -54,59 +127,55 @@ class _RiderPayoutsScreenState extends State<RiderPayoutsScreen> {
           method: HttpMethod.get,
         );
       } catch (syncErr) {
+        if (!_current(account, generation)) return;
         debugPrint('Withdrawal sync payouts error => $syncErr');
       }
 
+      if (!_current(account, generation)) return;
       await fetchWithdrawalsOnly();
-      if (mounted) {
+      if (_current(account, generation)) {
         setState(() => loading = false);
       }
     } catch (e) {
+      if (!_current(account, generation)) return;
       debugPrint('LOAD PAYOUTS ERROR => $e');
-      if (mounted) {
+      if (_current(account, generation)) {
         setState(() => loading = false);
       }
     }
   }
 
   Future<void> fetchWithdrawalsOnly() async {
+    final account = _account;
+    final rider = _rider;
+    final generation = _generation;
+    if (!_current(account, generation) || rider == null) return;
+    final key = '$generation:$account:$rider';
+    _reads.invalidate(key);
     try {
       // Egress fix: narrowed to the fields _WithdrawalRow reads (grepped exhaustively) -- same
       // field list rider_earnings_tab.dart already uses for the identical table.
-      final withdrawalsData = await supabase
+      final observation = await _reads.read(key, () async {
+        if (!_current(account, generation)) throw StateError('Retired payout scope');
+        final revision = _reads.revisionFor(key);
+        final withdrawalsData = await supabase
           .from('rider_withdrawals')
           .select('amount, status, created_at, cashfree_response, transfer_id, cashfree_reference_id')
-          .eq('rider_id', widget.riderId)
+          .eq('rider_id', rider)
           .order('created_at', ascending: false)
           .limit(50);
+        return (revision: revision, rows: List<Map<String, dynamic>>.from(withdrawalsData));
+      });
 
-      if (mounted) {
+      if (_current(account, generation) && observation.revision == _reads.revisionFor(key)) {
         setState(() {
-          payoutTransactions = List<Map<String, dynamic>>.from(withdrawalsData);
+          payoutTransactions = observation.rows;
         });
       }
     } catch (e) {
+      if (!_current(account, generation)) return;
       debugPrint('FETCH WITHDRAWALS ONLY ERROR => $e');
     }
-  }
-
-  void _subscribeWithdrawals() {
-    final user = supabase.auth.currentUser;
-    if (user == null) return;
-
-    _withdrawalsSubChannel = 'rider-withdrawals-${user.id}';
-    _withdrawalsSubId = RealtimeManager.instance.subscribe(
-      channelName: _withdrawalsSubChannel!,
-      table: 'rider_withdrawals',
-      owner: 'RiderPayoutsScreen_Withdrawals',
-      event: PostgresChangeEvent.all,
-      schema: 'public',
-      filterColumn: 'user_id',
-      filterValue: user.id,
-      callback: (payload) {
-        fetchWithdrawalsOnly();
-      },
-    );
   }
 
   @override

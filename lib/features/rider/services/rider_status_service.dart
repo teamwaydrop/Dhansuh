@@ -109,8 +109,22 @@ class RiderStatusService {
       return;
     }
 
+    // Operation-local fence: never combine one account's KYC with another
+    // account's rider/payout data. A observed identity change stays latched,
+    // including A -> B -> A; ordinary same-account token refresh is allowed.
+    var identityChanged = false;
+    final identitySubscription = supabase.auth.onAuthStateChange.listen((event) {
+      if (event.session?.user.id != user.id) identityChanged = true;
+    });
+    void requireIdentity() {
+      if (identityChanged || supabase.auth.currentUser?.id != user.id) {
+        throw StateError('Account changed during mode switch');
+      }
+    }
+    try {
     final kyc =
         await getRiderKyc();
+    requireIdentity();
 
     if (kyc == null) {
 
@@ -153,6 +167,7 @@ class RiderStatusService {
 
     final rider =
         await getRiderProfile();
+    requireIdentity();
 
     if (rider == null) {
 
@@ -166,6 +181,7 @@ class RiderStatusService {
     // =========================================
 
     final hasPayout = await hasActivePayoutAccount();
+    requireIdentity();
     if (!hasPayout) {
       throw Exception(
         'Payout details not registered or active. Please complete bank details setup.',
@@ -193,6 +209,7 @@ class RiderStatusService {
     // UPDATE MODE
     // =========================================
 
+    requireIdentity();
     await supabase
 
         .from('users')
@@ -210,6 +227,13 @@ class RiderStatusService {
           'id',
           user.id,
         );
+    // An already-issued write cannot be cancelled here. Do not report success
+    // to replacement-account callers if identity changed during its await.
+    requireIdentity();
+    } finally {
+      await identitySubscription.cancel();
+    }
+    requireIdentity();
   }
 
   // =====================================================

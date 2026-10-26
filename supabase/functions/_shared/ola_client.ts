@@ -76,7 +76,7 @@ async function requestNewAccessToken(): Promise<string> {
   } catch (networkError) {
     console.error(
       "OLA OAUTH TOKEN REQUEST FAILED =>",
-      isTimeoutError(networkError) ? "timed out" : String(networkError),
+      isTimeoutError(networkError) ? "timeout" : "network_failure",
     );
     throw new HttpError(
       502,
@@ -101,8 +101,7 @@ async function requestNewAccessToken(): Promise<string> {
     // error / error_description are standard OAuth error fields, never the credentials
     // themselves -- the credentials were only ever in the outbound request body, which this
     // catch block never logs.
-    const detail = body?.error_description ?? body?.error ?? "no error detail in body";
-    console.error(`OLA OAUTH TOKEN HTTP ERROR ${response.status} =>`, detail);
+    console.error(`OLA OAUTH TOKEN HTTP ERROR status=${response.status}`);
 
     // A 401/403 here means OUR client_id/client_secret were rejected -- that is a server
     // misconfiguration, not something the calling passenger/rider did, so it is surfaced to
@@ -198,8 +197,7 @@ export async function olaRequest(
     } catch (networkError) {
       console.error(
         "OLA API REQUEST FAILED =>",
-        path,
-        isTimeoutError(networkError) ? "timed out" : String(networkError),
+        isTimeoutError(networkError) ? "timeout" : "network_failure",
       );
       throw new HttpError(
         isTimeoutError(networkError) ? 504 : 502,
@@ -229,7 +227,7 @@ export async function olaRequest(
     if (!response.ok) {
       const apiMessage = body?.error_message ?? body?.message ?? body?.status ??
         "no error detail in body";
-      console.error(`OLA API HTTP ERROR ${response.status} =>`, path, apiMessage);
+      console.error(`OLA API HTTP ERROR status=${response.status}`);
 
       throw new HttpError(
         response.status === 429 ? 429 : response.status >= 500 ? 502 : 500,

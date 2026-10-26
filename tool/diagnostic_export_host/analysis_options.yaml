@@ -1,0 +1,6 @@
+include: package:flutter_lints/flutter.yaml
+analyzer:
+  exclude:
+    # Junction to the full existing source tree; only four imported sources are used.
+    # Validate shared implementation separately in the parent project.
+    - lib/shared_sources/**

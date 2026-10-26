@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -176,9 +178,12 @@ class _IntercityBookingScreenState extends State<IntercityBookingScreen> {
     }
   }
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   void initState() {
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.booking);
     pricingController = PricingController();
     distanceKm = widget.totalDistanceMeters / 1000;
     durationMin = widget.durationSeconds / 60;
@@ -188,6 +193,7 @@ class _IntercityBookingScreenState extends State<IntercityBookingScreen> {
 
   @override
   void dispose() {
+    _rideDiagnosticOwner.dispose();
     _promoController.dispose();
 
     // Phase 2F-C1 -- explicit WebView teardown, mirroring the Phase 2F-B pattern (c1ccf56).
@@ -362,7 +368,7 @@ class _IntercityBookingScreenState extends State<IntercityBookingScreen> {
   }
 
 
-  Future<void> _submitOrderToBackend({String? paymentId}) async {
+  Future<void> _submitOrderToBackend({String? paymentId, RideAttempt? diagnosticAttempt}) async {
     List<String> uploadedUrls = [];
 
     if (widget.parcelImages.isNotEmpty) {
@@ -384,7 +390,7 @@ class _IntercityBookingScreenState extends State<IntercityBookingScreen> {
     }
 
     final user = supabase.auth.currentUser;
-    final response = await supabase.functions.invoke(
+    final response = await _rideDiagnosticOwner.api(RideEndpoint.booking, null, () => supabase.functions.invoke(
       'create-order',
       body: {
         'user_id': user?.id,
@@ -416,7 +422,7 @@ class _IntercityBookingScreenState extends State<IntercityBookingScreen> {
       },
       // CLIENT-1 (WayDrop Progressive Degradation Audit): bounded so a stalled backend surfaces
       // as the same caught exception the caller already handles, not an infinite wait.
-    ).timeout(const Duration(seconds: 30));
+    ).timeout(const Duration(seconds: 30)), attempt: diagnosticAttempt);
 
     debugPrint('CREATE ORDER RESPONSE => ${response.data}');
 
@@ -439,6 +445,7 @@ class _IntercityBookingScreenState extends State<IntercityBookingScreen> {
   }
 
   Future<void> _createOrder() async {
+    final diagnosticAttempt = _rideDiagnosticOwner.begin(endpoint: RideEndpoint.booking);
     if (selectedVehicle == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -464,7 +471,7 @@ class _IntercityBookingScreenState extends State<IntercityBookingScreen> {
     // completion — no payment gateway involved at booking time.
     try {
       setState(() => creatingOrder = true);
-      await _submitOrderToBackend();
+      await _submitOrderToBackend(diagnosticAttempt: diagnosticAttempt);
     } catch (e, stackTrace) {
       // Phase 5 F2: non-fatal Crashlytics report, purely additive -- does not affect the
       // existing SnackBar/finally behavior below.

@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -138,9 +140,12 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
   static const Color darkCard = Color(0xFF131926);
   static const Color textGray = Color(0xFF94A3B8);
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   void initState() {
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.riderOrders);
     tabController = TabController(length: 2, vsync: this);
     _audioPlayer.setAudioContext(AudioContext(
       android: const AudioContextAndroid(
@@ -179,6 +184,7 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
 
   @override
   void dispose() {
+    _rideDiagnosticOwner.dispose();
     ActiveOrderScreenState.isOpen.removeListener(_onActiveOrderScreenVisibilityChanged);
     if (_ordersSubId != null && _ordersSubChannel != null) {
       RealtimeManager.instance.unsubscribe(_ordersSubChannel!, _ordersSubId!);
@@ -244,7 +250,8 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
           // have changed server-side between that fetch and this mount. Only vehicleType is
           // absent from the seed (its rider_kyc embed doesn't request vehicle_type), which is
           // harmless: vehicleType is never read anywhere in this screen (grepped exhaustively).
-          final seedRider = providerContainer.read(initialRiderDataProvider)?.rider;
+          final initialData = providerContainer.read(initialRiderDataProvider);
+          final seedRider = initialData?.belongsTo(user.id) == true ? initialData?.rider : null;
           if (seedRider != null && seedRider['id'] != null && !_hasConsumedColdStartSeed) {
             _hasConsumedColdStartSeed = true;
             riderId = seedRider['id']?.toString();
@@ -788,6 +795,7 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
   // REALTIME STREAMING OF SEARCHING ORDERS
   // =========================================================
   Future<void> fetchSearchingOrders() async {
+    if (!mounted) return;
     debugPrint('[INSTR] ${DateTime.now().toIso8601String()} fetchSearchingOrders() CALLED (riderId=$riderId, fetchInFlight=$_fetchInFlight)');
     if (riderId == null) return;
     // [PERF] Phase 8A: re-entrancy guard -- never run two fetches concurrently.
@@ -808,6 +816,7 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
       final config = await DispatchConfigCache.get(
         () => supabase.from('dispatch_config').select('*').eq('is_active', true).maybeSingle(),
       );
+      if (!mounted) return;
       final int maxSearchDurationSec = int.tryParse(config?['max_search_duration_sec']?.toString() ?? '900') ?? 900;
 
       // 1. Fetch only real assignments with status 'sent'
@@ -876,6 +885,7 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
           ''')
           .eq('rider_id', riderId!)
           .eq('assignment_status', 'sent');
+      if (!mounted) return;
       final assignmentsList = List<Map<String, dynamic>>.from(assignmentsData);
       debugPrint('[INSTR] ${DateTime.now().toIso8601String()} fetchSearchingOrders() SQL returned ${assignmentsList.length} row(s) with assignment_status=sent for riderId=$riderId');
 
@@ -917,9 +927,11 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
       }
     } finally {
       _fetchInFlight = false;
-      if (_refetchQueued) {
+      if (_refetchQueued && mounted) {
         _refetchQueued = false;
         fetchSearchingOrders();
+      } else if (!mounted) {
+        _refetchQueued = false;
       }
     }
   }
@@ -942,6 +954,8 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
       filterColumn: 'rider_id',
       filterValue: riderId!,
       callback: (payload) {
+        _rideDiagnosticOwner.receipt(payload.newRecord['order_id'] ?? payload.oldRecord['order_id'],
+          endpoint: RideEndpoint.assignmentFeed);
         debugPrint('[INSTR] ${DateTime.now().toIso8601String()} rider_assignments REALTIME EVENT RECEIVED (RiderOrdersScreen) => type=${payload.eventType}, orderId=${payload.newRecord['order_id']}, status=${payload.newRecord['assignment_status']}');
         debugPrint('REALTIME ASSIGNMENT EVENT => ${payload.eventType}');
         if (payload.eventType == PostgresChangeEvent.insert) {
@@ -1161,6 +1175,7 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
   // ACCEPT & REJECT ACTIONS
   // =========================================================
   Future<void> acceptOrder(String orderId) async {
+    final diagnosticAttempt = _rideDiagnosticOwner.begin(ride: orderId, endpoint: RideEndpoint.acceptance, status: 'accepted');
     if (codPendingAmount >= codLimit) {
       showAppSnackBar(context, 'COD Limit exceeded. Settle dues to accept orders.', type: SnackBarType.error);
       return;
@@ -1174,13 +1189,13 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
     try {
       setState(() => processing = true);
 
-      final response = await supabase.functions.invoke(
+      final response = await _rideDiagnosticOwner.api(RideEndpoint.acceptance, orderId, () => supabase.functions.invoke(
         'accept-order',
         body: {
           'order_id': orderId,
           'rider_id': riderId!,
         },
-      );
+      ), status: 'accepted', attempt: diagnosticAttempt);
 
       if (response.data == null || response.data['success'] != true) {
         throw Exception(response.data?['message'] ?? 'Failed to accept order');

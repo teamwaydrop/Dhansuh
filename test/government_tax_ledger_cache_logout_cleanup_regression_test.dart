@@ -69,14 +69,15 @@ void main() {
   });
 
   group('G. No tax data/logic changed', () {
-    test('get()/invalidate() semantics (null never cached, in-flight dedup) are byte-identical', () {
+    test('null stays uncached and in-flight dedup preserves current request ownership', () {
       expect(
         cacheSource.contains(
           'static Future<Map<String, dynamic>?> get(\n    String orderId,\n    Future<Map<String, dynamic>?> Function() fetch,\n  ) async {',
         ),
         isTrue,
       );
-      expect(cacheSource.contains('if (result != null) {\n        _cache[orderId] = result;\n      }'), isTrue);
+      expect(cacheSource.contains('if (result != null && identical(_inFlight[orderId], future)) {\n        _cache[orderId] = result;\n      }'), isTrue);
+      expect(cacheSource.contains('if (identical(_inFlight[orderId], future)) _inFlight.remove(orderId);'), isTrue);
       expect(cacheSource.contains('static void invalidate(String orderId) => _cache.remove(orderId);'), isTrue);
     });
 

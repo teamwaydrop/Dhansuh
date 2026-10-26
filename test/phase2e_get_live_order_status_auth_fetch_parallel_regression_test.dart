@@ -126,10 +126,22 @@ void main() {
       );
     });
 
-    test('calculate-order-pricing runs auth + zone resolution concurrently', () {
+    test('calculate-order-pricing runs zone + config concurrently and defers developer auth', () {
       final cop = _read('supabase/functions/calculate-order-pricing/index.ts');
-      expect(cop.contains('await Promise.all(['), isTrue);
-      expect(cop.contains('supabase.auth.getUser(authToken)'), isTrue);
+      final zonesStart = cop.indexOf('const activeZonesPromise = getActivePricingZones(supabase);');
+      final configsStart = cop.indexOf('const activeConfigsPromise = getActivePricingConfigs(supabase);');
+      final zoneAwait = cop.indexOf('let zoneInfo = await resolveZone(');
+      final fallback = cop.indexOf('if (!zoneInfo) {', zoneAwait);
+      final developerLookup = cop.indexOf(
+        'isDeveloperAccount = await resolveDeveloperAccount(supabase, req);',
+        fallback,
+      );
+
+      expect(zonesStart, greaterThan(-1));
+      expect(configsStart, greaterThan(zonesStart));
+      expect(zoneAwait, greaterThan(configsStart));
+      expect(fallback, greaterThan(zoneAwait));
+      expect(developerLookup, greaterThan(fallback));
     });
   });
 }

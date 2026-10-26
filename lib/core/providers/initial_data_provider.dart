@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waydrop/core/models/today_earnings_seed.dart';
 
 class InitialUserData {
   final Map<String, dynamic>? userProfile;
@@ -15,13 +16,19 @@ class InitialUserData {
 }
 
 class InitialRiderData {
+  final String? userId;
   final Map<String, dynamic>? rider;
-  final double todayEarnings;
+  /// Legacy, unscoped value. Never interpret it as a gross or partner seed.
+  final double? todayEarnings;
+  final TodayEarningsSeed? earningsSeed;
 
   InitialRiderData({
+    this.userId,
     this.rider,
-    required this.todayEarnings,
+    this.todayEarnings,
+    this.earningsSeed,
   });
+  bool belongsTo(String? currentUserId) => currentUserId != null && userId == currentUserId;
 }
 
 final initialUserDataProvider = StateProvider<InitialUserData?>((ref) => null);

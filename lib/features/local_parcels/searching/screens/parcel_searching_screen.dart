@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' show Random;
@@ -40,6 +42,7 @@ class _ParcelSearchingScreenState extends State<ParcelSearchingScreen> with Tick
   double _nearbyRiderRadiusKm = 5.0;
   int _nearbyRiderLimit = 25;
   bool _nearbyConfigLoaded = false;
+  bool _nearbyRidersFetchInFlight = false;
   bool loading = true;
   bool cancelling = false;
   double localFare = 0.0;
@@ -56,9 +59,12 @@ class _ParcelSearchingScreenState extends State<ParcelSearchingScreen> with Tick
 
   late DateTime _nextTimeoutTime;
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   void initState() {
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.passengerSearching);
     _nextTimeoutTime = DateTime.now().add(Duration(seconds: 300 + Random().nextInt(300)));
 
     pulseController = AnimationController(
@@ -93,6 +99,7 @@ class _ParcelSearchingScreenState extends State<ParcelSearchingScreen> with Tick
 
   @override
   void dispose() {
+    _rideDiagnosticOwner.dispose();
     _customFareController.dispose();
     pulseController.dispose();
     riderRefreshTimer?.cancel();
@@ -148,6 +155,7 @@ class _ParcelSearchingScreenState extends State<ParcelSearchingScreen> with Tick
     _syncOrderMap(currentOrder);
 
     await loadNearbyRiders();
+    if (!mounted) return;
     initializeMap();
     startRiderRefresh();
   }
@@ -237,8 +245,13 @@ class _ParcelSearchingScreenState extends State<ParcelSearchingScreen> with Tick
   }
 
   Future<void> loadNearbyRiders() async {
+    if (_nearbyRidersFetchInFlight) return;
+    _nearbyRidersFetchInFlight = true;
+
     try {
-      if (order == null) return;
+      if (!mounted) return;
+      final currentOrder = order;
+      if (currentOrder == null) return;
 
       if (!_nearbyConfigLoaded) {
         try {
@@ -253,6 +266,7 @@ class _ParcelSearchingScreenState extends State<ParcelSearchingScreen> with Tick
                 .eq('is_active', true)
                 .maybeSingle(),
           );
+          if (!mounted) return;
           final radius = double.tryParse(config?['round_1_radius_km']?.toString() ?? '');
           final limit = int.tryParse(config?['round_1_batch_size']?.toString() ?? '');
           if (radius != null && radius > 0) _nearbyRiderRadiusKm = radius;
@@ -260,9 +274,11 @@ class _ParcelSearchingScreenState extends State<ParcelSearchingScreen> with Tick
         } catch (_) {
           // Keep the defaults above; never block the nearby-count display on this.
         } finally {
-          _nearbyConfigLoaded = true;
+          if (mounted) _nearbyConfigLoaded = true;
         }
       }
+
+      if (!mounted) return;
 
       // Same server-authoritative eligibility predicate dispatch itself uses (find_nearby_riders),
       // with the SAME Round 1 radius/limit start-dispatch's own first pass uses -- so this count
@@ -271,12 +287,13 @@ class _ParcelSearchingScreenState extends State<ParcelSearchingScreen> with Tick
         'find_nearby_riders',
         params: {
           'p_order_id': widget.orderId,
-          'p_pickup_lat': order!['pickup_lat'],
-          'p_pickup_lng': order!['pickup_lng'],
+          'p_pickup_lat': currentOrder['pickup_lat'],
+          'p_pickup_lng': currentOrder['pickup_lng'],
           'p_radius_km': _nearbyRiderRadiusKm,
           'p_limit': _nearbyRiderLimit,
         },
       );
+      if (!mounted) return;
 
       // find_nearby_riders returns the identity column as `rider_id`, but the shared map JS
       // (assets/map/ola_map_core.js) keys every marker off `id`, matching the convention every
@@ -288,12 +305,12 @@ class _ParcelSearchingScreenState extends State<ParcelSearchingScreen> with Tick
       nearbyRiders = rawRiders
           .map((r) => {...Map<String, dynamic>.from(r as Map), 'id': r['rider_id']})
           .toList();
-      if (mounted) {
-        setState(() {});
-        refreshMap();
-      }
+      setState(() {});
+      refreshMap();
     } catch (e) {
       debugPrint('LOAD RIDERS ERROR => $e');
+    } finally {
+      _nearbyRidersFetchInFlight = false;
     }
   }
 
@@ -2009,6 +2026,9 @@ class _ParcelSearchingScreenState extends State<ParcelSearchingScreen> with Tick
 
   @override
   Widget build(BuildContext context) {
+    final diagnosticStatus = orderController.orderNotifier.value?.orderStatus;
+    _rideDiagnosticOwner.frame(context, widget.orderId, diagnosticStatus,
+      () => orderController.orderNotifier.value?.orderStatus == diagnosticStatus);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return PopScope(
       canPop: false,

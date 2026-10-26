@@ -117,8 +117,10 @@ void main() {
     });
 
     test('a TimeoutException on startup is shown as a backend/timeout error, not "No Internet Connection"', () {
-      final timeoutBranchIndex = appStart.indexOf('on TimeoutException catch (_) {');
-      final branchEnd = appStart.indexOf('} catch (e) {', timeoutBranchIndex);
+      final timeoutBranchIndex = RegExp(r'on TimeoutException catch\s*\([^)]*\)\s*\{').firstMatch(appStart)?.start ?? -1;
+      expect(timeoutBranchIndex, greaterThanOrEqualTo(0));
+      final branchEnd = appStart.indexOf('} catch (', timeoutBranchIndex);
+      expect(branchEnd, greaterThan(timeoutBranchIndex));
       final timeoutBranch = appStart.substring(timeoutBranchIndex, branchEnd);
       expect(timeoutBranch.contains('errorType: ErrorType.backend'), isTrue);
     });
@@ -153,7 +155,12 @@ void main() {
 
       test('$name rejects a body.user_id that does not match the authenticated user', () {
         expect(source.contains('body.user_id !== authData.user.id'), isTrue);
-        expect(source.contains('Forbidden: user_id does not match authenticated user'), isTrue);
+        final guardStart = source.indexOf('if (!body.user_id || body.user_id !== authData.user.id)');
+        expect(guardStart, greaterThanOrEqualTo(0));
+        final guard = source.substring(guardStart, source.indexOf('\n    }', guardStart));
+        expect(guard.contains('return Response.json('), isTrue);
+        expect(guard.contains('success: false'), isTrue);
+        expect(guard.contains('status: 403'), isTrue);
       });
 
       test('$name performs the auth check before any KYC-record read/write', () {

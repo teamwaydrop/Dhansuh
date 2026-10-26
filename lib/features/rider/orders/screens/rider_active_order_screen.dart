@@ -1,5 +1,13 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 import 'dart:async';
+import '../completion_status_poll.dart';
 import 'dart:convert';
+import 'package:waydrop/core/models/today_earnings_seed.dart';
+import 'package:waydrop/features/rider/home/rider_profile_read.dart';
+import 'package:waydrop/features/rider/home/pending_assignment_read.dart';
+import '../verification_status_read.dart';
+import 'package:waydrop/core/services/session/identity_operation_scope.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -54,15 +62,17 @@ class RiderActiveOrderScreen
   // original full fetch below.
   final Map<String, dynamic>? initialOrder;
 
-  // Amplification-reduction pass (fetchRiderProfile audit): RiderHomeTab already holds its own
-  // `rider`/`todayEarnings` local state, kept fresh via its own realtime subscription -- when this
-  // screen is opened FROM RiderHomeTab, that data can be handed in here instead of fetchRiderProfile()
-  // re-querying the same `riders`+`rider_kyc` row and re-summing today's earnings a moment later.
+  // Reuse Home's identity-proven profile independently from its gross earnings.
+  // This screen's daily statistic sums stored rider_earning. Only a scoped seed
+  // of that measure can replace its earnings read; an untyped scalar cannot.
   // Optional and defaults to null so every OTHER entry point (Intercity Bookings, push-notification
   // deep link, Travel Plan details, the accept-order flow, etc. -- none of which hold this data)
   // is completely unaffected and keeps calling fetchRiderProfile() exactly as before.
   final Map<String, dynamic>? initialRiderProfile;
   final double? initialTodayEarnings;
+  // Legacy scalar remains accepted for source compatibility but is unverified.
+  final TodayEarningsSeed? initialEarningsSeed;
+  final String? initialRiderProfileUserId;
 
   const RiderActiveOrderScreen({
 
@@ -75,6 +85,8 @@ class RiderActiveOrderScreen
     this.initialRiderProfile,
 
     this.initialTodayEarnings,
+    this.initialEarningsSeed,
+    this.initialRiderProfileUserId,
   });
 
   @override
@@ -157,7 +169,19 @@ class _RiderActiveOrderScreenState
   DateTime? acceptedAt;
 
   Map<String, dynamic>? riderProfile;
-  double todayEarnings = 0.0;
+  final StoredPartnerEarningsState _storedEarnings = StoredPartnerEarningsState();
+  final RiderProfileRead _profileReads = RiderProfileRead();
+  final VerificationStatusRead _verificationReads = VerificationStatusRead();
+  String? get _verificationScope {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) return null;
+    return '$userId/${order?['rider_id'] ?? 'unassigned'}/${widget.orderId}';
+  }
+  final InFlightRead<StoredEarningsObservation?> _storedReads = InFlightRead();
+  int _partnerReadEpoch = 0;
+  String? _storedReadKey;
+  String? _profileReadKey;
+  String? _riderProfileUserId;
   bool showingCompletionDialog = false;
 
   // Government tax for the completion screen's "YOUR TRIP EARNINGS" figure -- fetched ONCE per
@@ -168,8 +192,15 @@ class _RiderActiveOrderScreenState
   bool _completionTaxLoading = true;
   double _completionGovTaxAmount = 0.0;
   double _completionGovTaxRate = 0.0;
+  late final String? _taxScreenUserId;
+  late final _taxOperations = IdentityOperationScope.forWidget(() => mounted && !_disposed,
+      onIdentityChanged: () => setState(() {}));
 
   Future<void> _loadCompletionGovernmentTax(String orderId) async {
+    if (!mounted || _disposed) return;
+    if (supabase.auth.currentUser?.id != _taxScreenUserId) return;
+    final operation = _taxOperations.begin();
+    final riderId = order?['rider_id'];
     try {
       // Egress fix (Fix #6): a government_tax_ledger ORDER_TAX row is immutable once written, so
       // it's safe to cache per order_id (GovernmentTaxLedgerCache never caches a null/not-found
@@ -183,7 +214,7 @@ class _RiderActiveOrderScreenState
             .eq('entry_type', 'ORDER_TAX')
             .maybeSingle(),
       );
-      if (!mounted || _completionTaxOrderId != orderId) return;
+      if (!operation.isCurrent || _completionTaxOrderId != orderId || order?['rider_id'] != riderId) return;
       if (row == null) {
         // Issue 5 fix: settlement writes the order's terminal status and its government-tax
         // ledger row in the SAME atomic transaction (confirm_intercity_parcel_payment_received()/
@@ -208,7 +239,7 @@ class _RiderActiveOrderScreenState
         _completionTaxLoading = false;
       });
     } catch (_) {
-      if (!mounted || _completionTaxOrderId != orderId) return;
+      if (!operation.isCurrent || _completionTaxOrderId != orderId || order?['rider_id'] != riderId) return;
       // Issue 5 fix: a transient fetch failure (network blip right after a heavy settlement call)
       // must not permanently show ₹0 for this order either -- clear the guard so the next rebuild
       // retries instead of giving up for the rest of this screen instance's lifetime.
@@ -279,9 +310,13 @@ class _RiderActiveOrderScreenState
   // while one call is already running doesn't mint a second Cashfree order for the same fare.
   bool _loadingCashfreeQr = false;
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   void initState() {
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.riderActive);
+    _taxScreenUserId = supabase.auth.currentUser?.id;
     ActiveOrderScreenState.isOpen.value = true;
     PipService.setPipEnabled(true);
     PipService.onPipRecenter = () {
@@ -301,12 +336,18 @@ class _RiderActiveOrderScreenState
     };
     loadOrder();
     listenRealtime();
-    if (widget.initialRiderProfile != null) {
-      // Seeded path -- see initialRiderProfile's doc comment above. fetchRiderProfile() itself is
-      // untouched and remains the only implementation every post-completion call site uses; this
-      // branch only replaces the ONE-TIME initState fetch when the caller already has fresh data.
+    if (widget.initialRiderProfile != null && widget.initialRiderProfileUserId != null &&
+        widget.initialRiderProfileUserId == supabase.auth.currentUser?.id) {
+      // Preserve profile-read reuse; missing/expired earnings require only the
+      // existing orders read, rather than another riders/KYC fetch.
       riderProfile = widget.initialRiderProfile;
-      todayEarnings = widget.initialTodayEarnings ?? 0.0;
+      _riderProfileUserId = widget.initialRiderProfileUserId;
+      final seed = widget.initialEarningsSeed;
+      final riderId = riderProfile?['id']?.toString();
+      if (!_storedEarnings.acceptHandoff(seed, _riderProfileUserId, riderId, DateTime.now()) &&
+          riderId != null) {
+        unawaited(_refreshStoredEarnings(riderId));
+      }
       if (!_useMockMap) {
         _triggerInitialLocation();
       }
@@ -317,6 +358,12 @@ class _RiderActiveOrderScreenState
 
   @override
   void dispose() {
+    _rideDiagnosticOwner.dispose();
+    _taxOperations.dispose();
+    _verificationReads.dispose();
+    _profileReads.dispose();
+    _storedReads.dispose();
+    _storedEarnings.dispose();
     // Phase 2A: mark disposed first so any throttle-timer callback or in-flight runJavaScript
     // future that resolves during/after teardown short-circuits instead of using a dead controller.
     _disposed = true;
@@ -397,25 +444,26 @@ class _RiderActiveOrderScreenState
   // MANDATORY PHOTO UPLOAD & BYPASS
   // =========================================================
 
-  Future<void> loadVerifications() async {
+  Future<void> loadVerifications({bool fresh = false}) async {
+    if (!mounted || _disposed) return;
+    final scope = _verificationScope;
+    if (scope == null) return;
+    if (fresh) _verificationReads.invalidate(scope);
     try {
-      final verificationsRes = await supabase
+      final result = await _verificationReads.read(scope, () async => await supabase
           .from('order_verifications')
           .select('verification_type, verification_status')
-          .eq('order_id', widget.orderId);
+          .eq('order_id', widget.orderId));
 
-      if (mounted) {
+      if (mounted && !_disposed && _verificationScope == scope &&
+          _verificationReads.isCurrent(result)) {
         setState(() {
-          pickupPhotoCompleted = (verificationsRes as List).any((v) =>
-              v['verification_type'] == 'pickup' &&
-              (v['verification_status'] == 'verified' || v['verification_status'] == 'bypassed'));
-          dropoffPhotoCompleted = (verificationsRes as List).any((v) =>
-              v['verification_type'] == 'dropoff' &&
-              (v['verification_status'] == 'verified' || v['verification_status'] == 'bypassed'));
+          pickupPhotoCompleted = result.pickup;
+          dropoffPhotoCompleted = result.dropoff;
         });
       }
-    } catch (e) {
-      debugPrint('Error loading verifications: $e');
+    } catch (_) {
+      debugPrint('Verification status: request_failed');
     }
   }
 
@@ -453,6 +501,8 @@ class _RiderActiveOrderScreenState
       final pos = await _getCurrentLocation();
       final deviceId = await DeviceInfoHelper.getDeviceId();
 
+      final verificationScope = _verificationScope;
+      if (verificationScope != null) _verificationReads.invalidate(verificationScope);
       final response = await supabase.functions.invoke(
         'process-verification-photo',
         body: {
@@ -472,7 +522,7 @@ class _RiderActiveOrderScreenState
         throw Exception(errMsg);
       }
 
-      await loadVerifications();
+      await loadVerifications(fresh: true);
       await _maybeGenerateIntercityDeliveryOtpAfterProof(type);
 
       if (!mounted) return;
@@ -628,6 +678,8 @@ class _RiderActiveOrderScreenState
       final pos = await _getCurrentLocation();
       final deviceId = await DeviceInfoHelper.getDeviceId();
 
+      final verificationScope = _verificationScope;
+      if (verificationScope != null) _verificationReads.invalidate(verificationScope);
       await supabase.from('order_verifications').insert({
         'order_id': widget.orderId,
         'verification_type': type,
@@ -653,7 +705,7 @@ class _RiderActiveOrderScreenState
             .eq('id', widget.orderId);
       }
 
-      await loadVerifications();
+      await loadVerifications(fresh: true);
       await _maybeGenerateIntercityDeliveryOtpAfterProof(type);
 
       if (!mounted) return;
@@ -1283,6 +1335,10 @@ class _RiderActiveOrderScreenState
       filterColumn: 'id',
       filterValue: widget.orderId,
       callback: (payload) {
+        final diagnosticEvent = _rideDiagnosticOwner.begin(ride: widget.orderId,
+          status: payload.newRecord['order_status'], action: false);
+        diagnosticEvent.event(RideEvent.realtimeReceipt,
+          version: payload.newRecord['updated_at'] is String ? payload.newRecord['updated_at'] as String : null);
         // R4 perf fix: loadVerifications() re-queries order_verifications, which only ever
         // changes alongside an `orders` UPDATE via one of two proxy columns -- pickup_verification_
         // completed (process-verification-photo / _bypassVerification, pickup only) or delivery_otp
@@ -1295,7 +1351,7 @@ class _RiderActiveOrderScreenState
         final oldDeliveryOtp = payload.oldRecord['delivery_otp'];
         final newDeliveryOtp = payload.newRecord['delivery_otp'];
         if (oldPickupVerified != newPickupVerified || oldDeliveryOtp != newDeliveryOtp) {
-          loadVerifications();
+          loadVerifications(fresh: true);
         }
         final oldStatus = order?['order_status']?.toString();
         final oldUsers = order?['users'];
@@ -1304,6 +1360,7 @@ class _RiderActiveOrderScreenState
           order?['users'] = oldUsers;
         }
         final newStatus = order?['order_status']?.toString();
+        diagnosticEvent.event(RideEvent.applied);
 
         // Event-driven reconciliation hook (P1-D): if updateStatus()'s own request timed out and
         // _reconcileAfterTimeout is currently waiting to find out whether it actually landed, this
@@ -1354,20 +1411,13 @@ class _RiderActiveOrderScreenState
         }
 
         if (newStatus == 'completed' || newStatus == 'delivered') {
-          _deleteMatchingTravelPlan();
+          _scheduleTravelPlanCleanupAfterCompletion();
           if (mounted && !showingCompletionDialog) {
             showingCompletionDialog = true;
             setState(() {
               loading = true;
             });
-            Future.delayed(const Duration(milliseconds: 1000)).then((_) async {
-              if (mounted) {
-                await fetchRiderProfile();
-                setState(() {
-                  loading = false;
-                });
-              }
-            });
+            unawaited(_finishConfirmedCompletionUi(true));
           }
         }
 
@@ -1482,6 +1532,42 @@ class _RiderActiveOrderScreenState
     }
   }
 
+  void _scheduleTravelPlanCleanupAfterCompletion() {
+    final orderType = order?['order_type']?.toString();
+    if (orderType != 'intercity_ride' && orderType != 'intercity_parcel') return;
+
+    // The authoritative completion RPC/Edge path already synchronizes the linked travel plan.
+    // Keep this existing client reconciliation as a bounded best-effort fallback, but do not hold
+    // the confirmed-completion UI behind another chain of network requests.
+    unawaited(
+      _deleteMatchingTravelPlan()
+          .timeout(const Duration(seconds: 5))
+          .catchError((_) => debugPrint('TRAVEL PLAN CLEANUP category=timeout_or_request_failure')),
+    );
+  }
+
+  void _refreshCompletionPartnerData() {
+    unawaited(() async {
+      try {
+        await fetchRiderProfile().timeout(const Duration(seconds: 5));
+      } on TimeoutException {
+        debugPrint('COMPLETION PROFILE REFRESH category=timeout');
+      }
+    }());
+  }
+
+  Future<void> _finishConfirmedCompletionUi(bool success) async {
+    if (!success) {
+      showingCompletionDialog = false;
+      if (mounted) setState(() => loading = false);
+      return;
+    }
+
+    _invalidatePartnerReads();
+    if (mounted) setState(() => loading = false);
+    _refreshCompletionPartnerData();
+  }
+
   // =========================================================
   // UPDATE STATUS
   // =========================================================
@@ -1500,6 +1586,8 @@ class _RiderActiveOrderScreenState
   }) async {
     if (_updatingStatus) return false;
     _updatingStatus = true;
+    final diagnosticAttempt = _rideDiagnosticOwner.begin(ride: widget.orderId,
+      endpoint: RideEndpoint.status, status: status);
     try {
       // Issue 5 fix: intercity_parcel's payment_pending -> delivered settlement has its own
       // authoritative RPC, confirm_intercity_parcel_payment_received() -- mirrors how this
@@ -1514,25 +1602,36 @@ class _RiderActiveOrderScreenState
       if (orderType == 'intercity_parcel' &&
           currentOrderStatus == 'payment_pending' &&
           (status == 'delivered' || status == 'completed')) {
-        final response = await supabase
+        final response = await _rideDiagnosticOwner.api(RideEndpoint.intercitySettlement, widget.orderId, () => supabase
             .rpc('confirm_intercity_parcel_payment_received', params: {'p_order_id': widget.orderId})
-            .timeout(const Duration(seconds: 25));
+            .timeout(const Duration(seconds: 25)), status: 'delivered', attempt: diagnosticAttempt);
         final data = Map<String, dynamic>.from(response as Map);
         if (data['success'] != true) {
           throw Exception(data['message'] ?? 'Unknown error');
         }
-        await _deleteMatchingTravelPlan();
         if (mounted && order != null) {
           setState(() {
             order!['order_status'] = 'delivered';
           });
         }
+        _scheduleTravelPlanCleanupAfterCompletion();
         return true;
       }
 
-      final pos = await _getCurrentLocation();
-      final deviceId = await DeviceInfoHelper.getDeviceId();
-      final response = await supabase.functions.invoke(
+      // Location and device identity are independent prerequisites. Start them together so a slow
+      // GPS lookup does not unnecessarily serialize the local device-ID read before the status
+      // request. Both results are still required/handled exactly as before, and the existing
+      // single-flight guard remains held for the entire preparation + request sequence.
+      final requestContext = await Future.wait<Object?>([
+        _getCurrentLocation().timeout(
+          const Duration(seconds: 7),
+          onTimeout: () => null,
+        ),
+        DeviceInfoHelper.getDeviceId(),
+      ]);
+      final pos = requestContext[0] as Position?;
+      final deviceId = requestContext[1] as String;
+      final response = await _rideDiagnosticOwner.api(RideEndpoint.status, widget.orderId, () => supabase.functions.invoke(
         'update-order-status',
         body: {
           'order_id': widget.orderId,
@@ -1551,16 +1650,12 @@ class _RiderActiveOrderScreenState
         // as the same caught exception below (SnackBar + _updatingStatus reset), instead of
         // leaving the rider stuck on a swipe/tap with no feedback — the direct cause of "intercity
         // trip completion becomes very slow" reads as an infinite wait without this.
-      ).timeout(const Duration(seconds: 25));
+      ).timeout(const Duration(seconds: 25)), status: status, attempt: diagnosticAttempt);
 
       final data = response.data;
       if (data == null || data['success'] != true) {
         final errMsg = data?['error'] ?? data?['message'] ?? 'Unknown error';
         throw Exception(errMsg);
-      }
-
-      if (status == 'completed' || status == 'delivered') {
-        await _deleteMatchingTravelPlan();
       }
 
       // Reflect the just-confirmed status locally right away -- `order` is otherwise only
@@ -1574,6 +1669,9 @@ class _RiderActiveOrderScreenState
         setState(() {
           order!['order_status'] = status;
         });
+      }
+      if (status == 'completed' || status == 'delivered') {
+        _scheduleTravelPlanCleanupAfterCompletion();
       }
 
       return true;
@@ -1682,38 +1780,19 @@ class _RiderActiveOrderScreenState
   /// elapses before realtime confirms (or if realtime is itself degraded). Spaced out rather than a
   /// tight loop -- this is a fallback path, not the primary confirmation mechanism.
   Future<bool> _pollForStatus(String targetStatus) async {
-    const delays = [
-      Duration.zero,
-      Duration(seconds: 3),
-      Duration(seconds: 6),
-      Duration(seconds: 10),
-      Duration(seconds: 15),
-      Duration(seconds: 20),
-      Duration(seconds: 20),
-    ];
-    for (final delay in delays) {
-      if (delay > Duration.zero) {
-        await Future.delayed(delay);
-        if (!mounted) return false;
-      }
-      try {
-        final latest = await supabase
-            .from('orders')
-            .select('order_status')
-            .eq('id', widget.orderId)
-            .single()
-            .timeout(const Duration(seconds: 10));
-
-        if (latest['order_status']?.toString() == targetStatus) {
-          return true;
-        }
-      } catch (e) {
-        // A single check failing (e.g. a transient network hiccup) doesn't mean the fallback itself
-        // is unreachable -- fall through to the next scheduled check.
-        debugPrint('Reconcile poll check error: $e');
-      }
-    }
-    return false;
+    final owner = _reconcileCompleter;
+    return pollCompletionStatus(targetStatus: targetStatus,
+      ownsAttempt: () => mounted && _reconciling && owner != null &&
+          identical(_reconcileCompleter, owner) && _reconcileTargetStatus == targetStatus,
+      fetch: () async {
+        final latest = await _rideDiagnosticOwner.api(RideEndpoint.fallback, widget.orderId,
+          () => supabase.from('orders').select('order_status')
+            .eq('id', widget.orderId).single().timeout(const Duration(seconds: 10)),
+          action: false, status: targetStatus);
+        return latest['order_status']?.toString();
+      },
+      onError: (error) => debugPrint('Reconcile poll check error: $error'),
+    );
   }
 
   // =========================================================
@@ -1743,9 +1822,9 @@ class _RiderActiveOrderScreenState
     if (_updatingStatus) return;
     _updatingStatus = true;
     try {
-      final response = await supabase.rpc('mark_intercity_trip_at_dropoff', params: {
+      final response = await _rideDiagnosticOwner.api(RideEndpoint.intercityArrival, widget.orderId, () => supabase.rpc('mark_intercity_trip_at_dropoff', params: {
         'p_order_id': widget.orderId,
-      });
+      }), status: 'rider_at_drop');
       final data = response is Map ? Map<String, dynamic>.from(response) : null;
       if (data == null || data['success'] != true) {
         throw Exception((data?['message'] as String?) ?? 'Failed to mark arrived. Please try again.');
@@ -2245,12 +2324,9 @@ class _RiderActiveOrderScreenState
       // -- this only changes WHERE the compared-against value is read from.
       String? actual;
       try {
-        final latest = await supabase
-            .from('orders')
-            .select('pickup_otp, delivery_otp')
-            .eq('id', widget.orderId)
-            .single()
-            .timeout(const Duration(seconds: 10));
+        final latest = await _rideDiagnosticOwner.api(RideEndpoint.verificationRead, widget.orderId,
+          () => supabase.from('orders').select('pickup_otp, delivery_otp')
+            .eq('id', widget.orderId).single().timeout(const Duration(seconds: 10)));
         actual = pickup ? latest['pickup_otp']?.toString() : latest['delivery_otp']?.toString();
         // Keep this screen's own cached copy in sync too, so anything else reading `order` locally
         // (e.g. a resend/retry inside this same sheet) also sees the current value.
@@ -2442,10 +2518,10 @@ class _RiderActiveOrderScreenState
 
   Future<String?> _completeIntercityParcelDelivery(String enteredOtp) async {
     try {
-      final response = await supabase.rpc('complete_intercity_parcel_delivery', params: {
+      final response = await _rideDiagnosticOwner.api(RideEndpoint.intercityCompletion, widget.orderId, () => supabase.rpc('complete_intercity_parcel_delivery', params: {
         'p_order_id': widget.orderId,
         'p_delivery_otp': enteredOtp.trim(),
-      });
+      }), status: 'delivered');
       final data = response is Map ? Map<String, dynamic>.from(response) : null;
       if (data == null || data['success'] != true) {
         return (data?['message'] as String?) ?? 'Failed to complete delivery. Please try again.';
@@ -2967,7 +3043,7 @@ class _RiderActiveOrderScreenState
         return;
       }
 
-      final response = await supabase.rpc('start_intercity_trip_for_plan', params: {'p_route_id': routeId});
+      final response = await _rideDiagnosticOwner.api(RideEndpoint.planStart, routeId, () => supabase.rpc('start_intercity_trip_for_plan', params: {'p_route_id': routeId}), plan: true);
       final data = Map<String, dynamic>.from(response as Map);
       if (data['success'] != true) {
         if (!mounted) return;
@@ -3233,6 +3309,8 @@ class _RiderActiveOrderScreenState
 
     final status = order?['order_status']?.toString();
     if (status == 'completed' || status == 'delivered') {
+      _rideDiagnosticOwner.frame(context, widget.orderId, status,
+        () => order?['order_status'] == status);
       return buildCompletionScreen();
     }
 
@@ -3287,6 +3365,8 @@ class _RiderActiveOrderScreenState
           );
         }
 
+        _rideDiagnosticOwner.frame(context, widget.orderId, status,
+          () => order?['order_status'] == status && !PipService.isInPipMode.value);
         return Scaffold(
           backgroundColor: _darkBg,
           body: Stack(
@@ -3685,12 +3765,17 @@ class _RiderActiveOrderScreenState
   }
 
   Future<void> fetchRiderProfile() async {
+    if (!mounted || _disposed) return;
     try {
       final user = supabase.auth.currentUser;
       if (user != null) {
+        final expectedRiderId = (order?['rider_id'] ?? riderProfile?['id'])?.toString();
+        final profileKey = '${user.id}/${expectedRiderId ?? 'unresolved'}';
+        _profileReadKey = profileKey;
+        final profileRevision = _profileReads.prepare(profileKey, _partnerReadEpoch);
         // Egress fix: narrowed from `*` to the exact fields read off `riderProfile` throughout
         // this file (grepped exhaustively).
-        final profile = await supabase
+        final profile = await _profileReads.read(profileKey, () async => await supabase
             .from('riders')
             .select('''
               id,
@@ -3703,36 +3788,98 @@ class _RiderActiveOrderScreenState
               )
             ''')
             .eq('user_id', user.id)
-            .maybeSingle();
+            .maybeSingle());
 
-        double calculatedTodayEarnings = 0.0;
-        if (profile != null) {
-          final nowLocal = DateTime.now();
-          final startOfToday = DateTime(nowLocal.year, nowLocal.month, nowLocal.day).toUtc();
-          final ordersData = await supabase
-              .from('orders')
-              .select('rider_earning')
-              .eq('rider_id', profile['id'])
-              .inFilter('order_status', ['completed', 'delivered'])
-              .gte('completed_at', startOfToday.toIso8601String());
-
-          for (var o in ordersData) {
-            calculatedTodayEarnings += double.tryParse(o['rider_earning']?.toString() ?? '0') ?? 0.0;
+        if (!mounted || _disposed || supabase.auth.currentUser?.id != user.id ||
+            !_profileReads.isCurrent(profileKey, profileRevision)) {
+          return;
+        }
+        StoredEarningsObservation? storedSeed;
+        final profileRiderId = profile?['id']?.toString();
+        if (expectedRiderId != null && profileRiderId != null && expectedRiderId != profileRiderId) return;
+        final currentAssignedRider = order?['rider_id']?.toString();
+        if (currentAssignedRider != null && profileRiderId != null && currentAssignedRider != profileRiderId) return;
+        if (profileRiderId != null && profileRiderId.isNotEmpty) {
+          try {
+            storedSeed = await _readStoredEarnings(profileRiderId);
+          } catch (_) {
+            // A valid profile is independent from a failed daily aggregate.
+            // Keep the last confirmed stored value; never manufacture a zero.
+            debugPrint('Stored partner earnings: request_failed');
           }
         }
 
-        if (mounted) {
+        if (mounted && !_disposed && supabase.auth.currentUser?.id == user.id &&
+            _profileReads.isCurrent(profileKey, profileRevision) &&
+            (order?['rider_id'] == null || order?['rider_id']?.toString() == profileRiderId)) {
           setState(() {
             riderProfile = profile;
-            todayEarnings = calculatedTodayEarnings;
+            _riderProfileUserId = user.id;
+            if (storedSeed != null) {
+              _storedEarnings.apply(storedSeed, user.id, profile?['id']?.toString(), DateTime.now());
+            }
           });
           if (!_useMockMap) {
             _triggerInitialLocation();
           }
         }
       }
-    } catch (e) {
-      debugPrint('FETCH RIDER PROFILE IN ACTIVE ORDER ERROR => $e');
+    } catch (_) {
+      debugPrint('FETCH RIDER PROFILE IN ACTIVE ORDER: request_failed');
+    }
+  }
+
+  Future<StoredEarningsObservation?> _readStoredEarnings(String riderId) async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null || !mounted || _disposed) return null;
+    final nowLocal = DateTime.now();
+    final startOfToday = DateTime(nowLocal.year, nowLocal.month, nowLocal.day).toUtc();
+    final key = '$userId/$riderId/${startOfToday.toIso8601String()}';
+    _storedReadKey = key;
+    return _storedReads.read(key, () async {
+    final currentDay = DateTime.now();
+    if (!mounted || _disposed || supabase.auth.currentUser?.id != userId ||
+        DateTime(currentDay.year, currentDay.month, currentDay.day).toUtc() != startOfToday ||
+        (order?['rider_id'] != null && order?['rider_id']?.toString() != riderId)) {
+      return null;
+    }
+    final revision = _storedEarnings.beginRequest();
+    final response = await supabase.from('orders').select('rider_earning')
+        .eq('rider_id', riderId).inFilter('order_status', ['completed', 'delivered'])
+        .gte('completed_at', startOfToday.toIso8601String()).count(CountOption.exact);
+    if (!mounted || _disposed || supabase.auth.currentUser?.id != userId ||
+        !_storedEarnings.isCurrent(revision)) {
+      return null;
+    }
+    final seed = TodayEarningsSeed.fromRows(userId: userId, riderId: riderId,
+        queryLocalDay: nowLocal, observedAt: DateTime.now(),
+        rows: response.data, exactCount: response.count);
+    if (seed.storedPartnerEarnings == null) throw StateError('Stored earnings unavailable');
+    return seed.matches(userId, riderId, DateTime.now())
+        ? _storedEarnings.observation(seed, revision) : null;
+    });
+  }
+
+  void _invalidatePartnerReads() {
+    _partnerReadEpoch++;
+    final profileKey = _profileReadKey;
+    if (profileKey != null) _profileReads.invalidate(profileKey);
+    _storedEarnings.invalidate();
+    final key = _storedReadKey;
+    if (key != null) _storedReads.invalidate(key);
+  }
+
+  Future<void> _refreshStoredEarnings(String riderId) async {
+    try {
+      final seed = await _readStoredEarnings(riderId);
+      if (mounted && !_disposed && seed != null &&
+          _riderProfileUserId == supabase.auth.currentUser?.id &&
+          _storedEarnings.apply(seed, supabase.auth.currentUser?.id,
+              riderProfile?['id']?.toString(), DateTime.now())) {
+        setState(() {});
+      }
+    } catch (_) {
+      debugPrint('Stored partner earnings: request_failed');
     }
   }
 
@@ -3826,11 +3973,8 @@ class _RiderActiveOrderScreenState
                   Navigator.pop(ctx); // Close cash bottom sheet
                   showingCompletionDialog = true;
                   setState(() => loading = true);
-                  await updateStatus(targetStatus, settlementMethod: 'cash');
-                  await Future.delayed(const Duration(milliseconds: 800)); // wait for wallet triggers
-                  await fetchRiderProfile();
-                  if (!mounted) return;
-                  setState(() => loading = false);
+                  final success = await updateStatus(targetStatus, settlementMethod: 'cash');
+                  await _finishConfirmedCompletionUi(success);
                 },
               ),
             ],
@@ -3927,11 +4071,8 @@ class _RiderActiveOrderScreenState
                   Navigator.pop(ctx); // Close UPI collection sheet
                   showingCompletionDialog = true;
                   setState(() => loading = true);
-                  await updateStatus(targetStatus);
-                  await Future.delayed(const Duration(milliseconds: 800)); // wait for wallet triggers
-                  await fetchRiderProfile();
-                  if (!mounted) return;
-                  setState(() => loading = false);
+                  final success = await updateStatus(targetStatus);
+                  await _finishConfirmedCompletionUi(success);
                 },
               ),
             ],
@@ -4053,15 +4194,12 @@ class _RiderActiveOrderScreenState
                   Navigator.pop(ctx); // Close personal UPI collection sheet
                   showingCompletionDialog = true;
                   setState(() => loading = true);
-                  await updateStatus(
+                  final success = await updateStatus(
                     targetStatus,
                     farePaymentReference: referenceController.text.trim(),
                     settlementMethod: 'personal_upi',
                   );
-                  await Future.delayed(const Duration(milliseconds: 800)); // wait for wallet triggers
-                  await fetchRiderProfile();
-                  if (!mounted) return;
-                  setState(() => loading = false);
+                  await _finishConfirmedCompletionUi(success);
                 },
               ),
               const SizedBox(height: 12),
@@ -4085,15 +4223,14 @@ class _RiderActiveOrderScreenState
   Future<void> completeOnlineRide(double fare, {String targetStatus = 'completed'}) async {
     showingCompletionDialog = true;
     setState(() => loading = true);
-    await updateStatus(targetStatus);
-    await Future.delayed(const Duration(milliseconds: 800)); // wait for wallet triggers
-    await fetchRiderProfile();
-    if (!mounted) return;
-    setState(() => loading = false);
+    final success = await updateStatus(targetStatus);
+    await _finishConfirmedCompletionUi(success);
   }
 
   Widget buildCompletionScreen() {
-    final earnings = todayEarnings;
+    if (supabase.auth.currentUser?.id != _taxScreenUserId) return const SizedBox.shrink();
+    final earnings = _storedEarnings.valueFor(
+        supabase.auth.currentUser?.id, riderProfile?['id']?.toString(), DateTime.now());
     final totalRides = riderProfile?['total_completed_orders'] ?? 0;
     final walletBalance = double.tryParse(riderProfile?['wallet_balance']?.toString() ?? '0') ?? 0.0;
     final type = order?['order_type']?.toString() ?? 'ride';
@@ -4674,7 +4811,7 @@ class _RiderActiveOrderScreenState
                           const SizedBox(height: 16),
                           _buildStatRow('Updated Wallet Balance', '₹${(double.tryParse(walletBalance.toString()) ?? 0.0).toStringAsFixed(2)}'),
                           const SizedBox(height: 10),
-                          _buildStatRow('Today\'s Total Earnings', '₹${(double.tryParse(earnings.toString()) ?? 0.0).toStringAsFixed(2)}'),
+                          _buildStatRow('Today\'s Total Earnings', earnings == null ? 'Unavailable' : '₹${earnings.toStringAsFixed(2)}'),
                           const SizedBox(height: 10),
                           _buildStatRow(isParcel ? 'Total Completed Deliveries' : 'Total Completed Rides', '$totalRides'),
                         ],

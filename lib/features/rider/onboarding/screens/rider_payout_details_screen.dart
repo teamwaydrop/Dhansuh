@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:waydrop/core/services/session/identity_operation_scope.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:waydrop/core/services/cache/qr_image_cache_manager.dart';
 import 'package:waydrop/core/services/cache/qr_signed_url_cache.dart';
@@ -21,6 +22,8 @@ class RiderPayoutDetailsScreen extends StatefulWidget {
 }
 
 class _RiderPayoutDetailsScreenState extends State<RiderPayoutDetailsScreen> {
+  late final _modeOperations = IdentityOperationScope.forWidget(() => mounted,
+      onIdentityChanged: () => setState(() => loading = false));
   final _formKey = GlobalKey<FormState>();
   final supabase = Supabase.instance.client;
 
@@ -268,6 +271,7 @@ class _RiderPayoutDetailsScreenState extends State<RiderPayoutDetailsScreen> {
   
   @override
   void dispose() {
+    _modeOperations.dispose();
     nameController.dispose();
     phoneController.dispose();
     emailController.dispose();
@@ -287,6 +291,7 @@ class _RiderPayoutDetailsScreenState extends State<RiderPayoutDetailsScreen> {
   }
 
   Future<void> _submitPayoutDetails() async {
+    if (!mounted) return;
     if (!_formKey.currentState!.validate()) return;
 
     if (accountNumberController.text != confirmAccountNumberController.text) {
@@ -300,6 +305,7 @@ class _RiderPayoutDetailsScreenState extends State<RiderPayoutDetailsScreen> {
       return;
     }
 
+    final operation = _modeOperations.begin();
     setState(() => loading = true);
 
     try {
@@ -327,6 +333,7 @@ class _RiderPayoutDetailsScreenState extends State<RiderPayoutDetailsScreen> {
         'create-rider-payout',
         body: requestBody,
       );
+      if (!operation.isCurrent) return;
 
       debugPrint('CREATE RIDER PAYOUT RESPONSE => ${response.status}');
       debugPrint('CREATE RIDER PAYOUT DATA => ${response.data}');
@@ -350,6 +357,7 @@ class _RiderPayoutDetailsScreenState extends State<RiderPayoutDetailsScreen> {
       if (_pendingQrPath != null) {
         try {
           final qrResponse = await supabase.rpc('set_personal_qr_path', params: {'p_path': _pendingQrPath});
+          if (!operation.isCurrent) return;
           if (qrResponse is Map && qrResponse['success'] == true) {
             _existingQrPath = _pendingQrPath;
             _pendingQrPath = null;
@@ -357,6 +365,7 @@ class _RiderPayoutDetailsScreenState extends State<RiderPayoutDetailsScreen> {
             debugPrint('QR PERSIST AFTER PAYOUT SAVE FAILED => $qrResponse');
           }
         } catch (e) {
+          if (!operation.isCurrent) return;
           debugPrint('QR PERSIST AFTER PAYOUT SAVE ERROR => $e');
         }
       }
@@ -368,8 +377,9 @@ class _RiderPayoutDetailsScreenState extends State<RiderPayoutDetailsScreen> {
       // Service Mode, send the partner to choose it as its own screen instead of surfacing that
       // re-validation exception as if payout setup itself had failed.
       try {
+        if (!operation.isCurrent) return;
         await RiderStatusService.switchToRiderMode();
-        if (!mounted) return;
+        if (!operation.isCurrent) return;
         setState(() => loading = false);
 
         if (Navigator.canPop(context)) {
@@ -382,7 +392,7 @@ class _RiderPayoutDetailsScreenState extends State<RiderPayoutDetailsScreen> {
           );
         }
       } catch (modeError) {
-        if (!mounted) return;
+        if (!operation.isCurrent) return;
         setState(() => loading = false);
 
         if (modeError.toString().contains('Service Mode not chosen')) {
@@ -396,7 +406,7 @@ class _RiderPayoutDetailsScreenState extends State<RiderPayoutDetailsScreen> {
         }
       }
     } catch (e) {
-      if (mounted) {
+      if (operation.isCurrent) {
         setState(() => loading = false);
         String errorText = 'An unexpected error occurred: $e';
         

@@ -121,7 +121,7 @@ void main() {
     });
 
     test('loadRider() calls _reconcilePendingAssignments, not just the realtime subscribe calls', () {
-      final loadRiderStart = homeTab.indexOf('Future<void> loadRider()');
+      final loadRiderStart = homeTab.indexOf('Future<void> loadRider({');
       final loadRiderEnd = homeTab.indexOf('Future<void> loadActiveOrder');
       expect(loadRiderStart, greaterThan(-1));
       expect(loadRiderEnd, greaterThan(loadRiderStart));

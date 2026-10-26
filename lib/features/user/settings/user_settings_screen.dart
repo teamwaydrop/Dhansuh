@@ -1,3 +1,4 @@
+import 'package:waydrop/shared/widgets/ride_diagnostic_export_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waydrop/features/user/profile/profile_tab.dart'; // import to reuse NotificationPreferencesSheet
@@ -36,6 +37,7 @@ class UserSettingsScreen extends ConsumerWidget {
             vertical: 16,
           ),
           children: [
+            const RideDiagnosticExportTile(),
             Container(
               decoration: BoxDecoration(
                 color: cardBgColor,

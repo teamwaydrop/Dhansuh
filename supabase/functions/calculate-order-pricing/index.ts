@@ -22,14 +22,15 @@ async function resolveZone(
   pickupAddress: string,
   pickupLat?: number,
   pickupLng?: number,
-  pickupCity?: string
+  pickupCity?: string,
+  activeZonesPromise?: ReturnType<typeof getActivePricingZones>,
 ): Promise<{ matchedZone: any; matchedCity: string; distance?: number } | null> {
   // Cached (Phase 10E 2D) -- see _shared/pricing_zones_cache.ts. Isolate-scoped, 30s TTL, in-flight
   // de-dup; returns null on a fetch error exactly as the old inline query's `if (zoneError)` path
   // did. The full active-zone set is fetched once and the geofence / city / address matching below
   // runs over it in memory, returning the identical rows the old `WHERE is_active = true` query
   // did.
-  const activeZones = await getActivePricingZones(supabase);
+  const activeZones = await (activeZonesPromise ?? getActivePricingZones(supabase));
 
   if (activeZones === null) {
     return null;
@@ -108,13 +109,14 @@ async function resolvePricingConfig(
   vehicleType: string,
   matchedZoneId: string,
   weightKg?: any,
-  weightCategory?: string
+  weightCategory?: string,
+  activeConfigsPromise?: ReturnType<typeof getActivePricingConfigs>,
 ): Promise<any | null> {
   // Cached (Performance Roadmap P0 Task 1) -- see _shared/pricing_config_cache.ts. Fetches every
   // active+approved pricing_config row once (isolate-scoped, 30s TTL) instead of issuing a fresh
   // query per service_type/zone combination on every request; filtering in memory below returns
   // exactly the same rows the original per-combination WHERE clause did.
-  const allConfigs = await getActivePricingConfigs(supabase);
+  const allConfigs = await (activeConfigsPromise ?? getActivePricingConfigs(supabase));
   if (allConfigs === null) {
     console.error("Error fetching pricing config");
     return null;
@@ -206,6 +208,33 @@ async function resolvePricingConfig(
   return matchedConfig || null;
 }
 
+// Developer Test Mode is relevant only when normal zone matching fails. Keeping this lookup out of
+// the in-zone critical path avoids making every production quote wait for auth + users reads while
+// preserving the existing unmatched-zone bypass and developer_test_mode response semantics.
+async function resolveDeveloperAccount(
+  supabase: Parameters<typeof getActivePricingZones>[0],
+  req: Request,
+): Promise<boolean> {
+  let isDev = false;
+  try {
+    const authToken = req.headers.get("Authorization")?.replace("Bearer ", "");
+    if (authToken) {
+      const { data: authData } = await supabase.auth.getUser(authToken);
+      if (authData?.user) {
+        const { data: callerProfile } = await supabase
+          .from("users")
+          .select("is_developer, role")
+          .eq("id", authData.user.id)
+          .maybeSingle();
+        isDev = callerProfile?.is_developer === true || callerProfile?.role === "admin";
+      }
+    }
+  } catch (identityError) {
+    console.error("Developer mode identity check failed (non-fatal):", identityError);
+  }
+  return isDev;
+}
+
 // =====================================================
 // SERVER ENTRY POINT
 // =====================================================
@@ -282,43 +311,36 @@ serve(async (req) => {
     // role = 'admin'. Mirrors the same rule as DeveloperModeService on the
     // client, kept in sync intentionally.
     //
-    // Run concurrently with zone resolution (1. below) instead of before it (production
-    // DB-contention investigation, 2026-08-07): this check's result (isDeveloperAccount) is
-    // only ever read starting at the zone-fallback branch below and at the very end of the
-    // handler -- it has no data dependency on the zone lookup, and the zone lookup has none on
-    // it, so serializing them was two round trips' worth of avoidable wait stacked in front of
-    // every single pricing request. EXPLAIN ANALYZE on both underlying queries confirms neither
-    // is itself slow (sub-10ms in isolation on these tiny tables) -- the multi-second latency
-    // seen in production is queueing/contention time paid once per round trip, so this changes
-    // WHEN these two independent lookups run, not what either of them does or decides.
+    // The identity result is only needed if normal zone matching fails. Resolve it lazily below so
+    // ordinary in-zone pricing never waits for auth + users reads.
+    // Zone/config rows are independent immutable configuration reads. Start both together so the
+    // config fetch progresses while zone matching runs instead of stacking their backend waits.
+    // Passing the original promises into the existing resolvers preserves their cache, filtering,
+    // and error behavior.
+    const activeZonesPromise = getActivePricingZones(supabase);
+    const activeConfigsPromise = getActivePricingConfigs(supabase);
+    // An unmatched zone can return before config is needed. Observe a possible rejection to avoid
+    // an abandoned promise becoming unhandled; awaiting the original promise below still preserves
+    // its existing rejection/500 behavior on paths that require pricing config.
+    void activeConfigsPromise.catch(() => undefined);
+
     let isDeveloperAccount = false;
-    let zoneInfo: Awaited<ReturnType<typeof resolveZone>> = null;
-    [isDeveloperAccount, zoneInfo] = await Promise.all([
-      (async () => {
-        let isDev = false;
-        try {
-          const authToken = req.headers.get("Authorization")?.replace("Bearer ", "");
-          if (authToken) {
-            const { data: authData } = await supabase.auth.getUser(authToken);
-            if (authData?.user) {
-              const { data: callerProfile } = await supabase
-                .from("users")
-                .select("is_developer, role")
-                .eq("id", authData.user.id)
-                .maybeSingle();
-              isDev = callerProfile?.is_developer === true || callerProfile?.role === "admin";
-            }
-          }
-        } catch (identityError) {
-          console.error("Developer mode identity check failed (non-fatal):", identityError);
-        }
-        return isDev;
-      })(),
-      // 1. Resolve Zone & City
-      resolveZone(supabase, pickup_address, pickupLat, pickupLng, pickup_city),
-    ]);
+    // 1. Resolve Zone & City. Normal in-zone pricing does not need developer identity.
+    let zoneInfo = await resolveZone(
+      supabase,
+      pickup_address,
+      pickupLat,
+      pickupLng,
+      pickup_city,
+      activeZonesPromise,
+    );
+    const matchedNormally = zoneInfo !== null;
     let usedDeveloperZoneBypass = false;
     if (!zoneInfo) {
+      // Preserve the existing developer-only fallback and developer_test_mode flag. Identity is
+      // still best-effort, but it is now paid only on the unmatched-zone path where it can matter.
+      isDeveloperAccount = await resolveDeveloperAccount(supabase, req);
+
       // For intercity services (cross-zone by design) or Developer Test Mode
       // accounts (testing outside configured zones), fallback to any active
       // zone so pricing can still be calculated.
@@ -331,6 +353,9 @@ serve(async (req) => {
         // Cached (Phase 10E 2D) -- same active-zone set resolveZone() reads. The old query used
         // `.limit(1)` with no ORDER BY, i.e. "any active zone" (as the comment above states); the
         // cached list's [0] satisfies that contract and is deterministic within the 30s window.
+        // Keep the original helper call here rather than reusing the first promise: a successful
+        // read is still an immediate cache hit, while a transient first-read error retains the
+        // previous fallback-path retry semantics.
         const fallbackZones = await getActivePricingZones(supabase);
         if (fallbackZones && fallbackZones.length > 0) {
           zoneInfo = { matchedZone: fallbackZones[0], matchedCity: fallbackZones[0].zone_name };
@@ -390,13 +415,20 @@ serve(async (req) => {
     }
 
     // 2. Resolve Pricing Config
+    // Normal in-zone pricing reuses the config read that started alongside the zone read. A
+    // fallback match starts a fresh config read here, preserving the pre-concurrency recovery
+    // behavior when the initial zone/config reads failed during the same transient incident.
+    const configsForPricingPromise = matchedNormally
+      ? activeConfigsPromise
+      : getActivePricingConfigs(supabase);
     const matchedConfig = await resolvePricingConfig(
       supabase,
       order_type,
       resolvedVehicleType,
       matchedZone.id,
       weight_kg,
-      weight_category
+      weight_category,
+      configsForPricingPromise,
     );
 
     if (!matchedConfig) {
@@ -463,7 +495,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || "Unknown error",
+        error: error instanceof Error ? error.message : "Unknown error",
       }),
       {
         headers: {

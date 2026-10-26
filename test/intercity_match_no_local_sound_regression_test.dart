@@ -65,9 +65,13 @@ void main() {
         'order_id, then still respects mounted before showing', () {
       final start = homeTab.indexOf('Future<void> _resolveOrderTypeAndShowIncomingOrder(');
       expect(start, greaterThan(-1));
-      final body = homeTab.substring(start, start + 900);
+      final end = homeTab.indexOf('void _showIncomingOrder(', start);
+      expect(end, greaterThan(start));
+      final body = homeTab.substring(start, end);
       expect(body.contains("supabase.from('orders').select('order_type').eq('id', orderId).maybeSingle()"), isTrue);
-      expect(body.contains('if (!mounted) return;'), isTrue);
+      expect(body, contains('if (!mounted || supabase.auth.currentUser?.id != userId'));
+      expect(body, contains("rider?['id']?.toString() != riderId"));
+      expect(body, contains('_incomingOrderTypeRead.read('));
       expect(body.contains('_showIncomingOrder(assignment, orderType: orderType);'), isTrue);
     });
 

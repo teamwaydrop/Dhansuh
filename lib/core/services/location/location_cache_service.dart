@@ -1,3 +1,4 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
 import 'dart:async';
 import 'dart:ui' show Color;
 
@@ -56,6 +57,39 @@ class LocationCacheService {
 
   static StreamSubscription<Position>?
       riderLocationStream;
+  static StreamSubscription<Position>? _failedRiderStream;
+
+  // Retain ownership after an error until explicit stop confirms cancellation.
+  // No automatic restart: a still-open failed stream must block duplicate starts.
+  static StreamSubscription<Position> _listenRiderPositions(Stream<Position> stream) {
+    StreamSubscription<Position>? owned;
+    var failedDuringListen = false;
+    void failOwnedStream() {
+      final subscription = owned;
+      if (subscription == null) {
+        failedDuringListen = true;
+        return;
+      }
+      if (!identical(riderLocationStream, subscription)) return;
+      _failedRiderStream = subscription;
+      riderHeartbeatTimer?.cancel();
+      debugPrint('LOCATION STREAM ERROR: tracking retained until stop');
+    }
+    owned = stream.listen((position) {
+      RideDiagnostics.instance.count(RideCounter.gpsCallbacks);
+      if (identical(riderLocationStream, owned) &&
+          !identical(_failedRiderStream, owned)) {
+        _handlePositionUpdate(position);
+      } else {
+        RideDiagnostics.instance.count(RideCounter.gpsIgnoredCallbacks);
+      }
+    }, onError: (Object _) {
+      failOwnedStream();
+    });
+    riderLocationStream = owned;
+    if (failedDuringListen) failOwnedStream();
+    return owned;
+  }
 
   static StreamSubscription<ServiceStatus>?
       gpsStatusStream;
@@ -67,6 +101,38 @@ class LocationCacheService {
       lastUploadedPosition;
 
   static bool isUpdatingDb = false;
+
+  static Future<void> Function(Position)? _riderLocationWriterForTesting;
+
+  @visibleForTesting
+  static Future<void> Function(Position)? get riderLocationWriterForTesting =>
+      kDebugMode ? _riderLocationWriterForTesting : null;
+
+  @visibleForTesting
+  static set riderLocationWriterForTesting(
+    Future<void> Function(Position)? writer,
+  ) {
+    _requireDebugTestSeam();
+    _riderLocationWriterForTesting = writer;
+  }
+
+  static void _requireDebugTestSeam() {
+    if (!kDebugMode) {
+      throw StateError('GPS test seams are only available in debug mode.');
+    }
+  }
+
+  @visibleForTesting
+  static Future<void> handlePositionUpdateForTesting(Position position) {
+    _requireDebugTestSeam();
+    return _handlePositionUpdate(position);
+  }
+
+  @visibleForTesting
+  static Future<void> performHeartbeatUpdateForTesting() {
+    _requireDebugTestSeam();
+    return _performHeartbeatUpdate();
+  }
 
   static Timer? riderHeartbeatTimer;
 
@@ -341,6 +407,7 @@ class LocationCacheService {
   // =====================================================
 
   static Future<void> _performHeartbeatUpdate() async {
+    RideDiagnostics.instance.count(RideCounter.heartbeatCallbacks);
     try {
       Position? position;
       try {
@@ -407,10 +474,11 @@ class LocationCacheService {
   // =====================================================
 
   static Future<void>
-      startRiderLiveTracking()
+      startRiderLiveTracking({bool Function()? canStart})
       async {
 
     try {
+      if (canStart != null && !canStart()) return;
 
       // =========================================
       // PREVENT DUPLICATES
@@ -430,6 +498,8 @@ class LocationCacheService {
           await Geolocator
               .isLocationServiceEnabled();
 
+      if (canStart != null && !canStart()) return;
+
       if (!serviceEnabled) {
 
         return;
@@ -446,6 +516,9 @@ class LocationCacheService {
 
         return;
       }
+
+      // Another caller may have installed the resources during permission awaits.
+      if ((canStart != null && !canStart()) || riderLocationStream != null) return;
 
       // =========================================
       // START STREAM
@@ -486,21 +559,9 @@ class LocationCacheService {
       }
 
       try {
-        riderLocationStream = Geolocator.getPositionStream(
+        _listenRiderPositions(Geolocator.getPositionStream(
           locationSettings: locationSettings,
-        ).listen(
-          _handlePositionUpdate,
-          onError: (error) {
-            debugPrint('LOCATION STREAM ERROR => $error');
-            // BUG FIX: this used to only log -- riderLocationStream was never nulled out on a
-            // stream error (permission revoked mid-session, GPS disabled), so
-            // startRiderLiveTracking()'s own "already running" dedup guard (line ~376, checks
-            // `riderLocationStream != null`) permanently blocked every future restart attempt,
-            // including the app-resume path. Once tracking died this way it stayed dead until a
-            // manual offline->online toggle, with the rider still shown as online the whole time.
-            riderLocationStream = null;
-          },
-        );
+        ));
       } catch (streamError) {
         debugPrint('Failed to start location stream with foreground settings: $streamError. Falling back to basic LocationSettings.');
         try {
@@ -508,15 +569,9 @@ class LocationCacheService {
             accuracy: LocationAccuracy.bestForNavigation,
             distanceFilter: 5,
           );
-          riderLocationStream = Geolocator.getPositionStream(
+          _listenRiderPositions(Geolocator.getPositionStream(
             locationSettings: fallbackSettings,
-          ).listen(
-            _handlePositionUpdate,
-            onError: (error) {
-              debugPrint('LOCATION STREAM FALLBACK ERROR => $error');
-              riderLocationStream = null;
-            },
-          );
+          ));
         } catch (fallbackError) {
           debugPrint('Critical: Failed to start fallback location stream: $fallbackError');
         }
@@ -525,6 +580,11 @@ class LocationCacheService {
       // =========================================
       // START HEARTBEAT TIMER
       // =========================================
+
+      if (riderLocationStream == null ||
+          identical(_failedRiderStream, riderLocationStream)) {
+        return;
+      }
 
       riderHeartbeatTimer?.cancel();
       riderHeartbeatTimer = Timer.periodic(
@@ -557,6 +617,8 @@ class LocationCacheService {
       _handlePositionUpdate(
     Position position,
   ) async {
+
+    var ownsDbGuard = false;
 
     try {
 
@@ -591,6 +653,8 @@ class LocationCacheService {
 
       isUpdatingDb = true;
 
+      ownsDbGuard = true;
+
       // =========================================
       // UPDATE DB
       // =========================================
@@ -612,8 +676,8 @@ class LocationCacheService {
       );
 
     } finally {
-
-      isUpdatingDb = false;
+      // Early returns before acquisition must not release another writer's guard.
+      if (ownsDbGuard) isUpdatingDb = false;
     }
   }
 
@@ -694,20 +758,24 @@ class LocationCacheService {
   // STOP TRACKING
   // =====================================================
 
+  /// Resource readiness, not a guarantee that the OS will deliver positions.
+  static bool get isRiderLiveTrackingActive => riderLocationStream != null &&
+      !identical(_failedRiderStream, riderLocationStream) &&
+      !riderLocationStream!.isPaused && riderHeartbeatTimer?.isActive == true;
+
   static Future<void>
       stopRiderLiveTracking()
       async {
 
     try {
-
-      await riderLocationStream
-          ?.cancel();
-
-      riderLocationStream = null;
-
-      riderHeartbeatTimer?.cancel();
-
-      riderHeartbeatTimer = null;
+      final ownedStream = riderLocationStream;
+      final ownedHeartbeat = riderHeartbeatTimer;
+      ownedHeartbeat?.cancel();
+      if (identical(riderHeartbeatTimer, ownedHeartbeat)) riderHeartbeatTimer = null;
+      await ownedStream?.cancel();
+      if (identical(_failedRiderStream, ownedStream)) _failedRiderStream = null;
+      // An old cancellation must not clear a replacement stream after an await.
+      if (identical(riderLocationStream, ownedStream)) riderLocationStream = null;
 
     } catch (e) {
 
@@ -725,6 +793,14 @@ class LocationCacheService {
       updateRiderLocation(
     Position position,
   ) async {
+
+    if (kDebugMode) {
+      final testWriter = _riderLocationWriterForTesting;
+      if (testWriter != null) {
+        await testWriter(position);
+        return;
+      }
+    }
 
     try {
 
@@ -747,7 +823,9 @@ class LocationCacheService {
           DateTime.now()
               .toIso8601String();
 
-      await supabase
+      RideDiagnostics.instance.count(RideCounter.locationWriteStarts);
+      try {
+        await supabase
 
           .from('riders')
 
@@ -785,6 +863,11 @@ class LocationCacheService {
             'account_status',
             'online',
           );
+        RideDiagnostics.instance.count(RideCounter.locationWriteResponses);
+      } catch (_) {
+        RideDiagnostics.instance.count(RideCounter.locationWriteUnknown);
+        rethrow;
+      }
 
     } catch (e) {
 

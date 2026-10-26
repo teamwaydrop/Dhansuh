@@ -6,6 +6,76 @@ import { fetchWithTimeout } from "../_shared/http.ts";
 import { getSignedRiderImageUrl } from "../_shared/signed_url_cache.ts";
 import { getEtaWithBudget } from "../_shared/eta_cache.ts";
 import { olaRequest } from "../_shared/ola_client.ts";
+import { singleRelation } from "../_shared/single_relation.ts";
+
+function buildOrderSnapshot(order: Record<string, unknown>) {
+  return {
+    // Version 2 omits unsupported legacy fee columns and preserves nullable DB values.
+    contract_version: 2,
+    id: order.id,
+    updated_at: order.updated_at,
+    order_code: order.order_code,
+    user_id: order.user_id,
+    rider_id: order.rider_id,
+    order_type: order.order_type,
+    vehicle_type: order.vehicle_type,
+    order_status: order.order_status,
+    distance_meters: order.distance_meters,
+    distance_km: order.distance_km,
+    estimated_duration_min: order.estimated_duration_min,
+    actual_duration_min: order.actual_duration_min,
+    time_taken_seconds: order.time_taken_seconds,
+    pickup_address: order.pickup_address,
+    pickup_lat: order.pickup_lat,
+    pickup_lng: order.pickup_lng,
+    destination_address: order.destination_address,
+    destination_lat: order.destination_lat,
+    destination_lng: order.destination_lng,
+    actual_fare: order.actual_fare,
+    current_fare: order.current_fare,
+    final_fare: order.final_fare,
+    base_fare: order.base_fare,
+    distance_fare: order.distance_fare,
+    time_fare: order.time_fare,
+    waiting_charge: order.waiting_charge,
+    platform_fee: order.platform_fee,
+    payment_mode: order.payment_mode,
+    payment_status: order.payment_status,
+    payment_id: order.payment_id,
+    fare_payment_method: order.fare_payment_method,
+    fare_payment_attempted_at: order.fare_payment_attempted_at,
+    pickup_otp: order.pickup_otp,
+    delivery_otp: order.delivery_otp,
+    parcel_type: order.parcel_type,
+    receiver_name: order.receiver_name,
+    receiver_phone: order.receiver_phone,
+    weight_category: order.weight_category,
+    actual_weight_kg: order.actual_weight_kg,
+    parcel_images: order.parcel_images ?? [],
+    special_instructions: order.special_instructions,
+    created_at: order.created_at,
+    accepted_at: order.accepted_at,
+    rider_arrived_at: order.rider_arrived_at,
+    picked_up_at: order.picked_up_at,
+    rider_at_drop_at: order.rider_at_drop_at,
+    completed_at: order.completed_at,
+    cancelled_at: order.cancelled_at,
+    boost_amount: order.boost_amount,
+    boost_percentage: order.boost_percentage,
+    pickup_city: order.pickup_city,
+    destination_city: order.destination_city,
+    travel_date: order.travel_date,
+    seats_requested: order.seats_requested,
+    trip_started_at: order.trip_started_at,
+    gst_percentage: order.gst_percentage,
+    gst_amount: order.gst_amount,
+    commission_percentage: order.commission_percentage,
+    commission_amount: order.commission_amount,
+    rider_earning: order.rider_earning,
+    boost_company_earning: order.boost_company_earning,
+    boost_rider_earning: order.boost_rider_earning,
+  };
+}
 
 serve(async (req) => {
   try {
@@ -122,6 +192,7 @@ serve(async (req) => {
         .from("orders")
         .select(`
           id,
+          updated_at,
           order_code,
           order_status,
           order_type,
@@ -137,6 +208,51 @@ serve(async (req) => {
           pickup_otp,
           delivery_otp,
           created_at,
+          distance_meters,
+          distance_km,
+          estimated_duration_min,
+          actual_duration_min,
+          time_taken_seconds,
+          actual_fare,
+          current_fare,
+          final_fare,
+          base_fare,
+          distance_fare,
+          time_fare,
+          waiting_charge,
+          platform_fee,
+          payment_mode,
+          payment_status,
+          payment_id,
+          fare_payment_method,
+          fare_payment_attempted_at,
+          parcel_type,
+          receiver_name,
+          receiver_phone,
+          weight_category,
+          actual_weight_kg,
+          parcel_images,
+          special_instructions,
+          accepted_at,
+          rider_arrived_at,
+          picked_up_at,
+          rider_at_drop_at,
+          completed_at,
+          cancelled_at,
+          boost_amount,
+          boost_percentage,
+          pickup_city,
+          destination_city,
+          travel_date,
+          seats_requested,
+          trip_started_at,
+          gst_percentage,
+          gst_amount,
+          commission_percentage,
+          commission_amount,
+          rider_earning,
+          boost_company_earning,
+          boost_rider_earning,
           riders (
             id,
             rating,
@@ -226,6 +342,11 @@ serve(async (req) => {
       );
     }
 
+    // Construct only after authentication and explicit ownership authorization.
+    // This is an allowlisted raw orders snapshot; rider/travel-plan display
+    // enrichment remains in the existing order/rider response objects below.
+    const orderSnapshot = buildOrderSnapshot(order);
+
     // ---------------------------------------------------
     // RIDER NOT ASSIGNED
     // ---------------------------------------------------
@@ -235,6 +356,7 @@ serve(async (req) => {
         JSON.stringify({
           success: true,
           rider_assigned: false,
+          order_snapshot: orderSnapshot,
           order: {
             id: order.id,
             order_code: order.order_code,
@@ -260,7 +382,12 @@ serve(async (req) => {
     // branch already returned when order.rider_id was null, so it is guaranteed non-null here
     // (a null embed alongside a non-null rider_id would indicate the rider row itself is missing,
     // preserved below with the same "Rider not found" 404 the old separate fetch produced).
-    const rider = order.riders;
+    const riderRow = singleRelation(order.riders);
+    const rider = riderRow ? {
+      ...riderRow,
+      users: singleRelation(riderRow.users),
+      rider_kyc: singleRelation(riderRow.rider_kyc),
+    } : null;
 
     if (!rider) {
       return new Response(
@@ -280,8 +407,7 @@ serve(async (req) => {
     const riderUser = rider.users ?? null;
 
     console.log(
-      "RIDER USER =>",
-      riderUser
+      "LIVE_STATUS stage=rider_profile category=resolved"
     );
 
     // ---------------------------------------------------
@@ -396,7 +522,7 @@ serve(async (req) => {
                 timeoutMs: 8000,
               });
             }
-            console.log("OLA ETA RESPONSE =>", etaData);
+            console.log("LIVE_STATUS stage=eta category=response_received");
 
             // DEFENSIVE VALIDATION (OLA ETA parsing crash fix, 2026-08-08): the unguarded
             // `etaData.rows[0].elements[0]` access below crashed with a generic, unactionable
@@ -431,7 +557,7 @@ serve(async (req) => {
               estimatedArrivalMinutes: Math.max(1, Math.round(element.duration / 60)),
             };
           } catch (etaError) {
-            console.error("ETA CALCULATION ERROR =>", etaError);
+            console.error("LIVE_STATUS stage=eta category=calculation_failed");
             // Re-throw (rather than returning a zero fallback here) so getEtaWithBudget's own
             // cache-miss fallback runs -- serving the last good cached ETA instead of clobbering
             // it with a zero for the full cache TTL after one transient OLA failure. If there is
@@ -480,6 +606,7 @@ serve(async (req) => {
         success: true,
 
         rider_assigned: true,
+        order_snapshot: orderSnapshot,
 
         order: {
           id: order.id,
@@ -583,17 +710,16 @@ phone:
       }
     );
 
-  } catch (error) {
+  } catch {
 
     console.error(
-      "GET LIVE ORDER STATE ERROR =>",
-      error
+      "LIVE_STATUS stage=request category=unexpected_failure"
     );
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: String(error),
+        error: "Unable to retrieve live order status",
       }),
       {
         status: 500,

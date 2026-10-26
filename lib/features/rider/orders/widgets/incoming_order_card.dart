@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -40,9 +42,12 @@ class _IncomingOrderCardState extends State<IncomingOrderCard> {
   RealtimeChannel? _orderSubscription;
   RealtimeChannel? _assignmentSubscription;
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   void initState() {
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.incomingCard);
     _startCountdown();
     fetchOrder();
     _subscribeToOrder();
@@ -51,6 +56,7 @@ class _IncomingOrderCardState extends State<IncomingOrderCard> {
 
   @override
   void dispose() {
+    _rideDiagnosticOwner.dispose();
     _countdownTimer?.cancel();
     _countdownNotifier.dispose();
     if (_orderSubscription != null) {
@@ -285,10 +291,10 @@ class _IncomingOrderCardState extends State<IncomingOrderCard> {
       final riderId = widget.assignment['rider_id'];
       final orderId = widget.assignment['order_id'];
       
-      final response = await supabase.functions.invoke(
+      final response = await _rideDiagnosticOwner.api(RideEndpoint.acceptance, orderId?.toString(), () => supabase.functions.invoke(
         'accept-order',
         body: {'order_id': orderId, 'rider_id': riderId},
-      );
+      ));
 
       if (response.data != null && response.data['success'] != true) {
         throw Exception(response.data['message'] ?? 'Failed to accept order');
@@ -374,6 +380,9 @@ class _IncomingOrderCardState extends State<IncomingOrderCard> {
 
   @override
   Widget build(BuildContext context) {
+    final diagnosticStatus = order?['order_status'];
+    _rideDiagnosticOwner.frame(context, order?['id']?.toString(), diagnosticStatus,
+      () => !loading && order?['order_status'] == diagnosticStatus);
     final sentAtStr = widget.assignment['sent_at'] ?? '';
     final dt = DateTime.tryParse(sentAtStr.toString())?.toLocal() ?? DateTime.now();
     final hour = dt.hour.toString().padLeft(2, '0');

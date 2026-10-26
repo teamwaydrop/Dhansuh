@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -163,9 +165,12 @@ class _IntercityRideBookingScreenState
     }
   }
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   void initState() {
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.booking);
     debugPrint('[RUNTIME_TRACE] ENTER IntercityRideBookingScreen (intercity_ride_booking_screen.dart)');
     pricingController = PricingController();
     distanceKm = widget.totalDistanceMeters / 1000;
@@ -176,6 +181,7 @@ class _IntercityRideBookingScreenState
 
   @override
   void dispose() {
+    _rideDiagnosticOwner.dispose();
     _promoController.dispose();
 
     // Phase 2F-C1 -- explicit WebView teardown, mirroring the Phase 2F-B pattern (c1ccf56).
@@ -291,10 +297,10 @@ class _IntercityRideBookingScreenState
     );
   }
 
-  Future<void> _submitOrderToBackend({String? paymentId}) async {
+  Future<void> _submitOrderToBackend({String? paymentId, RideAttempt? diagnosticAttempt}) async {
     final deviceMeta = await DeviceInfoHelper.getDeviceMetadata();
     final user = supabase.auth.currentUser;
-    final response = await supabase.functions.invoke(
+    final response = await _rideDiagnosticOwner.api(RideEndpoint.booking, null, () => supabase.functions.invoke(
       'create-order',
       body: {
         'user_id': user?.id,
@@ -329,7 +335,7 @@ class _IntercityRideBookingScreenState
       },
       // CLIENT-1 (WayDrop Progressive Degradation Audit): bounded so a stalled backend surfaces
       // as the same caught exception _createOrder already handles, not an infinite wait.
-    ).timeout(const Duration(seconds: 30));
+    ).timeout(const Duration(seconds: 30)), attempt: diagnosticAttempt);
 
     debugPrint('CREATE ORDER RESPONSE => ${response.data}');
 
@@ -361,6 +367,7 @@ class _IntercityRideBookingScreenState
   }
 
   Future<void> _createOrder() async {
+    final diagnosticAttempt = _rideDiagnosticOwner.begin(endpoint: RideEndpoint.booking);
     if (selectedVehicle == null) return;
 
     if (_selectedTravelDate.isBefore(DateTime.now())) {
@@ -377,7 +384,7 @@ class _IntercityRideBookingScreenState
     // completion — no payment gateway involved at booking time.
     try {
       setState(() => creatingOrder = true);
-      await _submitOrderToBackend();
+      await _submitOrderToBackend(diagnosticAttempt: diagnosticAttempt);
     } catch (e, stackTrace) {
       // Phase 5 F2: non-fatal Crashlytics report, purely additive -- does not affect the
       // existing SnackBar/finally behavior below.

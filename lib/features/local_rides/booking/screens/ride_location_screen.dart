@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 /// ============================================================================
 /// File: ride_location_screen.dart
 ///
@@ -21,6 +23,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import '../nearby_rider_refresh.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +86,7 @@ class _RideLocationScreenState
   bool creatingOrder = false;
   bool waitingForPayment = false;
   List<Map<String, dynamic>> nearbyRiders = [];
+  final NearbyRiderRefresh _nearbyRiderRefresh = NearbyRiderRefresh();
   bool showPromoField = false;
   final TextEditingController _promoController = TextEditingController();
   String? _appliedPromoCode;
@@ -211,9 +215,12 @@ class _RideLocationScreenState
   // INIT
   // =====================================================
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   void initState() {
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.booking);
     pricingController = PricingController();
     _screenOpenTime = DateTime.now();
     _pulseController = AnimationController(
@@ -344,6 +351,8 @@ class _RideLocationScreenState
 
   @override
   void dispose() {
+    _rideDiagnosticOwner.dispose();
+    _nearbyRiderRefresh.dispose();
     _pulseController.dispose();
 
     pickupFocus.removeListener(_onFocusChange);
@@ -1643,8 +1652,14 @@ class _RideLocationScreenState
   }
 
   Future<void> _fetchNearbyRiders() async {
-    if (pickupLat == null || pickupLng == null) return;
+    final requestLat = pickupLat;
+    final requestLng = pickupLng;
+    if (requestLat == null || requestLng == null) return;
     try {
+      await _nearbyRiderRefresh.run<List<Map<String, dynamic>>>(
+        isCurrent: () => mounted && _showBookingOptions &&
+            pickupLat == requestLat && pickupLng == requestLng,
+        fetch: () async {
       // CLIENT-3 (WayDrop Progressive Degradation Audit): this used to fetch every online rider
       // platform-wide every 5 seconds and filter to the 5km radius client-side in Dart. The
       // radius check below (haversine, unchanged) is the actual eligibility rule; this bounding
@@ -1655,7 +1670,7 @@ class _RideLocationScreenState
       const double kmPerDegreeLat = 111.32;
       final double latDelta = radiusKm / kmPerDegreeLat;
       final double lngDegreeKm =
-          kmPerDegreeLat * cos(pickupLat! * (pi / 180)).abs();
+          kmPerDegreeLat * cos(requestLat * (pi / 180)).abs();
       final double lngDelta =
           radiusKm / (lngDegreeKm < 0.000001 ? 0.000001 : lngDegreeKm);
 
@@ -1668,10 +1683,10 @@ class _RideLocationScreenState
           .eq('account_status', 'online')
           .not('current_lat', 'is', null)
           .not('current_lng', 'is', null)
-          .gte('current_lat', pickupLat! - latDelta)
-          .lte('current_lat', pickupLat! + latDelta)
-          .gte('current_lng', pickupLng! - lngDelta)
-          .lte('current_lng', pickupLng! + lngDelta);
+          .gte('current_lat', requestLat - latDelta)
+          .lte('current_lat', requestLat + latDelta)
+          .gte('current_lng', requestLng - lngDelta)
+          .lte('current_lng', requestLng + lngDelta);
 
       final List<Map<String, dynamic>> riders =
           (response as List).map<Map<String, dynamic>>((r) {
@@ -1696,17 +1711,20 @@ class _RideLocationScreenState
         if (lat == null || lng == null) return false;
 
         const p = 0.017453292519943295; // Math.PI / 180
-        final a = 0.5 - cos((lat - pickupLat!) * p) / 2 +
-            cos(pickupLat! * p) * cos(lat * p) *
-            (1 - cos((lng - pickupLng!) * p)) / 2;
+        final a = 0.5 - cos((lat - requestLat) * p) / 2 +
+            cos(requestLat * p) * cos(lat * p) *
+            (1 - cos((lng - requestLng) * p)) / 2;
         final distanceKmObj = 12742 * asin(sqrt(a));
         return distanceKmObj <= 5.0;
       }).toList();
 
-      if (mounted) {
-        setState(() => nearbyRiders = riders);
-      }
-      await _updateRidersOnMap(filterType: selectedVehicle);
+      return riders;
+        },
+        apply: (riders) async {
+          setState(() => nearbyRiders = riders);
+          await _updateRidersOnMap(filterType: selectedVehicle);
+        },
+      );
     } catch (e) {
       debugPrint('FETCH NEARBY RIDERS ERROR => $e');
     }
@@ -1834,12 +1852,12 @@ class _RideLocationScreenState
     );
   }
 
-  Future<void> _submitOrderToBackend({String? paymentId, required String idempotencyKey}) async {
+  Future<void> _submitOrderToBackend({String? paymentId, required String idempotencyKey, RideAttempt? diagnosticAttempt}) async {
     final deviceMeta = await DeviceInfoHelper.getDeviceMetadata();
     final user = supabase.auth.currentUser;
     final double distanceKmObj = distanceMeters / 1000;
 
-    final response = await supabase.functions.invoke(
+    final response = await _rideDiagnosticOwner.api(RideEndpoint.booking, null, () => supabase.functions.invoke(
       'create-order',
       body: {
         'user_id': user?.id,
@@ -1875,7 +1893,7 @@ class _RideLocationScreenState
       // CLIENT-1 (WayDrop Progressive Degradation Audit): bounded so a stalled backend can never
       // hang this screen forever — surfaces as the same caught exception _createOrder already
       // handles (SnackBar + resetting creatingOrder), instead of an infinite "creating order" state.
-    ).timeout(const Duration(seconds: 30));
+    ).timeout(const Duration(seconds: 30)), attempt: diagnosticAttempt);
 
     debugPrint('CREATE ORDER RESPONSE => ${response.data}');
 
@@ -1922,10 +1940,12 @@ class _RideLocationScreenState
     // Both 'cash' and 'upi' are collected directly by the driver at trip
     // completion — no payment gateway involved at booking time.
     final idempotencyKey = _generateBookingIdempotencyKey();
+    final diagnosticAttempt = _rideDiagnosticOwner.begin(
+      endpoint: RideEndpoint.booking, correlation: idempotencyKey);
     try {
       setState(() => creatingOrder = true);
       try {
-        await _submitOrderToBackend(idempotencyKey: idempotencyKey);
+        await _submitOrderToBackend(idempotencyKey: idempotencyKey, diagnosticAttempt: diagnosticAttempt);
       } on TimeoutException {
         // P1 fix: the first attempt's outcome is ambiguous here (create-order may have
         // succeeded server-side after this client gave up waiting) -- retry once with the SAME
@@ -1933,7 +1953,7 @@ class _RideLocationScreenState
         // again and risk creating a genuine duplicate order. Unconditionally safe: create-order
         // treats this as a no-op returning the already-created order if the first call already
         // went through, and creates the order fresh otherwise.
-        await _submitOrderToBackend(idempotencyKey: idempotencyKey);
+        await _submitOrderToBackend(idempotencyKey: idempotencyKey, diagnosticAttempt: diagnosticAttempt);
       }
     } catch (e, stackTrace) {
       // Phase 5 F2: non-fatal Crashlytics report so a production order-creation failure spike is
@@ -1992,6 +2012,7 @@ class _RideLocationScreenState
   }
 
   void _onRouteCleared() {
+    _nearbyRiderRefresh.invalidate();
     _riderRefreshTimer?.cancel();
     setState(() {
       _showBookingOptions = false;

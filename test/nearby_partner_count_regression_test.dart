@@ -124,7 +124,7 @@ void main() {
     test('account_status and the fresh lat/lng/timestamp are written in the SAME update -- no separate race window', () {
       final section = riderHomeTab.substring(bringOnlineStart, bringOnlineEnd);
       final updateStart = section.indexOf("await supabase.from('riders').update({");
-      final updateEnd = section.indexOf("}).eq('user_id', supabase.auth.currentUser!.id);", updateStart);
+      final updateEnd = section.indexOf("}).eq('user_id', onlineUserId!);", updateStart);
       expect(updateStart, greaterThan(-1));
       expect(updateEnd, greaterThan(updateStart));
       final updateSection = section.substring(updateStart, updateEnd);
@@ -132,6 +132,8 @@ void main() {
       expect(updateSection.contains("'current_lat': freshLat"), isTrue);
       expect(updateSection.contains("'current_lng': freshLng"), isTrue);
       expect(updateSection.contains("'last_location_updated_at': nowIso"), isTrue);
+      expect(section, contains('final onlineUserId = supabase.auth.currentUser?.id;'));
+      expect(section, contains('if (!ownsOnlineOperation()) return false;'));
     });
   });
 
@@ -161,13 +163,24 @@ void main() {
   });
 
   group('Test 18: passenger availability and dispatch use consistent eligibility (documented, intentional differences noted)', () {
-    test('the pre-booking map marker queries (home_tab.dart) are a DIFFERENT feature (map pins, not the nearby count) with a stricter, documented, intentionally different filter', () {
-      final homeTab = _read('lib/features/user/home/home_tab.dart');
-      // Documented as an intentional, narrower "fully onboarded only" view for map pins -- not the
-      // "X active partners nearby" count this fix targets. Left unchanged: not proven broken, and
-      // changing pre-booking map visibility rules is a separate product decision.
-      expect(homeTab.contains("eq('rider_kyc.kyc_status', 'approved')"), isTrue);
-      expect(homeTab.contains("eq('rider_kyc.activation_status', 'active')"), isTrue);
+    test('booking map markers retain their baseline cosmetic filters independently of dispatch eligibility', () {
+      // HEAD has no marker query in passenger Home. The actual booking query
+      // displays pins; the canonical RPC assertions above protect dispatch/count
+      // eligibility. Do not invent KYC eligibility filters for cosmetic markers.
+      final booking = _read('lib/features/local_rides/booking/screens/ride_location_screen.dart');
+      final start = booking.indexOf('Future<void> _fetchNearbyRiders()');
+      final end = booking.indexOf('Future<void> _updateRidersOnMap(', start);
+      final markers = booking.substring(start, end);
+      expect(markers, contains(".eq('account_status', 'online')"));
+      expect(markers, contains(".not('current_lat', 'is', null)"));
+      expect(markers, contains(".not('current_lng', 'is', null)"));
+      expect(markers, contains(".gte('current_lat', requestLat - latDelta)"));
+      expect(markers, contains(".lte('current_lat', requestLat + latDelta)"));
+      expect(markers, contains(".gte('current_lng', requestLng - lngDelta)"));
+      expect(markers, contains(".lte('current_lng', requestLng + lngDelta)"));
+      expect(markers, contains('distanceKmObj <= 5.0'));
+      expect(markers, contains('rider_kyc!riders_kyc_id_fkey(vehicle_type)'));
+      expect(markers, contains('_nearbyRiderRefresh.run<List<Map<String, dynamic>>>'));
     });
   });
 }

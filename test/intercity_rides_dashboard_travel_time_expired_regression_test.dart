@@ -18,7 +18,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-String _read(String path) => File(path).readAsStringSync();
+// Line endings are not Dart semantics; keep every assertion otherwise exact.
+String _read(String path) => File(path).readAsStringSync().replaceAll('\r\n', '\n');
 
 void main() {
   final screen = _read('lib/features/intercity/rides/dashboard/intercity_rides_screen.dart');

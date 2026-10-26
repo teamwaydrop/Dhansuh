@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 /// ============================================================================
 /// File: intercity_searching_screen.dart
 ///
@@ -116,11 +118,14 @@ class _IntercitySearchingScreenState extends State<IntercitySearchingScreen> wit
 
   late DateTime _nextTimeoutTime;
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   // Lifecycle method called once when the stateful widget initialized for the first time
   void initState() {
     // Lifecycle method called once when the stateful widget initialized for the first time
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.passengerSearching);
     debugPrint('[RUNTIME_TRACE] ENTER IntercitySearchingScreen (intercity_searching_screen.dart) orderId=${widget.orderId}');
     _nextTimeoutTime = DateTime.now().add(Duration(seconds: 300 + Random().nextInt(300)));
 
@@ -146,6 +151,7 @@ class _IntercitySearchingScreenState extends State<IntercitySearchingScreen> wit
   @override
   // Lifecycle method called before the widget is removed permanently from the tree to clean resources
   void dispose() {
+    _rideDiagnosticOwner.dispose();
     // Lifecycle method called before the widget is removed permanently from the tree to clean resources
     _customFareController.dispose();
     // Lifecycle method called before the widget is removed permanently from the tree to clean resources
@@ -3073,6 +3079,9 @@ class _IntercitySearchingScreenState extends State<IntercitySearchingScreen> wit
   @override
   // Build method responsible for rendering the entire widget layout hierarchy on the viewport
   Widget build(BuildContext context) {
+    final diagnosticStatus = orderController.orderNotifier.value?.orderStatus;
+    _rideDiagnosticOwner.frame(context, widget.orderId, diagnosticStatus,
+      () => orderController.orderNotifier.value?.orderStatus == diagnosticStatus);
     // Retrieve the active theme parameters (like colors, text style, dark mode) from BuildContext
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final typedOrder = orderController.orderNotifier.value;

@@ -2,12 +2,43 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchWithTimeout } from "../_shared/http.ts";
 import { getDispatchConfig } from "../_shared/dispatch_config_cache.ts";
+import {
+  DispatchRoundStatusError,
+  dispatchRoundStatusFailureResponse,
+  readDispatchRoundStatus,
+} from "../_shared/dispatch_round_status.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
+
+class DispatchLockCleanupError extends Error {
+  constructor() {
+    super("Dispatch lock cleanup unavailable");
+    this.name = "DispatchLockCleanupError";
+  }
+}
+
+// Validate the selected history projection without normalizing database values.
+function isValidAssignmentHistoryRow(value: unknown): boolean {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
+  const row = value as Record<string, unknown>;
+  const nullableTimestamp = (field: unknown) => field === null ||
+    (typeof field === "string" && Number.isFinite(Date.parse(field)));
+  const nullableNumeric = (field: unknown) => field === null ||
+    (typeof field === "number" && Number.isFinite(field)) ||
+    (typeof field === "string" &&
+      /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(field) &&
+      Number.isFinite(Number(field)));
+  return typeof row.rider_id === "string" && row.rider_id.trim().length > 0 &&
+    typeof row.assignment_status === "string" &&
+    ["sent", "viewed", "accepted", "rejected", "timed_out", "expired", "cancelled", "accepted_by_user"]
+      .includes(row.assignment_status) &&
+    nullableTimestamp(row.responded_at) && nullableTimestamp(row.hidden_until) &&
+    nullableNumeric(row.last_seen_fare) && nullableNumeric(row.estimated_earnings);
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -291,6 +322,7 @@ serve(async (req) => {
     }
 
     let chainedTriggered = false;
+    let dispatchFailed = false;
 
     try {
       // =====================================================
@@ -463,15 +495,25 @@ serve(async (req) => {
           // the already-known-excluded rider IDs can be passed into the RPC and skipped before it
           // does eligibility/KYC/tax/COD/active-trip/Haversine work for them). Exclusion RULES are
           // byte-for-byte unchanged from before this reordering -- only the read's position moved.
-          const { data: existingAssignments } = await supabase
+          const { data: existingAssignments, error: assignmentReadError } = await supabase
             .from("rider_assignments")
             .select("rider_id, assignment_status, responded_at, hidden_until, last_seen_fare, estimated_earnings")
             .eq("order_id", order_id);
 
+          if (assignmentReadError) {
+            console.error("[Dispatch] assignment history category=request_error");
+            throw new Error("Dispatch assignment history unavailable");
+          }
+          if (!Array.isArray(existingAssignments) ||
+              !existingAssignments.every(isValidAssignmentHistoryRow)) {
+            console.error("[Dispatch] assignment history category=invalid_response");
+            throw new Error("Dispatch assignment history unavailable");
+          }
+
           const excludedRiderIds = new Set<string>();
           const nowMs = Date.now();
 
-          for (const assignment of existingAssignments || []) {
+          for (const assignment of existingAssignments) {
             switch (assignment.assignment_status) {
               case "sent":
               case "accepted":
@@ -667,7 +709,18 @@ serve(async (req) => {
               sent_at: nowStrTime,
             }));
 
-            await supabase.from("order_assignment_logs").insert(logRows);
+            const { error: assignmentLogError } = await supabase
+              .from("order_assignment_logs")
+              .insert(logRows);
+            if (assignmentLogError) {
+              // rider_assignments is the dispatch source of truth and has already committed above.
+              // Keep audit-log failures non-fatal, but no longer discard them silently. A 23505 is
+              // the known duplicate (order, rider, round) audit race; other categories remain
+              // observable without logging IDs, payloads, or database error details.
+              console.warn(
+                `[Dispatch] assignment audit insert category=${assignmentLogError.code === "23505" ? "duplicate" : "request_failure"}`,
+              );
+            }
 
             console.log(`[Dispatch] Sent Round ${roundConfig.round} to ${filteredRiders.length} riders. Waiting ${timeoutSec}s...`);
             console.log(`[Dispatch] active riders=${filteredRiders.length}`);
@@ -696,13 +749,14 @@ serve(async (req) => {
               await new Promise((resolve) => setTimeout(resolve, sleepMs));
               waitedMs += sleepMs;
 
-              const { data: roundStatusRows } = await supabase.rpc(
-                "get_dispatch_round_status",
-                { p_order_id: order_id, p_round: roundConfig.round },
+              const roundStatus = await readDispatchRoundStatus(
+                () => supabase.rpc(
+                  "get_dispatch_round_status",
+                  { p_order_id: order_id, p_round: roundConfig.round },
+                ),
               );
-              const roundStatus = roundStatusRows?.[0];
 
-              if (!roundStatus || roundStatus.order_status !== "searching") {
+              if (roundStatus.order_status !== "searching") {
                 console.log(`[Dispatch] Order status became ${roundStatus?.order_status || "unknown"}. Stopping dispatch.`);
                 return new Response(
                   JSON.stringify({
@@ -717,7 +771,7 @@ serve(async (req) => {
               }
 
               // Check if there are any remaining "sent" assignments for this round
-              if ((roundStatus.pending_assignments ?? 0) === 0) {
+              if (roundStatus.pending_assignments === 0) {
                 console.log(`[Dispatch] All assignments for Round ${roundConfig.round} handled/responded early. Continuing...`);
                 roundHandledEarly = true;
                 break;
@@ -850,25 +904,50 @@ serve(async (req) => {
         },
       );
 
+    } catch (error) {
+      dispatchFailed = true;
+      throw error;
     } finally {
       // ONLY release the lock if we didn't chain/trigger the next worker already!
       if (!chainedTriggered) {
         console.log(`[Dispatch] Cleaning up worker lock for order ${order_id}`);
-        await supabase
-          .from("orders")
-          .update({
-            dispatch_worker_running: false
-          })
-          .eq("id", order_id)
-          .eq("dispatch_worker_started_at", nowStr); // ONLY release our lock!
+        try {
+          const { error: cleanupError } = await supabase
+            .from("orders")
+            .update({
+              dispatch_worker_running: false
+            })
+            .eq("id", order_id)
+            .eq("dispatch_worker_started_at", nowStr); // ONLY release our lock!
+          if (cleanupError) {
+            // PostgREST resolves database errors unless throwOnError is enabled.
+            // Preserve the original dispatch outcome; existing recovery owns a
+            // lock that could not be released. Never expose database details.
+            console.error("[Dispatch] lock cleanup category=rpc_error");
+          }
+        } catch {
+          console.error("[Dispatch] lock cleanup category=request_exception");
+          // A finally exception must not replace an already propagating failure.
+          if (!dispatchFailed) throw new DispatchLockCleanupError();
+        }
       }
     }
   } catch (error) {
-    console.error("[Dispatch] Critical error in start-dispatch:", error);
+    if (error instanceof DispatchRoundStatusError) {
+      console.error(`[Dispatch] round status category=${error.category}`);
+      return dispatchRoundStatusFailureResponse(corsHeaders);
+    }
+    if (error instanceof DispatchLockCleanupError) {
+      return new Response(
+        JSON.stringify({ success: false, message: error.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    console.error("[Dispatch] unexpected failure category=unexpected_exception");
     return new Response(
       JSON.stringify({
         success: false,
-        message: String(error),
+        message: "Dispatch processing unavailable",
       }),
       {
         status: 500,

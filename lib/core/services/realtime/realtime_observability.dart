@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
 
 class RealtimeObservability {
   static final RealtimeObservability instance = RealtimeObservability._internal();
@@ -19,6 +20,7 @@ class RealtimeObservability {
       reconnectAttemptsCount == 0 ? 0.0 : totalReconnectTimeMs / reconnectAttemptsCount;
 
   void recordReconnect(int durationMs) {
+    RideDiagnostics.instance.count(RideCounter.realtimeReconnects);
     realtimeReconnectCount++;
     reconnectAttemptsCount++;
     totalReconnectTimeMs += durationMs;
@@ -29,14 +31,17 @@ class RealtimeObservability {
   }
 
   void recordChannelError() {
+    RideDiagnostics.instance.count(RideCounter.channelErrors);
     channelErrorCount++;
   }
 
   void recordSubscriptionCreate() {
+    RideDiagnostics.instance.count(RideCounter.subscriptionCreates);
     subscriptionCreateCount++;
   }
 
   void recordSubscriptionDispose() {
+    RideDiagnostics.instance.count(RideCounter.subscriptionDisposes);
     subscriptionDisposeCount++;
   }
 

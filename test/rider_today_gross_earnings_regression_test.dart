@@ -152,7 +152,8 @@ void main() {
     test('a genuine orders-query fetch failure is now visibly distinct from a real ₹0 -- previously '
         'both silently rendered as an identical, confident "₹0.00"', () {
       expect(earningsTab.contains('bool _todayEarningsUnavailable = false;'), isTrue);
-      expect(earningsTab.contains('_todayEarningsUnavailable = true;'), isTrue);
+      expect(earningsTab.contains('fetchedTodayEarningsUnavailable = true;'), isTrue);
+      expect(earningsTab.contains('_todayEarningsUnavailable = fetchedTodayEarningsUnavailable;'), isTrue);
       expect(earningsTab.contains('_todayEarningsUnavailable = false;'), isTrue);
       expect(earningsTab.contains("Text('Unable to load',"), isTrue);
     });
@@ -160,7 +161,7 @@ void main() {
     test('the fetch-failure flag is scoped to display only -- it never changes what counts as '
         'gross earnings, and does not touch wallet/tax/cod fields', () {
       final flagLineIndex = earningsTab.indexOf('bool _todayEarningsUnavailable = false;');
-      final catchBlockIndex = earningsTab.indexOf('_todayEarningsUnavailable = true;');
+      final catchBlockIndex = earningsTab.indexOf('fetchedTodayEarningsUnavailable = true;');
       expect(flagLineIndex, greaterThan(-1));
       expect(catchBlockIndex, greaterThan(flagLineIndex));
       // Still no wallet/tax/cod mutation anywhere in this read-only display file.

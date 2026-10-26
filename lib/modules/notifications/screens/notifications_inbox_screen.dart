@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/modules/notifications/services/notification_service.dart';
@@ -23,35 +24,61 @@ class _NotificationsInboxScreenState extends State<NotificationsInboxScreen> {
   static const int _pageSize = 30;
   bool _loadingMore = false;
   bool _hasMore = true;
+  String? _accountId;
+  int _generation = 0;
+  bool _pageOnePending = false;
+  StreamSubscription<AuthState>? _accountSubscription;
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    _accountId = _supabase.auth.currentUser?.id;
+    _accountSubscription = _supabase.auth.onAuthStateChange.listen((event) {
+      final next = event.session?.user.id;
+      if (!mounted || next == _accountId) return;
+      _generation++;
+      setState(() {
+        _accountId = next;
+        _notifications = [];
+        _loading = next != null;
+        _loadingMore = false;
+        _pageOnePending = false;
+        _hasMore = true;
+      });
+      _load(); // Rebind automatically; no screen re-entry requirement.
+    });
     _load();
     _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
+    _generation++;
+    _accountSubscription?.cancel();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
 
   void _onScroll() {
-    if (!_hasMore || _loadingMore || _loading) return;
+    if (!_hasMore || _loadingMore || _loading || _pageOnePending) return;
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       _loadMore();
     }
   }
 
   Future<void> _load() async {
+    if (!mounted) return;
     final userId = _supabase.auth.currentUser?.id;
+    if (userId != _accountId) return; // Auth listener owns replacement/clearing.
+    final generation = ++_generation;
+    _loadingMore = false;
     if (userId == null) {
       setState(() => _loading = false);
       return;
     }
+    _pageOnePending = true;
 
     try {
       // Column projection (Finding F, WayDrop Performance Roadmap): every field below is read by
@@ -65,7 +92,7 @@ class _NotificationsInboxScreenState extends State<NotificationsInboxScreen> {
           .order('created_at', ascending: false)
           .range(0, _pageSize - 1);
 
-      if (mounted) {
+      if (_isCurrent(userId, generation)) {
         setState(() {
           _notifications = List<Map<String, dynamic>>.from(rows);
           _hasMore = rows.length == _pageSize;
@@ -74,13 +101,17 @@ class _NotificationsInboxScreenState extends State<NotificationsInboxScreen> {
       }
     } catch (e) {
       debugPrint('Error loading notifications: $e');
-      if (mounted) setState(() => _loading = false);
+      if (_isCurrent(userId, generation)) setState(() => _loading = false);
+    } finally {
+      if (_isCurrent(userId, generation)) _pageOnePending = false;
     }
   }
 
   Future<void> _loadMore() async {
+    if (!mounted || _loadingMore || _loading || _pageOnePending || !_hasMore) return;
     final userId = _supabase.auth.currentUser?.id;
-    if (userId == null) return;
+    if (userId == null || userId != _accountId) return;
+    final generation = _generation;
 
     setState(() => _loadingMore = true);
     try {
@@ -92,7 +123,7 @@ class _NotificationsInboxScreenState extends State<NotificationsInboxScreen> {
           .order('created_at', ascending: false)
           .range(from, from + _pageSize - 1);
 
-      if (mounted) {
+      if (_isCurrent(userId, generation)) {
         setState(() {
           _notifications.addAll(List<Map<String, dynamic>>.from(rows));
           _hasMore = rows.length == _pageSize;
@@ -101,11 +132,18 @@ class _NotificationsInboxScreenState extends State<NotificationsInboxScreen> {
       }
     } catch (e) {
       debugPrint('Error loading more notifications: $e');
-      if (mounted) setState(() => _loadingMore = false);
+      if (_isCurrent(userId, generation)) setState(() => _loadingMore = false);
     }
   }
 
+  bool _isCurrent(String userId, int generation) => mounted &&
+      generation == _generation && userId == _accountId && _supabase.auth.currentUser?.id == userId;
+
   Future<void> _onTapNotification(Map<String, dynamic> notification) async {
+    if (!mounted || _accountId == null || _supabase.auth.currentUser?.id != _accountId ||
+        !_notifications.contains(notification)) {
+      return;
+    }
     final payload = (notification['payload'] as Map<String, dynamic>?) ?? const {};
     final data = <String, dynamic>{
       ...payload,

@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 /// ============================================================================
 /// File: intercity_bookings_screen.dart
 ///
@@ -16,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'bookings_refresh_read.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/core/services/realtime/realtime_manager.dart';
@@ -43,6 +46,9 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
   late TabController _tabController;
   bool _loading = true;
   String? _riderId;
+  String? _dataAccountId;
+  final _refreshReads = BookingsRefreshRead();
+  StreamSubscription<AuthState>? _accountSubscription;
   // Defensive guard only — the real boundary is the rider_travel_plans /
   // intercity_requests RLS policies (20260718000012), which already prevent
   // a Local Rides-mode partner from having any data to see here. This just
@@ -78,16 +84,36 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
   static const Color darkCard = Color(0xFF171A21);
   static const Color textGray = Color(0xFF94A3B8);
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   void initState() {
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.intercityBookings);
     WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 5, vsync: this);
+    _accountSubscription = supabase.auth.onAuthStateChange.listen((event) {
+      final previous = _dataAccountId;
+      if (previous != null && event.session?.user.id != previous) {
+        _refreshReads.retire(previous);
+        _dataAccountId = null;
+        _riderId = null;
+        if (mounted) {
+          setState(() {
+            _travelPlans = []; _completedPlans = [];
+            _negotiations = []; _upcomingTrips = []; _activeTrips = []; _history = [];
+          });
+        }
+      }
+    });
     _initializeData();
   }
 
   @override
   void dispose() {
+    _rideDiagnosticOwner.dispose();
+    _refreshReads.dispose();
+    _accountSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _realtimeDebounceTimer?.cancel();
     if (_requestsSubChannel != null && _requestsSubId != null) {
@@ -117,6 +143,7 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
     try {
       final user = supabase.auth.currentUser;
       if (user == null) return;
+      _dataAccountId = user.id;
 
       // Egress fix: narrowed to the two fields actually read below (service_mode, id).
       final riderRes = await supabase
@@ -125,6 +152,8 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
           .eq('user_id', user.id)
           .maybeSingle();
 
+      if (!mounted || _dataAccountId != user.id || supabase.auth.currentUser?.id != user.id) return;
+
       if (riderRes != null) {
         if (riderRes['service_mode'] != 'intercity') {
           _wrongMode = true;
@@ -132,6 +161,7 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
         }
         _riderId = riderRes['id'];
         await _fetchData();
+        if (!mounted || _dataAccountId != user.id || supabase.auth.currentUser?.id != user.id) return;
         _subscribeRealtime();
       }
     } catch (e) {
@@ -150,6 +180,7 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
   // pull-to-refresh firing together can't produce duplicate cards -- each just re-renders the
   // same correctly-bucketed lists.
   void _subscribeRealtime() {
+    if (!mounted || _dataAccountId != supabase.auth.currentUser?.id) return;
     if (_riderId == null) return;
     final riderId = _riderId!;
 
@@ -217,7 +248,9 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
   }
 
   Future<void> _fetchData() async {
-    if (_riderId == null) return;
+    final riderId = _riderId;
+    final accountId = _dataAccountId;
+    if (!mounted || riderId == null || accountId == null || supabase.auth.currentUser?.id != accountId) return;
     try {
       // R18 perf fix: these three queries are independent -- each depends only on _riderId
       // (already resolved above), none reads another's result, and each result is assigned to
@@ -226,7 +259,12 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
       // Awaited concurrently instead of one at a time; same queries, same filters, same ordering,
       // same error handling (a failure in any one still aborts the whole update via the shared
       // try/catch below, exactly as today -- no partial state is ever applied either way).
-      final results = await Future.wait([
+      final observation = await _refreshReads.read(accountId, riderId, () async {
+        if (!mounted || _dataAccountId != accountId || _riderId != riderId ||
+            supabase.auth.currentUser?.id != accountId) {
+          throw StateError('Bookings refresh retired');
+        }
+        return await Future.wait([
         // 1. Fetch active travel plans. ROOT CAUSE FIX: a plan automatically flips to
         // 'fully_booked' the moment its confirmed/paid/in_progress bookings reach max_bookings
         // (see 20260617000001's trigger) -- for a single-seat plan that's the very first
@@ -236,7 +274,7 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
         supabase
             .from('rider_travel_plans')
             .select()
-            .eq('rider_id', _riderId!)
+            .eq('rider_id', riderId)
             .inFilter('status', ['active', 'fully_booked'])
             .order('travel_date', ascending: true),
 
@@ -245,7 +283,7 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
         supabase
             .from('rider_travel_plans')
             .select()
-            .eq('rider_id', _riderId!)
+            .eq('rider_id', riderId)
             .eq('status', 'completed')
             .order('travel_date', ascending: false),
 
@@ -266,9 +304,15 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
               'orders(final_fare, current_fare, order_status, pickup_city, destination_city, '
               'users(full_name, phone)), rider_travel_plans(*)',
             )
-            .eq('traveller_id', _riderId!)
+            .eq('traveller_id', riderId)
             .order('created_at', ascending: false),
       ]);
+      });
+      if (!mounted || !_refreshReads.isCurrent(observation, supabase.auth.currentUser?.id, _riderId) ||
+          _dataAccountId != accountId) {
+        return;
+      }
+      final results = observation.results;
       final plansRes = results[0];
       final completedPlansRes = results[1];
       final reqsRes = results[2];
@@ -396,10 +440,10 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
     final orderId = request['parcel_id'];
     setState(() => _loading = true);
     try {
-      final response = await supabase.rpc('complete_intercity_parcel_delivery', params: {
+      final response = await _rideDiagnosticOwner.api(RideEndpoint.intercityCompletion, orderId?.toString(), () => supabase.rpc('complete_intercity_parcel_delivery', params: {
         'p_order_id': orderId,
         'p_delivery_otp': enteredOtp,
-      });
+      }), status: 'delivered');
       final data = response is Map ? Map<String, dynamic>.from(response) : null;
       if (data == null || data['success'] != true) {
         throw Exception((data?['message'] as String?) ?? 'Failed to complete delivery. Please try again.');
@@ -442,9 +486,9 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
     final orderId = request['parcel_id'];
     setState(() => _loading = true);
     try {
-      final response = await supabase.rpc('mark_intercity_trip_at_dropoff', params: {
+      final response = await _rideDiagnosticOwner.api(RideEndpoint.intercityArrival, orderId?.toString(), () => supabase.rpc('mark_intercity_trip_at_dropoff', params: {
         'p_order_id': orderId,
-      });
+      }), status: 'rider_at_drop');
       final data = response is Map ? Map<String, dynamic>.from(response) : null;
       if (data == null || data['success'] != true) {
         throw Exception((data?['message'] as String?) ?? 'Failed to mark arrived. Please try again.');
@@ -471,7 +515,8 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
     final orderId = request['parcel_id'];
     setState(() => _loading = true);
     try {
-      final orderRes = await supabase.from('orders').select('delivery_otp').eq('id', orderId).single();
+      final orderRes = await _rideDiagnosticOwner.api(RideEndpoint.verificationRead, orderId?.toString(),
+        () => supabase.from('orders').select('delivery_otp').eq('id', orderId).single());
       final correctOtp = orderRes['delivery_otp']?.toString();
 
       if (correctOtp != enteredOtp) {
@@ -483,10 +528,10 @@ class _IntercityBookingsScreenState extends State<IntercityBookingsScreen>
       // and must stop for fare collection before it can complete. This also makes the driver's
       // existing Personal QR / Cashfree QR / Cash collection screen (RiderActiveOrderScreen)
       // reachable for these rides, instead of the OTP silently completing the order for free.
-      final response = await supabase.functions.invoke(
+      final response = await _rideDiagnosticOwner.api(RideEndpoint.status, orderId?.toString(), () => supabase.functions.invoke(
         'update-order-status',
         body: {'order_id': orderId, 'new_status': 'payment_pending'},
-      );
+      ), status: 'payment_pending');
       final data = response.data is Map ? Map<String, dynamic>.from(response.data as Map) : null;
       if (data == null || data['success'] != true) {
         throw Exception((data?['error'] as String?) ?? 'Failed to confirm drop-off. Please try again.');

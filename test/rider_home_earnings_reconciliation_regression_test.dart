@@ -37,7 +37,7 @@ void main() {
   final homeTab = _read('lib/features/rider/home/rider_home_tab.dart');
   final earningsTab = _read('lib/features/rider/earnings/rider_earnings_tab.dart');
 
-  final fetchFnStart = homeTab.indexOf('Future<double> _fetchTodayEarnings(String riderId) async {');
+  final fetchFnStart = homeTab.indexOf('Future<double> _fetchTodayEarnings(String riderId, DateTime nowLocal) async {');
   final fetchFnEnd = homeTab.indexOf('\n  }', fetchFnStart);
 
   test('sanity: _fetchTodayEarnings anchor exists', () {

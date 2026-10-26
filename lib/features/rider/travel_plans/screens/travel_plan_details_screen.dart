@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 /// ============================================================================
 /// File: travel_plan_details_screen.dart
 ///
@@ -315,11 +317,14 @@ class _TravelPlanDetailsScreenState extends State<TravelPlanDetailsScreen> with 
     );
   }
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   // Lifecycle method called once when the stateful widget initialized for the first time
   void initState() {
     // Lifecycle method called once when the stateful widget initialized for the first time
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.travelPlan);
     WidgetsBinding.instance.addObserver(this);
     _loadMatches();
     _loadIntercityRequests();
@@ -343,6 +348,7 @@ class _TravelPlanDetailsScreenState extends State<TravelPlanDetailsScreen> with 
   @override
   // Lifecycle method called before the widget is removed permanently from the tree to clean resources
   void dispose() {
+    _rideDiagnosticOwner.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _requestsDebounceTimer?.cancel();
     if (_matchesSubChannel != null && _matchesSubId != null) {
@@ -498,12 +504,12 @@ class _TravelPlanDetailsScreenState extends State<TravelPlanDetailsScreen> with 
       Map<String, dynamic>? data;
       try {
         // Perform an asynchronous database operation using the Supabase client wrapper
-        final response = await supabase.functions.invoke(
+        final response = await _rideDiagnosticOwner.api(RideEndpoint.intercityAcceptance, orderId, () => supabase.functions.invoke(
           'accept-intercity-request',
           body: {
             'request_id': reqId,
           },
-        );
+        ));
         data = response.data is Map<String, dynamic> ? response.data as Map<String, dynamic> : null;
       } on FunctionException catch (fe) {
         // The edge function returns a non-2xx status for known failure codes (e.g.
@@ -635,7 +641,7 @@ class _TravelPlanDetailsScreenState extends State<TravelPlanDetailsScreen> with 
 
     setState(() => startingTrip = true);
     try {
-      final response = await supabase.rpc('start_intercity_trip_for_plan', params: {'p_route_id': routeId});
+      final response = await _rideDiagnosticOwner.api(RideEndpoint.planStart, routeId, () => supabase.rpc('start_intercity_trip_for_plan', params: {'p_route_id': routeId}), plan: true);
       final data = Map<String, dynamic>.from(response as Map);
       if (data['success'] != true) {
         throw Exception(data['message']?.toString() ?? 'Unable to start trip.');

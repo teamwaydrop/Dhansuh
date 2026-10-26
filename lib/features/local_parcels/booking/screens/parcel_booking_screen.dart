@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 /// ============================================================================
 /// File: parcel_booking_screen.dart
 ///
@@ -17,7 +19,7 @@
 /// ============================================================================
 
 import 'dart:convert';
-import 'dart:math';
+import '../nearby_parcel_rider_read.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -97,6 +99,7 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
   bool waitingForPayment = false;
 
   final supabase = Supabase.instance.client;
+  late final NearbyParcelRiderRead _nearbyRead;
 
   late double distanceKm;
   late double durationMin;
@@ -188,9 +191,17 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
     }
   }
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   void initState() {
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.booking);
+    _nearbyRead = NearbyParcelRiderRead(supabase, onAccountChanged: () {
+      if (!mounted) return;
+      setState(() => nearbyRiders = []);
+      unawaited(_updateRidersOnMap(filterType: selectedVehicle));
+    });
     pricingController = PricingController();
     distanceKm = widget.totalDistanceMeters / 1000;
     durationMin = widget.durationSeconds / 60;
@@ -200,7 +211,17 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
   }
 
   @override
+  void didUpdateWidget(covariant ParcelBookingScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.pickupLat != widget.pickupLat || oldWidget.pickupLng != widget.pickupLng) {
+      _nearbyRead.invalidate();
+    }
+  }
+
+  @override
   void dispose() {
+    _rideDiagnosticOwner.dispose();
+    _nearbyRead.dispose();
     _riderRefreshTimer?.cancel();
     _promoController.dispose();
 
@@ -277,69 +298,15 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
 
   Future<void> _fetchNearbyRiders() async {
     try {
-      // Egress fix: mirrors the geographic bounding-box pattern from
-      // ride_location_screen.dart's _fetchNearbyRiders() (CLIENT-3). The haversine
-      // radius check below (unchanged) is the actual eligibility rule; this bounding
-      // box is a strict superset of that same circle, so the returned rider set is
-      // identical -- it only lets Postgres discard far-away rows before they're sent
-      // over the network instead of transferring the whole online-rider table on
-      // every poll tick.
-      const double radiusKm = 5.0;
-      const double kmPerDegreeLat = 111.32;
-      final double latDelta = radiusKm / kmPerDegreeLat;
-      final double lngDegreeKm =
-          kmPerDegreeLat * cos(widget.pickupLat * (pi / 180)).abs();
-      final double lngDelta =
-          radiusKm / (lngDegreeKm < 0.000001 ? 0.000001 : lngDegreeKm);
-
-      final response = await supabase
-          .from('riders')
-          .select(
-            'id, current_lat, current_lng, current_heading, '
-            'rider_kyc!riders_kyc_id_fkey(vehicle_type)',
-          )
-          .eq('account_status', 'online')
-          .not('current_lat', 'is', null)
-          .not('current_lng', 'is', null)
-          .gte('current_lat', widget.pickupLat - latDelta)
-          .lte('current_lat', widget.pickupLat + latDelta)
-          .gte('current_lng', widget.pickupLng - lngDelta)
-          .lte('current_lng', widget.pickupLng + lngDelta);
-
-      final List<Map<String, dynamic>> riders =
-          (response as List).map<Map<String, dynamic>>((r) {
-        final map = Map<String, dynamic>.from(r as Map);
-        final kyc = map['rider_kyc!riders_kyc_id_fkey'] ?? map['rider_kyc'];
-        String vehicleType = 'bike';
-        if (kyc is Map) {
-          vehicleType = kyc['vehicle_type']?.toString().toLowerCase().trim() ?? 'bike';
-        } else if (kyc is List && kyc.isNotEmpty && kyc[0] is Map) {
-          vehicleType = kyc[0]['vehicle_type']?.toString().toLowerCase().trim() ?? 'bike';
-        }
-        if (vehicleType == 'car') {
-          vehicleType = 'cab';
-        }
-        map['vehicle_type'] = vehicleType;
-        map.remove('rider_kyc!riders_kyc_id_fkey');
-        map.remove('rider_kyc');
-        return map;
-      }).where((rider) {
-        final double? lat = double.tryParse(rider['current_lat']?.toString() ?? '');
-        final double? lng = double.tryParse(rider['current_lng']?.toString() ?? '');
-        if (lat == null || lng == null) return false;
-
-        const p = 0.017453292519943295; // Math.PI / 180
-        final a = 0.5 - cos((lat - widget.pickupLat) * p) / 2 +
-            cos(widget.pickupLat * p) * cos(lat * p) *
-            (1 - cos((lng - widget.pickupLng) * p)) / 2;
-        final distanceKm = 12742 * asin(sqrt(a));
-        return distanceKm <= 5.0;
-      }).toList();
-
-      if (mounted) {
-        setState(() => nearbyRiders = riders);
-      }
-      await _updateRidersOnMap(filterType: selectedVehicle);
+      final lat = widget.pickupLat;
+      final lng = widget.pickupLng;
+      await _nearbyRead.run(lat: lat, lng: lng,
+        isCurrent: () => mounted && widget.pickupLat == lat && widget.pickupLng == lng,
+        apply: (riders) async {
+          setState(() => nearbyRiders = riders);
+          await _updateRidersOnMap(filterType: selectedVehicle);
+        },
+      );
     } catch (e) {
       debugPrint('FETCH NEARBY RIDERS ERROR => $e');
     }
@@ -444,7 +411,7 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
 
 
 
-  Future<void> _submitOrderToBackend({String? paymentId}) async {
+  Future<void> _submitOrderToBackend({String? paymentId, RideAttempt? diagnosticAttempt}) async {
     List<String> uploadedUrls = [];
 
     if (widget.parcelImages.isNotEmpty) {
@@ -467,7 +434,7 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
 
     final deviceMeta = await DeviceInfoHelper.getDeviceMetadata();
     final user = supabase.auth.currentUser;
-    final response = await supabase.functions.invoke(
+    final response = await _rideDiagnosticOwner.api(RideEndpoint.booking, null, () => supabase.functions.invoke(
       'create-order',
       body: {
         'user_id': user?.id,
@@ -504,7 +471,7 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
       },
       // CLIENT-1 (WayDrop Progressive Degradation Audit): bounded so a stalled backend surfaces
       // as the same caught exception the caller already handles, not an infinite wait.
-    ).timeout(const Duration(seconds: 30));
+    ).timeout(const Duration(seconds: 30)), attempt: diagnosticAttempt);
 
     debugPrint('CREATE ORDER RESPONSE => ${response.data}');
 
@@ -527,13 +494,14 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
   }
 
   Future<void> _createOrder() async {
+    final diagnosticAttempt = _rideDiagnosticOwner.begin(endpoint: RideEndpoint.booking);
     if (selectedVehicle == null) return;
 
     // Both 'cash' and 'upi' are collected directly by the driver at trip
     // completion — no payment gateway involved at booking time.
     try {
       setState(() => creatingOrder = true);
-      await _submitOrderToBackend();
+      await _submitOrderToBackend(diagnosticAttempt: diagnosticAttempt);
     } catch (e, stackTrace) {
       // Phase 5 F2: non-fatal Crashlytics report, purely additive -- does not affect the
       // existing SnackBar/finally behavior below.

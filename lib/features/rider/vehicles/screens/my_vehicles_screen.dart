@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/features/rider/vehicles/screens/add_vehicle_screen.dart';
@@ -11,8 +12,11 @@ import 'package:waydrop/shared/helpers/insets.dart';
 class MyVehiclesScreen extends StatefulWidget {
   final String riderId;
   final Map<String, dynamic>? kyc;
+  // Parent-owned scope of the partial KYC seed; never infer ownership from it.
+  final String? accountId;
+  final String? kycId;
 
-  const MyVehiclesScreen({super.key, required this.riderId, required this.kyc});
+  const MyVehiclesScreen({super.key, required this.riderId, required this.kyc, this.accountId, this.kycId});
 
   @override
   State<MyVehiclesScreen> createState() => _MyVehiclesScreenState();
@@ -22,6 +26,56 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
   final supabase = Supabase.instance.client;
   bool loading = true;
   List<Map<String, dynamic>> vehicles = [];
+  Map<String, dynamic>? _kyc;
+  String? _account;
+  String? _rider;
+  int _generation = 0;
+  int _loadRevision = 0;
+  bool _bound = false;
+  StreamSubscription<AuthState>? _authSubscription;
+
+  bool _current(String? account, int generation) => mounted && account != null &&
+      _account == account && supabase.auth.currentUser?.id == account &&
+      _generation == generation;
+
+  Future<void> _bind(String? account, {bool supplied = false, bool force = false}) async {
+    if (!mounted || (!force && !supplied && _bound && account == _account)) return;
+    _bound = true;
+    final generation = ++_generation;
+    ++_loadRevision;
+    setState(() { _account = account; _rider = null; _kyc = null; vehicles = []; loading = account != null; });
+    if (account == null) return;
+    final seedAccount = widget.accountId;
+    final seedKycId = widget.kycId;
+    final seed = widget.kyc == null ? null : Map<String, dynamic>.from(widget.kyc!);
+    try {
+      var query = supabase.from('riders').select('id, kyc_id').eq('user_id', account);
+      if (supplied) query = query.eq('id', widget.riderId);
+      final row = await query.maybeSingle();
+      if (!_current(account, generation)) return;
+      final rider = row?['id'] as String?;
+      if (rider == null || rider.isEmpty) { setState(() => loading = false); return; }
+      final kycId = row?['kyc_id'] as String?;
+      Map<String, dynamic>? kyc;
+      if (supplied && seedAccount == account && seedKycId == kycId && kycId != null) {
+        kyc = seed;
+      } else if (kycId != null) {
+        // Same partial KYC projection as Rider Profile: preserve its existing
+        // freshness and display semantics, including the existing status fallback.
+        kyc = await supabase.from('rider_kyc')
+            .select('full_name, vehicle_number, vehicle_type, rider_image')
+            .eq('id', kycId).maybeSingle();
+        if (!_current(account, generation)) return;
+      }
+      _rider = rider;
+      _kyc = kyc;
+      await _loadVehicles();
+    } catch (e) {
+      if (!_current(account, generation)) return;
+      debugPrint('LOAD RIDER VEHICLES ERROR => $e');
+      setState(() => loading = false);
+    }
+  }
 
   static const Color darkBg = Color(0xFF0B0F19);
   static const Color darkCard = Color(0xFF131926);
@@ -31,27 +85,60 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
   @override
   void initState() {
     super.initState();
-    _loadVehicles();
+    _authSubscription = supabase.auth.onAuthStateChange.listen((event) => _bind(event.session?.user.id));
+    _bind(supabase.auth.currentUser?.id, supplied: true);
+  }
+
+  @override
+  void didUpdateWidget(covariant MyVehiclesScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.riderId != widget.riderId || oldWidget.accountId != widget.accountId ||
+        oldWidget.kycId != widget.kycId || !identical(oldWidget.kyc, widget.kyc)) {
+      _bind(supabase.auth.currentUser?.id, supplied: widget.accountId == supabase.auth.currentUser?.id);
+    }
+  }
+
+  @override
+  void dispose() {
+    ++_generation;
+    ++_loadRevision;
+    _authSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _refreshVehicles() async {
+    if (!_current(_account, _generation)) return;
+    if (_rider == null) {
+      await _bind(_account, supplied: widget.accountId == _account, force: true);
+    } else {
+      await _loadVehicles();
+    }
   }
 
   Future<void> _loadVehicles() async {
+    final account = _account;
+    final rider = _rider;
+    final generation = _generation;
+    if (!_current(account, generation) || rider == null) return;
+    final revision = ++_loadRevision;
     setState(() => loading = true);
     try {
       // Egress fix: narrowed to the 4 fields _vehicleCard() reads.
       final res = await supabase
           .from('rider_vehicles')
           .select('vehicle_type, vehicle_number, status, rejection_reason')
-          .eq('rider_id', widget.riderId)
+          .eq('rider_id', rider)
           .order('created_at', ascending: false);
-      if (mounted) {
+      if (_current(account, generation) && revision == _loadRevision) {
         setState(() {
           vehicles = List<Map<String, dynamic>>.from(res);
           loading = false;
         });
       }
     } catch (e) {
+      if (!_current(account, generation) || revision != _loadRevision) return;
       debugPrint('LOAD RIDER VEHICLES ERROR => $e');
-      if (mounted) setState(() => loading = false);
+      setState(() => loading = false);
     }
   }
 
@@ -168,9 +255,9 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final kycVehicleType = widget.kyc?['vehicle_type']?.toString();
-    final kycVehicleNumber = widget.kyc?['vehicle_number']?.toString() ?? '';
-    final kycStatus = widget.kyc?['kyc_status']?.toString() ?? 'approved';
+    final kycVehicleType = _kyc?['vehicle_type']?.toString();
+    final kycVehicleNumber = _kyc?['vehicle_number']?.toString() ?? '';
+    final kycStatus = _kyc?['kyc_status']?.toString() ?? 'approved';
     final hasKycVehicle = kycVehicleType != null && kycVehicleType.isNotEmpty;
 
     return Scaffold(
@@ -187,7 +274,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       body: loading
           ? const Center(child: CircularProgressIndicator(color: primaryLime))
           : RefreshIndicator(
-              onRefresh: _loadVehicles,
+              onRefresh: _refreshVehicles,
               color: primaryLime,
               child: ListView(
                 padding: EdgeInsets.fromLTRB(16, 16, 16, 96 + Insets.bottom(context)),
@@ -226,12 +313,16 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                     width: double.infinity,
                     height: 54,
                     child: ElevatedButton.icon(
-                      onPressed: () async {
+                      onPressed: _rider == null ? null : () async {
+                        final account = _account;
+                        final rider = _rider!;
+                        final generation = _generation;
+                        if (!_current(account, generation)) return;
                         final added = await Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => AddVehicleScreen(riderId: widget.riderId)),
+                          MaterialPageRoute(builder: (_) => AddVehicleScreen(riderId: rider)),
                         );
-                        if (added == true) _loadVehicles();
+                        if (added == true && _current(account, generation)) _loadVehicles();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryLime,

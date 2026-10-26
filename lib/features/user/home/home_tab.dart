@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:waydrop/core/services/session/identity_operation_scope.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:waydrop/core/services/realtime/realtime_manager.dart';
 import 'package:waydrop/core/services/network/poll_backoff.dart';
@@ -43,6 +44,7 @@ import 'package:waydrop/design_system/waydrop_design_system.dart';
 import 'package:waydrop/shared/animations/waydrop_bike_animation.dart';
 import 'package:waydrop/core/services/location/serviceability_service.dart';
 import 'package:waydrop/core/theme/responsive_layout.dart';
+import 'package:waydrop/features/user/home/home_refresh_coordinator.dart';
 
 class HomeTab extends ConsumerStatefulWidget {
   const HomeTab({super.key});
@@ -52,7 +54,9 @@ class HomeTab extends ConsumerStatefulWidget {
 }
 
 class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
+  late final _modeOperations = IdentityOperationScope.forWidget(() => mounted);
   final supabase = Supabase.instance.client;
+  late final HomeRefreshCoordinator _refreshCoordinator;
   Map<String, dynamic>? userProfile;
   Map<String, dynamic>? riderProfile;
   Map<String, dynamic>? kycProfile;
@@ -145,6 +149,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
   void initState() {
     // Lifecycle method called once when the stateful widget initialized for the first time
     super.initState();
+    _refreshCoordinator = HomeRefreshCoordinator(_performLoad);
     debugPrint('[RUNTIME_TRACE] ENTER HomeTab (home_tab.dart)');
     debugPrint('[PERF_HOME] HomeTab initState epoch=${DateTime.now().millisecondsSinceEpoch}');
     // Register this widget state class to listen to application lifecycle updates (resumed, paused)
@@ -224,6 +229,8 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
   @override
   // Lifecycle method called before the widget is removed permanently from the tree to clean resources
   void dispose() {
+    _modeOperations.dispose();
+    _refreshCoordinator.dispose();
     LocationCacheService.removeListener(_onLocationCacheUpdated);
     _silentRefreshTimer?.cancel();
     _locationCheckTimer?.cancel();
@@ -659,7 +666,11 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
     _hasCheckedServiceabilityOnInit = true;
   }
 
-  Future<void> _load({bool useInitialData = false}) async {
+  Future<void> _load({bool useInitialData = false}) {
+    return _refreshCoordinator.request(useInitialData: useInitialData);
+  }
+
+  Future<void> _performLoad(bool useInitialData) async {
     final Stopwatch perfLoad = Stopwatch()..start();
     try {
       // Perform an asynchronous database operation using the Supabase client wrapper
@@ -1096,6 +1107,8 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
   }
 
   Future<void> _switchToRider() async {
+    if (!mounted) return;
+    final operation = _modeOperations.begin();
     // Retrieve the active theme parameters (like colors, text style, dark mode) from BuildContext
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final confirm = await showModalBottomSheet<bool>(
@@ -1204,15 +1217,19 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
     );
 
     if (confirm != true) return;
+    if (!operation.isCurrent) return;
 
     ref
         .read(modeSwitchOverlayProvider.notifier)
         .trigger(
           asyncAction: () async {
+            operation.requireCurrent();
             await RiderStatusService.switchToRiderMode();
+            operation.requireCurrent();
             ref.read(appModeProvider.notifier).switchToRider();
           },
           onMidpoint: () {
+            if (!operation.isCurrent) return;
             Navigator.pushAndRemoveUntil(
               context,
               PageRouteBuilder(
@@ -1225,6 +1242,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
             );
           },
           onError: (err) {
+            if (!operation.isCurrent) return;
             final errorMsg = err.toString();
             if (errorMsg.contains('Payout details not registered')) {
               // Navigate to a new screen layout using Flutter's Navigator router

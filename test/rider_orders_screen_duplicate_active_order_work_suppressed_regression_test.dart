@@ -174,7 +174,8 @@ void main() {
       final end = source.indexOf('void _onActiveOrderScreenVisibilityChanged() {');
       final body = source.substring(start, end);
       expect(body.contains("await supabase.rpc('rider_self_rematch');"), isTrue);
-      expect(body.contains('if (wasBusy && !hasActiveOrder) {'), isTrue);
+      expect(body.contains('if ((wasBusy || isFirstPollForThisInstance) && !hasActiveOrder) {'), isTrue);
+      expect(body.contains('_hasPolledActiveOrderOnce = true;'), isTrue);
     });
 
     test('startExpiryTimer() (assignment expiry) is completely unmodified by this fix', () {

@@ -16,6 +16,7 @@ import 'package:waydrop/core/services/session/user_session_service.dart';
 import 'package:waydrop/core/services/cache/cache_cleanup_helper.dart';
 import 'package:waydrop/shared/helpers/auth_session.dart';
 import 'package:waydrop/core/providers/initial_data_provider.dart';
+import 'package:waydrop/core/models/today_earnings_seed.dart';
 import 'package:waydrop/core/services/location/serviceability_service.dart';
 import 'package:waydrop/core/services/location/location_cache_service.dart';
 import 'package:waydrop/core/services/developer/developer_mode_service.dart';
@@ -215,7 +216,7 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
             .eq('user_id', user.id)
             .maybeSingle();
 
-        double calculatedTodayEarnings = 0.0;
+        TodayEarningsSeed? earningsSeed;
         if (data != null) {
           final kyc = data['rider_kyc!riders_kyc_id_fkey'] ?? data['rider_kyc'];
           if (kyc is Map) {
@@ -225,21 +226,22 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
 
           final nowLocal = DateTime.now();
           final startOfToday = DateTime(nowLocal.year, nowLocal.month, nowLocal.day).toUtc();
-          final ordersData = await supabase
+          final earningsResponse = await supabase
               .from('orders')
-              .select('rider_earning')
+              .select('final_fare, current_fare, rider_earning')
               .eq('rider_id', data['id'])
               .inFilter('order_status', ['completed', 'delivered'])
-              .gte('completed_at', startOfToday.toIso8601String());
-
-          for (var o in ordersData) {
-            calculatedTodayEarnings += double.tryParse(o['rider_earning']?.toString() ?? '0') ?? 0.0;
-          }
+              .gte('completed_at', startOfToday.toIso8601String())
+              .count(CountOption.exact);
+          earningsSeed = TodayEarningsSeed.fromRows(userId: user.id,
+            riderId: data['id'].toString(), queryLocalDay: nowLocal,
+            observedAt: DateTime.now(), rows: earningsResponse.data, exactCount: earningsResponse.count);
         }
 
         ref.read(initialRiderDataProvider.notifier).state = InitialRiderData(
+          userId: user.id,
           rider: data,
-          todayEarnings: calculatedTodayEarnings,
+          earningsSeed: earningsSeed,
         );
 
         ref.read(appModeProvider.notifier).switchToRider();

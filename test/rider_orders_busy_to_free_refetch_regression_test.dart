@@ -25,8 +25,8 @@ void main() {
     final pollStart = source.indexOf('Future<void> _pollActiveOrderFallback() async {');
     final pollEnd = source.indexOf('void startActiveOrderPollTimer() {');
     final pollBody = source.substring(pollStart, pollEnd);
-    final ifIndex = pollBody.indexOf('if (wasBusy && !hasActiveOrder)');
-    final catchIndex = pollBody.indexOf('} catch (_) {}');
+    final ifIndex = pollBody.indexOf('if ((wasBusy || isFirstPollForThisInstance) && !hasActiveOrder)');
+    final catchIndex = pollBody.indexOf('\n    } catch (_) {');
 
     test('_pollActiveOrderFallback() captures hasActiveOrder before overwriting it '
         '(wasBusy snapshot)', () {
@@ -47,10 +47,14 @@ void main() {
             'refetch, not only the next passive realtime event / 10s poll tick',
       );
       expect(catchIndex, greaterThan(ifIndex));
+      expect(pollBody, contains('final isFirstPollForThisInstance = !_hasPolledActiveOrderOnce;'));
+      expect(pollBody, contains('_hasPolledActiveOrderOnce = true;'));
     });
 
     test('the busy->free branch calls fetchSearchingOrders()', () {
       final ifBlock = pollBody.substring(ifIndex, catchIndex);
+      expect(ifBlock.indexOf("await supabase.rpc('rider_self_rematch');"),
+          lessThan(ifBlock.indexOf('fetchSearchingOrders();')));
       expect(
         ifBlock.contains('fetchSearchingOrders();'),
         isTrue,

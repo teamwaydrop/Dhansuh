@@ -56,7 +56,9 @@ void main() {
         () {
       final disposeStart = activeOrderSource.indexOf('void dispose() {');
       expect(disposeStart, greaterThan(0));
-      final disposeBody = activeOrderSource.substring(disposeStart, disposeStart + 600);
+      final disposeEnd = activeOrderSource.indexOf(RegExp(r'\r?\n  \}'), disposeStart);
+      expect(disposeEnd, greaterThan(disposeStart));
+      final disposeBody = activeOrderSource.substring(disposeStart, disposeEnd);
       expect(disposeBody.contains('ActiveOrderScreenState.isOpen.value = false;'), isTrue);
       expect(disposeBody.contains('PipService.setPipEnabled(false);'), isTrue,
           reason: 'the existing PipService wiring must remain untouched');
@@ -118,11 +120,13 @@ void main() {
       final fnStart =
           homeSource.indexOf('void _onActiveOrderScreenVisibilityChanged() {');
       expect(fnStart, greaterThan(0));
-      final fnBody = homeSource.substring(fnStart, fnStart + 500);
+      final fnBody = homeSource.substring(fnStart, homeSource.indexOf('\n  @override', fnStart));
       expect(fnBody.contains('if (ActiveOrderScreenState.isOpen.value) return;'), isTrue,
           reason: 'must only reconcile once the screen has actually closed');
       expect(fnBody.contains('loadActiveOrder('), isTrue);
-      expect(fnBody.contains('loadRider();'), isTrue);
+      expect(fnBody.contains('loadRider(skipActiveOrderReload: true);'), isTrue);
+      expect(fnBody.indexOf('loadActiveOrder(riderId);'),
+          lessThan(fnBody.indexOf('loadRider(skipActiveOrderReload: true);')));
     });
 
     test('the listener is registered in initState() and removed in dispose() (no leak)', () {
@@ -148,7 +152,9 @@ void main() {
       expect(fnBody.contains('if (!widget.isActive) return;'), isTrue,
           reason: 'the existing tab-visibility gate must remain untouched');
       expect(fnBody.contains('Timer.periodic(const Duration(seconds: 30)'), isTrue);
-      expect(fnBody.contains('if (mounted && !ActiveOrderScreenState.isOpen.value) {'), isTrue);
+      expect(fnBody, contains('mounted && !ActiveOrderScreenState.isOpen.value'));
+      expect(fnBody, contains('_refreshBackoff.shouldAttempt()'));
+      expect(fnBody.indexOf('_refreshBackoff.shouldAttempt()'), lessThan(fnBody.indexOf('loadRider();')));
     });
   });
 

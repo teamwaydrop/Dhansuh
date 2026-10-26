@@ -66,7 +66,9 @@ class _RiderMainNavigationScreenState extends ConsumerState<RiderMainNavigationS
     // changed server-side between AppStartScreen's fetch and this mount. On a mid-session
     // recreation, _hasConsumedColdStartSeed is already true, so this falls through to the
     // existing live re-fetch below, completely unchanged from before this fix.
-    final initialRider = ref.read(initialRiderDataProvider)?.rider;
+    final initialData = ref.read(initialRiderDataProvider);
+    final initialRider = initialData?.belongsTo(supabase.auth.currentUser?.id) == true
+        ? initialData?.rider : null;
     bool seedUsable = false;
     if (initialRider != null && !_hasConsumedColdStartSeed) {
       _hasConsumedColdStartSeed = true;

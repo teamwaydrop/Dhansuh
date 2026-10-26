@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:waydrop/core/services/cache/identity_scoped_future.dart';
 import 'package:waydrop/design_system/waydrop_design_system.dart';
 import 'package:waydrop/modules/rewards/services/reward_service.dart';
 import 'package:waydrop/modules/rewards/screens/category_offers_screen.dart';
@@ -21,7 +24,16 @@ class RewardsScreen extends StatefulWidget {
 
 class _RewardsScreenState extends State<RewardsScreen> {
   late Future<List<Map<String, dynamic>>> _categoriesFuture;
-  late Future<Map<String, dynamic>> _statusFuture;
+  late Future<Map<String, dynamic>?> _statusFuture;
+  late final IdentityScopedFuture<Map<String, dynamic>> _statusCache;
+  StreamSubscription<AuthState>? _authSubscription;
+  String? _statusUserId;
+
+  void _bindStatus() {
+    _statusUserId = Supabase.instance.client.auth.currentUser?.id;
+    _statusFuture = _statusCache.read('rewards:${widget.ownerType}',
+        () => RewardService.fetchStatus(widget.ownerType));
+  }
 
   @override
   void initState() {
@@ -30,7 +42,25 @@ class _RewardsScreenState extends State<RewardsScreen> {
     // Re-fetched here (rather than threaded from the profile tile) so the cycle a
     // merchant activation targets is always current at the moment of browsing, not a
     // possibly-stale snapshot from when the profile screen loaded.
-    _statusFuture = RewardService.fetchStatus(widget.ownerType);
+    _statusCache = IdentityScopedFuture(() => Supabase.instance.client.auth.currentUser?.id);
+    _bindStatus();
+    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((_) {
+      if (!mounted || _statusUserId == Supabase.instance.client.auth.currentUser?.id) return;
+      setState(_bindStatus);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant RewardsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.ownerType != oldWidget.ownerType) _bindStatus();
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    _statusCache.dispose();
+    super.dispose();
   }
 
   static IconData _iconFor(String code) {
@@ -55,7 +85,8 @@ class _RewardsScreenState extends State<RewardsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
+      body: FutureBuilder<Map<String, dynamic>?>(
+        key: ValueKey('$_statusUserId/${widget.ownerType}'),
         future: _statusFuture,
         builder: (context, statusSnapshot) {
           final status = statusSnapshot.data ?? const {'enabled': false};

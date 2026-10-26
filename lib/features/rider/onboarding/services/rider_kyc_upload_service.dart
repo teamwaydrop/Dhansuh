@@ -232,13 +232,14 @@ class RiderKycUploadService {
   }
 
   // =====================================================
-  // UPLOAD SINGLE FILE (flat retry -- kept for add_vehicle_screen.dart, unchanged)
+  // UPLOAD SINGLE FILE (flat retry -- optional owner fence for Add Vehicle)
   // =====================================================
 
   static Future<String> uploadCompressedFile({
     required File file,
     required String fileName,
     required String folderName,
+    bool Function()? isCurrent,
   }) async {
     final path = '$folderName/$fileName.jpg';
     final size = await file.length();
@@ -248,8 +249,9 @@ class RiderKycUploadService {
     const Duration delay = Duration(milliseconds: 1500);
 
     while (attempt <= maxAttempts) {
+      if (isCurrent != null && !isCurrent()) throw const StaleUploadException();
       try {
-        debugPrint('UPLOADING (Attempt $attempt/$maxAttempts) => rider_kyc/$path');
+        debugPrint('VEHICLE_UPLOAD attempt=$attempt max_attempts=$maxAttempts');
         debugPrint('FINAL SIZE => ${(size / 1024 / 1024).toStringAsFixed(2)} MB');
 
         await supabase.storage
@@ -257,17 +259,22 @@ class RiderKycUploadService {
             .upload(path, file, fileOptions: const FileOptions(upsert: true))
             .timeout(const Duration(seconds: 30));
 
-        debugPrint('UPLOAD SUCCESS => $path');
+        if (isCurrent != null && !isCurrent()) throw const StaleUploadException();
+        debugPrint('VEHICLE_UPLOAD outcome=success');
         return path;
-      } on TimeoutException catch (e) {
-        debugPrint('UPLOAD ATTEMPT $attempt TIMED OUT => $e');
+      } on StaleUploadException {
+        rethrow;
+      } on TimeoutException {
+        if (isCurrent != null && !isCurrent()) throw const StaleUploadException();
+        debugPrint('VEHICLE_UPLOAD outcome=timeout attempt=$attempt');
         if (attempt >= maxAttempts) {
           throw Exception('Upload timed out. Please check your connection and try again.');
         }
         attempt++;
         await Future.delayed(delay);
-      } catch (e) {
-        debugPrint('UPLOAD ATTEMPT $attempt FAILED => $e');
+      } catch (_) {
+        if (isCurrent != null && !isCurrent()) throw const StaleUploadException();
+        debugPrint('VEHICLE_UPLOAD outcome=failure attempt=$attempt');
         if (attempt >= maxAttempts) {
           rethrow;
         }

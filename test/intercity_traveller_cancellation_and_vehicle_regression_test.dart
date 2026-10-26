@@ -297,9 +297,10 @@ void main() {
         'first, so a later realtime update cannot clobber a correct value back to the KYC vehicle',
         () {
       expect(
-        realtimeOrderController.contains(
-          "currentOrderType == 'intercity_ride' || currentOrderType == 'intercity_parcel'",
-        ),
+        RegExp(
+          r"currentOrderType == 'intercity_ride'\s*\|\|\s*"
+          r"currentOrderType == 'intercity_parcel'",
+        ).hasMatch(realtimeOrderController),
         isTrue,
       );
       expect(
@@ -311,7 +312,7 @@ void main() {
       // fetchLiveOrderState (the periodic-poll-only path).
       final fetchRiderStart = realtimeOrderController.indexOf('Future<void> _fetchRider(');
       final fetchRiderBody =
-          realtimeOrderController.substring(fetchRiderStart, fetchRiderStart + 3000);
+          realtimeOrderController.substring(fetchRiderStart, fetchRiderStart + 5000);
       expect(fetchRiderBody.contains('intercity_requests'), isTrue);
     });
 

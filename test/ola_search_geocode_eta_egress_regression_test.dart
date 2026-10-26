@@ -118,7 +118,7 @@ void main() {
 
     test('start()\'s initial fetch also skips an order that is already terminal when the screen opens', () {
       expect(
-        RegExp(r'loadedOrder\.isCompleted \|\| loadedOrder\.isCancelled\)\) \{\s*\n\s*fetchLiveOrderState\(\);')
+        RegExp(r'loadedOrder\.isCompleted \|\| loadedOrder\.isCancelled\)\) \{\s*\n\s*unawaited\(_refreshOrderAndLiveState\(includeOrderFetch: false\)\);')
             .hasMatch(realtimeOrderController),
         isTrue,
       );

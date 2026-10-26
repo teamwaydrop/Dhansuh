@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics.dart';
+import 'package:waydrop/core/services/diagnostics/ride_diagnostics_owner.dart';
 /// ============================================================================
 /// File: ride_tracking_screen.dart
 ///
@@ -122,11 +124,14 @@ class _RideTrackingScreenState extends State<RideTrackingScreen> {
   static const double _movementThresholdKm = 0.05;
 
 
+  late final RideDiagnosticOwner _rideDiagnosticOwner;
+
   @override
   // Lifecycle method called once when the stateful widget initialized for the first time
   void initState() {
     // Lifecycle method called once when the stateful widget initialized for the first time
     super.initState();
+    _rideDiagnosticOwner = RideDiagnosticOwner.widget(() => mounted, surface: RideSurface.passengerTracking);
     orderController = RealtimeOrderController(orderId: widget.orderId);
     initialize();
   }
@@ -134,6 +139,7 @@ class _RideTrackingScreenState extends State<RideTrackingScreen> {
   @override
   // Lifecycle method called before the widget is removed permanently from the tree to clean resources
   void dispose() {
+    _rideDiagnosticOwner.dispose();
     debugPrint(
       '[TRACE_CANCEL] RideTrackingScreen.dispose() ENTER order=${widget.orderId} '
       '_hasLeftScreen=$_hasLeftScreen _cancelling=$_cancelling '
@@ -980,6 +986,8 @@ class _RideTrackingScreenState extends State<RideTrackingScreen> {
                 valueListenable: orderController.orderNotifier,
                 builder: (context, orderObj, _) {
                   if (orderObj == null) return const SizedBox();
+                  _rideDiagnosticOwner.frame(context, widget.orderId, orderObj.orderStatus,
+                    () => orderController.orderNotifier.value?.orderStatus == orderObj.orderStatus);
 
                   return Container(
                     width: double.infinity,

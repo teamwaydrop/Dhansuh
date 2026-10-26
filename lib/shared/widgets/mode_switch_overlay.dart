@@ -35,6 +35,9 @@ class ModeSwitchOverlayNotifier extends StateNotifier<ModeSwitchOverlayState?> {
   void reset() {
     state = null;
   }
+  void resetIfOwned(ModeSwitchOverlayState? transition) {
+    if (mounted && transition != null && identical(state, transition)) state = null;
+  }
 }
 
 final modeSwitchOverlayProvider = StateNotifierProvider<ModeSwitchOverlayNotifier, ModeSwitchOverlayState?>((ref) {
@@ -81,11 +84,13 @@ class _ModeSwitchOverlayState extends ConsumerState<ModeSwitchOverlay> with Tick
   double _wavePhase = 0.0;
   final List<_MoneyParticle> _particles = [];
   bool _isTransitioning = false;
+  bool _completionStarted = false;
   
   bool _asyncActionFinished = false;
   bool _asyncActionSuccess = false;
   Object? _asyncActionError;
   ModeSwitchOverlayState? _currentTransition;
+  ModeSwitchOverlayNotifier? _transitionOwner;
 
   @override
   void initState() {
@@ -153,6 +158,7 @@ class _ModeSwitchOverlayState extends ConsumerState<ModeSwitchOverlay> with Tick
 
   void _startTransition(ModeSwitchOverlayState transition) {
     if (_isTransitioning) return;
+    _transitionOwner = ref.read(modeSwitchOverlayProvider.notifier);
     
     setState(() {
       _currentTransition = transition;
@@ -160,6 +166,7 @@ class _ModeSwitchOverlayState extends ConsumerState<ModeSwitchOverlay> with Tick
       _asyncActionFinished = false;
       _asyncActionSuccess = false;
       _asyncActionError = null;
+      _completionStarted = false;
       _particles.clear();
       _wavePhase = 0.0;
     });
@@ -176,14 +183,14 @@ class _ModeSwitchOverlayState extends ConsumerState<ModeSwitchOverlay> with Tick
     });
 
     // Run async background tasks
-    transition.asyncAction().then((_) {
+    Future<void>.sync(transition.asyncAction).then((_) {
       if (!mounted) return;
       setState(() {
         _asyncActionFinished = true;
         _asyncActionSuccess = true;
       });
       _checkCompletion();
-    }).catchError((err) {
+    }, onError: (Object err, StackTrace stack) {
       if (!mounted) return;
       setState(() {
         _asyncActionFinished = true;
@@ -195,33 +202,36 @@ class _ModeSwitchOverlayState extends ConsumerState<ModeSwitchOverlay> with Tick
   }
 
   void _checkCompletion() {
+    if (!mounted || _completionStarted) return;
     if (!_sweepController.isCompleted) return;
     if (!_asyncActionFinished) return;
+    _completionStarted = true;
 
     if (_asyncActionSuccess) {
       // Execute UI/route swap instantly under the curtain
-      if (_currentTransition != null) {
-        _currentTransition!.onMidpoint();
+      try {
+        _currentTransition?.onMidpoint();
+      } catch (error, stack) {
+        FlutterError.reportError(FlutterErrorDetails(exception: error, stack: stack,
+            library: 'mode switch overlay'));
+      } finally {
+        if (mounted) _revealController.forward().then((_) { if (mounted) _endTransition(); });
       }
-
-      // Sweep open (reveal new screen)
-      _revealController.forward().then((_) {
-        _endTransition();
-      });
     } else {
       // Background verification failed
-      if (_currentTransition != null) {
-        _currentTransition!.onError(_asyncActionError ?? 'Unknown error');
+      try {
+        _currentTransition?.onError(_asyncActionError ?? 'Unknown error');
+      } catch (error, stack) {
+        FlutterError.reportError(FlutterErrorDetails(exception: error, stack: stack,
+            library: 'mode switch overlay'));
+      } finally {
+        if (mounted) _sweepController.reverse().then((_) { if (mounted) _endTransition(); });
       }
-
-      // Retract the wave back up
-      _sweepController.reverse().then((_) {
-        _endTransition();
-      });
     }
   }
 
   void _endTransition() {
+    final completed = _currentTransition;
     if (_ticker.isActive) {
       _ticker.stop();
     }
@@ -230,11 +240,16 @@ class _ModeSwitchOverlayState extends ConsumerState<ModeSwitchOverlay> with Tick
       _particles.clear();
       _currentTransition = null;
     });
-    ref.read(modeSwitchOverlayProvider.notifier).reset();
+    _transitionOwner?.resetIfOwned(completed);
   }
 
   @override
   void dispose() {
+    final owner = _transitionOwner;
+    final transition = _currentTransition;
+    // Provider writes wait until teardown has finished; never clear a newer
+    // operation that took ownership of the global overlay in the meantime.
+    scheduleMicrotask(() => owner?.resetIfOwned(transition));
     _sweepController.dispose();
     _revealController.dispose();
     if (_ticker.isActive) {

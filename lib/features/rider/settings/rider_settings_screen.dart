@@ -1,3 +1,4 @@
+import 'package:waydrop/shared/widgets/ride_diagnostic_export_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:waydrop/features/rider/settings/rider_payment_settings_screen.dart';
@@ -89,6 +90,7 @@ class _RiderSettingsScreenState extends State<RiderSettingsScreen> {
             : ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 children: [
+                  const RideDiagnosticExportTile(),
                   _buildSectionHeader('Notifications'),
                   _buildToggleTile(
                     icon: Icons.volume_up_rounded,

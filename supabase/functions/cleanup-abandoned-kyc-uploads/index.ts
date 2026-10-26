@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+import { KycReferenceReadError, readKycReferences } from "../_shared/kyc_cleanup_references.ts";
+
 const supabaseAdmin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -140,17 +142,18 @@ serve(async (req) => {
 
         if (listObjectsError || !objects || objects.length === 0) continue;
 
-        const { data: kycRow } = await supabaseAdmin
-          .from("rider_kyc")
-          .select(IMAGE_FIELDS.join(","))
-          .eq("user_id", userId)
-          .maybeSingle();
-
-        const referencedValues: string[] = kycRow
-          ? IMAGE_FIELDS.map((f) => (kycRow as Record<string, unknown>)[f]).filter(
-              (v): v is string => typeof v === "string",
-            )
-          : [];
+        let referencedValues: string[];
+        try {
+          referencedValues = await readKycReferences(() => supabaseAdmin
+            .from("rider_kyc")
+            .select(IMAGE_FIELDS.join(","))
+            .eq("user_id", userId)
+            .maybeSingle(), IMAGE_FIELDS);
+        } catch (error) {
+          const category = error instanceof KycReferenceReadError ? error.category : "query_exception";
+          console.error(`[CleanupKyc] Reference check skipped category=${category}`);
+          continue; // Neither whole-folder deletion nor generation pruning is authorized.
+        }
 
         const claimed = referencedValues.some((v) => v.includes(fullFolder));
 
@@ -210,10 +213,10 @@ serve(async (req) => {
       JSON.stringify({ success: true, deletedFolders, deletedObjects, prunedObsoleteVersions }),
       { headers: { "Content-Type": "application/json" } },
     );
-  } catch (e) {
-    console.error("[CleanupKyc] Unexpected error:", e);
+  } catch {
+    console.error("[CleanupKyc] Unexpected error category=cleanup_failure");
     return new Response(
-      JSON.stringify({ error: "Internal server error", details: e.toString() }),
+      JSON.stringify({ error: "Internal server error", details: "cleanup_failure" }),
       { status: 500 },
     );
   }

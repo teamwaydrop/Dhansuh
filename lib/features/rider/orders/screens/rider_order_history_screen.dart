@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:waydrop/shared/widgets/identity_fenced_future_builder.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:waydrop/shared/widgets/skeleton_loader.dart';
@@ -18,6 +21,106 @@ class RiderOrderHistoryScreen extends StatefulWidget {
 }
 
 class _RiderOrderHistoryScreenState extends State<RiderOrderHistoryScreen> {
+  String? _historyUserId;
+  String? _historyRiderId;
+  int _historyGeneration = 0;
+  bool _historyBound = false;
+  StreamSubscription<AuthState>? _historyAuth;
+  final _ownedSheets = <Route<dynamic>, ({NavigatorState navigator, ValueNotifier<bool> retired})>{};
+
+  bool _historyCurrent(String? account, int generation) => mounted && account != null &&
+      _historyUserId == account && supabase.auth.currentUser?.id == account &&
+      generation == _historyGeneration;
+
+  void _retireSheets() {
+    final sheets = Map.of(_ownedSheets);
+    _ownedSheets.clear();
+    void retire() {
+      for (final entry in sheets.entries) {
+        // Deferred teardown may run after an overlay already disposed its notifier.
+        if (!entry.value.navigator.mounted || entry.key.navigator != entry.value.navigator) continue;
+        entry.value.retired.value = true;
+        if (entry.key.isActive) {
+          entry.value.navigator.removeRoute(entry.key);
+        }
+      }
+    }
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => retire());
+    } else {
+      retire();
+    }
+  }
+
+  void _showOwnedSheet(BuildContext context, WidgetBuilder builder) {
+    final account = _historyUserId;
+    final generation = _historyGeneration;
+    if (!_historyCurrent(account, generation)) return;
+    Route<dynamic>? sheet;
+    final retired = ValueNotifier<bool>(false);
+    showModalBottomSheet<void>(context: context, backgroundColor: darkCard,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (ctx) {
+        sheet = ModalRoute.of(ctx);
+        if (sheet != null) _ownedSheets[sheet!] = (navigator: Navigator.of(ctx), retired: retired);
+        if (!_historyCurrent(account, generation)) {
+          final retiredRoute = sheet;
+          final navigator = Navigator.of(ctx);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (navigator.mounted && retiredRoute != null && retiredRoute.isActive &&
+                retiredRoute.navigator == navigator) {
+              navigator.removeRoute(retiredRoute);
+            }
+          });
+          return const SizedBox.shrink();
+        }
+        // Route removal can wait for a covering transition. Retire the contents
+        // independently so old account data cannot remain visible during that wait.
+        return ValueListenableBuilder<bool>(valueListenable: retired, builder: (context, obsolete, child) {
+          if (obsolete || !_historyCurrent(account, generation)) return const SizedBox.shrink();
+          return builder(ctx);
+        });
+      },
+    ).whenComplete(() {
+      final route = sheet;
+      if (route is TransitionRoute<dynamic>) {
+        // A popped sheet may still paint during its exit animation. Keep its
+        // retirement handle until the overlay is actually disposed.
+        route.completed.whenComplete(() {
+          _ownedSheets.remove(route);
+          retired.dispose();
+        });
+      } else {
+        if (route != null) _ownedSheets.remove(route);
+        retired.dispose();
+      }
+    });
+  }
+
+  Future<void> _bindHistory(String? account, {String? requestedRider}) async {
+    if (!mounted || (requestedRider == null && _historyBound && account == _historyUserId)) return;
+    _historyBound = true;
+    final generation = ++_historyGeneration;
+    _retireSheets();
+    setState(() { _historyUserId = account; _historyRiderId = null;
+      orderHistory = []; travelPlansHistory = []; loading = account != null; });
+    if (account == null || !_historyCurrent(account, generation)) return;
+    try {
+      var query = supabase.from('riders').select('id').eq('user_id', account);
+      if (requestedRider != null) query = query.eq('id', requestedRider);
+      final row = await query.maybeSingle();
+      if (!_historyCurrent(account, generation)) return;
+      final rider = row?['id'] as String?;
+      if (rider == null || rider.isEmpty) { setState(() => loading = false); return; }
+      _historyRiderId = rider;
+      await loadHistoryData();
+    } catch (e) {
+      if (!_historyCurrent(account, generation)) return;
+      debugPrint('LOAD HISTORY DATA ERROR => $e');
+      setState(() => loading = false);
+    }
+  }
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> orderHistory = [];
   List<Map<String, dynamic>> travelPlansHistory = [];
@@ -31,10 +134,31 @@ class _RiderOrderHistoryScreenState extends State<RiderOrderHistoryScreen> {
   @override
   void initState() {
     super.initState();
-    loadHistoryData();
+    _historyAuth = supabase.auth.onAuthStateChange.listen((event) => _bindHistory(event.session?.user.id));
+    _bindHistory(supabase.auth.currentUser?.id, requestedRider: widget.riderId);
+  }
+
+  @override
+  void didUpdateWidget(covariant RiderOrderHistoryScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.riderId != widget.riderId) {
+      _bindHistory(supabase.auth.currentUser?.id, requestedRider: widget.riderId);
+    }
+  }
+
+  @override
+  void dispose() {
+    ++_historyGeneration;
+    _historyAuth?.cancel();
+    _retireSheets();
+    super.dispose();
   }
 
   Future<void> loadHistoryData() async {
+    final account = _historyUserId;
+    final rider = _historyRiderId;
+    final generation = _historyGeneration;
+    if (!_historyCurrent(account, generation) || rider == null) return;
     try {
       // Egress fix: narrowed from `*` to the exact columns this screen and its
       // travel-plan history sheet read (grepped exhaustively across every
@@ -57,18 +181,20 @@ class _RiderOrderHistoryScreenState extends State<RiderOrderHistoryScreen> {
             'commission_amount, commission_percentage, subscription_commission_waived, '
             'fare_payment_method, payment_mode, payment_status',
           )
-          .eq('rider_id', widget.riderId)
+          .eq('rider_id', rider)
           .inFilter('order_status', ['completed', 'delivered'])
           .order('completed_at', ascending: false)
           .limit(50);
 
+      // The second read is owned by this route, not by a disposed history screen.
+      if (!_historyCurrent(account, generation)) return;
       final plansData = await supabase
           .from('rider_travel_plans')
           .select('rider_id, pickup_city, destination_city, travel_date, status')
-          .eq('rider_id', widget.riderId)
+          .eq('rider_id', rider)
           .order('travel_date', ascending: false);
 
-      if (mounted) {
+      if (_historyCurrent(account, generation)) {
         setState(() {
           orderHistory = List<Map<String, dynamic>>.from(ordersData);
           travelPlansHistory = List<Map<String, dynamic>>.from(plansData);
@@ -76,8 +202,9 @@ class _RiderOrderHistoryScreenState extends State<RiderOrderHistoryScreen> {
         });
       }
     } catch (e) {
+      if (!_historyCurrent(account, generation)) return;
       debugPrint('LOAD HISTORY DATA ERROR => $e');
-      if (mounted) {
+      if (_historyCurrent(account, generation)) {
         setState(() => loading = false);
       }
     }
@@ -111,6 +238,10 @@ class _RiderOrderHistoryScreenState extends State<RiderOrderHistoryScreen> {
   }
 
   void _showOrderDetailsSheet(BuildContext context, Map<String, dynamic> order) {
+    if (!_historyCurrent(_historyUserId, _historyGeneration) ||
+        !orderHistory.any((row) => identical(row, order))) {
+      return;
+    }
     final type = order['order_type']?.toString() ?? 'ride';
     final code = order['order_code']?.toString() ?? '';
     final distance = double.tryParse(order['distance_km']?.toString() ?? '0') ?? 0.0;
@@ -134,14 +265,7 @@ class _RiderOrderHistoryScreenState extends State<RiderOrderHistoryScreen> {
       } catch (_) {}
     }
 
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: darkCard,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) {
+    _showOwnedSheet(context, (ctx) {
         return SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
@@ -239,7 +363,8 @@ class _RiderOrderHistoryScreenState extends State<RiderOrderHistoryScreen> {
                     // Egress fix (Fix #6): a government_tax_ledger ORDER_TAX row is immutable once
                     // written, so it's safe to cache per order_id -- reopening this same order's
                     // detail sheet within a session no longer re-fetches it.
-                    return FutureBuilder<Map<String, dynamic>?>(
+                    return IdentityFencedFutureBuilder<Map<String, dynamic>?>(
+                      ownerUserId: _historyUserId,
                       future: orderId == null
                           ? Future.value(null)
                           : GovernmentTaxLedgerCache.get(
@@ -620,14 +745,11 @@ class _RiderOrderHistoryScreenState extends State<RiderOrderHistoryScreen> {
 
         return GestureDetector(
           onTap: () {
-            showModalBottomSheet(
-              context: context,
-              backgroundColor: darkCard,
-              isScrollControlled: true,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-              ),
-              builder: (ctx) {
+            if (!_historyCurrent(_historyUserId, _historyGeneration) ||
+                !travelPlansHistory.any((row) => identical(row, plan))) {
+              return;
+            }
+            _showOwnedSheet(context, (ctx) {
                 return _TravelPlanHistoryDetailsSheet(plan: plan);
               },
             );

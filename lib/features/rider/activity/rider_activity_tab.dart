@@ -6,6 +6,8 @@ import 'package:waydrop/shared/widgets/skeleton_loader.dart';
 import 'package:waydrop/core/services/realtime/realtime_manager.dart';
 import 'package:waydrop/core/services/database/government_tax_ledger_cache.dart';
 import 'package:waydrop/shared/helpers/fare_presentation_helper.dart';
+import 'package:waydrop/features/rider/home/pending_assignment_read.dart';
+import 'package:waydrop/shared/widgets/identity_fenced_future_builder.dart';
 
 class RiderActivityTab extends StatefulWidget {
   const RiderActivityTab({super.key});
@@ -35,8 +37,52 @@ class _RiderActivityTabState extends State<RiderActivityTab> with WidgetsBinding
   // second one -- preserves the original concurrent-call timing (initState still calls both
   // without awaiting between them) while guaranteeing only one query.
   Future<String?>? _riderIdFuture;
+  String? _riderIdUser;
+  final _activityReads = InFlightRead<List<Map<String, dynamic>>>();
+  String? _activityScope;
+  bool _disposed = false;
+  StreamSubscription<AuthState>? _authSubscription;
+  String? _activityUserId;
+  String? _subscribedRiderId;
+  int _identityRevision = 0;
+  int _subscriptionGeneration = 0;
+
+  void _retireSubscription() {
+    _subscriptionGeneration++;
+    final channel = _riderActivityChannelName;
+    final id = _riderActivitySubId;
+    _riderActivityChannelName = null;
+    _riderActivitySubId = null;
+    _subscribedRiderId = null;
+    if (channel != null && id != null) RealtimeManager.instance.unsubscribe(channel, id);
+  }
+
+  void _onIdentityChanged(String? nextUserId) {
+    if (!mounted || _disposed || nextUserId == _activityUserId) return;
+    _identityRevision++;
+    final scope = _activityScope;
+    if (scope != null) _activityReads.invalidate(scope);
+    _retireSubscription();
+    _debounceTimer?.cancel();
+    _lastRealtimeEventAt = null;
+    _riderIdFuture = null;
+    _riderIdUser = nextUserId;
+    _activityScope = null;
+    _activityUserId = nextUserId;
+    setState(() { orders = []; loading = nextUserId != null; });
+    // Auth events may queue A -> B -> A. Only read for the current session.
+    if (nextUserId != null && supabase.auth.currentUser?.id == nextUserId) {
+      loadActivity();
+      _subscribeRealtime();
+    }
+  }
 
   Future<String?> _resolveRiderId() {
+    final owner = supabase.auth.currentUser?.id;
+    if (_riderIdUser != owner) {
+      _riderIdFuture = null;
+      _riderIdUser = owner;
+    }
     return _riderIdFuture ??= () async {
       final user = supabase.auth.currentUser;
       if (user == null) return null;
@@ -53,6 +99,9 @@ class _RiderActivityTabState extends State<RiderActivityTab> with WidgetsBinding
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _activityUserId = supabase.auth.currentUser?.id;
+    _authSubscription = supabase.auth.onAuthStateChange.listen(
+        (event) => _onIdentityChanged(event.session?.user.id));
     loadActivity();
     _subscribeRealtime();
     _startSilentRefreshTimer();
@@ -80,20 +129,28 @@ class _RiderActivityTabState extends State<RiderActivityTab> with WidgetsBinding
 
   @override
   void dispose() {
+    _disposed = true;
+    _identityRevision++;
+    _authSubscription?.cancel();
+    _activityReads.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _debounceTimer?.cancel();
     _riderActivitySilentRefreshTimer?.cancel();
-    if (_riderActivitySubId != null && _riderActivityChannelName != null) {
-      RealtimeManager.instance.unsubscribe(_riderActivityChannelName!, _riderActivitySubId!);
-      _riderActivitySubId = null;
-      _riderActivityChannelName = null;
-    }
+    _retireSubscription();
     super.dispose();
   }
 
   Future<void> loadActivity() async {
+    if (!mounted || _disposed) return;
+    final userId = supabase.auth.currentUser?.id;
+    final identityRevision = _identityRevision;
+    if (userId != _activityUserId) return;
     try {
       final riderId = await _resolveRiderId();
+      if (!mounted || _disposed || supabase.auth.currentUser?.id != userId ||
+          _identityRevision != identityRevision) {
+        return;
+      }
       if (riderId == null) {
         if (mounted) setState(() => loading = false);
         return;
@@ -106,7 +163,15 @@ class _RiderActivityTabState extends State<RiderActivityTab> with WidgetsBinding
       // `orders` shape, plus `order_status` (this tab, unlike order history, also lists cancelled
       // orders and branches its UI on that field) and `updated_at` (the date-fallback this tab's
       // sort/display already relies on for orders with no completed_at).
-      final data = await supabase
+      final scope = '$userId/$riderId';
+      _activityScope = scope;
+      final revision = _activityReads.revisionFor(scope);
+      final data = await _activityReads.read(scope, () async {
+        if (!mounted || _disposed || supabase.auth.currentUser?.id != userId ||
+            _identityRevision != identityRevision) {
+          throw StateError('Activity read retired');
+        }
+        return await supabase
           .from('orders')
           .select(
             'id, order_type, order_code, order_status, distance_km, time_taken_seconds, '
@@ -120,28 +185,42 @@ class _RiderActivityTabState extends State<RiderActivityTab> with WidgetsBinding
           .inFilter('order_status', ['completed', 'delivered', 'cancelled'])
           .order('updated_at', ascending: false)
           .limit(30);
+      });
 
-      if (!mounted) return;
+      if (!mounted || _disposed || supabase.auth.currentUser?.id != userId ||
+          _identityRevision != identityRevision ||
+          _activityScope != scope || _activityReads.revisionFor(scope) != revision) {
+        return;
+      }
       setState(() {
         orders = List<Map<String, dynamic>>.from(data);
         loading = false;
       });
     } catch (_) {
-      if (mounted) setState(() => loading = false);
+      if (mounted && !_disposed && supabase.auth.currentUser?.id == userId &&
+          _identityRevision == identityRevision) {
+        setState(() => loading = false);
+      }
     }
   }
 
   Future<void> _subscribeRealtime() async {
+    if (!mounted || _disposed) return;
+    final userId = supabase.auth.currentUser?.id;
+    final identityRevision = _identityRevision;
+    if (userId != _activityUserId) return;
     try {
       final riderId = await _resolveRiderId();
-      if (!mounted) return;
+      if (!mounted || _disposed || supabase.auth.currentUser?.id != userId ||
+          _identityRevision != identityRevision) {
+        return;
+      }
       if (riderId == null) return;
 
-      if (_riderActivitySubId != null && _riderActivityChannelName != null) {
-        RealtimeManager.instance.unsubscribe(_riderActivityChannelName!, _riderActivitySubId!);
-        _riderActivitySubId = null;
-        _riderActivityChannelName = null;
-      }
+      if (_subscribedRiderId == riderId && _riderActivitySubId != null) return;
+      _retireSubscription();
+      _subscribedRiderId = riderId;
+      final generation = _subscriptionGeneration;
 
       _riderActivityChannelName = 'rider-activity-channel-$riderId';
       _riderActivitySubId = RealtimeManager.instance.subscribe(
@@ -152,6 +231,15 @@ class _RiderActivityTabState extends State<RiderActivityTab> with WidgetsBinding
         filterColumn: 'rider_id',
         filterValue: riderId,
         callback: (payload) {
+          if (!mounted || _disposed || supabase.auth.currentUser?.id != userId ||
+              _identityRevision != identityRevision || _subscribedRiderId != riderId ||
+              _subscriptionGeneration != generation) {
+            return;
+          }
+          // Invalidate immediately, before the existing debounce. A pre-event
+          // read cannot overwrite evidence of a committed order change.
+          final scope = _activityScope;
+          if (scope != null) _activityReads.invalidate(scope);
           _lastRealtimeEventAt = DateTime.now();
           _debounceTimer?.cancel();
           _debounceTimer = Timer(const Duration(milliseconds: 500), () {
@@ -199,7 +287,7 @@ class _RiderActivityTabState extends State<RiderActivityTab> with WidgetsBinding
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             itemCount: orders.length,
                             separatorBuilder: (_, __) => const SizedBox(height: 8),
-                            itemBuilder: (_, i) => _ActivityRow(order: orders[i]),
+                            itemBuilder: (_, i) => _ActivityRow(order: orders[i], ownerUserId: _activityUserId),
                           ),
                         ),
             ),
@@ -236,7 +324,8 @@ class _RiderActivityTabState extends State<RiderActivityTab> with WidgetsBinding
 
 class _ActivityRow extends StatelessWidget {
   final Map<String, dynamic> order;
-  const _ActivityRow({required this.order});
+  final String? ownerUserId;
+  const _ActivityRow({required this.order, required this.ownerUserId});
 
   bool get completed => ['completed', 'delivered'].contains(order['order_status']);
 
@@ -270,7 +359,7 @@ class _ActivityRow extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () => _showOrderDetailsSheet(context, order),
+      onTap: () => _showOrderDetailsSheet(context, order, ownerUserId),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -344,7 +433,8 @@ class _ActivityRow extends StatelessWidget {
   }
 }
 
-void _showOrderDetailsSheet(BuildContext context, Map<String, dynamic> order) {
+void _showOrderDetailsSheet(BuildContext context, Map<String, dynamic> order, String? ownerUserId) {
+    if (!context.mounted || Supabase.instance.client.auth.currentUser?.id != ownerUserId) return;
   final type = order['order_type']?.toString() ?? 'ride';
   final code = order['order_code']?.toString() ?? '';
   final distance = double.tryParse(order['distance_km']?.toString() ?? '0') ?? 0.0;
@@ -479,7 +569,8 @@ void _showOrderDetailsSheet(BuildContext context, Map<String, dynamic> order) {
                     // Egress fix (Fix #6): a government_tax_ledger ORDER_TAX row is immutable once
                     // written, so it's safe to cache per order_id -- reopening this same order's
                     // detail sheet within a session no longer re-fetches it.
-                    return FutureBuilder<Map<String, dynamic>?>(
+                    return IdentityFencedFutureBuilder<Map<String, dynamic>?>(
+                      ownerUserId: ownerUserId,
                       future: orderId == null
                           ? Future.value(null)
                           : GovernmentTaxLedgerCache.get(

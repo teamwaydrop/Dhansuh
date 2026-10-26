@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:waydrop/features/rider/home/pending_assignment_read.dart';
+import 'package:waydrop/core/services/session/identity_operation_scope.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/core/services/realtime/realtime_manager.dart';
 import 'package:waydrop/core/services/network/poll_backoff.dart';
@@ -21,6 +23,13 @@ import 'package:waydrop/modules/support/screens/customer_support_screen.dart';
 import 'package:waydrop/shared/helpers/insets.dart';
 
 
+class _ActivityInitialPages {
+  _ActivityInitialPages(this.rows, this.operation, this.revision);
+  final List<List<Map<String, dynamic>>> rows;
+  final IdentityOperation operation;
+  final int revision;
+}
+
 class ActivityTab extends StatefulWidget {
   const ActivityTab({super.key});
 
@@ -29,6 +38,14 @@ class ActivityTab extends StatefulWidget {
 }
 
 class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
+  final _initialPageReads = InFlightRead<_ActivityInitialPages>();
+  String? _pageReadUserId;
+  bool _disposed = false;
+  late final _readIdentities = IdentityOperationScope.forWidget(() => mounted && !_disposed,
+      onIdentityChanged: () {
+        final userId = _pageReadUserId;
+        if (userId != null) _initialPageReads.invalidate(userId);
+      });
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> activeOrders = [];
   // Cached active-orders by-type split, recomputed only when activeOrders changes (not on every
@@ -154,6 +171,9 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
   @override
   // Lifecycle method called before the widget is removed permanently from the tree to clean resources
   void dispose() {
+    _disposed = true;
+    _initialPageReads.dispose();
+    _readIdentities.dispose();
     // Unregister lifecycle observers to prevent callbacks when the widget is dead
     WidgetsBinding.instance.removeObserver(this);
     _debounceTimer?.cancel();
@@ -258,7 +278,9 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
   /// page-1 keyset query per past bucket (_pastPageSize wide each, newest first) -- replacing the
   /// old single mixed-type `.range()` past query, which both starved whichever type wasn't in the
   /// most recent page and (before that) was failing outright on every call (see _orderColumns).
-  Future<void> loadOrders({bool showLoading = false}) async {
+  Future<void> loadOrders({bool showLoading = false, bool fresh = false}) async {
+    if (!mounted || _disposed) return;
+    final requestingUserId = supabase.auth.currentUser?.id;
     if (showLoading) {
       // Update the widget state to trigger a UI rebuild with the new variables
       if (mounted) setState(() => loading = true);
@@ -267,6 +289,14 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
       // Perform an asynchronous database operation using the Supabase client wrapper
       final user = supabase.auth.currentUser;
       if (user == null) return;
+      _pageReadUserId = user.id;
+      if (fresh) _initialPageReads.invalidate(user.id);
+      final pages = await _initialPageReads.read(user.id, () async {
+        if (!mounted || _disposed || supabase.auth.currentUser?.id != user.id) {
+          throw StateError('Activity batch retired');
+        }
+        final operation = _readIdentities.begin();
+        final revision = _initialPageReads.revisionFor(user.id);
 
       final activeFuture = supabase
           .from('orders')
@@ -297,7 +327,10 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
           .limit(_pastPageSize);
 
       final results = await Future.wait([activeFuture, pastRidesFuture, pastParcelsFuture]);
-      if (!mounted) return;
+        return _ActivityInitialPages(results, operation, revision);
+      });
+      if (!pages.operation.isCurrent || _initialPageReads.revisionFor(user.id) != pages.revision) return;
+      final results = pages.rows;
 
       final activeList = List<Map<String, dynamic>>.from(results[0]);
       final pastRidesList = List<Map<String, dynamic>>.from(results[1]);
@@ -323,6 +356,7 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
       });
       _refreshBackoff.recordSuccess();
     } catch (e, s) {
+      if (!mounted || _disposed || supabase.auth.currentUser?.id != requestingUserId) return;
       debugPrint('ACTIVITY LOAD ERROR => $e');
       try {
         File('activity_error.txt').writeAsStringSync('ACTIVITY LOAD ERROR => $e\n\nSTACKTRACE =>\n$s');
@@ -437,6 +471,8 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
       filterColumn: 'user_id',
       filterValue: user.id,
       callback: (payload) {
+        if (!mounted || _disposed || supabase.auth.currentUser?.id != user.id) return;
+        _initialPageReads.invalidate(user.id);
         _lastRealtimeEventAt = DateTime.now();
         debugPrint('REALTIME ORDER EVENT RECEIVED => DEBOUNCING SYNC');
         _debounceTimer?.cancel();
@@ -731,7 +767,7 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
                                       separatorBuilder: (_, __) => const SizedBox(height: 12),
                                       itemBuilder: (_, i) => _ActivityTile(
                                         order: pastRides[i],
-                                        onReviewSubmitted: () => loadOrders(showLoading: false),
+                                        onReviewSubmitted: () => loadOrders(showLoading: false, fresh: true),
                                       ),
                                     ),
                                   ],
@@ -790,7 +826,7 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
                                       separatorBuilder: (_, __) => const SizedBox(height: 12),
                                       itemBuilder: (_, i) => _ActivityTile(
                                         order: pastParcels[i],
-                                        onReviewSubmitted: () => loadOrders(showLoading: false),
+                                        onReviewSubmitted: () => loadOrders(showLoading: false, fresh: true),
                                       ),
                                     ),
                                   ],

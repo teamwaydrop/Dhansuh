@@ -54,12 +54,14 @@ class GovernmentTaxLedgerCache {
     _inFlight[orderId] = future;
     try {
       final result = await future;
-      if (result != null) {
+      // clearAll() can retire this operation while a new session starts a read
+      // for the same order. Only the current entry may publish or release it.
+      if (result != null && identical(_inFlight[orderId], future)) {
         _cache[orderId] = result;
       }
       return result;
     } finally {
-      _inFlight.remove(orderId);
+      if (identical(_inFlight[orderId], future)) _inFlight.remove(orderId);
     }
   }
 
