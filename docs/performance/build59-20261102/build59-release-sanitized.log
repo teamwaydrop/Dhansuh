@@ -1,0 +1,46 @@
+Running Gradle task 'assembleRelease'...                        
+
+C:\Users\karth\Desktop\appclad\android>if "Windows_NT" == "Windows_NT" setlocal
+
+C:\Users\karth\Desktop\appclad\android>set DEFAULT_JVM_OPTS= 
+
+C:\Users\karth\Desktop\appclad\android>set DIRNAME=C:\Users\karth\Desktop\appclad\android\ 
+
+C:\Users\karth\Desktop\appclad\android>if "C:\Users\karth\Desktop\appclad\android\" == "" set DIRNAME=. 
+
+C:\Users\karth\Desktop\appclad\android>set APP_BASE_NAME=gradlew 
+
+C:\Users\karth\Desktop\appclad\android>set APP_HOME=C:\Users\karth\Desktop\appclad\android\ 
+
+C:\Users\karth\Desktop\appclad\android>if defined JAVA_HOME goto findJavaFromJavaHome 
+
+C:\Users\karth\Desktop\appclad\android>set JAVA_HOME=C:\Program Files\Android\Android Studio\jbr 
+
+C:\Users\karth\Desktop\appclad\android>set JAVA_EXE=C:\Program Files\Android\Android Studio\jbr/bin/java.exe 
+
+C:\Users\karth\Desktop\appclad\android>if exist "C:\Program Files\Android\Android Studio\jbr/bin/java.exe" goto init 
+
+C:\Users\karth\Desktop\appclad\android>if not "Windows_NT" == "Windows_NT" goto win9xME_args 
+
+C:\Users\karth\Desktop\appclad\android>if "@eval[2+2]" == "4" goto 4NT_args 
+
+C:\Users\karth\Desktop\appclad\android>set CMD_LINE_ARGS= 
+
+C:\Users\karth\Desktop\appclad\android>set _SKIP=2 
+
+C:\Users\karth\Desktop\appclad\android>if "x-q" == "x" goto execute 
+
+C:\Users\karth\Desktop\appclad\android>set CMD_LINE_ARGS=-q -Ptarget-platform=android-arm,android-arm64,android-x64 -Ptarget=lib\main.dart -Pbase-application-name=android.app.Application -Pdart-defines=[REDACTED] -Pdart-obfuscation=false -Ptrack-widget-creation=true -Ptree-shake-icons=true assembleRelease 
+
+C:\Users\karth\Desktop\appclad\android>goto execute 
+
+C:\Users\karth\Desktop\appclad\android>set CLASSPATH=C:\Users\karth\Desktop\appclad\android\\gradle\wrapper\gradle-wrapper.jar 
+
+C:\Users\karth\Desktop\appclad\android>"C:\Program Files\Android\Android Studio\jbr/bin/java.exe"    "-Dorg.gradle.appname=gradlew" -classpath "C:\Users\karth\Desktop\appclad\android\\gradle\wrapper\gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain -q -Ptarget-platform=android-arm,android-arm64,android-x64 -Ptarget=lib\main.dart -Pbase-application-name=android.app.Application -Pdart-defines=[REDACTED] -Pdart-obfuscation=false -Ptrack-widget-creation=true -Ptree-shake-icons=true assembleRelease 
+Font asset "MaterialIcons-Regular.otf" was tree-shaken, reducing it from 1645184 to 35132 bytes (97.9% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
+
+C:\Users\karth\Desktop\appclad\android>if "0" == "0" goto mainEnd 
+
+C:\Users\karth\Desktop\appclad\android>if "Windows_NT" == "Windows_NT" endlocal
+Running Gradle task 'assembleRelease'...                          564.6s
+√ Built build\app\outputs\flutter-apk\app-release.apk (83.8MB)

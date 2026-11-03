@@ -1,0 +1,15 @@
+--- redispatch_freed_riders.before
++++ redispatch_freed_riders.after
+@@ -9,6 +9,12 @@
+ BEGIN
+     IF NOT pg_try_advisory_xact_lock(4735021, 1) THEN
+         RAISE NOTICE 'redispatch_freed_riders: previous sweep still running -- skipping this tick.';
++        RETURN;
++    END IF;
++
++    -- No rider can match anything while there are no searching orders. The
++    -- new-order trigger and primary worker still handle arrivals after this read.
++    IF NOT EXISTS (SELECT 1 FROM public.orders WHERE order_status = 'searching') THEN
+         RETURN;
+     END IF;
+ 

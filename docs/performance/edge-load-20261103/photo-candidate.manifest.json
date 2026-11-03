@@ -1,0 +1,19 @@
+{
+  "slug": "process-verification-photo",
+  "baseline_version": 18,
+  "baseline_bundle_sha256": "b5ae5253ffc57de6c3db41ce9e212fc673f299e75ea4ea8d0dfa48efd66ce50f",
+  "deployed": false,
+  "scope": "Independent review candidate only; preserve captured production handler/dependencies except listed files. Existing managed/security gates apply.",
+  "files": [
+    {
+      "path": "functions/process-verification-photo/index.ts",
+      "sha256": "f44084bfda020afefcaac84bb48cd43a0fc559b884a4eb2910665201da211040",
+      "modified": true
+    },
+    {
+      "path": "functions/_shared/http.ts",
+      "sha256": "6f840c9c871b0e4d6584d2b23d0b5700c985abbbca2b4ef3f87a0cee642bf01f",
+      "modified": false
+    }
+  ]
+}

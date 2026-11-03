@@ -1,0 +1,6 @@
+{
+  "dry_run_keeps_candidate": true,
+  "committed_local_rollback_restores_original": true,
+  "second_rollback_blocks_on_drift": true,
+  "production_applied": false
+}

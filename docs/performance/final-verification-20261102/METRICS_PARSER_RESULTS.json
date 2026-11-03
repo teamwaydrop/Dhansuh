@@ -1,0 +1,22 @@
+{
+  "synthetic_only": true,
+  "device_measurement": false,
+  "passed": true,
+  "output": {
+    "quantile": "nearest rank",
+    "api_body_completion": {
+      "rest GET orders": {
+        "n": 4,
+        "p50_ms": 10,
+        "p95_ms": 40,
+        "max_ms": 40
+      }
+    },
+    "screen_work_not_first_usable": {},
+    "sampled_frames": 1,
+    "sampled_frames_over_budget": 0,
+    "frame_budget_ms": 16.666666666666668,
+    "invalid_batches": 1,
+    "limits": "Bounded buffers can lose samples during stalls. Use DevTools timeline/video for complete frame and first-usable measurements; do not compare debug timings to profile."
+  }
+}

@@ -143,14 +143,13 @@ void main() {
           isTrue);
     });
 
-    test('dispose() still disposes every channel exactly as before, plus clears the new '
-        'bookkeeping map (an additive, not behavioral, change)', () {
+    test('dispose() safely removes every channel and clears the bookkeeping maps', () {
       final disposeStart = source.indexOf('void dispose() {');
       final disposeEnd = source.indexOf('Map<String, List<String>> getDebugMetrics', disposeStart);
       final disposeBody = source.substring(disposeStart, disposeEnd);
       expect(disposeBody.contains('_heartbeatTimer?.cancel();'), isTrue);
       expect(disposeBody.contains('managed.isDisposed = true;'), isTrue);
-      expect(disposeBody.contains('supabase.removeChannel(managed.channel);'), isTrue);
+      expect(disposeBody.contains("unawaited(_removeChannelSafely(managed.channel, '\$name during manager disposal'));"), isTrue);
       expect(disposeBody.contains('_activeChannels.clear();'), isTrue);
       expect(disposeBody.contains('_subscriptionChannelKey.clear();'), isTrue);
     });

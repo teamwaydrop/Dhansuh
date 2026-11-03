@@ -42,7 +42,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-String _read(String path) => File(path).readAsStringSync();
+String _read(String path) => File(path).readAsStringSync().replaceAll('\r\n', '\n');
 
 void main() {
   final notificationService = _read('lib/modules/notifications/services/notification_service.dart');

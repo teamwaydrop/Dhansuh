@@ -161,13 +161,19 @@ void main() {
   });
 
   group('Test 18: passenger availability and dispatch use consistent eligibility (documented, intentional differences noted)', () {
-    test('the pre-booking map marker queries (home_tab.dart) are a DIFFERENT feature (map pins, not the nearby count) with a stricter, documented, intentionally different filter', () {
+    test('Home resolves only its own rider; searching uses the canonical nearby RPC', () {
       final homeTab = _read('lib/features/user/home/home_tab.dart');
-      // Documented as an intentional, narrower "fully onboarded only" view for map pins -- not the
-      // "X active partners nearby" count this fix targets. Left unchanged: not proven broken, and
-      // changing pre-booking map visibility rules is a separate product decision.
-      expect(homeTab.contains("eq('rider_kyc.kyc_status', 'approved')"), isTrue);
-      expect(homeTab.contains("eq('rider_kyc.activation_status', 'active')"), isTrue);
+      // The old Home map and its cross-account marker query no longer exist.
+      // Home only resolves this account's rider id; searching screens retain the canonical RPC.
+      final riderStart = homeTab.indexOf("final riderFuture =");
+      final riderEnd = homeTab.indexOf(';', riderStart);
+      final ownRiderQuery = homeTab.substring(riderStart, riderEnd);
+      expect(ownRiderQuery.contains(".select('id')"), isTrue);
+      expect(ownRiderQuery.contains(".eq('user_id', user.id)"), isTrue);
+      expect(homeTab.contains(".select('current_lat"), isFalse);
+      final rpcCall = RegExp(r"rpc\(\s*'find_nearby_riders'");
+      expect(rpcCall.hasMatch(rideSearching), isTrue);
+      expect(rpcCall.hasMatch(parcelSearching), isTrue);
     });
   });
 }

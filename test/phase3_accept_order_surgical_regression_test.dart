@@ -108,7 +108,7 @@ void main() {
 
     test('a blocked acceptance returns 503, not a silent failure or a generic 500', () {
       final anchor = liveAcceptOrder.indexOf('if (order.order_type === "ride") {');
-      final end = liveAcceptOrder.indexOf('// =====================================================\n    // ORDER STATUS VALIDATION');
+      final end = liveAcceptOrder.indexOf('// The transaction runs');
       expect(anchor, greaterThan(-1));
       expect(end, greaterThan(anchor));
       final block = liveAcceptOrder.substring(anchor, end);
@@ -119,16 +119,16 @@ void main() {
   group('G. Idempotency and existing-order safety are preserved', () {
     test('the flag check runs AFTER the idempotency check -- a rider retrying acceptance of an '
         'order they already hold succeeds regardless of flag state', () {
-      final idempotencyIdx = liveAcceptOrder.indexOf('idempotent: true,');
-      final flagCheckIdx = liveAcceptOrder.indexOf('PHASE 3 PRODUCTION CONTROL');
+      final idempotencyIdx = liveAcceptOrder.indexOf('if (!(order.rider_id === rider_id && order.order_status === "accepted"))');
+      final flagCheckIdx = liveAcceptOrder.indexOf('const productionConfig = await getProductionConfig(supabase);');
       expect(idempotencyIdx, greaterThan(-1));
       expect(flagCheckIdx, greaterThan(idempotencyIdx));
     });
 
     test('the flag check runs BEFORE order-status validation, so it only ever blocks a '
         'genuinely new acceptance, never an already-accepted order', () {
-      final flagCheckIdx = liveAcceptOrder.indexOf('PHASE 3 PRODUCTION CONTROL');
-      final statusValidationIdx = liveAcceptOrder.indexOf('ORDER STATUS VALIDATION');
+      final flagCheckIdx = liveAcceptOrder.indexOf('const productionConfig = await getProductionConfig(supabase);');
+      final statusValidationIdx = liveAcceptOrder.indexOf('acceptance = await acceptOrderAtomically');
       expect(statusValidationIdx, greaterThan(flagCheckIdx));
     });
 

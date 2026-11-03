@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:waydrop/core/services/session/rider_access_service.dart';
 
 class RiderStatusService {
 
@@ -102,96 +103,12 @@ class RiderStatusService {
   static Future<void>
       switchToRiderMode() async {
 
-    final user =
-        supabase.auth.currentUser;
-
-    if (user == null) {
-      return;
+    final access = await RiderAccessService.instance.resolve();
+    if (access.state != RiderAccessState.ready) {
+      throw Exception('Partner setup incomplete: '+access.state.name);
     }
-
-    final kyc =
-        await getRiderKyc();
-
-    if (kyc == null) {
-
-      throw Exception(
-        'KYC not found',
-      );
-    }
-
-    // =========================================
-    // KYC MUST BE APPROVED
-    // =========================================
-
-    if (
-        kyc['kyc_status'] !=
-            'approved'
-    ) {
-
-      throw Exception(
-        'KYC not approved',
-      );
-    }
-
-    // =========================================
-    // ACCOUNT MUST BE ACTIVE
-    // =========================================
-
-    if (
-        kyc['activation_status'] !=
-            'active'
-    ) {
-
-      throw Exception(
-        'Drop Partner account not activated',
-      );
-    }
-
-    // =========================================
-    // RIDER PROFILE MUST EXIST
-    // =========================================
-
-    final rider =
-        await getRiderProfile();
-
-    if (rider == null) {
-
-      throw Exception(
-        'Drop Partner profile not ready',
-      );
-    }
-
-    // =========================================
-    // ACTIVE PAYOUT DETAILS REQUIRED
-    // =========================================
-
-    final hasPayout = await hasActivePayoutAccount();
-    if (!hasPayout) {
-      throw Exception(
-        'Payout details not registered or active. Please complete bank details setup.',
-      );
-    }
-
-    // =========================================
-    // SERVICE MODE MUST BE CHOSEN
-    // =========================================
-    // Mirrors RiderEntryHandler's own 'service_mode_required' gate. This
-    // direct switchToRiderMode() path (triggered from the User app's
-    // Home/Profile "Switch to Drop Partner Mode" action) goes straight to
-    // RiderMainNavigationScreen and never passes through RiderEntryHandler,
-    // so without this check a rider with service_mode still NULL (e.g. any
-    // existing rider right after the service_mode column was introduced)
-    // would land on the Home tab with no mode chosen — and the Service Mode
-    // card's tap handler intentionally no-ops when mode is null, since it
-    // shouldn't be reachable in that state. This check is what keeps that
-    // true.
-    if (rider['service_mode'] == null) {
-      throw Exception('Service Mode not chosen');
-    }
-
-    // =========================================
-    // UPDATE MODE
-    // =========================================
+    final user = supabase.auth.currentUser;
+    if (user == null) throw const AuthException('Please sign in again');
 
     await supabase
 
@@ -209,7 +126,8 @@ class RiderStatusService {
         .eq(
           'id',
           user.id,
-        );
+        )
+        .or('preferred_mode.is.null,preferred_mode.neq.rider,last_active_mode.is.null,last_active_mode.neq.rider');
   }
 
   // =====================================================
@@ -242,7 +160,8 @@ class RiderStatusService {
         .eq(
           'id',
           user.id,
-        );
+        )
+        .or('preferred_mode.is.null,preferred_mode.neq.user,last_active_mode.is.null,last_active_mode.neq.user');
   }
 
   // =====================================================

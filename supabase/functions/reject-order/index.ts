@@ -215,7 +215,7 @@ serve(async (req) => {
     if (assignment.assignment_status === "rejected") {
       console.log(`[Reject] Assignment already rejected. Updating timestamps to reset cooldown.`);
       const nowStr = new Date().toISOString();
-      const { error: updateAssignmentError } = await supabase
+      const { data: updatedAssignment, error: updateAssignmentError } = await supabase
         .from("rider_assignments")
         .update({
           responded_at: nowStr,
@@ -224,7 +224,10 @@ serve(async (req) => {
           last_response_at: nowStr,
           hidden_until: new Date(Date.now() + 4 * 60 * 1000).toISOString(),
         })
-        .eq("id", assignment.id);
+        .eq("id", assignment.id)
+        .eq("assignment_status", "rejected")
+        .select("id")
+        .maybeSingle();
 
       if (updateAssignmentError) {
         console.error("[Reject] Error updating already-rejected assignment:", updateAssignmentError);
@@ -238,6 +241,11 @@ serve(async (req) => {
             headers: corsHeaders,
           },
         );
+      }
+
+      if (!updatedAssignment) {
+        return Response.json({ success: false, message: "Assignment changed; refresh before retrying" },
+          { status: 409, headers: corsHeaders });
       }
 
       await supabase
@@ -287,7 +295,7 @@ serve(async (req) => {
     // =====================================================
     const now = new Date().toISOString();
 
-    const { error: updateAssignmentError } = await supabase
+    const { data: updatedAssignment, error: updateAssignmentError } = await supabase
       .from("rider_assignments")
       .update({
         assignment_status: "rejected",
@@ -297,7 +305,10 @@ serve(async (req) => {
         last_response_at: now,
         hidden_until: new Date(Date.now() + 4 * 60 * 1000).toISOString(),
       })
-      .eq("id", assignment.id);
+      .eq("id", assignment.id)
+      .eq("assignment_status", assignment.assignment_status)
+      .select("id")
+      .maybeSingle();
 
     if (updateAssignmentError) {
       console.error("[Reject] Error rejecting assignment:", updateAssignmentError);
@@ -311,6 +322,11 @@ serve(async (req) => {
           headers: corsHeaders,
         },
       );
+    }
+
+    if (!updatedAssignment) {
+      return Response.json({ success: false, message: "Assignment changed; refresh before retrying" },
+        { status: 409, headers: corsHeaders });
     }
 
     // =====================================================
@@ -328,29 +344,7 @@ serve(async (req) => {
       .eq("assignment_status", "sent");
 
     // =====================================================
-    // CHECK REMAINING ACTIVE ASSIGNMENTS
-    // =====================================================
-    const { data: remainingAssignments, error: remainingError } = await supabase
-      .from("rider_assignments")
-      .select("id")
-      .eq("order_id", order_id)
-      .eq("assignment_status", "sent");
-
-    if (remainingError) {
-      return Response.json(
-        {
-          success: false,
-          message: "Unable to validate remaining assignments",
-        },
-        {
-          status: 500,
-          headers: corsHeaders,
-        },
-      );
-    }
-
-    // =====================================================
-    // REDISPATCH IF NO ACTIVE ASSIGNMENTS
+    // DISPATCH RECOVERY OWNERSHIP
     // =====================================================
     // Since start-dispatch manages the rounds loop internally and polls for status changes,
     // we no longer trigger overlapping/duplicate dispatch instances from reject-order.

@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-01",
+  "productionChanges": 0,
+  "charges": 0,
+  "atomicCoreUnchanged": true,
+  "counts": {
+    "flutter": 2065,
+    "pg17Atomic": 16,
+    "handlerRecovery": 4,
+    "edgeAuthErrors": 8,
+    "network": 8,
+    "pushMocked": 17,
+    "totalCurrentRunPassed": 2118,
+    "totalCurrentRunFailed": 0
+  },
+  "analyzer": {
+    "errors": 0,
+    "warnings": 73,
+    "information": 382,
+    "exitCode": 2,
+    "newlyModifiedDartFilesDiagnostics": 0
+  },
+  "baseline": {
+    "badgeStop": "Expected FAIL before fix: expected 0, actual 9"
+  },
+  "newSourceChanges": [
+    "lib/modules/notifications/services/notification_badge_service.dart",
+    "supabase/functions/accept-order/index.ts"
+  ],
+  "report": "WAYDROP_PERFORMANCE_FIX_REPORT.md",
+  "releaseManifest": "../production-performance/edge-only/RELEASE_MANIFEST.json",
+  "logs": [
+    {
+      "file": ".dart_tool/waydrop-local-runtime/completion-flutter-full.log",
+      "sha256": "a5578d009920a97708669c73c3107a0b316c11ea9208c44c650d7ba5c9f6e09d"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/completion-native.log",
+      "sha256": "6abe33f55c196194f0a662fab07739a3fc1ebeb57d006039aa3abb5c73226501"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/completion-handler.log",
+      "sha256": "c768a0f243a3581f846854b80699632851c79bf58995ab1e02752d7585607e8b"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/completion-edge-unit.log",
+      "sha256": "56ce5000fd6b5a0eff7fb61fb2122b2c0bda0f25466aa1ee6c7229db7cea288c"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/completion-network.log",
+      "sha256": "679acc086b8e7ddd83d3f2bf06a6139cd61af4fdc3d1a16f64bb7c5b670ae61e"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/completion-push.log",
+      "sha256": "3877354d767a0cff3cd798fe5693b9cea89dbd3ca65e4795524dfae6220140ef"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/completion-analyze.log",
+      "sha256": "17495076ed208140299fd24d92150ceccaac4e3ae776326e590e31ad32802930"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/badge-stop-baseline.log",
+      "sha256": "6d026e04388d0345019b42da207f49aa771162b29c241470755cc0f021a75170"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/badge-stop-fixed.log",
+      "sha256": "b752f4b1e7a91c1fd67c7706aebe5af81cba8f03dd1357b702fff0ab30027b23"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "calculate-order-pricing",
+    "version": 76,
+    "status": "ACTIVE"
+  },
+  {
+    "name": "accept-order",
+    "version": 60,
+    "status": "ACTIVE"
+  },
+  {
+    "name": "get-live-order-status",
+    "version": 55,
+    "status": "ACTIVE"
+  },
+  {
+    "name": "send-push-notification",
+    "version": 24,
+    "status": "ACTIVE"
+  },
+  {
+    "name": "process-verification-photo",
+    "version": 19,
+    "status": "ACTIVE"
+  }
+]

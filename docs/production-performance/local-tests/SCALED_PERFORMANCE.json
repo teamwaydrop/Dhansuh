@@ -1,0 +1,29 @@
+{
+  "scope": "Synthetic scale/mechanism check only; one backend per scenario with three warmups and twelve measured calls. No production latency forecast.",
+  "riders": {
+    "original": {
+      "rows": 560,
+      "farRows": 500,
+      "samples": 12,
+      "median_ms": 2.156
+    },
+    "proposed": {
+      "rows": 560,
+      "farRows": 500,
+      "samples": 12,
+      "median_ms": 1.832
+    }
+  },
+  "orders": {
+    "original": {
+      "farSearchingOrders": 1000,
+      "samples": 12,
+      "median_ms": 1.677
+    },
+    "proposed": {
+      "farSearchingOrders": 1000,
+      "samples": 12,
+      "median_ms": 0.679
+    }
+  }
+}

@@ -67,6 +67,10 @@ class LocationCacheService {
       lastUploadedPosition;
 
   static bool isUpdatingDb = false;
+  static bool _startingTracking = false;
+  static bool _trackingEnabled = false;
+  static int _trackingGeneration = 0;
+  static int successfulLocationUploads = 0;
 
   static Timer? riderHeartbeatTimer;
 
@@ -77,34 +81,11 @@ class LocationCacheService {
   static const int cacheValidityMinutes =
       5;
 
-  // PHASE A (A3) — rider GPS write throttle.
-  //
-  // The Flutter writer still updates ONLY public.riders (see updateRiderLocation
-  // below); the A1 DB bridge trigger trg_riders_gps_bridge_to_rider_locations
-  // mirrors every one of those writes into public.rider_locations, which is the
-  // lean (REPLICA IDENTITY DEFAULT) high-frequency table the passenger tracking
-  // stream now subscribes to (realtime_order_controller._subscribeRider).
-  //
-  // riders carries REPLICA IDENTITY FULL + 13 indexes + the bridge/near-dest
-  // triggers, so every GPS UPDATE is a full-row WAL record fanned out to the
-  // logical-decode pipeline. Widening the write cadence from 10 m / 30 s to
-  // 150 m / 60 s cuts the steady-state riders GPS write rate to ~1/min per
-  // online rider (~65-80% fewer writes) — the dominant contributor to the
-  // Realtime WAL-decode overload traced in
-  // docs/PERF_slowdown_after_few_rides_analysis.md — while still refreshing the
-  // passenger map about every ~60 s / ~150 m of rider movement and keeping
-  // dispatch's very lenient staleness gate (>= now()-24h OR NULL) satisfied.
   static const int movementThresholdMeters =
-      150;
+      10;
 
   static const int heartbeatSeconds =
-      60;
-
-  // Kept explicit (was heartbeatSeconds * 4) so raising heartbeatSeconds to 60
-  // above does not also widen the "is the cached position too stale to trust in
-  // the heartbeat path" tolerance — it stays at ~2 min, unchanged from before.
-  static const int _heartbeatStaleCacheToleranceSeconds =
-      120;
+      30;
 
   // =====================================================
   // INITIALIZE LOCATION
@@ -341,6 +322,8 @@ class LocationCacheService {
   // =====================================================
 
   static Future<void> _performHeartbeatUpdate() async {
+    if (!_trackingEnabled || isUpdatingDb) return;
+    final generation = _trackingGeneration;
     try {
       Position? position;
       try {
@@ -355,24 +338,25 @@ class LocationCacheService {
         // tolerance for a stationary rider, whose distanceFilter:5m stream legitimately won't
         // emit new positions) -- otherwise treat it as stale and fall through to a real read.
         final cacheAge = lastUpdated == null ? null : DateTime.now().difference(lastUpdated!);
-        position = (cacheAge != null &&
-                cacheAge < const Duration(seconds: _heartbeatStaleCacheToleranceSeconds))
+        position = (cacheAge != null && cacheAge < const Duration(seconds: heartbeatSeconds * 4))
             ? cachedPosition
             : null;
         position ??= await Geolocator.getLastKnownPosition();
-
-        if (position == null) {
-          position = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.low,
-            timeLimit: const Duration(seconds: 5),
-          );
+        if (position != null && DateTime.now().difference(position.timestamp) >
+            const Duration(seconds: heartbeatSeconds * 4)) {
+          position = null;
         }
+
+        position ??= await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.low,
+          timeLimit: const Duration(seconds: 5),
+        );
       } catch (e) {
         debugPrint('HEARTBEAT GET POSITION ERROR => $e');
-        position ??= cachedPosition;
+        return; // Never stamp an old cached fix as fresh after a GPS failure.
       }
 
-      if (position == null) {
+      if (!_trackingEnabled || generation != _trackingGeneration) {
         return;
       }
 
@@ -385,15 +369,20 @@ class LocationCacheService {
       // ~2 avoidable OLA calls/minute per online rider with no functional loss -- lat/lng/heading
       // update, DB write, and dispatch/matching below are completely unchanged.
 
-      if (isUpdatingDb) {
+      // A movement-triggered stream upload may have completed just before this timer fired. Reuse
+      // the same distance/time gate so the heartbeat does not immediately write the same position
+      // again. A stationary rider still uploads every [heartbeatSeconds], preserving the database
+      // freshness contract used by dispatch.
+      if (!_shouldUploadPosition(position) || isUpdatingDb) {
         return;
       }
       isUpdatingDb = true;
 
       try {
-        await updateRiderLocation(position);
-        lastUploadedPosition = position;
-        lastDbUpdateTime = DateTime.now();
+        if (await updateRiderLocation(position) && generation == _trackingGeneration && _trackingEnabled) {
+          lastUploadedPosition = position;
+          lastDbUpdateTime = DateTime.now();
+        }
       } finally {
         isUpdatingDb = false;
       }
@@ -410,6 +399,9 @@ class LocationCacheService {
       startRiderLiveTracking()
       async {
 
+    if (_startingTracking || riderLocationStream != null) return;
+    _startingTracking = true;
+    final generation = _trackingGeneration;
     try {
 
       // =========================================
@@ -442,7 +434,7 @@ class LocationCacheService {
       final permissionGranted =
           await _ensurePermission();
 
-      if (!permissionGranted) {
+      if (!permissionGranted || generation != _trackingGeneration) {
 
         return;
       }
@@ -485,12 +477,21 @@ class LocationCacheService {
         );
       }
 
+      _trackingEnabled = true;
       try {
         riderLocationStream = Geolocator.getPositionStream(
           locationSettings: locationSettings,
         ).listen(
           _handlePositionUpdate,
+          onDone: () {
+            if (generation == _trackingGeneration) {
+              riderLocationStream = null;
+            }
+          },
           onError: (error) {
+            if (generation != _trackingGeneration) {
+              return;
+            }
             debugPrint('LOCATION STREAM ERROR => $error');
             // BUG FIX: this used to only log -- riderLocationStream was never nulled out on a
             // stream error (permission revoked mid-session, GPS disabled), so
@@ -498,6 +499,7 @@ class LocationCacheService {
             // `riderLocationStream != null`) permanently blocked every future restart attempt,
             // including the app-resume path. Once tracking died this way it stayed dead until a
             // manual offline->online toggle, with the rider still shown as online the whole time.
+            unawaited(riderLocationStream?.cancel());
             riderLocationStream = null;
           },
         );
@@ -512,9 +514,18 @@ class LocationCacheService {
             locationSettings: fallbackSettings,
           ).listen(
             _handlePositionUpdate,
-            onError: (error) {
-              debugPrint('LOCATION STREAM FALLBACK ERROR => $error');
+            onDone: () {
+              if (generation == _trackingGeneration) {
               riderLocationStream = null;
+            }
+            },
+            onError: (error) {
+              if (generation != _trackingGeneration) {
+              return;
+            }
+              debugPrint('LOCATION STREAM FALLBACK ERROR => $error');
+              unawaited(riderLocationStream?.cancel());
+            riderLocationStream = null;
             },
           );
         } catch (fallbackError) {
@@ -546,6 +557,8 @@ class LocationCacheService {
       debugPrint(
         'START TRACKING ERROR => $e',
       );
+    } finally {
+      _startingTracking = false;
     }
   }
 
@@ -553,73 +566,25 @@ class LocationCacheService {
   // HANDLE POSITION
   // =====================================================
 
-  static Future<void>
-      _handlePositionUpdate(
-    Position position,
-  ) async {
-
+  static Future<void> _handlePositionUpdate(Position position) async {
+    if (!_trackingEnabled) return;
+    final generation = _trackingGeneration;
+    _cachePosition(position);
+    // Only the caller that acquires the lock may release it. A skipped
+    // stream fix must not unlock a heartbeat request that is still running.
+    if (!_shouldUploadPosition(position) || isUpdatingDb) return;
+    isUpdatingDb = true;
     try {
-
-      // =========================================
-      // CACHE POSITION
-      // =========================================
-
-      _cachePosition(position);
-
-      // =========================================
-      // SHOULD UPLOAD
-      // =========================================
-
-      final shouldUpload =
-          _shouldUploadPosition(
-        position,
-      );
-
-      if (!shouldUpload) {
-
-        return;
+      if (await updateRiderLocation(position) && generation == _trackingGeneration && _trackingEnabled) {
+        lastUploadedPosition = position;
+        lastDbUpdateTime = DateTime.now();
       }
-
-      // =========================================
-      // PREVENT OVERLAPPING REQUESTS
-      // =========================================
-
-      if (isUpdatingDb) {
-
-        return;
-      }
-
-      isUpdatingDb = true;
-
-      // =========================================
-      // UPDATE DB
-      // =========================================
-
-      await updateRiderLocation(
-        position,
-      );
-
-      lastUploadedPosition =
-          position;
-
-      lastDbUpdateTime =
-          DateTime.now();
-
-    } catch (e) {
-
-      debugPrint(
-        'POSITION UPDATE ERROR => $e',
-      );
-
+    } catch (error) {
+      debugPrint('POSITION UPDATE ERROR');
     } finally {
-
       isUpdatingDb = false;
     }
   }
-
-  // =====================================================
-  // SHOULD UPLOAD
-  // =====================================================
 
   static bool _shouldUploadPosition(
     Position position,
@@ -698,6 +663,8 @@ class LocationCacheService {
       stopRiderLiveTracking()
       async {
 
+    _trackingEnabled = false;
+    ++_trackingGeneration;
     try {
 
       await riderLocationStream
@@ -708,6 +675,9 @@ class LocationCacheService {
       riderHeartbeatTimer?.cancel();
 
       riderHeartbeatTimer = null;
+      await stopGpsMonitor();
+      lastUploadedPosition = null;
+      lastDbUpdateTime = null;
 
     } catch (e) {
 
@@ -721,7 +691,7 @@ class LocationCacheService {
   // UPDATE DB
   // =====================================================
 
-  static Future<void>
+  static Future<bool>
       updateRiderLocation(
     Position position,
   ) async {
@@ -736,7 +706,7 @@ class LocationCacheService {
 
       if (user == null) {
 
-        return;
+        return false;
       }
 
       // =========================================
@@ -785,12 +755,15 @@ class LocationCacheService {
             'account_status',
             'online',
           );
+      successfulLocationUploads++;
+      return true;
 
     } catch (e) {
 
       debugPrint(
         'UPDATE RIDER LOCATION ERROR => $e',
       );
+      return false;
     }
   }
 

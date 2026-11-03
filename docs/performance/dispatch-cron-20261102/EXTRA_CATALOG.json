@@ -1,0 +1,222 @@
+{
+  "indexes": [
+    {
+      "name": "idx_order_assignment_logs_assignment_status",
+      "table": "order_assignment_logs",
+      "definition": "CREATE INDEX idx_order_assignment_logs_assignment_status ON public.order_assignment_logs USING btree (assignment_status)"
+    },
+    {
+      "name": "order_assignment_logs_pkey",
+      "table": "order_assignment_logs",
+      "definition": "CREATE UNIQUE INDEX order_assignment_logs_pkey ON public.order_assignment_logs USING btree (id)"
+    },
+    {
+      "name": "unique_order_rider_assignment",
+      "table": "order_assignment_logs",
+      "definition": "CREATE UNIQUE INDEX unique_order_rider_assignment ON public.order_assignment_logs USING btree (order_id, rider_id, assignment_round)"
+    },
+    {
+      "name": "idx_order_assignment_logs_order_id",
+      "table": "order_assignment_logs",
+      "definition": "CREATE INDEX idx_order_assignment_logs_order_id ON public.order_assignment_logs USING btree (order_id)"
+    },
+    {
+      "name": "idx_order_assignment_logs_rider_id",
+      "table": "order_assignment_logs",
+      "definition": "CREATE INDEX idx_order_assignment_logs_rider_id ON public.order_assignment_logs USING btree (rider_id)"
+    },
+    {
+      "name": "idx_order_assignment_logs_assignment_round",
+      "table": "order_assignment_logs",
+      "definition": "CREATE INDEX idx_order_assignment_logs_assignment_round ON public.order_assignment_logs USING btree (assignment_round)"
+    },
+    {
+      "name": "idx_order_assignment_logs_sent_at",
+      "table": "order_assignment_logs",
+      "definition": "CREATE INDEX idx_order_assignment_logs_sent_at ON public.order_assignment_logs USING btree (sent_at DESC)"
+    },
+    {
+      "name": "orders_pkey",
+      "table": "orders",
+      "definition": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)"
+    },
+    {
+      "name": "idx_orders_user_id",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_user_id ON public.orders USING btree (user_id)"
+    },
+    {
+      "name": "idx_orders_rider_id",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_rider_id ON public.orders USING btree (rider_id)"
+    },
+    {
+      "name": "idx_orders_order_type",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_order_type ON public.orders USING btree (order_type)"
+    },
+    {
+      "name": "idx_orders_order_code",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_order_code ON public.orders USING btree (order_code)"
+    },
+    {
+      "name": "idx_orders_payment_id",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_payment_id ON public.orders USING btree (payment_id)"
+    },
+    {
+      "name": "idx_orders_pricing_config_id",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_pricing_config_id ON public.orders USING btree (pricing_config_id)"
+    },
+    {
+      "name": "idx_orders_pickup_location",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_pickup_location ON public.orders USING btree (pickup_lat, pickup_lng)"
+    },
+    {
+      "name": "idx_orders_destination_location",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_destination_location ON public.orders USING btree (destination_lat, destination_lng)"
+    },
+    {
+      "name": "idx_orders_vehicle_type",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_vehicle_type ON public.orders USING btree (vehicle_type)"
+    },
+    {
+      "name": "idx_orders_order_status",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_order_status ON public.orders USING btree (order_status)"
+    },
+    {
+      "name": "idx_orders_payment_status",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_payment_status ON public.orders USING btree (payment_status)"
+    },
+    {
+      "name": "idx_orders_searching_created_at",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_searching_created_at ON public.orders USING btree (created_at) WHERE (order_status = 'searching'::order_status_enum)"
+    },
+    {
+      "name": "orders_order_code_key",
+      "table": "orders",
+      "definition": "CREATE UNIQUE INDEX orders_order_code_key ON public.orders USING btree (order_code)"
+    },
+    {
+      "name": "idx_orders_user_idempotency_key",
+      "table": "orders",
+      "definition": "CREATE UNIQUE INDEX idx_orders_user_idempotency_key ON public.orders USING btree (user_id, idempotency_key) WHERE (idempotency_key IS NOT NULL)"
+    },
+    {
+      "name": "idx_orders_search_expires_at",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_search_expires_at ON public.orders USING btree (search_expires_at)"
+    },
+    {
+      "name": "idx_orders_created_at",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_created_at ON public.orders USING btree (created_at DESC)"
+    },
+    {
+      "name": "idx_orders_created_device_record_id",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_created_device_record_id ON public.orders USING btree (created_device_record_id)"
+    },
+    {
+      "name": "idx_orders_user_created_id",
+      "table": "orders",
+      "definition": "CREATE INDEX idx_orders_user_created_id ON public.orders USING btree (user_id, created_at DESC, id DESC)"
+    },
+    {
+      "name": "idx_rider_assignments_status",
+      "table": "rider_assignments",
+      "definition": "CREATE INDEX idx_rider_assignments_status ON public.rider_assignments USING btree (assignment_status)"
+    },
+    {
+      "name": "idx_rider_assignments_sent_expires_at",
+      "table": "rider_assignments",
+      "definition": "CREATE INDEX idx_rider_assignments_sent_expires_at ON public.rider_assignments USING btree (expires_at) WHERE (assignment_status = 'sent'::intercity_assignment_status_enum)"
+    },
+    {
+      "name": "rider_assignments_pkey",
+      "table": "rider_assignments",
+      "definition": "CREATE UNIQUE INDEX rider_assignments_pkey ON public.rider_assignments USING btree (id)"
+    },
+    {
+      "name": "idx_rider_assignments_order_id",
+      "table": "rider_assignments",
+      "definition": "CREATE INDEX idx_rider_assignments_order_id ON public.rider_assignments USING btree (order_id)"
+    },
+    {
+      "name": "idx_rider_assignments_rider_id",
+      "table": "rider_assignments",
+      "definition": "CREATE INDEX idx_rider_assignments_rider_id ON public.rider_assignments USING btree (rider_id)"
+    },
+    {
+      "name": "idx_rider_assignments_round",
+      "table": "rider_assignments",
+      "definition": "CREATE INDEX idx_rider_assignments_round ON public.rider_assignments USING btree (assignment_round)"
+    },
+    {
+      "name": "idx_rider_assignments_expires_at",
+      "table": "rider_assignments",
+      "definition": "CREATE INDEX idx_rider_assignments_expires_at ON public.rider_assignments USING btree (expires_at DESC)"
+    },
+    {
+      "name": "rider_assignments_order_id_rider_id_key",
+      "table": "rider_assignments",
+      "definition": "CREATE UNIQUE INDEX rider_assignments_order_id_rider_id_key ON public.rider_assignments USING btree (order_id, rider_id)"
+    }
+  ],
+  "functions": [
+    {
+      "name": "assign_nearby_searching_orders_on_rider_freed",
+      "definition": "CREATE OR REPLACE FUNCTION public.assign_nearby_searching_orders_on_rider_freed()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_rider RECORD;\n    v_supabase_url text := 'https://yvwpchffctiagevpqgwy.supabase.co';\n    v_service_role_key text;\nBEGIN\n    IF NEW.rider_id IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    SELECT id, user_id, account_status, current_lat, current_lng, service_mode\n    INTO v_rider\n    FROM public.riders\n    WHERE id = NEW.rider_id;\n\n    IF NOT FOUND OR v_rider.account_status IS DISTINCT FROM 'online'::public.rider_account_status_enum THEN\n        RETURN NEW;\n    END IF;\n\n    BEGIN\n        SELECT decrypted_secret INTO v_service_role_key\n        FROM vault.decrypted_secrets\n        WHERE name = 'supabase_service_role_key'\n        LIMIT 1;\n\n        IF v_service_role_key IS NOT NULL THEN\n            PERFORM net.http_post(\n                url := v_supabase_url || '/rest/v1/rpc/assign_nearby_searching_orders_core',\n                headers := jsonb_build_object(\n                    'Content-Type', 'application/json',\n                    'Authorization', 'Bearer ' || v_service_role_key,\n                    'apikey', v_service_role_key\n                ),\n                body := jsonb_build_object(\n                    'p_rider_id', v_rider.id,\n                    'p_rider_user_id', v_rider.user_id,\n                    'p_current_lat', v_rider.current_lat,\n                    'p_current_lng', v_rider.current_lng,\n                    'p_service_mode', v_rider.service_mode\n                ),\n                timeout_milliseconds := 5000\n            );\n        ELSE\n            RAISE WARNING 'assign_nearby_searching_orders_on_rider_freed: vault secret \"supabase_service_role_key\" is not configured -- skipping async rematch for rider %', v_rider.id;\n        END IF;\n    EXCEPTION WHEN OTHERS THEN\n        -- Never block the order's own completion/cancellation on the async enqueue itself failing\n        -- -- the 15s redispatch cron (redispatch_stalled_searching_orders) and the next\n        -- online-transition/new-order trigger remain independent backstops for this rider's next\n        -- match either way.\n        RAISE WARNING 'assign_nearby_searching_orders_on_rider_freed: failed to enqueue async rematch for rider %: %', v_rider.id, SQLERRM;\n    END;\n\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "name": "assign_new_order_to_nearby_online_riders",
+      "definition": "CREATE OR REPLACE FUNCTION public.assign_new_order_to_nearby_online_riders()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_supabase_url text := 'https://yvwpchffctiagevpqgwy.supabase.co';\n    v_service_role_key text;\nBEGIN\n    IF NEW.order_status != 'searching' THEN\n        RETURN NEW;\n    END IF;\n\n    IF NEW.pickup_lat IS NULL OR NEW.pickup_lng IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    BEGIN\n        SELECT decrypted_secret INTO v_service_role_key\n        FROM vault.decrypted_secrets\n        WHERE name = 'supabase_service_role_key'\n        LIMIT 1;\n\n        IF v_service_role_key IS NOT NULL THEN\n            PERFORM net.http_post(\n                url := v_supabase_url || '/rest/v1/rpc/assign_new_order_to_nearby_online_riders_core',\n                headers := jsonb_build_object(\n                    'Content-Type', 'application/json',\n                    'Authorization', 'Bearer ' || v_service_role_key,\n                    'apikey', v_service_role_key\n                ),\n                body := jsonb_build_object(\n                    'p_order_id', NEW.id\n                ),\n                timeout_milliseconds := 5000\n            );\n        ELSE\n            RAISE WARNING 'assign_new_order_to_nearby_online_riders: vault secret \"supabase_service_role_key\" is not configured -- skipping async nearby-rider match for order %', NEW.id;\n        END IF;\n    EXCEPTION WHEN OTHERS THEN\n        -- Never block the order's own creation on the async enqueue itself failing -- start-dispatch\n        -- (fired independently by create-order) remains the primary, unaffected matching path either\n        -- way; this trigger was always a latency optimization layered on top of it, never the only\n        -- route to a match.\n        RAISE WARNING 'assign_new_order_to_nearby_online_riders: failed to enqueue async nearby-rider match for order %: %', NEW.id, SQLERRM;\n    END;\n\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "name": "get_dispatch_round_status",
+      "definition": "CREATE OR REPLACE FUNCTION public.get_dispatch_round_status(p_order_id uuid, p_round integer)\n RETURNS TABLE(order_status text, pending_assignments integer)\n LANGUAGE sql\n STABLE\n SET search_path TO 'public'\nAS $function$\n    SELECT\n        (SELECT o.order_status::text FROM public.orders o WHERE o.id = p_order_id) AS order_status,\n        (\n            SELECT COUNT(*)::integer\n            FROM public.rider_assignments ra\n            WHERE ra.order_id = p_order_id\n              AND ra.assignment_round = p_round\n              AND ra.assignment_status = 'sent'\n        ) AS pending_assignments;\n$function$\n"
+    },
+    {
+      "name": "on_rider_assignment_change",
+      "definition": "CREATE OR REPLACE FUNCTION public.on_rider_assignment_change()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_rider_user_id uuid := NULL;\n    v_order_type text := NULL;\n    v_notification_type text := 'order_assignment';\nBEGIN\n    -- Notify when status is set or updated to 'sent'\n    IF NEW.assignment_status = 'sent' AND (TG_OP = 'INSERT' OR OLD.assignment_status IS DISTINCT FROM 'sent') THEN\n        SELECT user_id INTO v_rider_user_id FROM public.riders WHERE id = NEW.rider_id;\n\n        IF v_rider_user_id IS NOT NULL THEN\n            SELECT order_type::text INTO v_order_type FROM public.orders WHERE id = NEW.order_id;\n\n            IF v_order_type IN ('intercity_ride', 'intercity_parcel') THEN\n                v_notification_type := 'intercity_order_assignment';\n            END IF;\n\n            PERFORM public.send_push_notification_fnc(\n                v_rider_user_id,\n                'New Order Request',\n                'You have a new order request nearby!',\n                jsonb_build_object(\n                    'type', v_notification_type,\n                    'order_id', NEW.order_id,\n                    'assignment_id', NEW.id\n                )\n            );\n        END IF;\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "name": "prevent_local_ride_assignment_to_busy_rider",
+      "definition": "CREATE OR REPLACE FUNCTION public.prevent_local_ride_assignment_to_busy_rider()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_new_order_type text;\n    v_new_distance integer;\nBEGIN\n    IF NEW.assignment_status IS DISTINCT FROM 'sent' THEN\n        RETURN NEW;\n    END IF;\n\n    SELECT o.order_type::text, o.distance_meters\n    INTO v_new_order_type, v_new_distance\n    FROM public.orders o\n    WHERE o.id = NEW.order_id;\n\n    -- Only local rides are in scope for this guard.\n    IF v_new_order_type IS DISTINCT FROM 'ride' OR COALESCE(v_new_distance, 0) > 20000 THEN\n        RETURN NEW;\n    END IF;\n\n    IF EXISTS (\n        SELECT 1\n        FROM public.orders bo\n        WHERE bo.rider_id = NEW.rider_id\n          AND bo.id != NEW.order_id\n          AND bo.order_type = 'ride'\n          AND COALESCE(bo.distance_meters, 0) <= 20000\n          AND bo.order_status IN ('accepted', 'rider_arrived', 'picked_up', 'ongoing', 'payment_pending')\n    ) THEN\n        RETURN NULL;\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "name": "rider_is_on_active_trip",
+      "definition": "CREATE OR REPLACE FUNCTION public.rider_is_on_active_trip(p_rider_id uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE\n SET search_path TO 'public'\nAS $function$\n    SELECT EXISTS (\n        SELECT 1\n        FROM public.orders o\n        WHERE o.rider_id = p_rider_id\n          AND (\n                o.order_status::text IN ('rider_arrived', 'picked_up', 'rider_at_drop', 'ongoing', 'payment_pending')\n                OR (\n                    o.order_status::text = 'accepted'\n                    AND (\n                        public.get_required_service_mode(o.order_type::text, o.distance_meters) = 'local'\n                        OR o.trip_started_at IS NOT NULL\n                    )\n                )\n              )\n    );\n$function$\n"
+    }
+  ],
+  "constraints": [
+    {
+      "name": "order_assignment_logs_pkey",
+      "table": "order_assignment_logs",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "unique_order_rider_assignment",
+      "table": "order_assignment_logs",
+      "definition": "UNIQUE (order_id, rider_id, assignment_round)"
+    },
+    {
+      "name": "rider_assignments_order_id_rider_id_key",
+      "table": "rider_assignments",
+      "definition": "UNIQUE (order_id, rider_id)"
+    },
+    {
+      "name": "rider_assignments_pkey",
+      "table": "rider_assignments",
+      "definition": "PRIMARY KEY (id)"
+    }
+  ]
+}

@@ -1,0 +1,129 @@
+{
+  "query": "SELECT timestamp,source,\nCASE WHEN source='edge_logs' THEN CASE WHEN startsWith(log_attributes['request.path'],'/storage/v1/object/sign/') THEN 'storage_signed_url' WHEN startsWith(log_attributes['request.path'],'/storage/v1/object/') THEN 'storage_object_transfer' ELSE 'other' END ELSE log_attributes['parsed.application_name'] END AS operation,\nCASE WHEN source='edge_logs' THEN log_attributes['request.method'] ELSE log_attributes['parsed.sql_state_code'] END AS method_or_state,\nCASE WHEN source='postgres_logs' THEN left(replaceRegexpAll(replaceRegexpAll(log_attributes['parsed.query'], '\\\\x27[^\\\\x27]*\\\\x27', '?'), '\\\\b[0-9]+\\\\b', '?'),5000) ELSE '' END AS redacted_sql,\nCASE WHEN source='postgres_logs' THEN left(replaceRegexpAll(replaceRegexpAll(log_attributes['parsed.context'], '\\\\x27[^\\\\x27]*\\\\x27', '?'), '\\\\b[0-9]+\\\\b', '?'),1200) ELSE '' END AS redacted_context,\nCASE WHEN source='postgres_logs' THEN CASE WHEN startsWith(event_message,'duration:') THEN 'duration_statement' WHEN positionCaseInsensitive(event_message,'canceling statement due to statement timeout')>0 THEN 'statement_timeout' WHEN positionCaseInsensitive(event_message,'canceling statement due to user request')>0 THEN 'user_cancel' ELSE 'other' END ELSE '' END AS event_class,\nlength(log_attributes['parsed.query']) AS query_length,\nlog_attributes['response.origin_time'] AS origin_ms, log_attributes['response.status_code'] AS status\nFROM logs WHERE\n(source='postgres_logs' AND (log_attributes['parsed.sql_state_code']='57014' OR (log_attributes['parsed.application_name'] IN ('supabase/dashboard','mgmt-api') AND positionCaseInsensitive(event_message,'timeout')>0)))\nOR (source='edge_logs' AND startsWith(log_attributes['request.path'],'/storage/') AND startsWith(log_attributes['request.headers.user_agent'],'Dart/') AND log_attributes['request.method'] IN ('POST','PUT','PATCH'))\nORDER BY timestamp LIMIT 20",
+  "window_utc": [
+    "2026-11-02T12:13:00Z",
+    "2026-11-02T12:25:00Z"
+  ],
+  "rows": [
+    {
+      "event_class": "statement_timeout",
+      "method_or_state": "57014",
+      "operation": "realtime_subscription_manager_pub",
+      "origin_ms": "",
+      "query_length": 2357,
+      "redacted_context": "",
+      "redacted_sql": "with candidates as (\n        select\n        pub.schemaname,\n        pub.tablename\n        from\n        pg_publication_tables pub\n        where\n        pub.pubname = $1\n        and pub.schemaname like (case $2 when '*' then '%' else $2 end) escape ''\n        and pub.tablename like (case $3 when '*' then '%' else $3 end) escape ''\n     ),\n     sub_tables as (\n        select\n        format('%I.%I', c.schemaname, c.tablename)::regclass entity\n        from\n        candidates c\n        where\n        -- A name that matches a published schema or table exactly selects only that one, so\n        -- `item_1` doesn't also pick up `items1`. Otherwise `_` and `%` stay LIKE wildcards.\n        ($2 = '*' or c.schemaname = $2 or not exists (select 1 from candidates e where e.schemaname = $2))\n        and ($3 = '*' or c.tablename = $3 or not exists (select 1 from candidates e where e.tablename = $3))\n     )\n     insert into realtime.subscription as x(\n        subscription_id,\n        entity,\n        filters,\n        claims,\n        action_filter,\n        selected_columns\n      )\n      select\n        $4::text::uuid,\n        sub_tables.entity,\n        -- Build the realtime.user_defined_filter[] server-side from primitive type arrays\n        -- instead of binding a list of composite tuples. Postgrex caches the composite type's\n        -- field count per connection at bootstrap and never refreshes it, so a long-lived\n        -- connection whose cache predates an ALTER TYPE on user_defined_filter would otherwise\n        -- encode against a stale arity and crash with :badarg. Constructing the rows here keeps\n        -- the arity resolved by the server's current catalog.\n        (\n          select coalesce(\n            array_agg(row(c, o::realtime.equality_op, v, n)::realtime.user_defined_filter),\n            '{}'::realtime.user_defined_filter[]\n          )\n          from unnest($6::text[], $7::text[], $8::text[], $9::boolean[]) as f(c, o, v, n)\n        ),\n        $5,\n        $10,\n        $11\n      from\n        sub_tables\n        on conflict\n        -- coalesce needed: NULL != NULL in unique constraints; NULL selected_columns means all columns\n        (subscription_id, entity, filters, action_filter, coalesce(selected_columns, '{}'))\n        do update set\n        claims = excluded.claims,\n        created_at = now()\n      returning\n         id",
+      "source": "postgres_logs",
+      "status": "",
+      "timestamp": "2026-11-02T12:20:08.801000"
+    },
+    {
+      "event_class": "statement_timeout",
+      "method_or_state": "57014",
+      "operation": "realtime_subscription_manager_pub",
+      "origin_ms": "",
+      "query_length": 2357,
+      "redacted_context": "PL/pgSQL assignment \"col_type = (\n            select atttypid::regtype\n            from pg_catalog.pg_attribute\n            where attrelid = new.entity\n                  and attname = filter.column_name\n        )\"\nPL/pgSQL function realtime.subscription_check_filters() line 29 at assignment",
+      "redacted_sql": "with candidates as (\n        select\n        pub.schemaname,\n        pub.tablename\n        from\n        pg_publication_tables pub\n        where\n        pub.pubname = $1\n        and pub.schemaname like (case $2 when '*' then '%' else $2 end) escape ''\n        and pub.tablename like (case $3 when '*' then '%' else $3 end) escape ''\n     ),\n     sub_tables as (\n        select\n        format('%I.%I', c.schemaname, c.tablename)::regclass entity\n        from\n        candidates c\n        where\n        -- A name that matches a published schema or table exactly selects only that one, so\n        -- `item_1` doesn't also pick up `items1`. Otherwise `_` and `%` stay LIKE wildcards.\n        ($2 = '*' or c.schemaname = $2 or not exists (select 1 from candidates e where e.schemaname = $2))\n        and ($3 = '*' or c.tablename = $3 or not exists (select 1 from candidates e where e.tablename = $3))\n     )\n     insert into realtime.subscription as x(\n        subscription_id,\n        entity,\n        filters,\n        claims,\n        action_filter,\n        selected_columns\n      )\n      select\n        $4::text::uuid,\n        sub_tables.entity,\n        -- Build the realtime.user_defined_filter[] server-side from primitive type arrays\n        -- instead of binding a list of composite tuples. Postgrex caches the composite type's\n        -- field count per connection at bootstrap and never refreshes it, so a long-lived\n        -- connection whose cache predates an ALTER TYPE on user_defined_filter would otherwise\n        -- encode against a stale arity and crash with :badarg. Constructing the rows here keeps\n        -- the arity resolved by the server's current catalog.\n        (\n          select coalesce(\n            array_agg(row(c, o::realtime.equality_op, v, n)::realtime.user_defined_filter),\n            '{}'::realtime.user_defined_filter[]\n          )\n          from unnest($6::text[], $7::text[], $8::text[], $9::boolean[]) as f(c, o, v, n)\n        ),\n        $5,\n        $10,\n        $11\n      from\n        sub_tables\n        on conflict\n        -- coalesce needed: NULL != NULL in unique constraints; NULL selected_columns means all columns\n        (subscription_id, entity, filters, action_filter, coalesce(selected_columns, '{}'))\n        do update set\n        claims = excluded.claims,\n        created_at = now()\n      returning\n         id",
+      "source": "postgres_logs",
+      "status": "",
+      "timestamp": "2026-11-02T12:20:10.050000"
+    },
+    {
+      "event_class": "statement_timeout",
+      "method_or_state": "57014",
+      "operation": "realtime_subscription_manager_pub",
+      "origin_ms": "",
+      "query_length": 0,
+      "redacted_context": "",
+      "redacted_sql": "",
+      "source": "postgres_logs",
+      "status": "",
+      "timestamp": "2026-11-02T12:20:14.266000"
+    },
+    {
+      "event_class": "user_cancel",
+      "method_or_state": "57014",
+      "operation": "realtime_rls",
+      "origin_ms": "",
+      "query_length": 412,
+      "redacted_context": "",
+      "redacted_sql": "SELECT wal->>'type' as type,\n       wal->>'schema' as schema,\n       wal->>'table' as table,\n       COALESCE(wal->>'columns', '[]') as columns,\n       COALESCE(wal->>'record', '{}') as record,\n       COALESCE(wal->>'old_record', '{}') as old_record,\n       wal->>'commit_timestamp' as commit_timestamp,\n       subscription_ids,\n       errors,\n       slot_changes_count\nFROM realtime.list_changes($1, $2, $3, $4)\n",
+      "source": "postgres_logs",
+      "status": "",
+      "timestamp": "2026-11-02T12:20:24.781000"
+    },
+    {
+      "event_class": "statement_timeout",
+      "method_or_state": "57014",
+      "operation": "postgrest",
+      "origin_ms": "",
+      "query_length": 1140,
+      "redacted_context": "SQL function \"is_admin\" statement 1",
+      "redacted_sql": "WITH pgrst_source AS ( SELECT \"public\".\"riders\".\"id\", \"public\".\"riders\".\"current_lat\", \"public\".\"riders\".\"current_lng\", \"public\".\"riders\".\"current_heading\", row_to_json(\"riders_rider_kyc_1\".*)::jsonb AS \"rider_kyc\" FROM \"public\".\"riders\" LEFT JOIN LATERAL ( SELECT \"rider_kyc_1\".\"vehicle_type\" FROM \"public\".\"rider_kyc\" AS \"rider_kyc_1\" WHERE \"rider_kyc_1\".\"id\" = \"public\".\"riders\".\"kyc_id\"   LIMIT $1 OFFSET $2 ) AS \"riders_rider_kyc_1\" ON TRUE WHERE  \"public\".\"riders\".\"account_status\" = $3 AND NOT \"public\".\"riders\".\"current_lat\" IS NULL AND  \"public\".\"riders\".\"current_lat\" >= $4 AND  \"public\".\"riders\".\"current_lat\" <= $5 AND NOT \"public\".\"riders\".\"current_lng\" IS NULL AND  \"public\".\"riders\".\"current_lng\" >= $6 AND  \"public\".\"riders\".\"current_lng\" <= $7   LIMIT $8 OFFSET $9 )  SELECT null::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), '[]') AS body, nullif(current_setting('response.headers', true), '') AS response_headers, nullif(current_setting('response.status', true), '') AS response_status, '' AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t",
+      "source": "postgres_logs",
+      "status": "",
+      "timestamp": "2026-11-02T12:20:26.236000"
+    },
+    {
+      "event_class": "other",
+      "method_or_state": "00000",
+      "operation": "supabase/dashboard",
+      "origin_ms": "",
+      "query_length": 0,
+      "redacted_context": "",
+      "redacted_sql": "",
+      "source": "postgres_logs",
+      "status": "",
+      "timestamp": "2026-11-02T12:20:30.076000"
+    },
+    {
+      "event_class": "statement_timeout",
+      "method_or_state": "57014",
+      "operation": "postgrest",
+      "origin_ms": "",
+      "query_length": 0,
+      "redacted_context": "",
+      "redacted_sql": "",
+      "source": "postgres_logs",
+      "status": "",
+      "timestamp": "2026-11-02T12:20:34.830000"
+    },
+    {
+      "event_class": "duration_statement",
+      "method_or_state": "00000",
+      "operation": "supabase/dashboard",
+      "origin_ms": "",
+      "query_length": 0,
+      "redacted_context": "",
+      "redacted_sql": "",
+      "source": "postgres_logs",
+      "status": "",
+      "timestamp": "2026-11-02T12:20:35.216000"
+    },
+    {
+      "event_class": "duration_statement",
+      "method_or_state": "00000",
+      "operation": "supabase/dashboard",
+      "origin_ms": "",
+      "query_length": 0,
+      "redacted_context": "",
+      "redacted_sql": "",
+      "source": "postgres_logs",
+      "status": "",
+      "timestamp": "2026-11-02T12:20:45.451000"
+    },
+    {
+      "event_class": "duration_statement",
+      "method_or_state": "00000",
+      "operation": "mgmt-api",
+      "origin_ms": "",
+      "query_length": 0,
+      "redacted_context": "",
+      "redacted_sql": "",
+      "source": "postgres_logs",
+      "status": "",
+      "timestamp": "2026-11-02T12:20:50.576000"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "schema_attachment_sha256": "a49754bfe914f13351fdfc9990f0640341acd3a5c69e1325ce7ecd72e47e769c",
+  "schema_tables": 61,
+  "foreign_keys": 97,
+  "provided_index_definitions": 0,
+  "provided_trigger_definitions": 0,
+  "provided_rls_policy_definitions": 0,
+  "schema_executed": false,
+  "production_read_only_snapshot": {
+    "measured_at_ist": "2026-11-03T10:54:15.704163+05:30",
+    "client_connections_including_inspector": 18,
+    "other_active_clients": 0,
+    "blocked_sessions": 0,
+    "index_counts": {
+      "orders": 19,
+      "pricing_config": 12,
+      "pricing_zones": 2,
+      "rider_assignments": 8,
+      "rider_kyc": 6,
+      "riders": 13,
+      "users": 3
+    }
+  },
+  "limit": "Snapshot is not incident onset evidence; counts do not prove good index design or resource health. No row data read."
+}

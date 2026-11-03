@@ -9,6 +9,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:waydrop/core/services/realtime/realtime_manager.dart';
 
 import 'package:flutter_cashfree_pg_sdk/api/cfpayment/cfwebcheckoutpayment.dart';
 
@@ -336,35 +337,14 @@ class PaymentService {
         StreamController<
             Map<String, dynamic>?>();
 
-    final channel =
-        supabase.channel(
-      'payment-$paymentId',
-    );
-
-    channel.onPostgresChanges(
-
-      event:
-          PostgresChangeEvent
-              .update,
-
-      schema: 'public',
-
+    final channelName = 'payment-$paymentId';
+    final subscriptionId = RealtimeManager.instance.subscribe(
+      channelName: channelName,
       table: 'payments',
-
-      filter:
-          PostgresChangeFilter(
-
-        type:
-            PostgresChangeFilterType
-                .eq,
-
-        column:
-            'id',
-
-        value:
-            paymentId,
-      ),
-
+      owner: 'PaymentService',
+      event: PostgresChangeEvent.update,
+      filterColumn: 'id',
+      filterValue: paymentId,
       callback: (payload) {
 
         debugPrint(
@@ -376,11 +356,10 @@ class PaymentService {
           payload.newRecord,
         );
       },
-    ).subscribe();
+    );
 
-    controller.onCancel = () async {
-
-      await supabase.removeChannel(channel);
+    controller.onCancel = () {
+      RealtimeManager.instance.unsubscribe(channelName, subscriptionId);
     };
 
     return controller.stream;

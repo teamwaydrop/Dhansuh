@@ -1,0 +1,158 @@
+{
+  "date_ist": "2026-11-02",
+  "window_utc": [
+    "2026-11-02T15:20:00Z",
+    "2026-11-02T15:35:00Z"
+  ],
+  "user_report": {
+    "build": 57,
+    "trigger": "Back to Home tap after completion",
+    "handset_apk_hash_obtained": false
+  },
+  "production": {
+    "read_only": true,
+    "bounded_log_queries": 5,
+    "metadata_reads": 1,
+    "writes": 0,
+    "deployments": 0,
+    "paid_resources": 0,
+    "support_ticket_submitted": false
+  },
+  "tests": {
+    "baseline_widgets": {
+      "passed": 1,
+      "expected_failed": 3
+    },
+    "after_widgets": {
+      "passed": 4,
+      "failed": 0
+    },
+    "new_seed_tests": 5,
+    "focused": {
+      "passed": 18,
+      "failed": 0
+    },
+    "full_flutter": {
+      "passed": 2147,
+      "failed": 0,
+      "previous": 2138,
+      "added": 9
+    },
+    "targeted_analyzer": {
+      "exit_code": 0,
+      "issues": 0
+    },
+    "full_project_analyzer_rerun": false
+  },
+  "controlled_rider_reads": {
+    "before": 3,
+    "after": 1,
+    "required_guard_retained": true
+  },
+  "photo_failure": {
+    "code": "DatabaseTimeout",
+    "http_status": 544,
+    "postgres_code": "57014",
+    "service_execution_ms": 33200,
+    "failing_sql_available": false,
+    "initiating_resource_proven": false,
+    "backend_fixed": false
+  },
+  "limits": [
+    "No handset frame trace or measured phone speed gain",
+    "Specific local versus intercity order not independently identified",
+    "Root-stack policy unchanged",
+    "No transport cancellation rewrite",
+    "RLS proposal remains unapproved/unapplied; not asserted as Storage fix"
+  ],
+  "apk": {
+    "build": {
+      "exit_code": 0,
+      "elapsed_seconds": 582.3,
+      "version": "1.0.0+58",
+      "command": [
+        "flutter",
+        "build",
+        "apk",
+        "--release",
+        "--build-name=1.0.0",
+        "--build-number=58",
+        "--dart-define-from-file=.env"
+      ],
+      "production_changes": 0
+    },
+    "new_apk": {
+      "package": "com.waydrop.app",
+      "version_code": "58",
+      "version_name": "1.0.0",
+      "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+      "apk_sha256": "32e66375512d83c64cd06358c5dfea92e277ec940b14c1a57ed8addbdd3eb3a5",
+      "bytes": 87819759
+    },
+    "reference_build57": {
+      "package": "com.waydrop.app",
+      "version_code": "57",
+      "version_name": "1.0.0",
+      "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+      "apk_sha256": "34eabf5b60753137d8e7cfaf22ea29ec194b3329f7c7a5c1d0bc03e21a83e8dd",
+      "bytes": 87819759
+    },
+    "same_signer": true,
+    "plaintext_env_asset_absent": true,
+    "artifact": "artifacts/waydrop-1.0.0-build58.apk",
+    "installed": false,
+    "published": false,
+    "phone_performance_measured": false,
+    "aot_library_comparison": [
+      {
+        "entry": "lib/arm64-v8a/libapp.so",
+        "build57_sha256": "fafe03fdc923ac31efda3b81caefebd0f4263a385266ea0e9d6db0ebbea663c9",
+        "build58_sha256": "0f6b40b0edc59cc2fa1805ffbd01852ae5a626fc3389888501f6668e8d94a5d9",
+        "changed": true
+      },
+      {
+        "entry": "lib/armeabi-v7a/libapp.so",
+        "build57_sha256": "b28fe10c3bd266d6d728861e0da7f29290c9023468c7519b658bc46acf58cac5",
+        "build58_sha256": "03d8340042947f832721472a16665ccbd7a18ae5c95a2cd912b40b008d1be1bf",
+        "changed": true
+      },
+      {
+        "entry": "lib/x86_64/libapp.so",
+        "build57_sha256": "626b39de5c079bd3e35ce04a08d726d44264bf0fdd9f6f8ce2009b89cd89c573",
+        "build58_sha256": "c05e7745c39594343bb300e57e4439cbe86bd8d2f9e4377bd5cafbb07a1a989d",
+        "changed": true
+      }
+    ],
+    "aot_provenance_limit": "All three AOT libraries differ from Build57; no full source-map or handset artifact attestation."
+  },
+  "source_sha256": {
+    "lib/core/providers/initial_data_provider.dart": "b2ee9ef9aa23b9e88050e94c1afabf4f64e539f8c69aae51be2834b8c6ce9755",
+    "lib/features/rider/home/rider_home_tab.dart": "66d05d54e7712e6ec4c244e665ddc67a1e7db89bf0c7f422ed48381b65cff86a",
+    "lib/features/rider/navigation/rider_main_navigation_screen.dart": "a58308ea14a69755c0fc758dd78fa2555515b23c08a2f810ab260d3609209483",
+    "lib/features/rider/onboarding/screens/rider_entry_handler.dart": "f229587af645223b8d3485df36a889b16194e628b049366b466007a52f17cfa4",
+    "test/rider_completion_transition_test.dart": "a9600ee57491e2d2d93a42283c5377791b9a069e4596891b075b1e4a5a31630a",
+    "test/rider_seed_consumption_test.dart": "cd65062cd6323a900d0d7cdbbf80e4caa38b3a39dd06fcfad8fd2af8a553bd92",
+    "test/rider_orders_tab_visibility_regression_test.dart": "d1144f3480e1fb7a1ca593cf63cad6ebb2c1c0955e23e93d505fdc7ed15899a6",
+    "pubspec.yaml": "01de084d9e7d5af48f5f8e5cd63d513c3bacf0db26082446243a3fa865a9b167",
+    "docs/performance/WAYDROP_COMPLETION_PHOTO_2050_2105.md": "0ef7e93eb16a839a45d7a52001718a3829ac3da20052892b2b82959d4c420043",
+    "docs/performance/WAYDROP_PERFORMANCE_FIX_REPORT.md": "210854cdb8d3e25183c08337096bf4c28795ea27112695a49e2ffb4cd257fe6e",
+    "docs/performance/WAYDROP_PRODUCTION_DEPLOYMENT_CHECKLIST.md": "1e3d3c64db3204809d84833c56336475112e239e0c2737c52023f4c1e8d4d175"
+  },
+  "evidence_sha256": {
+    "AGGREGATE.json": "d60f18e13f1eaf4e24db6b40546789b31a668fe8126e3d9ddd6eb902008e8266",
+    "DETAIL.json": "7f7e226d12f25c04555d498b46e3a20c7f18045b5ca8f15adf5b02ca8f56ae68",
+    "LOCAL_CHANGE.patch": "d363bdf95ab25d0f807e7bbf6cedd8e5ffac0c57978977534c181db7832eb242",
+    "ROLE_LIMITS.json": "3cd3c0dde1d956405aaaff55f4c51cf7ffbba4203ee07e56ed134cd3d61029f6",
+    "SQL_FEATURES.json": "f39c3228f8a7d9e2976c17353a56658b514966ecb9531d8d695b6e66cc8ee4e8",
+    "STORAGE_ERRORS.json": "c3a502c3015317ecd844226d9570d8ba4bc6f47bbc61998745b9462cb213a684",
+    "STORAGE_ERROR_CODE.json": "e9de41c475d2acaf183746153a873f0a51143f7f7afc9056ef2f3b8f2098e055",
+    "STORAGE_SUPPORT_DRAFT.md": "41121d99024f3322df78960f713a57db3e3936806990fefe2d9ff94458282294"
+  },
+  "log_sha256": {
+    "completion-before.log": "e29f59899d1469bdbde74c58cd4d899f8112a8c7f3811d347fc6cc1379028b2a",
+    "completion-after.log": "389fe7fd873c98b1ba82f0a9cf7b66708ce987e2c5521f0f3bae3b39bc9815b8",
+    "completion-focused.log": "1fa9578ba204e5077d22c1e9be06f661e515e17538fb7763a43231098f75666c",
+    "completion-full-flutter.log": "808d96afd4fe6124cff9cf7c8497466c35ce4a1e5cf1f9012a3fcd1651cac85e",
+    "completion-analyze.log": "096a2fd0d1772c3a6f5dab1316db38cb44bc041d6977b8ca4e7487d6ecaeaf4e"
+  }
+}

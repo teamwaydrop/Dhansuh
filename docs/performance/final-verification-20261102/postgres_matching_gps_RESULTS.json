@@ -1,0 +1,72 @@
+{
+  "engine": "PostgreSQL 17.11 on x86_64-windows, compiled by msvc-19.44.35229, 64-bit",
+  "productionConnected": false,
+  "atomicAcceptanceInstalled": false,
+  "results": [
+    {
+      "name": "Native PostgreSQL 17 loopback identity",
+      "status": "PASS",
+      "duration_ms": 496,
+      "detail": "17.11"
+    },
+    {
+      "name": "Recreate sanitized types, seven tables, constraints, RLS and relevant real triggers",
+      "status": "PASS",
+      "duration_ms": 1565,
+      "detail": {
+        "tables": 7,
+        "policies": 22,
+        "triggers": 8,
+        "externalEffects": "captured locally; no pg_net/vault/realtime",
+        "unrelatedTables": "key-only FK placeholders"
+      }
+    },
+    {
+      "name": "Original/proposed matching equivalence across eligibility, radii, exclusions and limits",
+      "status": "PASS",
+      "duration_ms": 39368,
+      "detail": {
+        "comparisons": 144
+      }
+    },
+    {
+      "name": "Owner/nonowner authorization, RLS GPS update and privileged core denial",
+      "status": "PASS",
+      "duration_ms": 324
+    },
+    {
+      "name": "Concurrent real assignment offers and reoffers preserve unique pairs, logs and earnings",
+      "status": "PASS",
+      "duration_ms": 2206,
+      "detail": {
+        "sessions": 12,
+        "offerPairs": 3,
+        "scope": "Real core DML/unique-key races; final order acceptance RPC is not exercised"
+      }
+    },
+    {
+      "name": "GPS bridge, stationary heartbeat, late ongoing order, notification idempotency and heading-only updates",
+      "status": "PASS",
+      "duration_ms": 1292,
+      "detail": {
+        "stationaryArrivalNotifications": 1,
+        "headingOnlyBridge": "Does not fire by existing UPDATE OF definition; coordinate-targeted heartbeat carries heading"
+      }
+    },
+    {
+      "name": "Index guards, lock timeout, exact recreation and retained UNIQUE constraints",
+      "status": "PASS",
+      "duration_ms": 5888
+    },
+    {
+      "name": "Matching rollback restores definition hashes, owners and ACL",
+      "status": "PASS",
+      "duration_ms": 907
+    }
+  ],
+  "limitations": [
+    "Supabase JWT verification/PostgREST/realtime/WAL delivery/pg_net/vault/cron not reproduced by this suite; see separate acceptance REST tests.",
+    "auth claim SQL functions emulate gateway-populated settings. Outbound push calls captured, not delivered.",
+    "Unrelated FK targets are key-only placeholders; payment provider and complete payment lifecycle not exercised."
+  ]
+}

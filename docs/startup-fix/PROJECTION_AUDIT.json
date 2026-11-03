@@ -1,0 +1,10 @@
+{
+  "source": "Read-only production public-schema catalog, 1 November 2026",
+  "literalSelectsChecked": 176,
+  "missing": [],
+  "unresolved": [],
+  "limitations": [
+    "Checks static literal SELECT fields/nested table names, not arbitrary runtime strings, filters, RPC output or FK target resolution.",
+    "Unresolved selectors are explicitly not counted as schema-compatible."
+  ]
+}

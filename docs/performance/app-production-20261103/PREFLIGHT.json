@@ -1,0 +1,22 @@
+[
+  {
+    "slug": "calculate-order-pricing",
+    "from_version": 75,
+    "verify_jwt": false,
+    "changed_files": [
+      "functions/calculate-order-pricing/index.ts",
+      "functions/_shared/pricing_zones_cache.ts"
+    ],
+    "payload_sha256": "0f204ad74e5698dd89e5609fe8a14944e29d7689254c8356b895bfbd970e4984"
+  },
+  {
+    "slug": "get-live-order-status",
+    "from_version": 54,
+    "verify_jwt": false,
+    "changed_files": [
+      "functions/_shared/signed_url_cache.ts",
+      "functions/_shared/eta_cache.ts"
+    ],
+    "payload_sha256": "d7940bd835a89ddb5df05495df0a1499795edecae805e71bc453cf74f56a7506"
+  }
+]

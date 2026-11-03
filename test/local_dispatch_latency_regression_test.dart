@@ -30,6 +30,8 @@ String _read(String path) => File(path).readAsStringSync();
 void main() {
   final createOrder = _read('supabase/functions/create-order/index.ts');
   final startDispatch = _read('supabase/functions/start-dispatch/index.ts');
+  final dispatchSql = _read('docs/migration-review/not-applied/20261102044001_waydrop_dispatch_fencing_and_delivery_outbox.sql');
+  final worker = _read('supabase/functions/start-dispatch/durable_dispatch.ts');
 
   group('Test 1: newly created local order invokes dispatch immediately', () {
     test('the dispatch trigger sits directly after the order INSERT, before all other bookkeeping', () {
@@ -77,80 +79,65 @@ void main() {
 
   group('Test 2: the first dispatch iteration has no artificial sleep before it', () {
     test('Round 1 is always included with no delay/sleep gating it', () {
-      final roundsStart = startDispatch.indexOf('const rounds = [];');
-      final round1End = startDispatch.indexOf('// Round 2');
-      final round1Section = startDispatch.substring(roundsStart, round1End);
-      expect(round1Section.contains('setTimeout'), isFalse);
-      expect(round1Section.contains('Round 1 always'), isTrue);
+      expect(dispatchSql.contains('rn integer:=1'), isTrue);
+      expect(worker.indexOf("'claim_order_dispatch'"), lessThan(worker.indexOf('await sleep')));
     });
 
     test('the sleep/backoff only happens AFTER a full round pass, never before the first find_nearby_riders call', () {
-      final firstFindNearby = startDispatch.indexOf('find_nearby_riders');
-      final firstSleep = startDispatch.indexOf('sleepTimeMs');
-      expect(firstFindNearby, greaterThan(-1));
-      expect(firstSleep, greaterThan(firstFindNearby));
+      expect(worker.indexOf("'step_order_dispatch'"), lessThan(worker.lastIndexOf('await sleep(wait)')));
+      expect(dispatchSql.contains('cfg.round_1_radius_km'), isTrue);
     });
 
     test('iteration 1 reuses the already-fetched order instead of an extra DB round trip', () {
-      final loopStart = startDispatch.indexOf('while (Date.now() - executionStartTime');
-      final loopBodyEnd = startDispatch.indexOf('Stop if order is no longer searching');
-      final section = startDispatch.substring(loopStart, loopBodyEnd);
-      expect(section.contains('let currentOrder = order;'), isTrue);
-      expect(section.contains('if (iteration > 1)'), isTrue);
+      expect(startDispatch.contains('.from("rider_assignments")'), isFalse);
+      expect(startDispatch.contains('runDurableDispatch(supabase, order_id)'), isTrue);
+      expect(dispatchSql.contains('SELECT * INTO o FROM public.orders'), isTrue);
     });
   });
 
   group('Test 3: an eligible nearby rider can receive an assignment on the first iteration', () {
     test('Round 1 config (radius/batch size) is unconditional, not gated on iteration count', () {
-      expect(startDispatch.contains('// Round 1 always'), isTrue);
-      expect(startDispatch.contains('round: 1,'), isTrue);
-      // Round 1's push() is not wrapped in any "if (...)" gate the way Round 2/3 are.
-      final round1Idx = startDispatch.indexOf('// Round 1 always');
-      final round2Idx = startDispatch.indexOf('// Round 2');
-      final between = startDispatch.substring(round1Idx, round2Idx);
-      expect(between.contains('if ('), isFalse);
+      expect(dispatchSql.contains('rn integer:=1'), isTrue);
+      expect(dispatchSql.contains('ELSE cfg.round_1_radius_km END'), isTrue);
+      expect(dispatchSql.contains('ELSE cfg.round_1_batch_size END'), isTrue);
     });
 
     test('find_nearby_riders is called with the order pickup coordinates on every round including round 1', () {
-      expect(startDispatch.contains('p_pickup_lat: currentOrder.pickup_lat'), isTrue);
-      expect(startDispatch.contains('p_pickup_lng: currentOrder.pickup_lng'), isTrue);
+      expect(dispatchSql.contains('radians(o.pickup_lat)'), isTrue);
+      expect(dispatchSql.contains('radians(o.pickup_lng)'), isTrue);
+      expect(dispatchSql.contains("dispatch_eligibility(p_order_id,q.id,'offer')"), isTrue);
     });
   });
 
   group('Test 4 & 5: early retry stays fast after a genuine no-match; later backoff stays bounded', () {
     test('the first 3 no-match iterations retry after only 2s, not 15s', () {
-      expect(startDispatch.contains('earlyRetryIterationLimit = 3'), isTrue);
-      expect(startDispatch.contains('sleepTimeMs = 2000;'), isTrue);
+      expect(dispatchSql.contains('WHEN j.empty_passes<3 THEN 2 ELSE 15 END'), isTrue);
+      expect(dispatchSql.contains('empty_passes+1'), isTrue);
     });
 
     test('only after several quick attempts does it fall back to the slower 15s cadence (bounded, not infinite/aggressive)', () {
-      expect(startDispatch.contains('sleepTimeMs = 15000;'), isTrue);
-      // The overall loop itself is time-boxed (safeTimeoutMs) and re-chains rather than looping
-      // forever in a single invocation -- scalable, not an unbounded busy-loop.
-      expect(startDispatch.contains('safeTimeoutMs = 100 * 1000'), isTrue);
-      expect(startDispatch.contains('Re-triggered dispatch asynchronously due to execution limit'), isTrue);
+      expect(worker.contains('options.budgetMs ?? 85000'), isTrue);
+      expect(worker.contains('recovery_pending: true'), isTrue);
+      expect(dispatchSql.contains("WHEN j.empty_passes<3 THEN 2 ELSE 15 END"), isTrue);
     });
 
     test('a round that DID send assignments cools down at a different (5s) cadence than a genuine no-match', () {
-      expect(startDispatch.contains('if (anyAssignmentsSent) {'), isTrue);
-      expect(startDispatch.contains('sleepTimeMs = 5000;'), isTrue);
-      final ifIdx = startDispatch.indexOf('if (anyAssignmentsSent) {');
-      final elseIfIdx = startDispatch.indexOf('else if (iteration <= earlyRetryIterationLimit)');
-      expect(elseIfIdx, greaterThan(ifIdx));
-      final between = startDispatch.substring(ifIdx, elseIfIdx);
-      expect(between.contains('5000'), isTrue);
+      expect(dispatchSql.contains('WHEN offers>0 OR active_offers>0 THEN 5'), isTrue);
+      expect(dispatchSql.contains('CASE WHEN offers>0 OR active_offers>0 THEN 0 ELSE empty_passes+1 END'), isTrue);
     });
   });
 
   group('Test 6: rider_assignment INSERT remains deduplicated', () {
     test('assignments are upserted on the (order_id, rider_id) conflict target, never a plain insert', () {
-      expect(startDispatch.contains('.upsert(dispatchRows, { onConflict: "order_id,rider_id" })'), isTrue);
+      expect(dispatchSql.contains('ON CONFLICT(order_id,rider_id) DO UPDATE'), isTrue);
+      expect(dispatchSql.contains("WHERE target.assignment_status::text IN ('expired','rejected')"), isTrue);
+      expect(startDispatch.contains('.upsert('), isFalse);
     });
 
     test('riders already sent/accepted for this order are excluded from being re-matched in a later round', () {
-      expect(startDispatch.contains("case \"sent\":"), isTrue);
-      expect(startDispatch.contains("case \"accepted\":"), isTrue);
-      expect(startDispatch.contains('excludedRiderIds.add(assignment.rider_id)'), isTrue);
+      expect(dispatchSql.contains("a0.assignment_status::text='accepted'"), isTrue);
+      expect(dispatchSql.contains("a0.assignment_status::text='sent' AND a0.expires_at>now_at"), isTrue);
+      expect(dispatchSql.contains("a.assignment_status::text NOT IN ('expired','rejected')"), isTrue);
     });
   });
 

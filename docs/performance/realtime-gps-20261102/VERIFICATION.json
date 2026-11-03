@@ -1,0 +1,54 @@
+{
+  "project": "yvwpchffctiagevpqgwy",
+  "production_changed": false,
+  "incident_utc": [
+    "2026-11-01T16:22:00Z",
+    "2026-11-01T16:34:00Z"
+  ],
+  "baseline_reconstruction": {
+    "new_tests_passed": 2,
+    "new_tests_failed": 4,
+    "exit_code": 1,
+    "method": "Removed only two recovery checks and reproduced old missing-field predicate; finally restored both files byte-for-byte",
+    "log": ".dart_tool/part2-baseline-tests.log"
+  },
+  "final_tests": {
+    "main_focused_passed": 39,
+    "main_failed": 0,
+    "new_plus_pooling_guards_passed": 18,
+    "additional_distinct_pooling_guards": 12,
+    "distinct_passed": 51,
+    "last_new_test_run_passed": 6,
+    "logs": [
+      ".dart_tool/part2-tests.log",
+      ".dart_tool/part2-final-tests.log",
+      ".dart_tool/part2-final-new-tests.log"
+    ]
+  },
+  "analyzer": {
+    "errors": 0,
+    "warnings": 1,
+    "new_diagnostics": 0,
+    "remaining": "Existing unused boostPercentVal, rider_orders_screen.dart:2023",
+    "analyzer_exit_code": 1,
+    "log": ".dart_tool/part2-analyze.log"
+  },
+  "measurement_limits": [
+    "No physical-device GPS rate/accuracy measurements",
+    "No production after-fix latency or WAL comparison",
+    "No historical per-table Realtime fanout/trigger/lock timings",
+    "Gateway PATCHes not all proven GPS; no PATCH body/device ID retained"
+  ],
+  "files_sha256": {
+    "lib/core/services/realtime/realtime_manager.dart": "16de154d3f291be97fa75f902ec9259092e0b11f2d3ffb627cbbfa64e549505c",
+    "lib/core/services/realtime/rider_update_filter.dart": "a553fa07d2158791e85d206da7923833baa634ad5ab9fd725d50f11bca209463",
+    "lib/features/rider/home/rider_home_tab.dart": "2bc8d6fc8c3b797196b8ef8c25aef84eec95e85ca421f4b8eb19350f040e0b71",
+    "lib/features/rider/orders/rider_orders_screen.dart": "0784bc2a941723417e3239babc9bcb27057f39b9bfa24f1fa59be69ed01661a8",
+    "lib/features/user/home/home_tab.dart": "f8e9c384a7ac739fa24a6b7ccc0cd1e30a0d1b414b8e700c303eb178467629b3",
+    "test/part2_realtime_gps_test.dart": "5d7f68a7e08850c42c33dcd0e8f98c6ad439c547b282a7823a5beab23e1f40d8",
+    "docs/performance/PART_2_REALTIME_GPS.md": "83a5a7b8e79c2fe17cfbe2dbfa57cbe8ab087793ae4bfcb919ef622acba5c038",
+    "docs/performance/WAYDROP_PERFORMANCE_FIX_REPORT.md": "3db3db5cc53730a9d8dd8602603f028aafd6f7a5a627af44529dc9a1a38a7039",
+    "docs\\performance\\realtime-gps-20261102\\EVIDENCE.json": "a8000c6c43bf92c45bca1d43dc2b1436e183ace7b5d3dff988a22ef6d905575e",
+    "docs\\performance\\realtime-gps-20261102\\CLIENT_BINDINGS.json": "08233bad361e3be8ae095ee7317cf7e74336272261271c17aebbf128066bff01"
+  }
+}

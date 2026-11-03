@@ -1,0 +1,37 @@
+{
+  "status": "SUPERSEDED_DO_NOT_EXECUTE_EDGE_ONLY_SCOPE",
+  "requestFile": "WAVE_A_REQUESTS.json",
+  "requestSha256": "408e3cb249bf32777880d0559a16f225257e06d5453d7ce5f15d130581113538",
+  "releaseArtifacts": [
+    {
+      "file": "docs/production-performance/acceptance/01_atomic_acceptance.sql",
+      "sha256": "392f7356cc561656af87873b2d79c4cb15dad3253678c2e3e7094c893dc49392"
+    },
+    {
+      "file": "docs/production-performance/acceptance/01_atomic_acceptance.deploy.sql",
+      "sha256": "685be6f72dda17fd07e15d66da6b4e0a42ed9ddbf4d6de0c0d19f5dc948fa677"
+    },
+    {
+      "file": "docs/production-performance/acceptance/02_rollback_atomic_acceptance.sql",
+      "sha256": "fc11fca6a54a7879bdcfc4848bd9ad6981ad33f268d551da65347454bb82441b"
+    },
+    {
+      "file": "docs/production-performance/acceptance/03_disable_atomic_rpc.sql",
+      "sha256": "84547e667a87495af202d5319e92ee0361d8222bb37dc1b31d5dcf881106a0b0"
+    },
+    {
+      "file": "supabase/functions/accept-order/index.ts",
+      "sha256": "c226fa3913507c0d1735a2d1197bd154d1856624a5f5655bc764083a1b22115b"
+    }
+  ],
+  "sharedConfigHelperSha256": "9994144024984b6a40a0abdc66fb98991bc008322b28fee552e0e54f9f87f40a",
+  "mandatoryGates": [
+    "Managed valid-session/Realtime/transactional notification tests",
+    "Production backup/restore and historical Edge bundle/dependency recovery evidence",
+    "Deployment-tool transaction, bundle and schema-cache rehearsal",
+    "Traffic drain plus fresh baseline/consistency/drift checks",
+    "Explicit final GO and an authorized write-capable deployment channel"
+  ],
+  "notExecuted": true,
+  "supersededBy": "../edge-only/RELEASE_MANIFEST.json"
+}

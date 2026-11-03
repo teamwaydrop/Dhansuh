@@ -22,21 +22,16 @@ CREATE TABLE IF NOT EXISTS public.diagnostic_timings (
 );
 
 CREATE INDEX IF NOT EXISTS idx_diagnostic_timings_started_at ON public.diagnostic_timings (started_at);
+
 CREATE INDEX IF NOT EXISTS idx_diagnostic_timings_order_id ON public.diagnostic_timings (order_id);
+
 CREATE INDEX IF NOT EXISTS idx_diagnostic_timings_fn_label ON public.diagnostic_timings (fn_name, label);
 
 -- No RLS needed/enabled: only ever written by the service-role client inside edge functions, and
 -- only ever read by direct `supabase db query --linked` (service role / postgres role), never by
 -- the app's anon/authenticated PostgREST roles.
 ALTER TABLE public.diagnostic_timings ENABLE ROW LEVEL SECURITY;
+
 -- Deliberately zero policies: RLS enabled with no policies means anon/authenticated get nothing,
 -- while service_role (used by every edge function and by `supabase db query`) bypasses RLS
 -- entirely, exactly as it does for every other table.
-
--- RLS bypass (rolbypassrls) and standard table GRANTs are separate Postgres privilege systems --
--- a brand-new table created outside the Supabase dashboard's normal table-creation flow has no
--- default GRANT to service_role until one is added explicitly. Without this, every edge function
--- insert into this table fails silently (42501 permission denied, swallowed by diag.ts's
--- best-effort catch) -- confirmed live via a direct PostgREST insert on 2026-08-08.
-GRANT SELECT, INSERT ON public.diagnostic_timings TO service_role;
-GRANT USAGE, SELECT ON SEQUENCE public.diagnostic_timings_id_seq TO service_role;

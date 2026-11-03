@@ -1,0 +1,34 @@
+{
+  "engine": "PostgREST 16.5 + PostgreSQL 17.11 Windows",
+  "productionConnected": false,
+  "results": [
+    {
+      "name": "Actual REST JWT verification rejects forged and expired service credentials",
+      "status": "PASS"
+    },
+    {
+      "name": "Actual REST schema/ACL denies anon and authenticated direct RPC callers",
+      "status": "PASS"
+    },
+    {
+      "name": "Actual REST service RPC serializes concurrent riders and preserves JSON result",
+      "status": "PASS"
+    },
+    {
+      "name": "Actual REST idempotent retry and wrong actor enforce ownership",
+      "status": "PASS"
+    },
+    {
+      "name": "Actual REST retains financial/state column guards for authenticated users",
+      "status": "PASS"
+    },
+    {
+      "name": "Real locked Supabase SDK RPC succeeds through local signed-JWT REST",
+      "status": "PASS"
+    }
+  ],
+  "limitations": [
+    "Local transport, schema cache, SQL auth helpers, signed-JWT and real SDK verified; managed platform/runtime versions differ.",
+    "Managed GoTrue user sessions, Supabase gateway, pg_net/vault, Realtime and production rollback remain unverified."
+  ]
+}

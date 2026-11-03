@@ -61,8 +61,4 @@ WHERE z.is_active = true
       WHERE pc.service_type = 'intercity_parcel'
         AND pc.vehicle_type = v.vehicle_type
         AND pc.pricing_zone_id = z.id
-  )
-  -- Guard added post-hoc: same reasoning as 20260717000001_add_intercity_ride_pricing_config.sql
-  -- (no-op on any environment that already has an admin row; only skips the
-  -- insert on a brand-new database with zero admins).
-  AND EXISTS (SELECT 1 FROM public.admins WHERE is_active = true);
+  );

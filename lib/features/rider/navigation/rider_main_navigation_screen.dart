@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:waydrop/features/rider/onboarding/screens/rider_entry_handler.dart';
 import 'package:flutter/services.dart';
+import 'package:waydrop/shared/widgets/lazy_indexed_stack.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/core/providers/initial_data_provider.dart';
@@ -12,15 +14,24 @@ import 'package:waydrop/features/rider/earnings/rider_earnings_tab.dart';
 import 'package:waydrop/features/rider/profile/rider_profile_tab.dart';
 import 'package:waydrop/shared/widgets/custom_curved_navigation_bar.dart';
 
-class RiderMainNavigationScreen extends ConsumerStatefulWidget {
+// Every caller, including direct post-payment/order navigation, uses the same guard.
+class RiderMainNavigationScreen extends StatelessWidget {
   final int initialIndex;
   const RiderMainNavigationScreen({super.key, this.initialIndex = 0});
-
   @override
-  ConsumerState<RiderMainNavigationScreen> createState() => _RiderMainNavigationScreenState();
+  Widget build(BuildContext context) => RiderEntryHandler(
+    readyScreen: _RiderDashboard(initialIndex: initialIndex));
 }
 
-class _RiderMainNavigationScreenState extends ConsumerState<RiderMainNavigationScreen> {
+class _RiderDashboard extends ConsumerStatefulWidget {
+  final int initialIndex;
+  const _RiderDashboard({this.initialIndex = 0});
+
+  @override
+  ConsumerState<_RiderDashboard> createState() => _RiderDashboardState();
+}
+
+class _RiderDashboardState extends ConsumerState<_RiderDashboard> {
   final supabase = Supabase.instance.client;
   late int _index;
 
@@ -35,41 +46,16 @@ class _RiderMainNavigationScreenState extends ConsumerState<RiderMainNavigationS
   String? _serviceModeSubId;
   String? _serviceModeSubChannel;
 
-  // R1 FIX #2: distinguishes a true cold-start mount (initialRiderDataProvider's snapshot is
-  // guaranteed fresh -- fetched by AppStartScreen moments earlier in the same navigation
-  // transition) from a mid-session recreation (returnToLocalRideHome()'s pushAndRemoveUntil,
-  // see below -- the same never-refreshed snapshot would otherwise be stale there). `static`
-  // survives individual State disposal but not a process restart, so this is false exactly once
-  // per app launch and true for every subsequent _RiderMainNavigationScreenState construction
-  // within that same process. Scoped to this class only -- intentionally NOT shared with
-  // RiderHomeTab's own seed read, so neither can cause the other to skip its check.
-  static bool _hasConsumedColdStartSeed = false;
-
   @override
   void initState() {
     super.initState();
-    _index = widget.initialIndex;
-    // BUG FIX (Orders tab disappearing after a local ride completes): initialRiderDataProvider is
-    // written exactly once, at cold app start (app_start_screen.dart), and never refreshed. This
-    // screen is recreated from scratch -- not just rebuilt -- every time a local ride completes
-    // (returnToLocalRideHome()'s pushAndRemoveUntil), so seeding _serviceMode from that snapshot
-    // and trusting it as final silently reverted any service-mode change made mid-session (e.g.
-    // choosing "Local City Partner" after the snapshot was taken), wrongly hiding the Orders tab
-    // (_isIntercity gates it) until the next realtime service_mode UPDATE happened to arrive.
-    // Used here ONLY as an optimistic value for the very first frame; _loadServiceMode() below
-    // always runs a live re-fetch right after and is the single place that (re)subscribes to
-    // realtime updates -- mirrors the exact stale-snapshot-then-live-refresh pattern
-    // RiderHomeTab.initState() already uses correctly for this same provider.
-    //
-    // R1 FIX #2: on a TRUE cold start (seed present AND not yet consumed this process), the seed
-    // is trusted and the live query below is skipped entirely -- safe because nothing can have
-    // changed server-side between AppStartScreen's fetch and this mount. On a mid-session
-    // recreation, _hasConsumedColdStartSeed is already true, so this falls through to the
-    // existing live re-fetch below, completely unchanged from before this fix.
+    _index = widget.initialIndex.clamp(0, 3);
+    // The entry guard has just published a fresh rider response. Reuse it once
+    // for this consumer; later recreations of the same seed still fetch live data.
+    final initialData = ref.read(initialRiderDataProvider);
     final initialRider = ref.read(initialRiderDataProvider)?.rider;
     bool seedUsable = false;
-    if (initialRider != null && !_hasConsumedColdStartSeed) {
-      _hasConsumedColdStartSeed = true;
+    if (initialRider != null && initialData != null && initialData.consumeFor('RiderDashboard', supabase.auth.currentUser?.id)) {
       _serviceMode = PartnerServiceMode.fromDb(initialRider['service_mode']);
       _riderId = initialRider['id']?.toString();
       seedUsable = _riderId != null;
@@ -121,7 +107,7 @@ class _RiderMainNavigationScreenState extends ConsumerState<RiderMainNavigationS
     _serviceModeSubId = RealtimeManager.instance.subscribe(
       channelName: _serviceModeSubChannel!,
       table: 'riders',
-      owner: 'RiderMainNavigationScreen',
+      owner: '_RiderDashboard',
       event: PostgresChangeEvent.update,
       schema: 'public',
       filterColumn: 'id',
@@ -208,7 +194,9 @@ class _RiderMainNavigationScreenState extends ConsumerState<RiderMainNavigationS
       backgroundColor: darkBg,
       body: Stack(
         children: [
-          IndexedStack(
+          LazyIndexedStack(
+            // Home owns dispatch, pending-assignment reconciliation and GPS.
+            eagerIndices: const {0},
             index: safeIndex,
             children: tabs,
           ),

@@ -33,7 +33,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-String _read(String path) => File(path).readAsStringSync();
+// Source contracts are independent of the checkout's LF/CRLF line endings.
+String _read(String path) => File(path).readAsStringSync().replaceAll('\r\n', '\n');
 
 void main() {
   final source = _read('lib/features/rider/orders/rider_orders_screen.dart');
@@ -174,7 +175,7 @@ void main() {
       final end = source.indexOf('void _onActiveOrderScreenVisibilityChanged() {');
       final body = source.substring(start, end);
       expect(body.contains("await supabase.rpc('rider_self_rematch');"), isTrue);
-      expect(body.contains('if (wasBusy && !hasActiveOrder) {'), isTrue);
+      expect(body.contains('if ((wasBusy || isFirstPollForThisInstance) && !hasActiveOrder) {'), isTrue);
     });
 
     test('startExpiryTimer() (assignment expiry) is completely unmodified by this fix', () {

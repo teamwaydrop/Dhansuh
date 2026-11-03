@@ -1,0 +1,98 @@
+{
+  "date": "2026-11-01",
+  "status": "LOCAL_PASS_MANAGED_VALIDATION_PENDING_NO_GO",
+  "productionMutations": 0,
+  "charges": 0,
+  "wave": "accept-order Edge only",
+  "tests": {
+    "nativePg17": {
+      "passed": 16,
+      "failed": 0
+    },
+    "handlerConcurrencyAndRecovery": {
+      "passed": 4,
+      "failed": 0
+    },
+    "edgeAuthFlagsAndErrors": {
+      "passed": 8,
+      "failed": 0
+    },
+    "flutterFull": {
+      "passed": 2065,
+      "failed": 0
+    },
+    "flutterRelated": {
+      "passed": 176,
+      "failed": 0
+    },
+    "analyzerChangedTestFiles": {
+      "files": 7,
+      "issues": 0
+    },
+    "denoBuilds": {
+      "passed": 3,
+      "failed": 0
+    },
+    "v60TypeOnlyErasedJavaScriptEquivalence": "PASS",
+    "additionalNetworkIntegration": {
+      "passed": 8,
+      "failed": 0
+    },
+    "additionalTlsIntegration": {
+      "passed": 3,
+      "failed": 0
+    },
+    "readOnlyDrainAssertions": {
+      "passed": 2,
+      "failed": 0
+    }
+  },
+  "logs": [
+    {
+      "file": ".dart_tool/waydrop-local-runtime/edge-only-native.log",
+      "sha256": "f63cfd5908765669d313478d78cd3082d9a3816c37c16172d84c38ef9e3a00d2"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/edge-only-handler.log",
+      "sha256": "7e166c931dc7de4f2865639bc1be34a89248f22c18f78b9e1080e0b3c550863b"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/edge-only-unit.log",
+      "sha256": "73329ce672074f00c5e49c222caea1408c7c9be62a7a8b48406d07081bd32926"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/edge-only-flutter-targeted.log",
+      "sha256": "2ab46246a8c0933300a277dc1829b28d0a8c2e0ff40b25a1152e22d2ee4fa88e"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/edge-only-flutter-full.log",
+      "sha256": "1d72702cd36e1f794f7ca4967457cf5307d29dfae8a102035396a3b586919d7c"
+    },
+    {
+      "file": ".dart_tool/waydrop-local-runtime/edge-only-analyzer.log",
+      "sha256": "edc9cc1ba1617715a37443b58db2920823a7b395d20cf011c7bd08299d690628"
+    }
+  ],
+  "notVerified": [
+    "Managed valid-session Auth/Realtime/transactional notification integration",
+    "Managed direct DB endpoint/TLS/role/connection capacity and Deno runtime compatibility",
+    "Hosted recovery deployment/propagation and v60 drain",
+    "Protection against unrelated non-cooperating assignment writers"
+  ],
+  "acceptedRisk": {
+    "unverifiedDatabaseBackup": "Explicitly accepted by user; not a mandatory gate"
+  },
+  "excluded": [
+    "push",
+    "matching optimizations",
+    "GPS changes",
+    "index removals",
+    "config changes",
+    "schema/RLS/migrations/data repairs"
+  ],
+  "productionBenchmark": null,
+  "localCluster": "Stopped cleanly after verification",
+  "runtimeDependencyLock": "Completed actual runtime graph; frozen SDK/network execution passed",
+  "latestReleaseEvidence": "RELEASE_CHECKS.json; NETWORK_RESULTS.json; TLS_RESULTS.json; DRAIN_RESULTS.json",
+  "latestSourceUpdate": "Retryable ECONNRESET mapping only; atomic helper/SQL hashes unchanged; current evidence ../../performance/VERIFICATION.json"
+}

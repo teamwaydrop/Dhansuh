@@ -1,0 +1,64 @@
+{
+  "query": "SELECT jsonb_build_object('observed_at',clock_timestamp(),'max_connections',current_setting('max_connections'),'roles',(SELECT jsonb_agg(jsonb_build_object('role',rolname,'connection_limit',rolconnlimit,'settings',rolconfig)) FROM pg_roles WHERE rolname IN('supabase_storage_admin','authenticator','authenticated','supabase_realtime_admin')),'connections_now',(SELECT jsonb_agg(jsonb_build_object('application',application_name,'state',state,'wait_type',wait_event_type,'n',n)) FROM(SELECT application_name,state,wait_event_type,count(*) n FROM pg_stat_activity WHERE pid<>pg_backend_pid() AND backend_type='client backend' GROUP BY 1,2,3)x),'blocked_now',(SELECT count(*) FROM pg_stat_activity WHERE cardinality(pg_blocking_pids(pid))>0)) AS evidence",
+  "rows": [
+    {
+      "evidence": {
+        "roles": [
+          {
+            "role": "authenticator",
+            "settings": [
+              "session_preload_libraries=supautils, safeupdate",
+              "statement_timeout=8s",
+              "lock_timeout=8s",
+              "TimeZone=Asia/Kolkata"
+            ],
+            "connection_limit": -1
+          },
+          {
+            "role": "supabase_storage_admin",
+            "settings": [
+              "search_path=storage",
+              "log_statement=none"
+            ],
+            "connection_limit": -1
+          },
+          {
+            "role": "authenticated",
+            "settings": [
+              "statement_timeout=20s"
+            ],
+            "connection_limit": -1
+          },
+          {
+            "role": "supabase_realtime_admin",
+            "settings": null,
+            "connection_limit": -1
+          }
+        ],
+        "blocked_now": 0,
+        "observed_at": "2026-11-02T21:23:13.201396+05:30",
+        "connections_now": [
+          {
+            "n": 1,
+            "state": "idle",
+            "wait_type": "Client",
+            "application": ""
+          },
+          {
+            "n": 1,
+            "state": "idle",
+            "wait_type": "Client",
+            "application": "postgres_exporter"
+          },
+          {
+            "n": 11,
+            "state": "idle",
+            "wait_type": "Client",
+            "application": "postgrest"
+          }
+        ],
+        "max_connections": "60"
+      }
+    }
+  ]
+}

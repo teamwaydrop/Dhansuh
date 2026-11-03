@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:waydrop/shared/widgets/app_snackbar.dart';
 import 'package:waydrop/core/services/location/location_cache_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:waydrop/core/services/realtime/realtime_manager.dart';
 
 class IncomingOrderCard extends StatefulWidget {
   final Map<String, dynamic> assignment;
@@ -37,8 +38,10 @@ class _IncomingOrderCardState extends State<IncomingOrderCard> {
   int _totalDurationSeconds = 120;
   final ValueNotifier<int> _countdownNotifier = ValueNotifier<int>(120);
 
-  RealtimeChannel? _orderSubscription;
-  RealtimeChannel? _assignmentSubscription;
+  String? _orderSubscriptionId;
+  String? _assignmentSubscriptionId;
+  String? _orderChannelName;
+  String? _assignmentChannelName;
 
   @override
   void initState() {
@@ -53,13 +56,18 @@ class _IncomingOrderCardState extends State<IncomingOrderCard> {
   void dispose() {
     _countdownTimer?.cancel();
     _countdownNotifier.dispose();
-    if (_orderSubscription != null) {
-      supabase.removeChannel(_orderSubscription!);
-      _orderSubscription = null;
+    if (_orderSubscriptionId != null && _orderChannelName != null) {
+      RealtimeManager.instance.unsubscribe(_orderChannelName!, _orderSubscriptionId!);
+      _orderSubscriptionId = null;
+      _orderChannelName = null;
     }
-    if (_assignmentSubscription != null) {
-      supabase.removeChannel(_assignmentSubscription!);
-      _assignmentSubscription = null;
+    if (_assignmentSubscriptionId != null && _assignmentChannelName != null) {
+      RealtimeManager.instance.unsubscribe(
+        _assignmentChannelName!,
+        _assignmentSubscriptionId!,
+      );
+      _assignmentSubscriptionId = null;
+      _assignmentChannelName = null;
     }
     super.dispose();
   }
@@ -163,19 +171,17 @@ class _IncomingOrderCardState extends State<IncomingOrderCard> {
   }
 
   void _subscribeToOrder() {
-    final orderId = widget.assignment['order_id'];
-    _orderSubscription = supabase
-        .channel('incoming-order-$orderId')
-        .onPostgresChanges(
-          event: PostgresChangeEvent.update,
-          schema: 'public',
-          table: 'orders',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'id',
-            value: orderId,
-          ),
-          callback: (payload) async {
+    final orderId = widget.assignment['order_id']?.toString();
+    if (orderId == null) return;
+    _orderChannelName = 'incoming-order-$orderId';
+    _orderSubscriptionId = RealtimeManager.instance.subscribe(
+      channelName: _orderChannelName!,
+      table: 'orders',
+      owner: 'IncomingOrderCard_Order',
+      event: PostgresChangeEvent.update,
+      filterColumn: 'id',
+      filterValue: orderId,
+      callback: (payload) async {
             final updatedRecord = payload.newRecord;
             if (updatedRecord.isNotEmpty && mounted) {
               final status = updatedRecord['order_status']?.toString();
@@ -193,26 +199,22 @@ class _IncomingOrderCardState extends State<IncomingOrderCard> {
                 }
               });
             }
-          },
-        )
-        .subscribe();
+      },
+    );
   }
 
   void _subscribeToAssignment() {
-    final assignmentId = widget.assignment['id'];
+    final assignmentId = widget.assignment['id']?.toString();
     if (assignmentId == null) return;
-    _assignmentSubscription = supabase
-        .channel('incoming-assignment-$assignmentId')
-        .onPostgresChanges(
-          event: PostgresChangeEvent.update,
-          schema: 'public',
-          table: 'rider_assignments',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'id',
-            value: assignmentId,
-          ),
-          callback: (payload) async {
+    _assignmentChannelName = 'incoming-assignment-$assignmentId';
+    _assignmentSubscriptionId = RealtimeManager.instance.subscribe(
+      channelName: _assignmentChannelName!,
+      table: 'rider_assignments',
+      owner: 'IncomingOrderCard_Assignment',
+      event: PostgresChangeEvent.update,
+      filterColumn: 'id',
+      filterValue: assignmentId,
+      callback: (payload) async {
             final updatedRecord = payload.newRecord;
             if (updatedRecord.isNotEmpty && mounted) {
               final status = updatedRecord['assignment_status']?.toString();
@@ -221,9 +223,8 @@ class _IncomingOrderCardState extends State<IncomingOrderCard> {
                 widget.onMinimized(); // Close the card
               }
             }
-          },
-        )
-        .subscribe();
+      },
+    );
   }
 
   void _viewFullScreenImage(BuildContext context, String imageUrl) {

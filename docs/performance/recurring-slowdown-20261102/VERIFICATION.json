@@ -1,0 +1,32 @@
+{
+  "generated_utc": "2026-11-02T07:25:09.966029+00:00",
+  "production": {
+    "writes": 0,
+    "deployments": 0,
+    "paid_resources": 0,
+    "persistent_configuration_changes": 0,
+    "log_query_attempts": 2,
+    "successful_filtered_log_queries": 1,
+    "sql_read_attempts": 2,
+    "successful_sql_snapshots": 1,
+    "cron_history_timeout_ms": 2500,
+    "metadata_reads": 1
+  },
+  "root_cause_proven": false,
+  "app_changes_this_pass": false,
+  "full_regression_suites_rerun": false,
+  "evidence_check_command": "python docs/performance/recurring-slowdown-20261102/analyze_evidence.py",
+  "evidence_check_result": "PASS",
+  "report_relative_links": "PASS",
+  "preserved_candidate_hashes": 16,
+  "artifacts_sha256": {
+    "docs/performance/recurring-slowdown-20261102/ACCESS_LIMITS.json": "72f10de885e86d91e7c7602dbf0b642c322bfe0be5ff51ac096d99740435edda",
+    "docs/performance/recurring-slowdown-20261102/ANALYSIS.json": "d238b53bb8fabb9569e4e0854024d56a78dea6274f337fa2e0cf4e3707289a4a",
+    "docs/performance/recurring-slowdown-20261102/analyze_evidence.py": "c09fa64bcd6b7edf074b4b43ee158196ad2a11486e7d4ba2f0f0107632f99d3d",
+    "docs/performance/recurring-slowdown-20261102/CRON_INSPECTION_ATTEMPT.json": "5688d444b6c679b3dad48cd5235fe4420f051ce1faa062e3253eb72896bbff15",
+    "docs/performance/recurring-slowdown-20261102/INCIDENT_2_SELECTED.json": "8a33891cfbce5061662cb707540e0df862c77eed2facaad551d57248b1214efc",
+    "docs/performance/recurring-slowdown-20261102/ONSET_WAIT_SNAPSHOT.review.sql": "b53579c5b4e9f27b131eab0959b20baec5807d10157d147d3b4fe5384e7a04d6",
+    "docs/performance/recurring-slowdown-20261102/POST_INCIDENT_SNAPSHOT.json": "b482a4be7c1b5dfc3fe8f8e76404593ff2913940fc5175026f1953303f0aba8a",
+    "docs/performance/WAYDROP_RECURRING_SLOWDOWN_ROOT_CAUSE.md": "d058e54c672d02de5392dbf1f30e46084960ad05938eab60757dd3696a69dffb"
+  }
+}

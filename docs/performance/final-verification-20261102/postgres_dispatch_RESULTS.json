@@ -1,0 +1,77 @@
+{
+  "database": "waydrop_part3_test",
+  "host": "127.0.0.1",
+  "port": 54329,
+  "synthetic": true,
+  "productionChanged": false,
+  "limits": "Real captured functions and synthetic schema; pg_net is a local queue capture, no managed Auth/Realtime/FCM parity claimed.",
+  "results": [
+    {
+      "name": "orphan recovery selector, fresh-lease exclusion and boundaries",
+      "status": "PASS",
+      "detail": {
+        "before": [
+          "00000000-0000-4000-8000-000000007004"
+        ],
+        "after": [
+          "00000000-0000-4000-8000-000000007001",
+          "00000000-0000-4000-8000-000000007003",
+          "00000000-0000-4000-8000-000000007004"
+        ],
+        "freshLeaseEnqueued": false,
+        "terminalEnqueued": false,
+        "outOfLifetimeEnqueued": false
+      }
+    },
+    {
+      "name": "real worker CAS: 12 contenders, null lease recovery, stale release fencing",
+      "status": "PASS",
+      "detail": {
+        "contenders": 12,
+        "winners": 1,
+        "lease": "2026-11-02 09:17:49.86+05:30",
+        "oldReleaseChangedRows": 0,
+        "terminalClaimChangedRows": 0
+      }
+    },
+    {
+      "name": "audit conflicts eliminated; valid boosted expired/rejected re-offers survive",
+      "status": "PASS",
+      "detail": {
+        "observations": [
+          {
+            "version": "before",
+            "reoffers": 6,
+            "auditExceptions": 6
+          },
+          {
+            "version": "candidate",
+            "reoffers": 6,
+            "auditExceptions": 0
+          }
+        ],
+        "cooldownPreserved": true,
+        "alreadyAcceptedNotReoffered": true
+      }
+    },
+    {
+      "name": "empty-search freed sweep does zero rematch calls; nonempty fallback retained",
+      "status": "PASS",
+      "detail": {
+        "threeEmptySweepsCoreCallsBefore": 3,
+        "after": 0,
+        "nonemptyCoreCalls": 1
+      }
+    },
+    {
+      "name": "12 overlapping rematch calls retain one offer and one notification effect",
+      "status": "PASS",
+      "detail": {
+        "contenders": 12,
+        "assignmentRows": 1,
+        "auditRows": 1,
+        "notificationEffects": 1
+      }
+    }
+  ]
+}

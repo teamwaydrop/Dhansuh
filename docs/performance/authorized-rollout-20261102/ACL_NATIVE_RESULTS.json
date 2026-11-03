@@ -1,0 +1,30 @@
+{
+  "production": false,
+  "database": "waydrop_part3_test",
+  "results": [
+    {
+      "signature": "public.assign_new_order_to_nearby_online_riders_core(uuid)",
+      "anon_before": true,
+      "anon_after": false,
+      "authenticated_after": false,
+      "service_after": true,
+      "actual_untrusted_calls_denied": 2
+    },
+    {
+      "signature": "public.redispatch_freed_riders()",
+      "anon_before": true,
+      "anon_after": false,
+      "authenticated_after": false,
+      "service_after": true,
+      "actual_untrusted_calls_denied": 2
+    },
+    {
+      "signature": "public.redispatch_stalled_searching_orders()",
+      "anon_before": true,
+      "anon_after": false,
+      "authenticated_after": false,
+      "service_after": true,
+      "actual_untrusted_calls_denied": 2
+    }
+  ]
+}

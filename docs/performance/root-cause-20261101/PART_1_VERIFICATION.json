@@ -1,0 +1,37 @@
+{
+  "project_id": "yvwpchffctiagevpqgwy",
+  "incident_utc": [
+    "2026-11-01T16:22:00Z",
+    "2026-11-01T16:34:00Z"
+  ],
+  "production_changed": false,
+  "new_application_behavior_changes": false,
+  "new_regression_cases": 2,
+  "tests": {
+    "command": "flutter test --no-pub test/loading_spike_regression_test.dart --reporter expanded",
+    "exit_code": 0,
+    "passed": 15,
+    "failed": 0,
+    "log": ".dart_tool/part1-loading-spike-tests.log"
+  },
+  "analysis": {
+    "command": "flutter analyze --no-pub test/loading_spike_regression_test.dart",
+    "exit_code": 0,
+    "issues": 0,
+    "log": ".dart_tool/part1-analyze.log"
+  },
+  "artifact_checks": {
+    "json_parse": "pass",
+    "gateway_workload_sum": 2941,
+    "gateway_minute_sum": 2941,
+    "selected_log_rows": 150,
+    "slow_request_rows": 52,
+    "report_relative_links": "pass"
+  },
+  "files_sha256": {
+    "docs/performance/PART_1_DATABASE_ROOT_CAUSE.md": "d8c42971cf1d81896951e9f7984498a076fb0488057b9d2b0aee1cc17dabd2db",
+    "docs/performance/root-cause-20261101/INCIDENT_LOGS.json": "e1f60a53dd741dc1cd99b212e45b9e9f1e8317ddba2e9a5ed6cfb2459e7374fe",
+    "docs/performance/root-cause-20261101/PART_1_EVIDENCE.json": "680ec0e7147327a4eb009db257342c44a30547f870d18e2713f1af0a0576cb43",
+    "test/loading_spike_regression_test.dart": "5582b9c0973d84670c8ec98b2d070092dcfdd5c3eed15758c781e98223fd1a3a"
+  }
+}

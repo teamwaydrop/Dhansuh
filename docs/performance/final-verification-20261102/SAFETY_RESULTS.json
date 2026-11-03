@@ -1,0 +1,58 @@
+{
+  "production_requests": 0,
+  "checks": [
+    {
+      "name": "anonymous invocation of captured internal matching body is admitted",
+      "verdict": "DEFECT_REPRODUCED"
+    },
+    {
+      "name": "ACL candidate denies direct anon call",
+      "verdict": "LOCAL_FIX_PASS"
+    },
+    {
+      "name": "ACL candidate denies direct authenticated call",
+      "verdict": "LOCAL_FIX_PASS"
+    },
+    {
+      "name": "ACL candidate preserves service-role enqueue consumer",
+      "verdict": "LOCAL_FIX_PASS"
+    },
+    {
+      "name": "resumed old worker can overwrite offer and dispatch state after replacement",
+      "verdict": "UNSAFE_REPRODUCED",
+      "scope": "Native equivalents of actual unfenced write predicates; not a complete managed Edge process rehearsal",
+      "offer_status": "sent",
+      "state_overwritten": true,
+      "new_lease_retained": true,
+      "accepted_at_cleared": true
+    },
+    {
+      "name": "old worker exact-token release cannot clear replacement lease",
+      "verdict": "PASS",
+      "changed_rows": 0
+    },
+    {
+      "name": "conditional reject rechecks after a concurrent acceptance row lock",
+      "verdict": "LOCAL_FIX_PASS",
+      "changed_rows": 0,
+      "accepted_preserved": true
+    },
+    {
+      "name": "service rider-core call can offer to rider now offline",
+      "verdict": "ELIGIBILITY_PARITY_GAP_REPRODUCED",
+      "offers": 1,
+      "limit": "Caller may have selected online before a transition; not evidence of incident occurrence"
+    },
+    {
+      "name": "two completed recovery selections before a worker claims enqueue twice",
+      "verdict": "AMPLIFIER_REPRODUCED",
+      "enqueues": 2,
+      "limit": "Transaction advisory locks do not coalesce asynchronous queue lifetime"
+    },
+    {
+      "name": "unauthenticated chat INSERT denied by RLS despite fixture table grant",
+      "verdict": "PASS"
+    }
+  ],
+  "stale_worker_recovery": "BLOCKED_FOR_DEPLOYMENT"
+}

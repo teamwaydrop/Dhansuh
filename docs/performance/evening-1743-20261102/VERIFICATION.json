@@ -1,0 +1,82 @@
+{
+  "date_ist": "2026-11-02",
+  "test_window_utc": [
+    "2026-11-02T12:13:00Z",
+    "2026-11-02T12:25:00Z"
+  ],
+  "user_report": "Build56 used; Passenger/Rider Home, booking and photo-flow delay",
+  "production_read_only": true,
+  "bounded_log_queries": 5,
+  "metadata_sql_reads": 1,
+  "non_analyze_explain": 1,
+  "explain_identity": "synthetic authenticated, transaction read-only and rolled back",
+  "edge_metadata_reads": 1,
+  "production_writes": 0,
+  "deployments": 0,
+  "paid_resources": 0,
+  "historical_host_charts_obtained": false,
+  "browser_inventory": {
+    "apps": 0,
+    "browsers": 0
+  },
+  "aggregate_groups": 91,
+  "selected_timeline_events": 77,
+  "initial_timeline_capped": true,
+  "initial_timeline_superseded": true,
+  "statement_timeouts": 5,
+  "user_cancels": 1,
+  "plan_nodes": 53,
+  "plan_is_runtime_measurement": false,
+  "new_focused_tests": {
+    "passed": 5,
+    "failed": 0,
+    "composition": "2 SDK/control cases, 1 helper failure case, 2 structural integration guards"
+  },
+  "full_flutter": {
+    "passed": 2138,
+    "failed": 0,
+    "previous": 2133
+  },
+  "targeted_analyzer": {
+    "error": 0,
+    "warning": 2,
+    "info": 28,
+    "exit_code": 1,
+    "clean": false,
+    "findings": "existing unchanged screen code; none in new helper/test",
+    "all_30_reported_locations_in_unchanged_lines_verified": true
+  },
+  "controlled_request_count": {
+    "unguarded": 10,
+    "guarded": 1,
+    "live_latency_gain_measured": false
+  },
+  "build56_unchanged_sha256": "b6e5bdbfbeb74338a52f284e80a6e1272bb1d7f842b21da2edd2ae66c95bf559",
+  "new_fix_in_build56": false,
+  "new_apk_built": false,
+  "initiating_resource_cause_established": false,
+  "release": "New Flutter correction local only; next separately versioned candidate/device check required. Combined SQL/Edge gates unchanged.",
+  "implementation_sha256": {
+    "lib/features/local_rides/booking/screens/ride_location_screen.dart": "778d52ae4df888a5ecd3930ac86a5ef914b5c76d2af4a2a9bcdfb7dba6c9c892",
+    "lib/features/local_parcels/booking/screens/parcel_booking_screen.dart": "75af420de0e2a6e3088ca6a23f89f110d3809590224eb3734d3e4b4adf1a3666",
+    "lib/core/services/network/single_flight_refresh.dart": "3d983875be55ae80d9c21c31188ecbb3b8d732fd2e8c6d6fb67f450c96484828",
+    "test/nearby_rider_single_flight_test.dart": "530ea54d07768df254b2d562091f601f75892f9a3b53ccebf6928d0a59782e3e",
+    "docs/performance/WAYDROP_BUILD56_1743_1755_INVESTIGATION.md": "323a8f6fd6ed73f8ed6ed98ea6ce188983cc5a5663fdf4d7b8072c5bb8049c39",
+    "docs/performance/WAYDROP_PERFORMANCE_FIX_REPORT.md": "44d716c05622b5c9f1d76ef19166a40176355256631dec482dffedadf0214f4d"
+  },
+  "evidence_sha256": {
+    "AGGREGATE.json": "477bd3cd325bdc9356ae43625b9c00cbb2e7a289fc1d8fde6c788bac0c99c6da",
+    "AUTHENTICATED_PLAN.json": "f7a03b4337125d24069f71946b51eacf733e7cccbeb7fc7d3c837217284d0e73",
+    "DATABASE_METADATA.json": "d49070e25228743d476a11388ca4df0d868f957d3988a11a32deaa071a4a07a5",
+    "EDGE_MAPPING.json": "20d9a3925dcf05fd5d5f0d3feea55e4b689c857a47a8b204a364eaf7c9daa9b4",
+    "SQL_CLASSIFICATION.json": "89e6ccf8709fa8652e166627cc5932ba8910bb73ad1ade0541775fd30869b434",
+    "STORAGE_ADMISSION_ADMIN.json": "6bf256030422d4ff42ef2cecc1e3a7a64905be5d0fcc7099e8ada43ac69c24ef",
+    "TIMELINE.json": "94dc77c1278d026176b90d71c531831ccb4f46ffb65feb975cc404003bd7a242",
+    "TIMELINE_COMPLETE.json": "0f655c090e97f805f9ebde8e923bb5f5307de75c66a09d4648317861f859fa31"
+  },
+  "log_sha256": {
+    "evening-nearby-focused.log": "82674563e2987942664ef8428ce55583b0ec5e11bad30e7b5f7bf5e5525b5c2d",
+    "evening-nearby-full-flutter.log": "ee241d52ed12f9560102d4b7d74ba0e70869adbc7224c2eb88530aa3412dc722",
+    "evening-nearby-analyze.log": "2593cf0e4350dca3f3f2b343b7d80432179e4c462f5ad3584353fd724dcf6f09"
+  }
+}

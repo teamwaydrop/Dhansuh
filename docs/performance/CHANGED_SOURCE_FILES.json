@@ -1,0 +1,1869 @@
+{
+  "baseline": "Git HEAD for tracked source; whole file for untracked additions. Includes retained earlier work, not just this turn.",
+  "flutterFiles": 37,
+  "supabaseTreeFiles": 5,
+  "entries": [
+    {
+      "file": "lib/app_start_screen.dart",
+      "sha256": "525e166951ad6124b1ab880281e7ea52b79d70c6e630e1f05fc84ea6a8d3332f",
+      "ranges": [
+        {
+          "start": 2,
+          "end": 2,
+          "deletionOnly": false
+        },
+        {
+          "start": 27,
+          "end": 27,
+          "deletionOnly": false
+        },
+        {
+          "start": 45,
+          "end": 46,
+          "deletionOnly": false
+        },
+        {
+          "start": 56,
+          "end": 56,
+          "deletionOnly": false
+        },
+        {
+          "start": 63,
+          "end": 63,
+          "deletionOnly": false
+        },
+        {
+          "start": 65,
+          "end": 76,
+          "deletionOnly": false
+        },
+        {
+          "start": 81,
+          "end": 84,
+          "deletionOnly": false
+        },
+        {
+          "start": 112,
+          "end": 131,
+          "deletionOnly": false
+        },
+        {
+          "start": 136,
+          "end": 139,
+          "deletionOnly": false
+        },
+        {
+          "start": 174,
+          "end": 180,
+          "deletionOnly": false
+        },
+        {
+          "start": 231,
+          "end": 231,
+          "deletionOnly": true
+        },
+        {
+          "start": 248,
+          "end": 248,
+          "deletionOnly": false
+        },
+        {
+          "start": 251,
+          "end": 252,
+          "deletionOnly": false
+        },
+        {
+          "start": 307,
+          "end": 307,
+          "deletionOnly": false
+        },
+        {
+          "start": 350,
+          "end": 350,
+          "deletionOnly": true
+        },
+        {
+          "start": 356,
+          "end": 356,
+          "deletionOnly": false
+        },
+        {
+          "start": 364,
+          "end": 370,
+          "deletionOnly": false
+        },
+        {
+          "start": 596,
+          "end": 596,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/core/providers/initial_data_provider.dart",
+      "sha256": "5845aa6b4805cf06c6553b53cfef75272fc205ce7c5a0c001b17826c8898170e",
+      "ranges": [
+        {
+          "start": 8,
+          "end": 8,
+          "deletionOnly": false
+        },
+        {
+          "start": 15,
+          "end": 15,
+          "deletionOnly": false
+        },
+        {
+          "start": 21,
+          "end": 22,
+          "deletionOnly": false
+        },
+        {
+          "start": 27,
+          "end": 32,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/core/services/config/production_config_service.dart",
+      "sha256": "82b3ed9867dcd3577f72e87884e4a6b6cc590f812a759f777c8649359933ed44",
+      "ranges": [
+        {
+          "start": 94,
+          "end": 97,
+          "deletionOnly": false
+        },
+        {
+          "start": 109,
+          "end": 109,
+          "deletionOnly": false
+        },
+        {
+          "start": 111,
+          "end": 111,
+          "deletionOnly": false
+        },
+        {
+          "start": 122,
+          "end": 122,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/core/services/diagnostics/api_metrics_client.dart",
+      "sha256": "947141da762487e8ece11e5b11d1052a89580ed5004db9cb7efe92579a912776",
+      "ranges": [
+        {
+          "start": 1,
+          "end": 43,
+          "added": true
+        }
+      ]
+    },
+    {
+      "file": "lib/core/services/location/location_cache_service.dart",
+      "sha256": "ccf089750c816b509726f36e85d1a52d98175e5f69f344284debb8e07791f283",
+      "ranges": [
+        {
+          "start": 70,
+          "end": 73,
+          "deletionOnly": false
+        },
+        {
+          "start": 325,
+          "end": 326,
+          "deletionOnly": false
+        },
+        {
+          "start": 345,
+          "end": 347,
+          "deletionOnly": false
+        },
+        {
+          "start": 349,
+          "end": 353,
+          "deletionOnly": false
+        },
+        {
+          "start": 356,
+          "end": 356,
+          "deletionOnly": false
+        },
+        {
+          "start": 359,
+          "end": 359,
+          "deletionOnly": false
+        },
+        {
+          "start": 372,
+          "end": 376,
+          "deletionOnly": false
+        },
+        {
+          "start": 382,
+          "end": 385,
+          "deletionOnly": false
+        },
+        {
+          "start": 402,
+          "end": 404,
+          "deletionOnly": false
+        },
+        {
+          "start": 437,
+          "end": 437,
+          "deletionOnly": false
+        },
+        {
+          "start": 480,
+          "end": 480,
+          "deletionOnly": false
+        },
+        {
+          "start": 486,
+          "end": 490,
+          "deletionOnly": false
+        },
+        {
+          "start": 492,
+          "end": 494,
+          "deletionOnly": false
+        },
+        {
+          "start": 502,
+          "end": 502,
+          "deletionOnly": false
+        },
+        {
+          "start": 517,
+          "end": 521,
+          "deletionOnly": false
+        },
+        {
+          "start": 523,
+          "end": 525,
+          "deletionOnly": false
+        },
+        {
+          "start": 527,
+          "end": 528,
+          "deletionOnly": false
+        },
+        {
+          "start": 560,
+          "end": 561,
+          "deletionOnly": false
+        },
+        {
+          "start": 569,
+          "end": 576,
+          "deletionOnly": false
+        },
+        {
+          "start": 578,
+          "end": 580,
+          "deletionOnly": false
+        },
+        {
+          "start": 582,
+          "end": 583,
+          "deletionOnly": false
+        },
+        {
+          "start": 584,
+          "end": 584,
+          "deletionOnly": true
+        },
+        {
+          "start": 588,
+          "end": 588,
+          "deletionOnly": true
+        },
+        {
+          "start": 666,
+          "end": 667,
+          "deletionOnly": false
+        },
+        {
+          "start": 678,
+          "end": 680,
+          "deletionOnly": false
+        },
+        {
+          "start": 694,
+          "end": 694,
+          "deletionOnly": false
+        },
+        {
+          "start": 709,
+          "end": 709,
+          "deletionOnly": false
+        },
+        {
+          "start": 758,
+          "end": 759,
+          "deletionOnly": false
+        },
+        {
+          "start": 766,
+          "end": 766,
+          "deletionOnly": false
+        },
+        {
+          "start": 1043,
+          "end": 1043,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/core/services/realtime/realtime_manager.dart",
+      "sha256": "eae15246e94eedc7808ea9336ffffd46425d3763cb8f046cb0d6938ef44e2933",
+      "ranges": [
+        {
+          "start": 58,
+          "end": 58,
+          "deletionOnly": false
+        },
+        {
+          "start": 62,
+          "end": 65,
+          "deletionOnly": false
+        },
+        {
+          "start": 80,
+          "end": 90,
+          "deletionOnly": false
+        },
+        {
+          "start": 188,
+          "end": 188,
+          "deletionOnly": false
+        },
+        {
+          "start": 239,
+          "end": 239,
+          "deletionOnly": true
+        },
+        {
+          "start": 242,
+          "end": 242,
+          "deletionOnly": false
+        },
+        {
+          "start": 245,
+          "end": 245,
+          "deletionOnly": false
+        },
+        {
+          "start": 272,
+          "end": 275,
+          "deletionOnly": false
+        },
+        {
+          "start": 294,
+          "end": 299,
+          "deletionOnly": false
+        },
+        {
+          "start": 334,
+          "end": 334,
+          "deletionOnly": false
+        },
+        {
+          "start": 348,
+          "end": 348,
+          "deletionOnly": false
+        },
+        {
+          "start": 352,
+          "end": 352,
+          "deletionOnly": false
+        },
+        {
+          "start": 363,
+          "end": 363,
+          "deletionOnly": false
+        },
+        {
+          "start": 365,
+          "end": 365,
+          "deletionOnly": false
+        },
+        {
+          "start": 380,
+          "end": 380,
+          "deletionOnly": false
+        },
+        {
+          "start": 433,
+          "end": 433,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/core/services/realtime/realtime_order_controller.dart",
+      "sha256": "b86ed7b19cdcb72629438f7fad131ed548cd1e3675b290b3e6ea26116596a51f",
+      "ranges": [
+        {
+          "start": 3,
+          "end": 3,
+          "deletionOnly": false
+        },
+        {
+          "start": 11,
+          "end": 11,
+          "deletionOnly": false
+        },
+        {
+          "start": 13,
+          "end": 25,
+          "deletionOnly": false
+        },
+        {
+          "start": 53,
+          "end": 53,
+          "deletionOnly": false
+        },
+        {
+          "start": 62,
+          "end": 65,
+          "deletionOnly": false
+        },
+        {
+          "start": 68,
+          "end": 76,
+          "deletionOnly": false
+        },
+        {
+          "start": 84,
+          "end": 84,
+          "deletionOnly": false
+        },
+        {
+          "start": 88,
+          "end": 88,
+          "deletionOnly": false
+        },
+        {
+          "start": 101,
+          "end": 102,
+          "deletionOnly": false
+        },
+        {
+          "start": 109,
+          "end": 109,
+          "deletionOnly": false
+        },
+        {
+          "start": 114,
+          "end": 114,
+          "deletionOnly": false
+        },
+        {
+          "start": 132,
+          "end": 132,
+          "deletionOnly": false
+        },
+        {
+          "start": 177,
+          "end": 178,
+          "deletionOnly": false
+        },
+        {
+          "start": 194,
+          "end": 194,
+          "deletionOnly": false
+        },
+        {
+          "start": 206,
+          "end": 207,
+          "deletionOnly": false
+        },
+        {
+          "start": 209,
+          "end": 209,
+          "deletionOnly": false
+        },
+        {
+          "start": 226,
+          "end": 226,
+          "deletionOnly": false
+        },
+        {
+          "start": 252,
+          "end": 273,
+          "deletionOnly": false
+        },
+        {
+          "start": 281,
+          "end": 281,
+          "deletionOnly": false
+        },
+        {
+          "start": 297,
+          "end": 313,
+          "deletionOnly": false
+        },
+        {
+          "start": 321,
+          "end": 322,
+          "deletionOnly": false
+        },
+        {
+          "start": 389,
+          "end": 389,
+          "deletionOnly": false
+        },
+        {
+          "start": 405,
+          "end": 426,
+          "deletionOnly": false
+        },
+        {
+          "start": 433,
+          "end": 433,
+          "deletionOnly": false
+        },
+        {
+          "start": 477,
+          "end": 478,
+          "deletionOnly": false
+        },
+        {
+          "start": 547,
+          "end": 548,
+          "deletionOnly": false
+        },
+        {
+          "start": 565,
+          "end": 565,
+          "deletionOnly": false
+        },
+        {
+          "start": 569,
+          "end": 575,
+          "deletionOnly": false
+        },
+        {
+          "start": 578,
+          "end": 578,
+          "deletionOnly": false
+        },
+        {
+          "start": 587,
+          "end": 587,
+          "deletionOnly": false
+        },
+        {
+          "start": 591,
+          "end": 591,
+          "deletionOnly": false
+        },
+        {
+          "start": 598,
+          "end": 598,
+          "deletionOnly": false
+        },
+        {
+          "start": 600,
+          "end": 600,
+          "deletionOnly": false
+        },
+        {
+          "start": 611,
+          "end": 611,
+          "deletionOnly": false
+        },
+        {
+          "start": 624,
+          "end": 624,
+          "deletionOnly": false
+        },
+        {
+          "start": 633,
+          "end": 633,
+          "deletionOnly": false
+        },
+        {
+          "start": 640,
+          "end": 640,
+          "deletionOnly": false
+        },
+        {
+          "start": 646,
+          "end": 646,
+          "deletionOnly": false
+        },
+        {
+          "start": 648,
+          "end": 648,
+          "deletionOnly": false
+        },
+        {
+          "start": 655,
+          "end": 663,
+          "deletionOnly": false
+        },
+        {
+          "start": 666,
+          "end": 666,
+          "deletionOnly": false
+        },
+        {
+          "start": 668,
+          "end": 668,
+          "deletionOnly": false
+        },
+        {
+          "start": 671,
+          "end": 671,
+          "deletionOnly": false
+        },
+        {
+          "start": 675,
+          "end": 675,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/core/services/session/auth_routing_policy.dart",
+      "sha256": "3f74c0676d4d5b01ef327d94fdacf980a12a42fe4ae64a16784fd986936212fc",
+      "ranges": [
+        {
+          "start": 1,
+          "end": 20,
+          "added": true
+        }
+      ]
+    },
+    {
+      "file": "lib/core/services/session/rider_access_service.dart",
+      "sha256": "112e14853890275dd3385ac1d80598d91ca4bd66d3d8dcb84e0b0e98691d8c15",
+      "ranges": [
+        {
+          "start": 1,
+          "end": 119,
+          "added": true
+        }
+      ]
+    },
+    {
+      "file": "lib/core/services/session/user_session_service.dart",
+      "sha256": "51b37c8b926c914b6510d0829d28fd51163e4efad022f746828104d88e7d6c58",
+      "ranges": [
+        {
+          "start": 0,
+          "end": 0,
+          "deletionOnly": true
+        },
+        {
+          "start": 3,
+          "end": 6,
+          "deletionOnly": false
+        },
+        {
+          "start": 13,
+          "end": 13,
+          "deletionOnly": false
+        },
+        {
+          "start": 21,
+          "end": 23,
+          "deletionOnly": false
+        },
+        {
+          "start": 36,
+          "end": 52,
+          "deletionOnly": false
+        },
+        {
+          "start": 54,
+          "end": 102,
+          "deletionOnly": false
+        },
+        {
+          "start": 107,
+          "end": 111,
+          "deletionOnly": false
+        },
+        {
+          "start": 113,
+          "end": 113,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/auth/screens/profile_setup_screen.dart",
+      "sha256": "dc1eac0016ca561a85ca79210eb3db7ba92035b87383c55e57e8fa6066e97ff5",
+      "ranges": [
+        {
+          "start": 99,
+          "end": 103,
+          "deletionOnly": false
+        },
+        {
+          "start": 107,
+          "end": 107,
+          "deletionOnly": false
+        },
+        {
+          "start": 122,
+          "end": 122,
+          "deletionOnly": false
+        },
+        {
+          "start": 130,
+          "end": 130,
+          "deletionOnly": false
+        },
+        {
+          "start": 462,
+          "end": 462,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/intercity/shared/screens/intercity_tracking_screen.dart",
+      "sha256": "a1626be59b4cce16bc1dd92d368631754b854f2983c389b04271181690ac4576",
+      "ranges": [
+        {
+          "start": 2025,
+          "end": 2025,
+          "deletionOnly": false
+        },
+        {
+          "start": 2027,
+          "end": 2027,
+          "deletionOnly": false
+        },
+        {
+          "start": 2031,
+          "end": 2031,
+          "deletionOnly": false
+        },
+        {
+          "start": 2036,
+          "end": 2036,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/local_parcels/booking/screens/parcel_location_screen.dart",
+      "sha256": "b2af0ab307d378c9334f5ae408b47e37cbfd2cdcebdd04e7e189ac9731ccfbc2",
+      "ranges": [
+        {
+          "start": 1141,
+          "end": 1141,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/local_parcels/tracking/screens/parcel_tracking_screen.dart",
+      "sha256": "01d3d31cf7d7068c882c600f6b4c8151954fb7e859f61fb7691725bc04cfc67f",
+      "ranges": [
+        {
+          "start": 1539,
+          "end": 1539,
+          "deletionOnly": false
+        },
+        {
+          "start": 1541,
+          "end": 1541,
+          "deletionOnly": false
+        },
+        {
+          "start": 1545,
+          "end": 1545,
+          "deletionOnly": false
+        },
+        {
+          "start": 1550,
+          "end": 1550,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/local_rides/booking/screens/ride_location_screen.dart",
+      "sha256": "d5597bf81421f914bda9a68b861b73e0d77c925ee2063dd80f0188fdf3f43696",
+      "ranges": [
+        {
+          "start": 1232,
+          "end": 1232,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/local_rides/tracking/screens/ride_tracking_screen.dart",
+      "sha256": "fdae6eb8d7c9791c7d41b87d5a609511172b02c6347553ab554275fac7c46147",
+      "ranges": [
+        {
+          "start": 1654,
+          "end": 1654,
+          "deletionOnly": false
+        },
+        {
+          "start": 1656,
+          "end": 1656,
+          "deletionOnly": false
+        },
+        {
+          "start": 1660,
+          "end": 1660,
+          "deletionOnly": false
+        },
+        {
+          "start": 1665,
+          "end": 1665,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/rider/earnings/rider_earnings_tab.dart",
+      "sha256": "7d5d20eb6810d00a05f51cad1351b2ba601312098cddbf4cfbc9a6d8ef9240e8",
+      "ranges": [
+        {
+          "start": 26,
+          "end": 30,
+          "deletionOnly": false
+        },
+        {
+          "start": 37,
+          "end": 38,
+          "deletionOnly": false
+        },
+        {
+          "start": 70,
+          "end": 71,
+          "deletionOnly": false
+        },
+        {
+          "start": 151,
+          "end": 151,
+          "deletionOnly": false
+        },
+        {
+          "start": 162,
+          "end": 162,
+          "deletionOnly": false
+        },
+        {
+          "start": 167,
+          "end": 167,
+          "deletionOnly": false
+        },
+        {
+          "start": 187,
+          "end": 187,
+          "deletionOnly": false
+        },
+        {
+          "start": 192,
+          "end": 192,
+          "deletionOnly": false
+        },
+        {
+          "start": 201,
+          "end": 201,
+          "deletionOnly": false
+        },
+        {
+          "start": 209,
+          "end": 209,
+          "deletionOnly": false
+        },
+        {
+          "start": 213,
+          "end": 213,
+          "deletionOnly": false
+        },
+        {
+          "start": 226,
+          "end": 226,
+          "deletionOnly": false
+        },
+        {
+          "start": 262,
+          "end": 281,
+          "deletionOnly": false
+        },
+        {
+          "start": 310,
+          "end": 310,
+          "deletionOnly": false
+        },
+        {
+          "start": 314,
+          "end": 314,
+          "deletionOnly": false
+        },
+        {
+          "start": 329,
+          "end": 329,
+          "deletionOnly": false
+        },
+        {
+          "start": 1226,
+          "end": 1226,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/rider/home/rider_home_tab.dart",
+      "sha256": "6ba55a10c4cdd35f73333b3e7a4569520bd64449e7c08fc8ac8b47fed5953f24",
+      "ranges": [
+        {
+          "start": 151,
+          "end": 151,
+          "deletionOnly": false
+        },
+        {
+          "start": 160,
+          "end": 169,
+          "deletionOnly": false
+        },
+        {
+          "start": 177,
+          "end": 178,
+          "deletionOnly": false
+        },
+        {
+          "start": 225,
+          "end": 225,
+          "deletionOnly": false
+        },
+        {
+          "start": 230,
+          "end": 230,
+          "deletionOnly": false
+        },
+        {
+          "start": 240,
+          "end": 244,
+          "deletionOnly": false
+        },
+        {
+          "start": 258,
+          "end": 258,
+          "deletionOnly": false
+        },
+        {
+          "start": 260,
+          "end": 260,
+          "deletionOnly": false
+        },
+        {
+          "start": 309,
+          "end": 312,
+          "deletionOnly": false
+        },
+        {
+          "start": 314,
+          "end": 314,
+          "deletionOnly": false
+        },
+        {
+          "start": 353,
+          "end": 354,
+          "deletionOnly": false
+        },
+        {
+          "start": 356,
+          "end": 376,
+          "deletionOnly": false
+        },
+        {
+          "start": 406,
+          "end": 406,
+          "deletionOnly": false
+        },
+        {
+          "start": 475,
+          "end": 476,
+          "deletionOnly": false
+        },
+        {
+          "start": 698,
+          "end": 698,
+          "deletionOnly": false
+        },
+        {
+          "start": 1634,
+          "end": 1634,
+          "deletionOnly": false
+        },
+        {
+          "start": 1652,
+          "end": 1652,
+          "deletionOnly": false
+        },
+        {
+          "start": 1670,
+          "end": 1670,
+          "deletionOnly": false
+        },
+        {
+          "start": 1688,
+          "end": 1689,
+          "deletionOnly": false
+        },
+        {
+          "start": 2263,
+          "end": 2263,
+          "deletionOnly": false
+        },
+        {
+          "start": 2289,
+          "end": 2289,
+          "deletionOnly": false
+        },
+        {
+          "start": 2297,
+          "end": 2298,
+          "deletionOnly": false
+        },
+        {
+          "start": 2340,
+          "end": 2340,
+          "deletionOnly": false
+        },
+        {
+          "start": 3221,
+          "end": 3221,
+          "deletionOnly": false
+        },
+        {
+          "start": 3235,
+          "end": 3235,
+          "deletionOnly": false
+        },
+        {
+          "start": 3257,
+          "end": 3257,
+          "deletionOnly": false
+        },
+        {
+          "start": 3267,
+          "end": 3267,
+          "deletionOnly": false
+        },
+        {
+          "start": 3278,
+          "end": 3278,
+          "deletionOnly": false
+        },
+        {
+          "start": 3322,
+          "end": 3322,
+          "deletionOnly": false
+        },
+        {
+          "start": 3331,
+          "end": 3331,
+          "deletionOnly": false
+        },
+        {
+          "start": 3334,
+          "end": 3334,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/rider/navigation/rider_main_navigation_screen.dart",
+      "sha256": "b0d557c21b8eaec7894155c3c098b6a1698c43ae389a9bd5741361bf4b3007d7",
+      "ranges": [
+        {
+          "start": 2,
+          "end": 2,
+          "deletionOnly": false
+        },
+        {
+          "start": 4,
+          "end": 4,
+          "deletionOnly": false
+        },
+        {
+          "start": 17,
+          "end": 18,
+          "deletionOnly": false
+        },
+        {
+          "start": 21,
+          "end": 28,
+          "deletionOnly": false
+        },
+        {
+          "start": 31,
+          "end": 31,
+          "deletionOnly": false
+        },
+        {
+          "start": 34,
+          "end": 34,
+          "deletionOnly": false
+        },
+        {
+          "start": 54,
+          "end": 54,
+          "deletionOnly": false
+        },
+        {
+          "start": 62,
+          "end": 62,
+          "deletionOnly": false
+        },
+        {
+          "start": 82,
+          "end": 82,
+          "deletionOnly": false
+        },
+        {
+          "start": 135,
+          "end": 135,
+          "deletionOnly": false
+        },
+        {
+          "start": 222,
+          "end": 224,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/rider/onboarding/screens/rider_entry_handler.dart",
+      "sha256": "9e2cb592b5d23a5fac5804a33e949f61df45e2afd0d68f57daf1b64010346669",
+      "ranges": [
+        {
+          "start": 2,
+          "end": 7,
+          "deletionOnly": false
+        },
+        {
+          "start": 20,
+          "end": 22,
+          "deletionOnly": false
+        },
+        {
+          "start": 25,
+          "end": 25,
+          "deletionOnly": false
+        },
+        {
+          "start": 28,
+          "end": 28,
+          "deletionOnly": false
+        },
+        {
+          "start": 30,
+          "end": 34,
+          "deletionOnly": false
+        },
+        {
+          "start": 39,
+          "end": 44,
+          "deletionOnly": false
+        },
+        {
+          "start": 49,
+          "end": 50,
+          "deletionOnly": false
+        },
+        {
+          "start": 52,
+          "end": 63,
+          "deletionOnly": false
+        },
+        {
+          "start": 65,
+          "end": 69,
+          "deletionOnly": false
+        },
+        {
+          "start": 71,
+          "end": 71,
+          "deletionOnly": false
+        },
+        {
+          "start": 73,
+          "end": 74,
+          "deletionOnly": false
+        },
+        {
+          "start": 76,
+          "end": 76,
+          "deletionOnly": false
+        },
+        {
+          "start": 78,
+          "end": 82,
+          "deletionOnly": false
+        },
+        {
+          "start": 99,
+          "end": 101,
+          "deletionOnly": false
+        },
+        {
+          "start": 103,
+          "end": 123,
+          "deletionOnly": false
+        },
+        {
+          "start": 124,
+          "end": 124,
+          "deletionOnly": true
+        },
+        {
+          "start": 702,
+          "end": 702,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/rider/orders/rider_orders_screen.dart",
+      "sha256": "6a964c662e3905f462f410cdd6417a2785239592ba9e79c0e6749b0c80fb851b",
+      "ranges": [
+        {
+          "start": 248,
+          "end": 248,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/rider/orders/screens/rider_active_order_screen.dart",
+      "sha256": "6e50c0e3ce937b24a6a21fc2a8574322f5a3bd2376f9276c387d1c7addae15d3",
+      "ranges": [
+        {
+          "start": 2161,
+          "end": 2161,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/rider/orders/widgets/incoming_order_card.dart",
+      "sha256": "3765668474e8a43e7ad200f4bd93649071ab6f476f9f3cc3eb67f3bfa1afdc18",
+      "ranges": [
+        {
+          "start": 10,
+          "end": 10,
+          "deletionOnly": false
+        },
+        {
+          "start": 41,
+          "end": 44,
+          "deletionOnly": false
+        },
+        {
+          "start": 59,
+          "end": 62,
+          "deletionOnly": false
+        },
+        {
+          "start": 64,
+          "end": 70,
+          "deletionOnly": false
+        },
+        {
+          "start": 174,
+          "end": 184,
+          "deletionOnly": false
+        },
+        {
+          "start": 202,
+          "end": 203,
+          "deletionOnly": false
+        },
+        {
+          "start": 207,
+          "end": 207,
+          "deletionOnly": false
+        },
+        {
+          "start": 209,
+          "end": 217,
+          "deletionOnly": false
+        },
+        {
+          "start": 226,
+          "end": 227,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/rider/profile/rider_profile_tab.dart",
+      "sha256": "b54f39e8900d73f01eb1acb385402be09e0f7ddbadd7626c0561e33fcaf21086",
+      "ranges": [
+        {
+          "start": 153,
+          "end": 153,
+          "deletionOnly": false
+        },
+        {
+          "start": 159,
+          "end": 159,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/rider/services/rider_status_service.dart",
+      "sha256": "6fc18da5e98ddad325ea452d7297550e4c376622d912f88384316a9e284f456d",
+      "ranges": [
+        {
+          "start": 2,
+          "end": 2,
+          "deletionOnly": false
+        },
+        {
+          "start": 106,
+          "end": 108,
+          "deletionOnly": false
+        },
+        {
+          "start": 110,
+          "end": 111,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/rider/travel_plans/screens/travel_plan_details_screen.dart",
+      "sha256": "f9b8235bfd67ff05c9e31cdc4392837e31ee9e905ce34766e534201b90b98a47",
+      "ranges": [
+        {
+          "start": 699,
+          "end": 699,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/user/activity/activity_tab.dart",
+      "sha256": "0ee94be9f8f14edf90634b2d9d2cdb67cd03e11f4c2ce4e63ea23bbb22aa8501",
+      "ranges": [
+        {
+          "start": 25,
+          "end": 27,
+          "deletionOnly": false
+        },
+        {
+          "start": 88,
+          "end": 90,
+          "deletionOnly": false
+        },
+        {
+          "start": 122,
+          "end": 122,
+          "deletionOnly": false
+        },
+        {
+          "start": 125,
+          "end": 125,
+          "deletionOnly": false
+        },
+        {
+          "start": 143,
+          "end": 155,
+          "deletionOnly": false
+        },
+        {
+          "start": 158,
+          "end": 165,
+          "deletionOnly": false
+        },
+        {
+          "start": 288,
+          "end": 290,
+          "deletionOnly": false
+        },
+        {
+          "start": 328,
+          "end": 329,
+          "deletionOnly": false
+        },
+        {
+          "start": 365,
+          "end": 370,
+          "deletionOnly": false
+        },
+        {
+          "start": 476,
+          "end": 477,
+          "deletionOnly": false
+        },
+        {
+          "start": 483,
+          "end": 483,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/user/home/home_tab.dart",
+      "sha256": "085811abfc53acdaad845bf6424588f00dbac6906f8a02efd42fad1fa434840e",
+      "ranges": [
+        {
+          "start": 48,
+          "end": 49,
+          "deletionOnly": false
+        },
+        {
+          "start": 74,
+          "end": 81,
+          "deletionOnly": false
+        },
+        {
+          "start": 91,
+          "end": 93,
+          "deletionOnly": false
+        },
+        {
+          "start": 188,
+          "end": 190,
+          "deletionOnly": false
+        },
+        {
+          "start": 218,
+          "end": 218,
+          "deletionOnly": false
+        },
+        {
+          "start": 221,
+          "end": 221,
+          "deletionOnly": false
+        },
+        {
+          "start": 250,
+          "end": 250,
+          "deletionOnly": false
+        },
+        {
+          "start": 271,
+          "end": 272,
+          "deletionOnly": false
+        },
+        {
+          "start": 275,
+          "end": 278,
+          "deletionOnly": false
+        },
+        {
+          "start": 282,
+          "end": 287,
+          "deletionOnly": false
+        },
+        {
+          "start": 688,
+          "end": 690,
+          "deletionOnly": false
+        },
+        {
+          "start": 705,
+          "end": 706,
+          "deletionOnly": false
+        },
+        {
+          "start": 712,
+          "end": 712,
+          "deletionOnly": false
+        },
+        {
+          "start": 721,
+          "end": 724,
+          "deletionOnly": false
+        },
+        {
+          "start": 771,
+          "end": 771,
+          "deletionOnly": false
+        },
+        {
+          "start": 776,
+          "end": 776,
+          "deletionOnly": false
+        },
+        {
+          "start": 843,
+          "end": 848,
+          "deletionOnly": false
+        },
+        {
+          "start": 918,
+          "end": 918,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/features/user/profile/profile_tab.dart",
+      "sha256": "3862d3cd15f997877b83d536e8d87a21176d61a63e87e24b8950af1d9be09251",
+      "ranges": [
+        {
+          "start": 490,
+          "end": 490,
+          "deletionOnly": false
+        },
+        {
+          "start": 816,
+          "end": 816,
+          "deletionOnly": false
+        },
+        {
+          "start": 949,
+          "end": 949,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/main.dart",
+      "sha256": "3b09f734fbfee6d14205e524d307a9b2b242f4ac2a7fb2612b9eb57b88c9e090",
+      "ranges": [
+        {
+          "start": 3,
+          "end": 4,
+          "deletionOnly": false
+        },
+        {
+          "start": 28,
+          "end": 29,
+          "deletionOnly": false
+        },
+        {
+          "start": 48,
+          "end": 48,
+          "deletionOnly": false
+        },
+        {
+          "start": 92,
+          "end": 92,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/main_navigation_screen.dart",
+      "sha256": "e7d4ded283ec9a3a6ad3b7bf32708f4787d0d4b710fdf7ffed1e28d531596eda",
+      "ranges": [
+        {
+          "start": 1,
+          "end": 1,
+          "deletionOnly": false
+        },
+        {
+          "start": 4,
+          "end": 4,
+          "deletionOnly": false
+        },
+        {
+          "start": 30,
+          "end": 30,
+          "deletionOnly": false
+        },
+        {
+          "start": 33,
+          "end": 33,
+          "deletionOnly": true
+        },
+        {
+          "start": 42,
+          "end": 43,
+          "deletionOnly": false
+        },
+        {
+          "start": 45,
+          "end": 45,
+          "deletionOnly": false
+        },
+        {
+          "start": 70,
+          "end": 70,
+          "deletionOnly": false
+        },
+        {
+          "start": 73,
+          "end": 73,
+          "deletionOnly": false
+        },
+        {
+          "start": 75,
+          "end": 80,
+          "deletionOnly": false
+        },
+        {
+          "start": 117,
+          "end": 117,
+          "deletionOnly": false
+        },
+        {
+          "start": 119,
+          "end": 119,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/modules/admin/admin_dashboard_screen.dart",
+      "sha256": "c9c2b14744491e73758e3316b9dde8b6b807918bc67f871d00020bb78a41e898",
+      "ranges": [
+        {
+          "start": 1,
+          "end": 1,
+          "deletionOnly": false
+        },
+        {
+          "start": 8,
+          "end": 8,
+          "deletionOnly": false
+        },
+        {
+          "start": 10,
+          "end": 16,
+          "deletionOnly": false
+        },
+        {
+          "start": 19,
+          "end": 19,
+          "deletionOnly": false
+        },
+        {
+          "start": 22,
+          "end": 22,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/modules/chat/screens/order_chat_screen.dart",
+      "sha256": "2e6817daba49c84a5f7aa55324e3027bdb08b9fe5f8d662a30c8ca83809a968d",
+      "ranges": [
+        {
+          "start": 71,
+          "end": 72,
+          "deletionOnly": false
+        },
+        {
+          "start": 83,
+          "end": 83,
+          "deletionOnly": true
+        },
+        {
+          "start": 103,
+          "end": 106,
+          "deletionOnly": false
+        },
+        {
+          "start": 1240,
+          "end": 1240,
+          "deletionOnly": false
+        },
+        {
+          "start": 1243,
+          "end": 1253,
+          "deletionOnly": false
+        },
+        {
+          "start": 1274,
+          "end": 1275,
+          "deletionOnly": false
+        },
+        {
+          "start": 2146,
+          "end": 2146,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/modules/notifications/services/notification_badge_service.dart",
+      "sha256": "52cd42762e895154c13bd96a57379f3e644c690b88ee549ede525d49ce6d3c16",
+      "ranges": [
+        {
+          "start": 20,
+          "end": 22,
+          "deletionOnly": false
+        },
+        {
+          "start": 24,
+          "end": 46,
+          "deletionOnly": false
+        },
+        {
+          "start": 53,
+          "end": 53,
+          "deletionOnly": false
+        },
+        {
+          "start": 55,
+          "end": 55,
+          "deletionOnly": false
+        },
+        {
+          "start": 59,
+          "end": 66,
+          "deletionOnly": false
+        },
+        {
+          "start": 77,
+          "end": 77,
+          "deletionOnly": false
+        },
+        {
+          "start": 106,
+          "end": 128,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/modules/payments/services/payment_service.dart",
+      "sha256": "67bd1b1104dcfca8defdffa7185c7ee1497f58c3b160ad3cb606a07065ffb3eb",
+      "ranges": [
+        {
+          "start": 12,
+          "end": 12,
+          "deletionOnly": false
+        },
+        {
+          "start": 340,
+          "end": 342,
+          "deletionOnly": false
+        },
+        {
+          "start": 344,
+          "end": 347,
+          "deletionOnly": false
+        },
+        {
+          "start": 359,
+          "end": 359,
+          "deletionOnly": false
+        },
+        {
+          "start": 361,
+          "end": 362,
+          "deletionOnly": false
+        },
+        {
+          "start": 685,
+          "end": 685,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "lib/shared/widgets/account_guard.dart",
+      "sha256": "2f6024472436190991d4e4db2fb35fc3f9dcc6c74e658b8a07d660e109e9ed0b",
+      "ranges": [
+        {
+          "start": 1,
+          "end": 86,
+          "added": true
+        }
+      ]
+    },
+    {
+      "file": "lib/shared/widgets/lazy_indexed_stack.dart",
+      "sha256": "4a32840c69a7a8d2082a788e7dd6da25ad3f68084e35680e92a3cce634bd3a26",
+      "ranges": [
+        {
+          "start": 1,
+          "end": 45,
+          "added": true
+        }
+      ]
+    },
+    {
+      "file": "supabase/functions/accept-order/acceptance_sql.ts",
+      "sha256": "3e57cea794bc43ca20f536689415332fdda569fbacbdfdfe6b377ea8d9d5a01b",
+      "ranges": [
+        {
+          "start": 1,
+          "end": 2,
+          "added": true
+        }
+      ]
+    },
+    {
+      "file": "supabase/functions/accept-order/atomic_acceptance.ts",
+      "sha256": "f48d37c3daa08f65254a70e2501444d409bf7f47eb145015e172b2326fe4bce1",
+      "ranges": [
+        {
+          "start": 1,
+          "end": 58,
+          "added": true
+        }
+      ]
+    },
+    {
+      "file": "supabase/functions/accept-order/deno.json",
+      "sha256": "c2c31e1095f24de9c5d085611f9302d2aa12f48efaf2ea995bb1271e3de80e9d",
+      "ranges": [
+        {
+          "start": 1,
+          "end": 6,
+          "added": true
+        }
+      ]
+    },
+    {
+      "file": "supabase/functions/accept-order/index.ts",
+      "sha256": "2f80cc2ded9c0b1c939baa8858b372d0bc52c411c0a071f7e29267b37dba62d1",
+      "ranges": [
+        {
+          "start": 5,
+          "end": 6,
+          "deletionOnly": false
+        },
+        {
+          "start": 95,
+          "end": 122,
+          "deletionOnly": false
+        },
+        {
+          "start": 126,
+          "end": 133,
+          "deletionOnly": false
+        },
+        {
+          "start": 135,
+          "end": 136,
+          "deletionOnly": false
+        },
+        {
+          "start": 139,
+          "end": 140,
+          "deletionOnly": false
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/20261026000000_remove_legacy_find_nearby_riders_overload.sql",
+      "sha256": "838cd3b1053a1a26f1ffcb720f77a5df37b49d7d91c006e7d8ad8f5798888d29",
+      "ranges": [
+        {
+          "start": 1,
+          "end": 24,
+          "added": true
+        }
+      ]
+    }
+  ]
+}

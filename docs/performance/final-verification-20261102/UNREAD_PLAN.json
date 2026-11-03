@@ -1,0 +1,37 @@
+[
+  {
+    "QUERY PLAN": [
+      {
+        "Plan": {
+          "Node Type": "Aggregate",
+          "Strategy": "Plain",
+          "Partial Mode": "Simple",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 2.5,
+          "Total Cost": 2.51,
+          "Plan Rows": 1,
+          "Plan Width": 8,
+          "Plans": [
+            {
+              "Node Type": "Index Scan",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Scan Direction": "Forward",
+              "Index Name": "idx_notifications_user_id_created_at",
+              "Relation Name": "notifications",
+              "Alias": "notifications",
+              "Startup Cost": 0.28,
+              "Total Cost": 2.5,
+              "Plan Rows": 1,
+              "Plan Width": 0,
+              "Index Cond": "(user_id = '00000000-0000-4000-8000-000000000000'::uuid)",
+              "Filter": "(NOT is_read)"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

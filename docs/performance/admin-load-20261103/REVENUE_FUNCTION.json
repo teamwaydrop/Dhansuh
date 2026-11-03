@@ -1,0 +1,14 @@
+{
+  "project": "yvwpchffctiagevpqgwy",
+  "log_window_utc": [
+    "2026-11-03T04:24:00Z",
+    "2026-11-03T04:34:00Z"
+  ],
+  "evidence": [
+    {
+      "proname": "get_revenue_data",
+      "security_definer": false,
+      "definition": "CREATE OR REPLACE FUNCTION public.get_revenue_data(p_today timestamp with time zone)\n RETURNS json\n LANGUAGE plpgsql\n STABLE\n SET search_path TO 'public'\nAS $function$\nBEGIN\n  IF NOT public.is_admin() THEN\n    RAISE EXCEPTION 'Not authorized' USING ERRCODE = '42501';\n  END IF;\n\n  RETURN (\n    SELECT json_build_object(\n      'total_revenue',    COALESCE((SELECT sum(final_amount) FROM public.payments WHERE payment_status = 'paid'), 0),\n      'today_revenue',    COALESCE((SELECT sum(final_amount) FROM public.payments WHERE payment_status = 'paid' AND created_at >= p_today), 0),\n      'total_commission', COALESCE((SELECT sum(COALESCE(final_amount, 0) - COALESCE(rider_earning, 0)) FROM public.payments WHERE payment_status = 'paid'), 0),\n      'total_payout',     COALESCE((SELECT sum(rider_earning) FROM public.payments WHERE payment_status = 'paid'), 0),\n      'total_rides',      COALESCE((SELECT count(*) FROM public.orders WHERE order_status IN ('completed', 'delivered')), 0),\n      'total_collection', COALESCE((SELECT sum(final_amount) FROM public.payments WHERE payment_status = 'paid'), 0),\n      'total_gst',        COALESCE((SELECT sum(gst_amount) FROM public.orders WHERE order_status IN ('completed', 'delivered')), 0),\n      'type_breakdown',   COALESCE((\n        SELECT json_agg(row_to_json(t) ORDER BY t.revenue DESC)\n        FROM (\n          SELECT\n            COALESCE(order_type::text, 'unknown')                      AS type,\n            sum(COALESCE(NULLIF(final_fare, 0), actual_fare, 0))       AS revenue,\n            count(*)                                                   AS orders\n          FROM public.orders\n          WHERE order_status IN ('completed', 'delivered')\n          GROUP BY COALESCE(order_type::text, 'unknown')\n        ) t\n      ), '[]'::json)\n    )\n  );\nEND;\n$function$\n"
+    }
+  ]
+}

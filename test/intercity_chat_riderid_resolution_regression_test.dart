@@ -80,9 +80,8 @@ void main() {
       );
     });
 
-    test('a genuine non-RLS send failure still shows the original (non-security-sensitive) error '
-        'path, unchanged', () {
-      expect(source.contains("'Failed to send message: \$e'"), isTrue);
+    test('a genuine non-RLS send failure still shows a sanitized red error', () {
+      expect(source.contains('Could not send this message. Please try again.'), isTrue);
       expect(source.contains('backgroundColor: Colors.red'), isTrue);
     });
 

@@ -1,0 +1,56 @@
+{
+  "scope": "Local Windows PostgreSQL 17.11 only; 60 synthetic riders. Each measured call uses a fresh backend after shared-buffer warmup and includes PL/pgSQL preparation; not a steady-state production benchmark or capacity test.",
+  "matching": {
+    "original": {
+      "samples": 12,
+      "median_execution_ms": 15.588,
+      "min_execution_ms": 14.657,
+      "max_execution_ms": 40.204,
+      "median_wal_bytes": 0
+    },
+    "proposed": {
+      "samples": 12,
+      "median_execution_ms": 16.573,
+      "min_execution_ms": 15.113,
+      "max_execution_ms": 20.411,
+      "median_wal_bytes": 0
+    }
+  },
+  "gps": {
+    "with_duplicate_indexes": {
+      "samples": 12,
+      "median_execution_ms": 5.165,
+      "min_execution_ms": 4.914,
+      "max_execution_ms": 13.671,
+      "median_wal_bytes": 135
+    },
+    "without_duplicate_indexes": {
+      "samples": 12,
+      "median_execution_ms": 5.358,
+      "min_execution_ms": 4.834,
+      "max_execution_ms": 16.403,
+      "median_wal_bytes": 135
+    }
+  },
+  "recovery": {
+    "status": "PASS",
+    "method": "pg_dump custom archive -> independent local database -> row counts, function hashes, policy/index counts equal",
+    "fingerprint": {
+      "riders": 60,
+      "orders": 9,
+      "assignments": 3,
+      "push_capture": 1,
+      "functions": [
+        "444701b2f06a4dc8f49be3ddd9cd564b",
+        "3eb2e46c08b3d5af5a14ed1b39115aa7"
+      ],
+      "policies": 22,
+      "indexes": 21
+    },
+    "productionRecoveryProven": false
+  },
+  "limitations": [
+    "Microbenchmarks include noise and different cache/WAL states; do not extrapolate percentages to production.",
+    "Whole production backups, storage, managed Auth, Edge deployment versions and secrets were not restored."
+  ]
+}

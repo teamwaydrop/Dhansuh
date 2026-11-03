@@ -1,0 +1,435 @@
+{
+  "window_start_utc": "2026-11-02T16:27:00Z",
+  "window_end_utc": "2026-11-02T16:33:30Z",
+  "sql": "SELECT jsonb_build_object(\n'policies',(SELECT jsonb_agg(to_jsonb(p)) FROM (SELECT policyname,roles,cmd,qual,with_check FROM pg_policies WHERE schemaname='storage' AND tablename='objects') p),\n'indexes',(SELECT jsonb_agg(to_jsonb(i)) FROM (SELECT indexname,indexdef FROM pg_indexes WHERE schemaname='storage' AND tablename='objects')i),\n'constraints',(SELECT jsonb_agg(to_jsonb(c)) FROM (SELECT conname,pg_get_constraintdef(oid) AS definition FROM pg_constraint WHERE conrelid='storage.objects'::regclass)c),\n'triggers',(SELECT jsonb_agg(to_jsonb(t)) FROM (SELECT tgname,pg_get_triggerdef(oid) AS definition,pg_get_functiondef(tgfoid) AS function FROM pg_trigger WHERE tgrelid='storage.objects'::regclass AND NOT tgisinternal)t),\n'query',(SELECT jsonb_agg(to_jsonb(s)) FROM (SELECT queryid::text,query,calls,mean_exec_time,max_exec_time,rows,shared_blks_read FROM extensions.pg_stat_statements WHERE queryid=-3348394660839987691)s),\n'current_waits',(SELECT jsonb_agg(to_jsonb(w)) FROM (SELECT application_name,state,wait_event_type,wait_event,count(*) n FROM pg_stat_activity GROUP BY 1,2,3,4)w),\n'current_blocked',(SELECT count(*) FROM pg_stat_activity WHERE cardinality(pg_blocking_pids(pid))>0),\n'max_connections',current_setting('max_connections')) AS metadata",
+  "rows": [
+    {
+      "metadata": {
+        "query": [
+          {
+            "rows": 5,
+            "calls": 5,
+            "query": "INSERT INTO storage.objects (\"name\", \"bucket_id\", \"owner\", \"owner_id\", \"metadata\", \"version\", \"is_delete_marker\", \"is_versioned\")\n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)\n            ON CONFLICT (bucket_id, name COLLATE \"C\") WHERE archived_at IS NULL DO UPDATE SET \"owner\" = EXCLUDED.\"owner\", \"owner_id\" = EXCLUDED.\"owner_id\", \"metadata\" = EXCLUDED.\"metadata\", \"version\" = EXCLUDED.\"version\"\n            RETURNING *, (SELECT o.id FROM storage.objects o WHERE o.id = storage.objects.id) AS replaced_id, (SELECT o.version FROM storage.objects o WHERE o.id = storage.objects.id) AS replaced_version, (SELECT o.is_delete_marker FROM storage.objects o WHERE o.id = storage.objects.id) AS replaced_was_marker",
+            "queryid": "-3348394660839987691",
+            "max_exec_time": 761.606464,
+            "mean_exec_time": 208.0477926,
+            "shared_blks_read": 0
+          }
+        ],
+        "indexes": [
+          {
+            "indexdef": "CREATE UNIQUE INDEX objects_pkey ON storage.objects USING btree (id)",
+            "indexname": "objects_pkey"
+          },
+          {
+            "indexdef": "CREATE INDEX name_prefix_search ON storage.objects USING btree (name text_pattern_ops)",
+            "indexname": "name_prefix_search"
+          },
+          {
+            "indexdef": "CREATE INDEX idx_objects_bucket_id_name ON storage.objects USING btree (bucket_id, name COLLATE \"C\")",
+            "indexname": "idx_objects_bucket_id_name"
+          },
+          {
+            "indexdef": "CREATE INDEX idx_objects_bucket_id_name_lower ON storage.objects USING btree (bucket_id, lower(name) COLLATE \"C\")",
+            "indexname": "idx_objects_bucket_id_name_lower"
+          },
+          {
+            "indexdef": "CREATE INDEX idx_objects_delete_markers ON storage.objects USING btree (bucket_id, name COLLATE \"C\") WHERE is_delete_marker",
+            "indexname": "idx_objects_delete_markers"
+          },
+          {
+            "indexdef": "CREATE UNIQUE INDEX objects_bucket_id_name_version_key ON storage.objects USING btree (bucket_id, name COLLATE \"C\", version) NULLS NOT DISTINCT",
+            "indexname": "objects_bucket_id_name_version_key"
+          },
+          {
+            "indexdef": "CREATE UNIQUE INDEX idx_objects_current_version ON storage.objects USING btree (bucket_id, name COLLATE \"C\") WHERE (archived_at IS NULL)",
+            "indexname": "idx_objects_current_version"
+          },
+          {
+            "indexdef": "CREATE UNIQUE INDEX idx_objects_null_version ON storage.objects USING btree (bucket_id, name COLLATE \"C\") WHERE (NOT is_versioned)",
+            "indexname": "idx_objects_null_version"
+          }
+        ],
+        "policies": [
+          {
+            "cmd": "SELECT",
+            "qual": "((bucket_id = 'rider_kyc'::text) AND (EXISTS ( SELECT 1\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND ((u.role = 'admin'::text) OR (u.role = 'support'::text))))))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Admin support can view all KYC documents",
+            "with_check": null
+          },
+          {
+            "cmd": "SELECT",
+            "qual": "((bucket_id = 'kyc_retention_archive'::text) AND (EXISTS ( SELECT 1\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND ((u.role = 'admin'::text) OR (u.role = 'support'::text))))))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Admin support can view archived KYC storage",
+            "with_check": null
+          },
+          {
+            "cmd": "SELECT",
+            "qual": "((bucket_id = 'driver_personal_qr'::text) AND (EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::text)))))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Admins can view all personal QR",
+            "with_check": null
+          },
+          {
+            "cmd": "INSERT",
+            "qual": null,
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Allow authenticated users to upload own profile photo",
+            "with_check": "((bucket_id = 'user_profile_photos'::text) AND ((auth.uid())::text = (storage.foldername(name))[1]))"
+          },
+          {
+            "cmd": "INSERT",
+            "qual": null,
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Allow authenticated users to upload parcel images",
+            "with_check": "(bucket_id = 'parcel_images'::text)"
+          },
+          {
+            "cmd": "SELECT",
+            "qual": "(bucket_id = 'parcel_images'::text)",
+            "roles": [
+              "public"
+            ],
+            "policyname": "Allow public to view parcel images",
+            "with_check": null
+          },
+          {
+            "cmd": "SELECT",
+            "qual": "(bucket_id = 'user_profile_photos'::text)",
+            "roles": [
+              "public"
+            ],
+            "policyname": "Allow public to view profile photos",
+            "with_check": null
+          },
+          {
+            "cmd": "DELETE",
+            "qual": "((bucket_id = 'parcel_images'::text) AND (auth.uid() = owner))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Allow users to delete own parcel images",
+            "with_check": null
+          },
+          {
+            "cmd": "DELETE",
+            "qual": "((bucket_id = 'user_profile_photos'::text) AND ((auth.uid())::text = owner_id))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Allow users to delete own profile photo",
+            "with_check": null
+          },
+          {
+            "cmd": "UPDATE",
+            "qual": "((bucket_id = 'parcel_images'::text) AND (auth.uid() = owner))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Allow users to update own parcel images",
+            "with_check": null
+          },
+          {
+            "cmd": "UPDATE",
+            "qual": "((bucket_id = 'user_profile_photos'::text) AND ((auth.uid())::text = owner_id))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Allow users to update own profile photo",
+            "with_check": null
+          },
+          {
+            "cmd": "INSERT",
+            "qual": null,
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Authenticated users can upload dispute evidence",
+            "with_check": "(bucket_id = 'dispute_evidence'::text)"
+          },
+          {
+            "cmd": "INSERT",
+            "qual": null,
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Authenticated users can upload parcel images",
+            "with_check": "(bucket_id = 'parcel-images'::text)"
+          },
+          {
+            "cmd": "SELECT",
+            "qual": "((bucket_id = 'rider_kyc'::text) AND ((name ~~ '%/rider_image.jpg'::text) OR (name ~~ '%/vehicle_image.jpg'::text)))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Authenticated users can view rider and vehicle photos",
+            "with_check": null
+          },
+          {
+            "cmd": "DELETE",
+            "qual": "((bucket_id = 'driver_personal_qr'::text) AND (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.user_id = auth.uid()) AND ((storage.foldername(objects.name))[1] = (r.id)::text)))))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Drivers can delete their own personal QR",
+            "with_check": null
+          },
+          {
+            "cmd": "UPDATE",
+            "qual": "((bucket_id = 'driver_personal_qr'::text) AND (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.user_id = auth.uid()) AND ((storage.foldername(objects.name))[1] = (r.id)::text)))))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Drivers can replace their own personal QR",
+            "with_check": "((bucket_id = 'driver_personal_qr'::text) AND (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.user_id = auth.uid()) AND ((storage.foldername(objects.name))[1] = (r.id)::text)))))"
+          },
+          {
+            "cmd": "INSERT",
+            "qual": null,
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Drivers can upload their own personal QR",
+            "with_check": "((bucket_id = 'driver_personal_qr'::text) AND (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.user_id = auth.uid()) AND ((storage.foldername(objects.name))[1] = (r.id)::text)))))"
+          },
+          {
+            "cmd": "SELECT",
+            "qual": "((bucket_id = 'driver_personal_qr'::text) AND (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.user_id = auth.uid()) AND ((storage.foldername(objects.name))[1] = (r.id)::text)))))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Drivers can view their own personal QR",
+            "with_check": null
+          },
+          {
+            "cmd": "SELECT",
+            "qual": "((bucket_id = 'driver_personal_qr'::text) AND (EXISTS ( SELECT 1\n   FROM orders o\n  WHERE ((o.user_id = auth.uid()) AND ((o.rider_id)::text = (storage.foldername(objects.name))[1]) AND (o.order_status = ANY (ARRAY['accepted'::order_status_enum, 'rider_arrived'::order_status_enum, 'ongoing'::order_status_enum, 'picked_up'::order_status_enum, 'rider_at_drop'::order_status_enum, 'payment_pending'::order_status_enum]))))))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Order participants can view assigned driver personal QR",
+            "with_check": null
+          },
+          {
+            "cmd": "SELECT",
+            "qual": "((bucket_id = 'dispute_evidence'::text) AND (((auth.uid())::text = owner_id) OR (EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::text))))))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Owners and admins can view dispute evidence",
+            "with_check": null
+          },
+          {
+            "cmd": "DELETE",
+            "qual": "((bucket_id = 'rider_kyc'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Riders can delete their own KYC documents",
+            "with_check": null
+          },
+          {
+            "cmd": "UPDATE",
+            "qual": "((bucket_id = 'rider_kyc'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Riders can replace their own KYC documents",
+            "with_check": "((bucket_id = 'rider_kyc'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))"
+          },
+          {
+            "cmd": "INSERT",
+            "qual": null,
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Riders can upload their own KYC documents",
+            "with_check": "((bucket_id = 'rider_kyc'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))"
+          },
+          {
+            "cmd": "SELECT",
+            "qual": "((bucket_id = 'rider_kyc'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "Riders can view their own KYC documents",
+            "with_check": null
+          },
+          {
+            "cmd": "SELECT",
+            "qual": "((bucket_id = 'rider_kyc'::text) AND is_admin())",
+            "roles": [
+              "authenticated"
+            ],
+            "policyname": "admin_can_select_rider_kyc_storage",
+            "with_check": null
+          }
+        ],
+        "triggers": [
+          {
+            "tgname": "protect_objects_delete",
+            "function": "CREATE OR REPLACE FUNCTION storage.protect_delete()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n    -- Check if storage.allow_delete_query is set to 'true'\n    IF COALESCE(current_setting('storage.allow_delete_query', true), 'false') != 'true' THEN\n        RAISE EXCEPTION 'Direct deletion from storage tables is not allowed. Use the Storage API instead.'\n            USING HINT = 'This prevents accidental data loss from orphaned objects.',\n                  ERRCODE = '42501';\n    END IF;\n    RETURN NULL;\nEND;\n$function$\n",
+            "definition": "CREATE TRIGGER protect_objects_delete BEFORE DELETE ON storage.objects FOR EACH STATEMENT EXECUTE FUNCTION storage.protect_delete()"
+          },
+          {
+            "tgname": "update_objects_updated_at",
+            "function": "CREATE OR REPLACE FUNCTION storage.update_updated_at_column()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n    NEW.updated_at = now();\n    RETURN NEW; \nEND;\n$function$\n",
+            "definition": "CREATE TRIGGER update_objects_updated_at BEFORE UPDATE ON storage.objects FOR EACH ROW EXECUTE FUNCTION storage.update_updated_at_column()"
+          }
+        ],
+        "constraints": [
+          {
+            "conname": "objects_bucketId_fkey",
+            "definition": "FOREIGN KEY (bucket_id) REFERENCES storage.buckets(id)"
+          },
+          {
+            "conname": "objects_pkey",
+            "definition": "PRIMARY KEY (id)"
+          }
+        ],
+        "current_waits": [
+          {
+            "n": 1,
+            "state": null,
+            "wait_event": "ArchiverMain",
+            "wait_event_type": "Activity",
+            "application_name": ""
+          },
+          {
+            "n": 2,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "realtime_subscription_manager_pub"
+          },
+          {
+            "n": 1,
+            "state": null,
+            "wait_event": "Extension",
+            "wait_event_type": "Extension",
+            "application_name": "pg_net 0.20.0"
+          },
+          {
+            "n": 1,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "realtime_subscription_manager"
+          },
+          {
+            "n": 1,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "postgres_exporter"
+          },
+          {
+            "n": 1,
+            "state": null,
+            "wait_event": "WalWriterMain",
+            "wait_event_type": "Activity",
+            "application_name": ""
+          },
+          {
+            "n": 1,
+            "state": null,
+            "wait_event": "BgwriterHibernate",
+            "wait_event_type": "Activity",
+            "application_name": ""
+          },
+          {
+            "n": 3,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": ""
+          },
+          {
+            "n": 1,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "realtime_rls"
+          },
+          {
+            "n": 2,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "Supabase Storage API"
+          },
+          {
+            "n": 2,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "realtime_connect"
+          },
+          {
+            "n": 1,
+            "state": null,
+            "wait_event": "AutovacuumMain",
+            "wait_event_type": "Activity",
+            "application_name": ""
+          },
+          {
+            "n": 1,
+            "state": "active",
+            "wait_event": null,
+            "wait_event_type": null,
+            "application_name": "mgmt-api"
+          },
+          {
+            "n": 1,
+            "state": null,
+            "wait_event": "LogicalLauncherMain",
+            "wait_event_type": "Activity",
+            "application_name": ""
+          },
+          {
+            "n": 1,
+            "state": null,
+            "wait_event": "CheckpointerMain",
+            "wait_event_type": "Activity",
+            "application_name": ""
+          },
+          {
+            "n": 11,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "postgrest"
+          },
+          {
+            "n": 1,
+            "state": null,
+            "wait_event": "Extension",
+            "wait_event_type": "Extension",
+            "application_name": "pg_cron scheduler"
+          },
+          {
+            "n": 1,
+            "state": "active",
+            "wait_event": "WalSenderWaitForWal",
+            "wait_event_type": "Client",
+            "application_name": "realtime_replication_connection"
+          }
+        ],
+        "current_blocked": 0,
+        "max_connections": "60"
+      }
+    }
+  ]
+}

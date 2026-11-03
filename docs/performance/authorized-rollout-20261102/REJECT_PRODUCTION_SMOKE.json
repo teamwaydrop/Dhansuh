@@ -1,0 +1,32 @@
+{
+  "at_utc": "2026-11-02T09:09:10.335961+00:00",
+  "production": true,
+  "writes_to_business_data": false,
+  "tests": [
+    {
+      "test": "preflight",
+      "expected": 200,
+      "actual": 200,
+      "elapsed_ms": 1729.22
+    },
+    {
+      "test": "missing_auth",
+      "expected": 401,
+      "actual": 401,
+      "elapsed_ms": 1279.7
+    },
+    {
+      "test": "invalid_auth",
+      "expected": 401,
+      "actual": 401,
+      "elapsed_ms": 711.27
+    },
+    {
+      "test": "invalid_arguments",
+      "expected": 400,
+      "actual": 400,
+      "elapsed_ms": 133.47
+    }
+  ],
+  "limitations": "No authenticated customer mutation tested; no synthetic user/order created."
+}

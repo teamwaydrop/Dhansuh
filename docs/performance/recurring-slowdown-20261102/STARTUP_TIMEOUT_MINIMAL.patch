@@ -1,0 +1,13 @@
+--- account_profile_service.before.dart
++++ account_profile_service.dart
+@@ -102,6 +102,10 @@
+               : const Duration(seconds: 3),
+         );
+       } catch (error) {
++        // Future.timeout does not cancel the HTTP operation. Returning the
++        // bounded failure must not start another request while it is pending.
++        // Completed HTTP/network failures retain the bounded retry policy below.
++        if (error is TimeoutException) rethrow;
+         if (!isTransient(error) || attempt >= 2) rethrow;
+         final backoff = Duration(milliseconds: 500 * (1 << attempt));
+         if (deadline.difference(DateTime.now()) <= backoff) rethrow;

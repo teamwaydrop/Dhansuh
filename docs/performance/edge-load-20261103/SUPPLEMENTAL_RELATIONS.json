@@ -1,0 +1,51 @@
+[
+  {
+    "supplemental_relations": {
+      "views": [
+        {
+          "name": "rider_reliability_view",
+          "options": null,
+          "definition": " SELECT r.id AS rider_id,\n    r.user_id,\n    stats.reliability_score,\n    stats.rating,\n    stats.completion_rate,\n    stats.on_time_rate,\n    stats.total_completed,\n    stats.total_cancelled,\n    stats.experience_score\n   FROM (riders r\n     CROSS JOIN LATERAL get_rider_reliability_stats(r.id) stats(reliability_score, rating, completion_rate, on_time_rate, total_completed, total_cancelled, experience_score));"
+        },
+        {
+          "name": "travel_plan_capacity_view",
+          "options": null,
+          "definition": " WITH active_weight_usage AS (\n         SELECT o.rider_id,\n            COALESCE(sum(COALESCE(o.actual_weight_kg, (COALESCE(NULLIF(regexp_replace(o.weight_category, '[^0-9.]'::text, ''::text, 'g'::text), ''::text), '0'::text))::numeric)), 0.0) AS used_weight_kg\n           FROM orders o\n          WHERE (o.order_status = ANY (ARRAY['accepted'::order_status_enum, 'rider_arrived'::order_status_enum, 'picked_up'::order_status_enum, 'ongoing'::order_status_enum, 'rider_at_drop'::order_status_enum]))\n          GROUP BY o.rider_id\n        )\n SELECT tp.id AS plan_id,\n    tp.max_weight_kg,\n    COALESCE(uw.used_weight_kg, 0.0) AS used_weight_kg,\n    GREATEST((tp.max_weight_kg - COALESCE(uw.used_weight_kg, 0.0)), 0.0) AS remaining_capacity_kg\n   FROM (rider_travel_plans tp\n     LEFT JOIN active_weight_usage uw ON ((uw.rider_id = tp.rider_id)));"
+        }
+      ],
+      "observed_at": "2026-11-03T02:04:40.104932+05:30",
+      "foreign_keys": [
+        {
+          "name": "rider_travel_plans_rider_id_fkey",
+          "table": "rider_travel_plans",
+          "definition": "FOREIGN KEY (rider_id) REFERENCES riders(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "intercity_requests_parcel_id_fkey",
+          "table": "intercity_requests",
+          "definition": "FOREIGN KEY (parcel_id) REFERENCES orders(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "intercity_requests_route_id_fkey",
+          "table": "intercity_requests",
+          "definition": "FOREIGN KEY (route_id) REFERENCES rider_travel_plans(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "intercity_requests_sender_id_fkey",
+          "table": "intercity_requests",
+          "definition": "FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "intercity_requests_traveller_id_fkey",
+          "table": "intercity_requests",
+          "definition": "FOREIGN KEY (traveller_id) REFERENCES riders(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "rider_locations_rider_id_fkey",
+          "table": "rider_locations",
+          "definition": "FOREIGN KEY (rider_id) REFERENCES riders(id) ON DELETE CASCADE"
+        }
+      ]
+    }
+  }
+]

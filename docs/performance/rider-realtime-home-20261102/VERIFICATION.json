@@ -1,0 +1,70 @@
+{
+  "date_ist": "2026-11-02",
+  "scope": "local Rider Home realtime responsiveness after Build59",
+  "production": {
+    "reads": 0,
+    "writes": 0,
+    "deployments": 0,
+    "paid_resources": 0,
+    "new_projects": 0
+  },
+  "new_apk_built": false,
+  "build59_unchanged": true,
+  "tests": {
+    "original_widgets": {
+      "passed": 5,
+      "expected_failures": 4
+    },
+    "corrected_widgets": {
+      "passed": 9,
+      "failed": 0
+    },
+    "focused": {
+      "passed": 78,
+      "failed": 0
+    },
+    "intermediate_full": {
+      "passed": 2190,
+      "failed": 2,
+      "reason": "preexisting fixed30ms test synchronization assumptions under suite load, corrected with request barriers"
+    },
+    "final_full": {
+      "passed": 2192,
+      "failed": 0,
+      "previous": 2188,
+      "added": 4
+    },
+    "changed_file_analyzer": {
+      "exit_code": 0,
+      "issues": 0
+    },
+    "utf8_original_lines": 30,
+    "utf8_lines_preserved": 30,
+    "android_performance_measured": false,
+    "managed_backend_integration_run": false
+  },
+  "measured_requests": {
+    "held_earnings_timeout_then_refresh_before": 2,
+    "held_earnings_timeout_then_refresh_after": 1,
+    "production_rate_measured": false
+  },
+  "source_sha256": {
+    "lib/features/rider/home/rider_home_tab.dart": "5fb0f07339e8a39211dc40fdb981672c2578ba369192ca004bdfb175d7c67f70",
+    "test/rider_home_critical_path_test.dart": "d6f0b7c57d3b720e00b3fb1dd76bd7206decfd5a0f334aed1f8f68a69c5e406f",
+    "test/egress_fixes_3_to_10_regression_test.dart": "8c81b420021c2627298b0d3cbc996edad11950a6eb5bf478831a364480635439",
+    "test/parcel_upload_recovery_test.dart": "d16b0c94de879bd635590336e1ddea97cf7fb23c73abf317c753d925ee3a6e41",
+    "artifacts/waydrop-1.0.0-build59.apk": "3135eb0e436df82b424f1d1aede201a7d72b4f4d2c1d16809a59f078196cbf1c"
+  },
+  "logs_sha256": {
+    "rider-realtime-home-before.log": "248d2812e8b9d5360d62b7f215818693e234e2f364aeee347c0e87f19555ccde",
+    "rider-realtime-home-after.log": "243819dde371118f78e3e3fa87777ded2bb09e03d8a4083a86add2adc7a93ea0",
+    "rider-realtime-home-focused.log": "1238e32b04069e34faa99e91480d33908e713235c50814f59bec308855d85230",
+    "rider-realtime-home-focused-final.log": "b22bed56c618fbe99c33775a8d265a46aa236089a2b46b48c3ec719adf8ec938",
+    "rider-realtime-home-full.log": "9acb58370afe335898d9b189506d26f1622806cb5fd6029df42360a2adacbf27",
+    "rider-realtime-home-full-final.log": "82b7b6730293e77db705f0e33cf83fd598d0934f3e3a7527f984799bcd39f586",
+    "rider-realtime-home-analyze.log": "0f418e93a15778694bfda7f8b6df0f8bfeeda6f9c2ea0d70cae1803c3f9d817d",
+    "rider-realtime-home-analyze-final.log": "851c1d395bd9a01cd4335e8ba857af17c5b2b84832ba54cd22924e6a12b0a9da"
+  },
+  "open_backend": "Storage504/57014 initiating host/wait cause remains unproven",
+  "release": "local only, after signed Build59; no backend changes"
+}

@@ -24,6 +24,20 @@ export async function fetchWithTimeout(
   }
 }
 
+/** Bounds headers AND body consumption for small JSON RPC/provider responses. */
+export async function fetchBufferedWithTimeout(input: string | URL | Request, init: RequestInit = {}, timeoutMs = 15000): Promise<Response> {
+  const controller = new AbortController();
+  const upstream = init.signal ?? (input instanceof Request ? input.signal : undefined);
+  const signal = upstream ? AbortSignal.any([controller.signal, upstream]) : controller.signal;
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(input, {...init, signal});
+    const bytes = await response.arrayBuffer();
+    const noBody = [204,205,304].includes(response.status) || (init.method ?? (input instanceof Request ? input.method : 'GET')) === 'HEAD';
+    return new Response(noBody ? null : bytes, {status: response.status, statusText: response.statusText, headers: response.headers});
+  } finally { clearTimeout(timer); }
+}
+
 export function isTimeoutError(error: unknown): boolean {
   return error instanceof Error && error.name === "AbortError";
 }
@@ -37,7 +51,7 @@ export async function withTimeout<T>(
   timeoutMs: number,
   timeoutMessage = "Operation timed out",
 ): Promise<T> {
-  let timer: number;
+  let timer: ReturnType<typeof setTimeout>;
   const timeoutPromise = new Promise<never>((_, reject) => {
     timer = setTimeout(() => {
       const err = new Error(timeoutMessage);

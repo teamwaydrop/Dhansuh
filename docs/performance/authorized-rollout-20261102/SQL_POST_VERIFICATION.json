@@ -1,0 +1,34 @@
+{
+  "cron": [
+    {
+      "jobid": 1,
+      "active": true,
+      "schedule": "*/2 * * * *"
+    },
+    {
+      "jobid": 5,
+      "active": true,
+      "schedule": "*/1 * * * *"
+    },
+    {
+      "jobid": 7,
+      "active": true,
+      "schedule": "45 seconds"
+    }
+  ],
+  "functions": [
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "md5": "510865164c19f127b0b7c9cacc0c9811",
+      "owner": "postgres",
+      "signature": "assign_nearby_searching_orders_core(uuid,uuid,double precision,double precision,partner_service_mode_enum)"
+    },
+    {
+      "acl": null,
+      "md5": "74afe7767f445453e4fbff3dbae87c9a",
+      "owner": "postgres",
+      "signature": "redispatch_freed_riders()"
+    }
+  ],
+  "verified_at": "2026-11-02T14:33:49.425184+05:30"
+}

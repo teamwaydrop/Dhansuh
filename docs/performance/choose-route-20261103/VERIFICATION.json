@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-03",
+  "production_changes": 0,
+  "apk_built": false,
+  "installed_build_user_confirmed": 61,
+  "focused": {
+    "passed": 29,
+    "failed": 0,
+    "command": "flutter test --no-pub test/choose_route_loading_test.dart test/pricing_request_lifecycle_test.dart test/part5_safe_metrics_test.dart --reporter expanded",
+    "log": ".dart_tool/waydrop-local-runtime/choose-final-focused.log"
+  },
+  "full": {
+    "passed": 2232,
+    "failed": 0,
+    "skipped": 10,
+    "command": "flutter test --no-pub --reporter expanded",
+    "log": ".dart_tool/waydrop-local-runtime/choose-full-final.log"
+  },
+  "analyzer": {
+    "errors": 0,
+    "warnings": 1,
+    "infos": 16,
+    "exit_code": 1,
+    "scope": [
+      "lib/features/local_rides/booking/screens/ride_location_screen.dart",
+      "lib/modules/payments/controllers/pricing_controller.dart",
+      "lib/core/services/diagnostics/choose_route_timing.dart",
+      "lib/core/services/diagnostics/performance_trace.dart",
+      "test/choose_route_loading_test.dart",
+      "test/part5_safe_metrics_test.dart"
+    ],
+    "log": ".dart_tool/waydrop-local-runtime/choose-final-analysis.log"
+  },
+  "sha256": {
+    "lib/features/local_rides/booking/screens/ride_location_screen.dart": "c671ef5be70ef48b54344e01b2b37f9b3a58d98e3d7cd593d20c7e834e0c96a8",
+    "lib/modules/payments/controllers/pricing_controller.dart": "172e5ea098bb97e677d458118d5dc832a43e5fe68563af1d7e10394353baa6b6",
+    "lib/core/services/diagnostics/choose_route_timing.dart": "32c44333a2f611eaf3b1cfab479a0892f0ef36b8d552839609e86895290b5180",
+    "lib/core/services/diagnostics/performance_trace.dart": "0818c73f0a2707f8d3387fff43dea418506c5972badf7d8bdded2e067087e0f8",
+    "test/choose_route_loading_test.dart": "7ecbda46f45e913b26092142babbbe552a3d46802d6e3e1b853551fd0ea9172c",
+    "test/part5_safe_metrics_test.dart": "8aee28a2e6e62593c2ad30b0abc98edf6332ea1167ea2200f5085ddfad6cca6b"
+  }
+}

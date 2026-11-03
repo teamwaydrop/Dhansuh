@@ -1,0 +1,82 @@
+{
+  "status": "PASS",
+  "engine": "PostgreSQL 17.11 on x86_64-windows, compiled by msvc-19.44.35229, 64-bit",
+  "productionConnected": false,
+  "results": [
+    {
+      "name": "7 riders racing one order: one success, six 409s, one accepted assignment",
+      "status": "PASS",
+      "detail": {
+        "responses": [
+          409,
+          200,
+          409,
+          409,
+          409,
+          409,
+          409
+        ]
+      }
+    },
+    {
+      "name": "Losing request changes no order, assignment, log or captured event",
+      "status": "PASS"
+    },
+    {
+      "name": "12 duplicate requests: idempotent responses, one event, stable timestamps/fares",
+      "status": "PASS"
+    },
+    {
+      "name": "One rider racing two orders is serialized: only one order accepted",
+      "status": "PASS"
+    },
+    {
+      "name": "Wrong owner, missing actor and client roles cannot accept or spoof service access",
+      "status": "PASS"
+    },
+    {
+      "name": "Pinned transaction snapshots fail closed instead of allowing cross-order write skew",
+      "status": "PASS"
+    },
+    {
+      "name": "Locked eligibility: service mode, offline, tax and COD exclusions preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "No prior offer creates a valid accepted assignment and expiry atomically",
+      "status": "PASS"
+    },
+    {
+      "name": "Expired/rejected/user-approved offers and subscription promo fare preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "Assignment-trigger failure rolls back claimed order, expired offers, logs and notifications",
+      "status": "PASS"
+    },
+    {
+      "name": "Deferred commit failure and lost-response retry leave no partial commit",
+      "status": "PASS"
+    },
+    {
+      "name": "Unique accepted constraint rejects independent/legacy writer",
+      "status": "PASS"
+    },
+    {
+      "name": "Caller rollback and lock timeout leave acceptance state untouched",
+      "status": "PASS"
+    },
+    {
+      "name": "Concurrent dispatch INSERT of the winning pair is reconciled by the atomic upsert",
+      "status": "PASS"
+    },
+    {
+      "name": "Self orders are rejected and eligible intercity modes preserve fare/promo behavior",
+      "status": "PASS"
+    }
+  ],
+  "limits": [
+    "Auth/PostgREST transport and pg_net/Realtime delivery still require managed integration.",
+    "Fault triggers and notification capture are local test instrumentation, not production DDL."
+  ]
+}

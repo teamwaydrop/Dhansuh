@@ -1,0 +1,14 @@
+{
+  "production": [
+    {
+      "version": "20261102143243",
+      "name": "waydrop_independent_dispatch_load_fixes"
+    },
+    {
+      "version": "20261102144946",
+      "name": "waydrop_internal_dispatch_rpc_acl"
+    }
+  ],
+  "local_created_with_cli_then_reconciled_to_server_versions": true,
+  "history_repaired_in_production": false
+}

@@ -1,0 +1,102 @@
+{
+  "date_ist": "2026-11-02",
+  "project": "yvwpchffctiagevpqgwy",
+  "requested_window_utc": [
+    "2026-11-02T16:27:00Z",
+    "2026-11-02T16:33:00Z"
+  ],
+  "inspection_tail_end_utc": "2026-11-02T16:33:30Z",
+  "production": {
+    "read_only": true,
+    "bounded_log_queries": 9,
+    "successful_sql_inspections": 3,
+    "corrected_sql_inspection_errors": 2,
+    "writes": 0,
+    "deployments": 0,
+    "test_uploads": 0,
+    "object_deletes": 0,
+    "paid_resources": 0,
+    "new_projects": 0,
+    "support_draft_submitted": false
+  },
+  "historical_metrics_obtained": false,
+  "browser_inventory": {
+    "apps": [],
+    "browsers": []
+  },
+  "tests": {
+    "original_photo_widgets": {
+      "passed": 2,
+      "expected_failed": 2
+    },
+    "corrected_photo_widgets": {
+      "passed": 4,
+      "failed": 0
+    },
+    "upload_transport": {
+      "passed": 16,
+      "failed": 0
+    },
+    "focused": {
+      "passed": 34,
+      "failed": 0
+    },
+    "previous_full_flutter": 2153,
+    "first_full_flutter": 2176,
+    "final_full_flutter": {
+      "passed": 2177,
+      "failed": 0,
+      "new_cases": 24
+    },
+    "new_code_seven_file_analyzer": {
+      "exit_code": 0,
+      "issues": 0
+    },
+    "changed_nine_file_analyzer": {
+      "exit_code": 1,
+      "errors": 0,
+      "existing_warnings": 2,
+      "existing_infos": 22
+    },
+    "managed_storage_integration_run": false,
+    "android_e2e_run": false,
+    "sql_edge_candidate_rerun": false
+  },
+  "new_apk_built": false,
+  "release": {
+    "client": "Conditional candidate; real Android and managed Storage checks required",
+    "combined_sql": "NO-GO unchanged",
+    "combined_edge": "NO-GO unchanged"
+  },
+  "initiating_resource_cause": "Unproven",
+  "hashes_sha256": {
+    "lib/features/local_parcels/services/parcel_upload_service.dart": "99332aef2eb1c19d5bd22bd7e1ce70b0a28d37347cbec4ac077a234862ea79dd",
+    "lib/features/local_parcels/booking/screens/parcel_details_screen.dart": "2e10a5e6fe3043fdaa6ba21d4a6868748cc726c558a017a9d1a07a8a3f69ac2f",
+    "lib/features/intercity/parcels/booking/intercity_details_screen.dart": "ab9feb3a98b63d453d7a247c833584de67d777eac09c015c7b479dcb0c39f9a6",
+    "lib/core/services/session/rider_access_service.dart": "4acb2a54a14228a6343fb62a63d01d3bbca46cfd9ab06779e19147df9339dabd",
+    "lib/features/rider/onboarding/screens/rider_entry_handler.dart": "942a45ee8dcb8d8e4049e3e3bc758f1bf87aa5a1830b31618b40883b7033f3a7",
+    "test/parcel_upload_recovery_test.dart": "b0d9b07ad49c525c7820e2e3749496819e6eab1e0feac5f0873a97cd732e464b",
+    "test/parcel_photo_screen_recovery_test.dart": "551c66071828f117a2c80f7c82313c036f0c21921b771f8e9d4dff8fbd27f153",
+    "test/rider_account_failure_classification_test.dart": "c9b705b95161aae7a72f1406d8d206178363d6ff2d7242d5d72c70d37cd21c2b",
+    "test/rider_completion_transition_test.dart": "8d9194a2a37242da8bf4af3c86b75d689d91a3fe1d5e9a840ef34054e15a4809",
+    "pubspec.yaml": "19b4d7c9f4b86c8eb085740a554383c599dd5214bab7993c4b45d783dab2a613",
+    "pubspec.lock": "549c362c158be162b00fe97ddcde39e9ff15e5c034c33ac1f9f3d1895f7a4f16",
+    "artifacts/waydrop-1.0.0-build58.apk": "32e66375512d83c64cd06358c5dfea92e277ec940b14c1a57ed8addbdd3eb3a5"
+  },
+  "logs_sha256": {
+    "night-photo-baseline.log": "bd3d58e493bfe32922f35260e1fef0ddd65194e6cc5e31523e37608f0a98b054",
+    "night-photo-widget.log": "a502570475eacea5770a2caea4d8b593482b180b3d3aa8ed8d279911ea62d5c5",
+    "night-upload-tests.log": "5737695357eaea64693a4e6d03b9a3667594cd6154d728a07cd3bddd06ba5a3c",
+    "night-upload-fixture-initial.log": "87f2ebf1fd394965294ab9b7df7a946ee2908bbfa448d07ea678afe15e1d75cc",
+    "night-photo-fixture-initial.log": "535395943ccdcf318f9f2ca5473eb1abf9542b746f3ef81fe1ae6130ab0ca6a7",
+    "night-photo-diagnostic.log": "e3666c8f391e234123fb842ff80c14bfce01f107504e3980e3425eb73f7c84f2",
+    "night-rider-tests.log": "d6ede502a23d39335f2c33fe81f8afbff860815d263c3328593b0b17c5182f31",
+    "night-focused.log": "c0d3ce4f4e5733102b6cc91eaaf7be19076ca6454693e717ad1edcb110b902a1",
+    "night-analyze.log": "66c258492e0fff41a2d4580a0fc02dbec691c4364821a6b0839d5b51867469f3",
+    "night-analyze-final.log": "5caff7ce719ad2519e7db1192dda0148e1314ba742555cee13926559098c7327",
+    "night-new-code-analyze.log": "e17848e4ce97ae951bffe61fd77220f40918d59878f24ba06880284c86dda076",
+    "night-full-flutter.log": "db2fca1b5026eff90975c59dee91f759b7feeff03669d6e011596027ab747599",
+    "night-full-flutter-final.log": "74e08dc83e28704006a5c6254983371847c65f4eea7d391602e5222b4dfbf342",
+    "night-pub-get.log": "de5b083412c48eef78b94258c05749870dc6814a8018b4f2b6f4b43dc97b86b4"
+  }
+}

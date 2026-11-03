@@ -1,0 +1,75 @@
+[
+  {
+    "health": {
+      "at": "2026-11-03T03:01:28.510524+05:30",
+      "waits": [
+        {
+          "n": 1,
+          "state": null,
+          "wait_event": "WalWriterMain",
+          "backend_type": "walwriter",
+          "wait_event_type": "Activity"
+        },
+        {
+          "n": 1,
+          "state": null,
+          "wait_event": "CheckpointerMain",
+          "backend_type": "checkpointer",
+          "wait_event_type": "Activity"
+        },
+        {
+          "n": 3,
+          "state": "idle",
+          "wait_event": "ClientRead",
+          "backend_type": "client backend",
+          "wait_event_type": "Client"
+        },
+        {
+          "n": 1,
+          "state": null,
+          "wait_event": "BgwriterHibernate",
+          "backend_type": "background writer",
+          "wait_event_type": "Activity"
+        },
+        {
+          "n": 1,
+          "state": null,
+          "wait_event": "ArchiverMain",
+          "backend_type": "archiver",
+          "wait_event_type": "Activity"
+        },
+        {
+          "n": 1,
+          "state": null,
+          "wait_event": "Extension",
+          "backend_type": "pg_cron launcher",
+          "wait_event_type": "Extension"
+        },
+        {
+          "n": 1,
+          "state": null,
+          "wait_event": "AutovacuumMain",
+          "backend_type": "autovacuum launcher",
+          "wait_event_type": "Activity"
+        },
+        {
+          "n": 1,
+          "state": null,
+          "wait_event": "Extension",
+          "backend_type": "pg_net 0.20.0 worker",
+          "wait_event_type": "Extension"
+        },
+        {
+          "n": 1,
+          "state": null,
+          "wait_event": "LogicalLauncherMain",
+          "backend_type": "logical replication launcher",
+          "wait_event_type": "Activity"
+        }
+      ],
+      "blocked": 0,
+      "clients": 4,
+      "active_others": 0
+    }
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "signature_verified": true,
+  "signer_sha256": "41281021ed4a0bf569268c57bf7de41767bfd1d997bbd0108373d0a5dda1216b",
+  "debug_certificate": true,
+  "badging": "package: name='com.waydrop.admin' versionCode='1' versionName='1.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'"
+}

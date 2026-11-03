@@ -1,0 +1,1291 @@
+{
+  "window_utc": [
+    "2026-11-01T16:22:00Z",
+    "2026-11-01T16:34:00Z"
+  ],
+  "scope": "Read-only aggregate production logs. Account/session counts are not device attribution. Current snapshots are not historical wait evidence.",
+  "spike_api_totals": {
+    "result": [
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 40428,
+        "method": "GET",
+        "n": 346,
+        "p95_ms": 2976,
+        "path": "/rest/v1/orders"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 41046,
+        "method": "GET",
+        "n": 277,
+        "p95_ms": 3228,
+        "path": "/rest/v1/riders"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 39229,
+        "method": "GET",
+        "n": 161,
+        "p95_ms": 3144,
+        "path": "/rest/v1/users"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 48728,
+        "method": "HEAD",
+        "n": 159,
+        "p95_ms": 7613,
+        "path": "/rest/v1/notifications"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 4231,
+        "method": "GET",
+        "n": 153,
+        "p95_ms": 1233,
+        "path": "/rest/v1/rider_assignments"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 39056,
+        "method": "GET",
+        "n": 146,
+        "p95_ms": 2533,
+        "path": "/rest/v1/rider_kyc"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 3858,
+        "method": "GET",
+        "n": 77,
+        "p95_ms": 356,
+        "path": "/rest/v1/dispatch_config"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 3221,
+        "method": "GET",
+        "n": 36,
+        "p95_ms": 670,
+        "path": "/rest/v1/intercity_requests"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 7721,
+        "method": "GET",
+        "n": 35,
+        "p95_ms": 3210,
+        "path": "/rest/v1/rider_reliability_view"
+      },
+      {
+        "accounts": 2,
+        "errors": 11,
+        "max_ms": 58813,
+        "method": "POST",
+        "n": 28,
+        "p95_ms": 58248,
+        "path": "/rest/v1/order_chat_messages"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 372,
+        "method": "PATCH",
+        "n": 24,
+        "p95_ms": 198,
+        "path": "/rest/v1/rider_travel_plans"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 4094,
+        "method": "GET",
+        "n": 22,
+        "p95_ms": 558,
+        "path": "/auth/v1/user"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 2132,
+        "method": "POST",
+        "n": 20,
+        "p95_ms": 2132,
+        "path": "/rest/v1/rpc/find_nearby_riders"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 1610,
+        "method": "POST",
+        "n": 18,
+        "p95_ms": 1610,
+        "path": "/rest/v1/rpc/rider_self_rematch"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 8845,
+        "method": "PATCH",
+        "n": 13,
+        "p95_ms": 8845,
+        "path": "/rest/v1/riders"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 3387,
+        "method": "GET",
+        "n": 13,
+        "p95_ms": 3387,
+        "path": "/rest/v1/order_verifications"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 528,
+        "method": "GET",
+        "n": 10,
+        "p95_ms": 528,
+        "path": "/rest/v1/rider_payout_accounts"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 185,
+        "method": "GET",
+        "n": 8,
+        "p95_ms": 185,
+        "path": "/rest/v1/government_tax_ledger"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 831,
+        "method": "POST",
+        "n": 7,
+        "p95_ms": 831,
+        "path": "/rest/v1/rider_reviews"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 1812,
+        "method": "GET",
+        "n": 3,
+        "p95_ms": 1812,
+        "path": "/rest/v1/order_chat_messages"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 361,
+        "method": "POST",
+        "n": 3,
+        "p95_ms": 361,
+        "path": "/rest/v1/user_device_tokens"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 351,
+        "method": "GET",
+        "n": 2,
+        "p95_ms": 351,
+        "path": "/rest/v1/pricing_zones"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 20,
+        "method": "GET",
+        "n": 2,
+        "p95_ms": 20,
+        "path": "/rest/v1/rider_vehicles"
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 219,
+        "method": "POST",
+        "n": 2,
+        "p95_ms": 219,
+        "path": "/rest/v1/users"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 416,
+        "method": "POST",
+        "n": 2,
+        "p95_ms": 416,
+        "path": "/rest/v1/rpc/get_reward_status"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 79,
+        "method": "PATCH",
+        "n": 2,
+        "p95_ms": 79,
+        "path": "/rest/v1/users"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 653,
+        "method": "GET",
+        "n": 2,
+        "p95_ms": 653,
+        "path": "/rest/v1/production_config"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 24,
+        "method": "GET",
+        "n": 2,
+        "p95_ms": 24,
+        "path": "/rest/v1/subscription_plans"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 519,
+        "method": "PATCH",
+        "n": 1,
+        "p95_ms": 519,
+        "path": "/rest/v1/rider_assignments"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 235,
+        "method": "GET",
+        "n": 1,
+        "p95_ms": 235,
+        "path": "/rest/v1/notifications"
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 94,
+        "method": "PATCH",
+        "n": 1,
+        "p95_ms": 94,
+        "path": "/rest/v1/order_assignment_logs"
+      }
+    ]
+  },
+  "spike_minute_pressure": {
+    "result": [
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 565,
+        "minute": "2026-11-01T16:22:00",
+        "n": 27,
+        "p95_ms": 361
+      },
+      {
+        "accounts": 1,
+        "errors": 0,
+        "max_ms": 765,
+        "minute": "2026-11-01T16:23:00",
+        "n": 54,
+        "p95_ms": 560
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 653,
+        "minute": "2026-11-01T16:24:00",
+        "n": 41,
+        "p95_ms": 235
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 773,
+        "minute": "2026-11-01T16:25:00",
+        "n": 243,
+        "p95_ms": 190
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 4914,
+        "minute": "2026-11-01T16:26:00",
+        "n": 115,
+        "p95_ms": 2980
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 2507,
+        "minute": "2026-11-01T16:27:00",
+        "n": 202,
+        "p95_ms": 1182
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 4231,
+        "minute": "2026-11-01T16:28:00",
+        "n": 250,
+        "p95_ms": 3387
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 4447,
+        "minute": "2026-11-01T16:29:00",
+        "n": 207,
+        "p95_ms": 1815
+      },
+      {
+        "accounts": 2,
+        "errors": 0,
+        "max_ms": 14004,
+        "minute": "2026-11-01T16:30:00",
+        "n": 142,
+        "p95_ms": 8300
+      },
+      {
+        "accounts": 2,
+        "errors": 2,
+        "max_ms": 58813,
+        "minute": "2026-11-01T16:31:00",
+        "n": 155,
+        "p95_ms": 3144
+      },
+      {
+        "accounts": 2,
+        "errors": 7,
+        "max_ms": 53193,
+        "minute": "2026-11-01T16:32:00",
+        "n": 30,
+        "p95_ms": 52446
+      },
+      {
+        "accounts": 2,
+        "errors": 2,
+        "max_ms": 27530,
+        "minute": "2026-11-01T16:33:00",
+        "n": 88,
+        "p95_ms": 7613
+      }
+    ]
+  },
+  "spike_chat_gateway": {
+    "result": [
+      {
+        "method": "GET",
+        "origin_ms": 345,
+        "proxy_status": "",
+        "status": "200",
+        "upstream_ms": "340",
+        "utc": "16:31:38"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 344,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "330",
+        "utc": "16:31:40"
+      },
+      {
+        "method": "GET",
+        "origin_ms": 1812,
+        "proxy_status": "",
+        "status": "200",
+        "upstream_ms": "1795",
+        "utc": "16:31:44"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 1870,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "1857",
+        "utc": "16:31:45"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 1382,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "1357",
+        "utc": "16:31:50"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 330,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "304",
+        "utc": "16:31:51"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 2365,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "2338",
+        "utc": "16:31:55"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 11168,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "11149",
+        "utc": "16:31:55"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 11030,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "10983",
+        "utc": "16:31:56"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 9825,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "9790",
+        "utc": "16:31:56"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 58813,
+        "proxy_status": "PostgREST; error=57014",
+        "status": "500",
+        "upstream_ms": "58692",
+        "utc": "16:31:57"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 58248,
+        "proxy_status": "PostgREST; error=57014",
+        "status": "500",
+        "upstream_ms": "58102",
+        "utc": "16:31:58"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 53193,
+        "proxy_status": "PostgREST; error=57014",
+        "status": "500",
+        "upstream_ms": "52868",
+        "utc": "16:32:00"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 52446,
+        "proxy_status": "PostgREST; error=57014",
+        "status": "500",
+        "upstream_ms": "51911",
+        "utc": "16:32:00"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 20382,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "20255",
+        "utc": "16:32:01"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 51666,
+        "proxy_status": "PostgREST; error=57014",
+        "status": "500",
+        "upstream_ms": "51258",
+        "utc": "16:32:01"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 50321,
+        "proxy_status": "PostgREST; error=57014",
+        "status": "500",
+        "upstream_ms": "50243",
+        "utc": "16:32:03"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 30744,
+        "proxy_status": "PostgREST; error=57014",
+        "status": "500",
+        "upstream_ms": "30352",
+        "utc": "16:32:04"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 45086,
+        "proxy_status": "PostgREST; error=57014",
+        "status": "500",
+        "upstream_ms": "44591",
+        "utc": "16:32:04"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 49913,
+        "proxy_status": "PostgREST; error=57014",
+        "status": "500",
+        "upstream_ms": "49716",
+        "utc": "16:32:11"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 47940,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "47828",
+        "utc": "16:32:12"
+      },
+      {
+        "method": "GET",
+        "origin_ms": 1118,
+        "proxy_status": "",
+        "status": "200",
+        "upstream_ms": "1092",
+        "utc": "16:32:56"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 1604,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "1582",
+        "utc": "16:33:00"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 706,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "679",
+        "utc": "16:33:01"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 1354,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "1318",
+        "utc": "16:33:02"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 1402,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "1391",
+        "utc": "16:33:02"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 24626,
+        "proxy_status": "PostgREST; error=57014",
+        "status": "500",
+        "upstream_ms": "24448",
+        "utc": "16:33:04"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 27530,
+        "proxy_status": "PostgREST; error=57014",
+        "status": "500",
+        "upstream_ms": "27476",
+        "utc": "16:33:04"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 2954,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "2939",
+        "utc": "16:33:28"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 593,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "576",
+        "utc": "16:33:31"
+      },
+      {
+        "method": "POST",
+        "origin_ms": 2578,
+        "proxy_status": "",
+        "status": "201",
+        "upstream_ms": "2555",
+        "utc": "16:33:32"
+      }
+    ]
+  },
+  "spike_late_db_errors": {
+    "result": [
+      {
+        "app": "postgrest",
+        "message": "canceling statement due to statement timeout",
+        "query_shape": "WITH pgrst_source AS (INSERT INTO \"public\".\"order_chat_messages\"(\"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\") SELECT \"pgrst_body\".\"created_at\", \"pgrst_body\".\"is_support\", \"pgrst_body\".\"message\", \"pgrst_body\".\"order_id\", \"pgrst_body\".\"rider_id\", \"pgrst_body\".\"sender_id\", \"pgrst_body\".\"sender_type\", \"pgrst_body\".\"user_id\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\" FROM json_to_record(pgrst_payload.json_data) AS _(\"created_at\" timestamp with time zone, \"is_support\" boolean, \"message\" text, \"order_id\" uuid, \"rider_id\" uuid, \"sender_id\" uuid, \"sender_type\" text, \"user_id\" uuid) ) pgrst_body  RETURNING \"public\".\"order_chat_messages\".\"created_at\", \"public\".\"order_chat_messages\".\"id\", \"public\".\"order_chat_messages\".\"message\", \"public\".\"order_chat_messages\".\"message_type\", \"public\".\"order_chat_messages\".\"sender_id\", \"public\".\"order_chat_messages\".\"sender_type\") SELECT '?' AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, coalesce(json_agg(_postgrest_t)->0, '?') AS body, nullif(current_setting('?', true), '?') AS response_headers, nullif(current_setting('?', true), '?') AS response_status, '?' AS response_inserted FROM (SELECT \"order_chat_messages\".\"id\", \"order_chat_messages\".\"sender_id\", \"order_chat_messages\".\"sender_type\", \"order_chat_messages\".\"message\", \"order_chat_",
+        "sqlstate": "57014",
+        "utc": "16:33:31"
+      },
+      {
+        "app": "postgrest",
+        "message": "canceling statement due to statement timeout",
+        "query_shape": "",
+        "sqlstate": "57014",
+        "utc": "16:33:28"
+      },
+      {
+        "app": "postgrest",
+        "message": "canceling statement due to statement timeout",
+        "query_shape": "",
+        "sqlstate": "57014",
+        "utc": "16:33:00"
+      },
+      {
+        "app": "postgrest",
+        "message": "canceling statement due to statement timeout",
+        "query_shape": "",
+        "sqlstate": "57014",
+        "utc": "16:32:55"
+      },
+      {
+        "app": "postgrest",
+        "message": "canceling statement due to statement timeout",
+        "query_shape": "",
+        "sqlstate": "57014",
+        "utc": "16:32:38"
+      },
+      {
+        "app": "postgrest",
+        "message": "canceling statement due to statement timeout",
+        "query_shape": "",
+        "sqlstate": "57014",
+        "utc": "16:32:38"
+      },
+      {
+        "app": "postgrest",
+        "message": "canceling statement due to statement timeout",
+        "query_shape": "",
+        "sqlstate": "57014",
+        "utc": "16:32:37"
+      },
+      {
+        "app": "postgrest",
+        "message": "canceling statement due to statement timeout",
+        "query_shape": "",
+        "sqlstate": "57014",
+        "utc": "16:32:36"
+      },
+      {
+        "app": "postgrest",
+        "message": "canceling statement due to statement timeout",
+        "query_shape": "",
+        "sqlstate": "57014",
+        "utc": "16:32:34"
+      },
+      {
+        "app": "realtime_rls",
+        "message": "duration: 13798.532 ms  plan:\nQuery Text: SELECT wal->>'?' as type,\n       wal->>'?' as schema,\n       wal->>'?' as table,\n       COALESCE(wal->>'?', '?') as columns,\n       COALESCE(wal->>'?', '?') as record,\n       COALESCE(wal->>'?', '?') as old_record,\n       wal->>'?' as commit_timestamp,\n       subscription_ids,\n       errors,\n       slot_changes_count\nFROM realtime.list_changes($1, $2, $3, $4)\n\nQuery Parameters: $1 = '?', $2 = '?', $3 = '?', $4 = '?'\nFunction Scan on list_changes  (cost=0.25..27.75 rows=1000 width=296)",
+        "query_shape": "",
+        "sqlstate": "00000",
+        "utc": "16:32:33"
+      },
+      {
+        "app": "postgrest",
+        "message": "canceling statement due to statement timeout",
+        "query_shape": "WITH pgrst_source AS (INSERT INTO \"public\".\"order_chat_messages\"(\"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\") SELECT \"pgrst_body\".\"created_at\", \"pgrst_body\".\"is_support\", \"pgrst_body\".\"message\", \"pgrst_body\".\"order_id\", \"pgrst_body\".\"rider_id\", \"pgrst_body\".\"sender_id\", \"pgrst_body\".\"sender_type\", \"pgrst_body\".\"user_id\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\" FROM json_to_record(pgrst_payload.json_data) AS _(\"created_at\" timestamp with time zone, \"is_support\" boolean, \"message\" text, \"order_id\" uuid, \"rider_id\" uuid, \"sender_id\" uuid, \"sender_type\" text, \"user_id\" uuid) ) pgrst_body  RETURNING \"public\".\"order_chat_messages\".\"created_at\", \"public\".\"order_chat_messages\".\"id\", \"public\".\"order_chat_messages\".\"message\", \"public\".\"order_chat_messages\".\"message_type\", \"public\".\"order_chat_messages\".\"sender_id\", \"public\".\"order_chat_messages\".\"sender_type\") SELECT '?' AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, coalesce(json_agg(_postgrest_t)->0, '?') AS body, nullif(current_setting('?', true), '?') AS response_headers, nullif(current_setting('?', true), '?') AS response_status, '?' AS response_inserted FROM (SELECT \"order_chat_messages\".\"id\", \"order_chat_messages\".\"sender_id\", \"order_chat_messages\".\"sender_type\", \"order_chat_messages\".\"message\", \"order_chat_",
+        "sqlstate": "57014",
+        "utc": "16:32:32"
+      },
+      {
+        "app": "postgrest",
+        "message": "canceling statement due to statement timeout",
+        "query_shape": "WITH pgrst_source AS (INSERT INTO \"public\".\"order_chat_messages\"(\"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\") SELECT \"pgrst_body\".\"created_at\", \"pgrst_body\".\"is_support\", \"pgrst_body\".\"message\", \"pgrst_body\".\"order_id\", \"pgrst_body\".\"rider_id\", \"pgrst_body\".\"sender_id\", \"pgrst_body\".\"sender_type\", \"pgrst_body\".\"user_id\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\" FROM json_to_record(pgrst_payload.json_data) AS _(\"created_at\" timestamp with time zone, \"is_support\" boolean, \"message\" text, \"order_id\" uuid, \"rider_id\" uuid, \"sender_id\" uuid, \"sender_type\" text, \"user_id\" uuid) ) pgrst_body  RETURNING \"public\".\"order_chat_messages\".\"created_at\", \"public\".\"order_chat_messages\".\"id\", \"public\".\"order_chat_messages\".\"message\", \"public\".\"order_chat_messages\".\"message_type\", \"public\".\"order_chat_messages\".\"sender_id\", \"public\".\"order_chat_messages\".\"sender_type\") SELECT '?' AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, coalesce(json_agg(_postgrest_t)->0, '?') AS body, nullif(current_setting('?', true), '?') AS response_headers, nullif(current_setting('?', true), '?') AS response_status, '?' AS response_inserted FROM (SELECT \"order_chat_messages\".\"id\", \"order_chat_messages\".\"sender_id\", \"order_chat_messages\".\"sender_type\", \"order_chat_messages\".\"message\", \"order_chat_",
+        "sqlstate": "57014",
+        "utc": "16:32:29"
+      },
+      {
+        "app": "postgrest",
+        "message": "duplicate key value violates unique constraint \"unique_order_rider_assignment\"",
+        "query_shape": "WITH pgrst_source AS (INSERT INTO \"public\".\"order_assignment_logs\"(\"assignment_round\", \"assignment_status\", \"estimated_pickup_time_min\", \"order_id\", \"rider_distance_km\", \"rider_id\", \"sent_at\") SELECT \"pgrst_body\".\"assignment_round\", \"pgrst_body\".\"assignment_status\", \"pgrst_body\".\"estimated_pickup_time_min\", \"pgrst_body\".\"order_id\", \"pgrst_body\".\"rider_distance_km\", \"pgrst_body\".\"rider_id\", \"pgrst_body\".\"sent_at\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"assignment_round\", \"assignment_status\", \"estimated_pickup_time_min\", \"order_id\", \"rider_distance_km\", \"rider_id\", \"sent_at\" FROM json_to_recordset(pgrst_payload.json_data) AS _(\"assignment_round\" integer, \"assignment_status\" public.intercity_assignment_status_enum, \"estimated_pickup_time_min\" integer, \"order_id\" uuid, \"rider_distance_km\" numeric, \"rider_id\" uuid, \"sent_at\" timestamp with time zone) ) pgrst_body  RETURNING 1) SELECT '?' AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, '?'::text AS body, nullif(current_setting('?', true), '?') AS response_headers, nullif(current_setting('?', true), '?') AS response_status, '?' AS response_inserted FROM (SELECT * FROM pgrst_source) _postgrest_t",
+        "sqlstate": "23505",
+        "utc": "16:24:59"
+      }
+    ]
+  },
+  "spike_pgrst_events": {
+    "result": [
+      {
+        "message": "Initializing connection with the status: %Realtime.Tenants.ReplicationConnection{\n  tenant_id: \"yvwpchffctiagevpqgwy\",\n  opts: [],\n  step: :disconnected,\n  publication_name: \"supabase_realtime_messages_publication\",\n  replication_slot_name: \"supabase_realtime_messages_replication_slot_2_148_1_3932dc7\",\n  output_plugin: \"pgoutput\",\n  proto_version: 2,\n  relations: %{},\n  buffer: [],\n  monitored_pid: #PID<0.181133490.6>,\n  latency_committed_at: nil,\n  query_timeout: 240000,\n  pg_version: nil\n}",
+        "utc": "16:22:04"
+      },
+      {
+        "message": "Warp server error: Thread killed by timeout manager",
+        "utc": "16:23:11"
+      },
+      {
+        "message": "Warp server error: Thread killed by timeout manager",
+        "utc": "16:23:11"
+      },
+      {
+        "message": "Warp server error: Thread killed by timeout manager",
+        "utc": "16:23:11"
+      },
+      {
+        "message": "Warp server error: Thread killed by timeout manager",
+        "utc": "16:23:41"
+      },
+      {
+        "message": "Warp server error: Thread killed by timeout manager",
+        "utc": "16:24:41"
+      },
+      {
+        "message": "Warp server error: Thread killed by timeout manager",
+        "utc": "16:31:11"
+      },
+      {
+        "message": "{\"code\":\"PGRST003\",\"details\":null,\"hint\":null,\"message\":\"Timed out acquiring connection from connection pool.\"}",
+        "utc": "16:32:25"
+      },
+      {
+        "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+        "utc": "16:32:33"
+      },
+      {
+        "message": "{\"code\":\"PGRST003\",\"details\":null,\"hint\":null,\"message\":\"Timed out acquiring connection from connection pool.\"}",
+        "utc": "16:32:33"
+      },
+      {
+        "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}01/Nov/2026:16:32:41 +0000: {\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}01/Nov/2026:16:32:41 +0000: {\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}01/Nov/2026:16:32:41 +0000: {\"code\":\"PGRST003\",\"details\":null,\"hint\":null,\"message\":\"Timed out acquiring connection from connection pool.\"}",
+        "utc": "16:32:47"
+      },
+      {
+        "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+        "utc": "16:32:49"
+      },
+      {
+        "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+        "utc": "16:32:50"
+      },
+      {
+        "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+        "utc": "16:32:56"
+      },
+      {
+        "message": "{\"code\":\"PGRST003\",\"details\":null,\"hint\":null,\"message\":\"Timed out acquiring connection from connection pool.\"}",
+        "utc": "16:32:56"
+      },
+      {
+        "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+        "utc": "16:32:56"
+      },
+      {
+        "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+        "utc": "16:33:01"
+      },
+      {
+        "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+        "utc": "16:33:28"
+      },
+      {
+        "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+        "utc": "16:33:31"
+      },
+      {
+        "message": "Warp server error: Thread killed by timeout manager",
+        "utc": "16:33:43"
+      },
+      {
+        "message": "Warp server error: Thread killed by timeout manager01/Nov/2026:16:33:43 +0000: Warp server error: Thread killed by timeout manager",
+        "utc": "16:33:43"
+      }
+    ]
+  },
+  "spike_cron_late": [
+    {
+      "jobid": 6,
+      "status": "succeeded",
+      "start_time": "2026-11-01 22:00:00.504158+05:30",
+      "end_time": "2026-11-01 22:00:00.524917+05:30",
+      "duration_ms": "21",
+      "error": null
+    },
+    {
+      "jobid": 5,
+      "status": "succeeded",
+      "start_time": "2026-11-01 22:00:00.506117+05:30",
+      "end_time": "2026-11-01 22:00:00.633407+05:30",
+      "duration_ms": "127",
+      "error": null
+    },
+    {
+      "jobid": 1,
+      "status": "succeeded",
+      "start_time": "2026-11-01 22:00:00.50756+05:30",
+      "end_time": "2026-11-01 22:00:00.542195+05:30",
+      "duration_ms": "35",
+      "error": null
+    },
+    {
+      "jobid": 10,
+      "status": "succeeded",
+      "start_time": "2026-11-01 22:00:00.509903+05:30",
+      "end_time": "2026-11-01 22:00:00.530003+05:30",
+      "duration_ms": "20",
+      "error": null
+    },
+    {
+      "jobid": 3,
+      "status": "succeeded",
+      "start_time": "2026-11-01 22:00:00.511339+05:30",
+      "end_time": "2026-11-01 22:00:00.538918+05:30",
+      "duration_ms": "28",
+      "error": null
+    },
+    {
+      "jobid": 7,
+      "status": "succeeded",
+      "start_time": "2026-11-01 22:00:15.239217+05:30",
+      "end_time": "2026-11-01 22:00:15.298109+05:30",
+      "duration_ms": "59",
+      "error": null
+    },
+    {
+      "jobid": 5,
+      "status": "succeeded",
+      "start_time": "2026-11-01 22:01:04.506133+05:30",
+      "end_time": "2026-11-01 22:01:06.378519+05:30",
+      "duration_ms": "1872",
+      "error": null
+    },
+    {
+      "jobid": 7,
+      "status": "succeeded",
+      "start_time": "2026-11-01 22:01:04.515504+05:30",
+      "end_time": "2026-11-01 22:01:05.191117+05:30",
+      "duration_ms": "676",
+      "error": null
+    },
+    {
+      "jobid": 7,
+      "status": "succeeded",
+      "start_time": "2026-11-01 22:01:51.881054+05:30",
+      "end_time": "2026-11-01 22:01:51.997784+05:30",
+      "duration_ms": "117",
+      "error": null
+    },
+    {
+      "jobid": 5,
+      "status": "succeeded",
+      "start_time": "2026-11-01 22:02:03.344717+05:30",
+      "end_time": "2026-11-01 22:02:05.224448+05:30",
+      "duration_ms": "1880",
+      "error": null
+    },
+    {
+      "jobid": 1,
+      "status": "succeeded",
+      "start_time": "2026-11-01 22:02:03.357809+05:30",
+      "end_time": "2026-11-01 22:02:03.935659+05:30",
+      "duration_ms": "578",
+      "error": null
+    },
+    {
+      "jobid": 7,
+      "status": "failed",
+      "start_time": "2026-11-01 22:02:36.881972+05:30",
+      "end_time": "2026-11-01 22:02:48.551156+05:30",
+      "duration_ms": "11669",
+      "error": "job startup timeout"
+    }
+  ],
+  "spike_edge_functions": {
+    "result": [
+      {
+        "errors": 0,
+        "max_ms": 32738,
+        "n": 87,
+        "p95_ms": 14932,
+        "path": "/functions/v1/send-push-notification"
+      },
+      {
+        "errors": 0,
+        "max_ms": 34745,
+        "n": 70,
+        "p95_ms": 6002,
+        "path": "/functions/v1/get-live-order-status"
+      },
+      {
+        "errors": 0,
+        "max_ms": 4590,
+        "n": 43,
+        "p95_ms": 4086,
+        "path": "/functions/v1/calculate-order-pricing"
+      },
+      {
+        "errors": 0,
+        "max_ms": 45225,
+        "n": 36,
+        "p95_ms": 9401,
+        "path": "/functions/v1/update-order-status"
+      },
+      {
+        "errors": 0,
+        "max_ms": 1393,
+        "n": 10,
+        "p95_ms": 1393,
+        "path": "/functions/v1/accept-order"
+      },
+      {
+        "errors": 0,
+        "max_ms": 23166,
+        "n": 10,
+        "p95_ms": 23166,
+        "path": "/functions/v1/start-dispatch"
+      },
+      {
+        "errors": 0,
+        "max_ms": 3903,
+        "n": 10,
+        "p95_ms": 3903,
+        "path": "/functions/v1/create-order"
+      },
+      {
+        "errors": 0,
+        "max_ms": 1239,
+        "n": 2,
+        "p95_ms": 1239,
+        "path": "/functions/v1/process-verification-photo"
+      },
+      {
+        "errors": 0,
+        "max_ms": 576,
+        "n": 1,
+        "p95_ms": 576,
+        "path": "/functions/v1/cancel-order"
+      },
+      {
+        "errors": 0,
+        "max_ms": 191,
+        "n": 1,
+        "p95_ms": 191,
+        "path": "/functions/v1/sms-hook"
+      }
+    ]
+  },
+  "spike_notification_update_traffic": {
+    "result": [
+      {
+        "method": "HEAD",
+        "n": 159,
+        "p95_ms": 7613,
+        "role": "authenticated"
+      },
+      {
+        "method": "PATCH",
+        "n": 82,
+        "p95_ms": 892,
+        "role": ""
+      },
+      {
+        "method": "GET",
+        "n": 1,
+        "p95_ms": 235,
+        "role": "authenticated"
+      }
+    ]
+  },
+  "spike_read_shapes": {
+    "result": [
+      {
+        "n": 141,
+        "p95_ms": 3144,
+        "path": "/rest/v1/users",
+        "projection": "full_name",
+        "sessions": 1
+      },
+      {
+        "n": 133,
+        "p95_ms": 2976,
+        "path": "/rest/v1/orders",
+        "projection": "id,order_type,order_status,created_at,final_fare,current_fare,distance_meters,pickup_address,destination_address,pickup_lat,pickup_lng,destination_lat,destination_lng,time_taken_seconds,estimated_duration_min,receiver_name,receiver_phone,parcel_type,weight_category,special_instructions",
+        "sessions": 1
+      },
+      {
+        "n": 133,
+        "p95_ms": 2697,
+        "path": "/rest/v1/rider_kyc",
+        "projection": "id,blocked_until,kyc_status",
+        "sessions": 1
+      },
+      {
+        "n": 133,
+        "p95_ms": 3228,
+        "path": "/rest/v1/riders",
+        "projection": "id",
+        "sessions": 1
+      },
+      {
+        "n": 44,
+        "p95_ms": 4093,
+        "path": "/rest/v1/riders",
+        "projection": "id,user_id,kyc_id,rating,total_orders,total_completed_orders,total_cancelled_orders,account_status,current_lat,current_lng,current_heading,rider_kyc!riders_kyc_id_fkey(full_name,vehicle_number,vehicle_type,rider_image,vehicle_image),users!riders_user_id_fkey(full_name,phone)",
+        "sessions": 1
+      },
+      {
+        "n": 39,
+        "p95_ms": 468,
+        "path": "/rest/v1/orders",
+        "projection": "final_fare,current_fare",
+        "sessions": 2
+      },
+      {
+        "n": 34,
+        "p95_ms": 3000,
+        "path": "/rest/v1/orders",
+        "projection": "*,users(full_name,gender,profile_photo_url)",
+        "sessions": 2
+      },
+      {
+        "n": 33,
+        "p95_ms": 1175,
+        "path": "/rest/v1/orders",
+        "projection": "id,order_status,trip_started_at,order_type,distance_meters",
+        "sessions": 1
+      },
+      {
+        "n": 33,
+        "p95_ms": 3092,
+        "path": "/rest/v1/riders",
+        "projection": "id,account_status,service_mode,subscription_active,subscription_expires_at,free_trial_started_at,free_trial_expires_at,free_trial_used,wallet_balance,rider_kyc!riders_kyc_id_fkey(full_name,rider_image)",
+        "sessions": 1
+      },
+      {
+        "n": 30,
+        "p95_ms": 3485,
+        "path": "/rest/v1/orders",
+        "projection": "*",
+        "sessions": 1
+      },
+      {
+        "n": 18,
+        "p95_ms": 3490,
+        "path": "/rest/v1/orders",
+        "projection": "rider_earning",
+        "sessions": 1
+      },
+      {
+        "n": 18,
+        "p95_ms": 668,
+        "path": "/rest/v1/riders",
+        "projection": "id,total_completed_orders,wallet_balance,rider_kyc!riders_kyc_id_fkey(full_name,rider_image,vehicle_type)",
+        "sessions": 1
+      },
+      {
+        "n": 18,
+        "p95_ms": 1829,
+        "path": "/rest/v1/orders",
+        "projection": "order_type",
+        "sessions": 1
+      },
+      {
+        "n": 16,
+        "p95_ms": 3307,
+        "path": "/rest/v1/riders",
+        "projection": "id,current_lat,current_lng,current_heading,rider_kyc!riders_kyc_id_fkey(vehicle_type)",
+        "sessions": 1
+      },
+      {
+        "n": 16,
+        "p95_ms": 577,
+        "path": "/rest/v1/orders",
+        "projection": "id,order_code,order_status,order_type,vehicle_type,created_at,completed_at,cancelled_at,pickup_address,destination_address,destination_city,pickup_lat,pickup_lng,destination_lat,destination_lng,distance_meters,time_taken_seconds,receiver_name,receiver_phone,parcel_type,weight_category,special_instructions,final_fare,current_fare,boost_amount,fare_payment_method,payment_mode,payment_status,cancel_reason,gst_amount,gst_percentage,commission_amount,commission_percentage,rider_earning,subscription_commission_waived,rider_id,user_id",
+        "sessions": 1
+      },
+      {
+        "n": 11,
+        "p95_ms": 9265,
+        "path": "/rest/v1/orders",
+        "projection": "pickup_otp,delivery_otp",
+        "sessions": 1
+      }
+    ]
+  },
+  "spike_current_health": [
+    {
+      "jsonb_build_object": {
+        "settings": [
+          {
+            "name": "max_connections",
+            "unit": null,
+            "setting": "60"
+          },
+          {
+            "name": "shared_buffers",
+            "unit": "8kB",
+            "setting": "28672"
+          },
+          {
+            "name": "statement_timeout",
+            "unit": "ms",
+            "setting": "120000"
+          },
+          {
+            "name": "work_mem",
+            "unit": "kB",
+            "setting": "2184"
+          }
+        ],
+        "connections": [
+          {
+            "n": 10,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "postgrest"
+          },
+          {
+            "n": 3,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": ""
+          },
+          {
+            "n": 2,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "Supabase Storage API"
+          },
+          {
+            "n": 2,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "realtime_connect"
+          },
+          {
+            "n": 2,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "realtime_subscription_manager_pub"
+          },
+          {
+            "n": 1,
+            "state": "active",
+            "wait_event": null,
+            "wait_event_type": null,
+            "application_name": "postgrest"
+          },
+          {
+            "n": 1,
+            "state": "active",
+            "wait_event": null,
+            "wait_event_type": null,
+            "application_name": "mgmt-api"
+          },
+          {
+            "n": 1,
+            "state": null,
+            "wait_event": "Extension",
+            "wait_event_type": "Extension",
+            "application_name": "pg_cron scheduler"
+          },
+          {
+            "n": 1,
+            "state": "active",
+            "wait_event": "WalSenderWaitForWal",
+            "wait_event_type": "Client",
+            "application_name": "realtime_replication_connection"
+          },
+          {
+            "n": 1,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "realtime_rls"
+          },
+          {
+            "n": 1,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client",
+            "application_name": "realtime_subscription_manager"
+          },
+          {
+            "n": 1,
+            "state": null,
+            "wait_event": "Extension",
+            "wait_event_type": "Extension",
+            "application_name": "pg_net 0.20.0"
+          }
+        ],
+        "observed_at": "2026-11-01T22:10:44.014859+05:30",
+        "blocked_sessions": 0
+      }
+    }
+  ],
+  "spike_resource_messages": {
+    "result": [
+      {
+        "deadlocks": 0,
+        "lock_timeouts": 0,
+        "max_connections": 0,
+        "oom": 0,
+        "source": "realtime_logs"
+      },
+      {
+        "deadlocks": 0,
+        "lock_timeouts": 0,
+        "max_connections": 0,
+        "oom": 0,
+        "source": "postgrest_logs"
+      },
+      {
+        "deadlocks": 0,
+        "lock_timeouts": 0,
+        "max_connections": 0,
+        "oom": 0,
+        "source": "pgbouncer_logs"
+      },
+      {
+        "deadlocks": 0,
+        "lock_timeouts": 0,
+        "max_connections": 0,
+        "oom": 0,
+        "source": "postgres_logs"
+      }
+    ]
+  },
+  "auth_additional_check": {
+    "source": "auth_logs",
+    "status": 504,
+    "code": "request_timeout",
+    "path": "/",
+    "count": 1,
+    "note": "Same requested UTC window; exact /user endpoint attribution not established"
+  }
+}

@@ -10,6 +10,8 @@
 *.ts   text eol=lf
 *.js   text eol=lf
 *.sql  text eol=lf
+# Preserve archived original migration bytes for provenance; never auto-applied.
+docs/migration-review/**/*.sql -text
 *.py   text eol=lf
 *.swift text eol=lf
 *.kt   text eol=lf

@@ -1,0 +1,2280 @@
+{
+  "query": "SELECT jsonb_build_object(\n'columns',(SELECT jsonb_agg(jsonb_build_object('table',c.relname,'column',a.attname,'type',format_type(a.atttypid,a.atttypmod),'not_null',a.attnotnull,'position',a.attnum,'acl',a.attacl::text) ORDER BY c.relname,a.attnum) FROM pg_attribute a JOIN pg_class c ON c.oid=a.attrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname IN('admins','orders','intercity_requests','riders','rider_kyc','users','rider_assignments') AND a.attnum>0 AND NOT a.attisdropped),\n'enums',(SELECT jsonb_agg(jsonb_build_object('schema',n.nspname,'name',t.typname,'labels',(SELECT jsonb_agg(enumlabel ORDER BY enumsortorder) FROM pg_enum e WHERE e.enumtypid=t.oid))) FROM pg_type t JOIN pg_namespace n ON n.oid=t.typnamespace WHERE n.nspname='public' AND t.typtype='e'),\n'helpers',(SELECT jsonb_agg(jsonb_build_object('name',proname,'definition',pg_get_functiondef(p.oid))) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND proname IN('check_is_order_passenger','check_is_order_passenger_for_intercity'))\n) AS evidence",
+  "evidence": {
+    "enums": [
+      {
+        "name": "payout_method_enum",
+        "labels": [
+          "bank_account",
+          "upi"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "rider_withdrawal_status_enum",
+        "labels": [
+          "pending",
+          "processing",
+          "success",
+          "failed"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "vehicle_type_enum",
+        "labels": [
+          "bike",
+          "auto",
+          "cab"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "order_status_enum",
+        "labels": [
+          "created",
+          "searching",
+          "accepted",
+          "rider_arrived",
+          "picked_up",
+          "ongoing",
+          "rider_at_drop",
+          "completed",
+          "delivered",
+          "cancelled",
+          "expired",
+          "payment_pending"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "payment_mode_enum",
+        "labels": [
+          "cash",
+          "online",
+          "wallet",
+          "upi"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "payment_status_enum",
+        "labels": [
+          "pending",
+          "paid",
+          "failed",
+          "refunded",
+          "partial_refund",
+          "cash_collected",
+          "cash_pending_settlement"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "assignment_status_enum",
+        "labels": [
+          "sent",
+          "viewed",
+          "accepted",
+          "rejected",
+          "timed_out",
+          "expired",
+          "cancelled"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "rider_account_status_enum",
+        "labels": [
+          "online",
+          "offline",
+          "busy",
+          "blocked"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "kyc_status_enum",
+        "labels": [
+          "pending",
+          "under_review",
+          "approved",
+          "rejected",
+          "resubmitted"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "cancelled_by_enum",
+        "labels": [
+          "user",
+          "rider",
+          "admin",
+          "system"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "parcel_type_enum",
+        "labels": [
+          "documents",
+          "electronics",
+          "food",
+          "clothes",
+          "fragile",
+          "others"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "subscription_status_enum",
+        "labels": [
+          "active",
+          "expired",
+          "cancelled",
+          "pending"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "pricing_city_tier_enum",
+        "labels": [
+          "tier_1",
+          "tier_2"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "pricing_service_type_enum",
+        "labels": [
+          "ride",
+          "local_parcel",
+          "intercity_parcel",
+          "intercity_ride",
+          "ride_sharing"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "travel_plan_status_enum",
+        "labels": [
+          "active",
+          "completed",
+          "cancelled",
+          "fully_booked",
+          "expired"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "preferred_mode_enum",
+        "labels": [
+          "user",
+          "rider"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "activation_status_enum",
+        "labels": [
+          "inactive",
+          "profile_pending",
+          "active",
+          "suspended"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "cashfree_beneficiary_status_enum",
+        "labels": [
+          "pending",
+          "active",
+          "failed",
+          "disabled"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "payment_method_enum",
+        "labels": [
+          "upi",
+          "card",
+          "wallet",
+          "netbanking",
+          "cash",
+          "cod",
+          "cashfree"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "weight_category_enum",
+        "labels": [
+          "0_5",
+          "6_15",
+          "16_25",
+          "26_50"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "fare_payment_method_enum",
+        "labels": [
+          "personal_upi",
+          "cashfree",
+          "cash"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "dispute_status_enum",
+        "labels": [
+          "open",
+          "investigating",
+          "resolved_paid",
+          "resolved_unpaid"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "review_tag",
+        "labels": [
+          "clean_vehicle",
+          "polite_behavior",
+          "safe_driving",
+          "on_time",
+          "dirty_vehicle",
+          "rude_behavior",
+          "unsafe_driving",
+          "late_arrival",
+          "other",
+          "good_behaviour",
+          "respectful",
+          "easy_to_communicate",
+          "clear_instructions",
+          "cooperative",
+          "ready_at_pickup",
+          "late_at_pickup",
+          "rude_behaviour",
+          "poor_communication",
+          "uncooperative",
+          "changed_plans",
+          "no_show"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "partner_service_mode_enum",
+        "labels": [
+          "local",
+          "intercity"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "intercity_assignment_status_enum",
+        "labels": [
+          "sent",
+          "viewed",
+          "accepted",
+          "rejected",
+          "timed_out",
+          "expired",
+          "cancelled",
+          "accepted_by_user"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "order_type_enum",
+        "labels": [
+          "ride",
+          "intercity_ride",
+          "ride_sharing",
+          "local_parcel",
+          "intercity_parcel",
+          "batch_delivery",
+          "food_delivery",
+          "grocery_delivery"
+        ],
+        "schema": "public"
+      },
+      {
+        "name": "payment_for_enum",
+        "labels": [
+          "ride_order",
+          "parcel_order",
+          "wallet_topup",
+          "subscription",
+          "withdrawal",
+          "refund",
+          "cod_settlement",
+          "ride_boost",
+          "intercity_ride_boost",
+          "intercity_parcel_boost",
+          "intercity_ride_order",
+          "intercity_parcel_order",
+          "ride_sharing",
+          "tax_due"
+        ],
+        "schema": "public"
+      }
+    ],
+    "columns": [
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "admins",
+        "column": "id",
+        "not_null": true,
+        "position": 1
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "admins",
+        "column": "admin_code",
+        "not_null": true,
+        "position": 2
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "admins",
+        "column": "name",
+        "not_null": true,
+        "position": 3
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "admins",
+        "column": "phone",
+        "not_null": true,
+        "position": 4
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "admins",
+        "column": "email",
+        "not_null": true,
+        "position": 5
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "admins",
+        "column": "password_hash",
+        "not_null": true,
+        "position": 6
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "admins",
+        "column": "role",
+        "not_null": true,
+        "position": 7
+      },
+      {
+        "acl": null,
+        "type": "jsonb",
+        "table": "admins",
+        "column": "permissions",
+        "not_null": true,
+        "position": 8
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "admins",
+        "column": "is_active",
+        "not_null": false,
+        "position": 9
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "admins",
+        "column": "is_account_locked",
+        "not_null": false,
+        "position": 10
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "admins",
+        "column": "last_login_at",
+        "not_null": false,
+        "position": 11
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "admins",
+        "column": "created_at",
+        "not_null": false,
+        "position": 12
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "intercity_requests",
+        "column": "id",
+        "not_null": true,
+        "position": 1
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "intercity_requests",
+        "column": "parcel_id",
+        "not_null": true,
+        "position": 2
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "intercity_requests",
+        "column": "route_id",
+        "not_null": false,
+        "position": 3
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "intercity_requests",
+        "column": "traveller_id",
+        "not_null": true,
+        "position": 4
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "intercity_requests",
+        "column": "sender_id",
+        "not_null": true,
+        "position": 5
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "intercity_requests",
+        "column": "initiated_by",
+        "not_null": true,
+        "position": 6
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "intercity_requests",
+        "column": "status",
+        "not_null": true,
+        "position": 7
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "intercity_requests",
+        "column": "proposed_fare",
+        "not_null": true,
+        "position": 8
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "intercity_requests",
+        "column": "sender_confirmed",
+        "not_null": true,
+        "position": 9
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "intercity_requests",
+        "column": "traveller_confirmed",
+        "not_null": true,
+        "position": 10
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "intercity_requests",
+        "column": "created_at",
+        "not_null": true,
+        "position": 11
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "intercity_requests",
+        "column": "updated_at",
+        "not_null": true,
+        "position": 12
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "intercity_requests",
+        "column": "booking_type",
+        "not_null": false,
+        "position": 13
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "intercity_requests",
+        "column": "expires_at",
+        "not_null": false,
+        "position": 14
+      },
+      {
+        "acl": null,
+        "type": "jsonb",
+        "table": "intercity_requests",
+        "column": "metadata",
+        "not_null": true,
+        "position": 15
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "intercity_requests",
+        "column": "expiry_reason",
+        "not_null": false,
+        "position": 16
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "intercity_requests",
+        "column": "cancelled_reason",
+        "not_null": false,
+        "position": 17
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "intercity_requests",
+        "column": "cancelled_by_actor",
+        "not_null": false,
+        "position": 18
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "orders",
+        "column": "id",
+        "not_null": true,
+        "position": 1
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "order_code",
+        "not_null": true,
+        "position": 2
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "orders",
+        "column": "user_id",
+        "not_null": true,
+        "position": 3
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "orders",
+        "column": "rider_id",
+        "not_null": false,
+        "position": 4
+      },
+      {
+        "acl": null,
+        "type": "order_type_enum",
+        "table": "orders",
+        "column": "order_type",
+        "not_null": true,
+        "position": 5
+      },
+      {
+        "acl": null,
+        "type": "vehicle_type_enum",
+        "table": "orders",
+        "column": "vehicle_type",
+        "not_null": false,
+        "position": 6
+      },
+      {
+        "acl": null,
+        "type": "order_status_enum",
+        "table": "orders",
+        "column": "order_status",
+        "not_null": true,
+        "position": 7
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "orders",
+        "column": "pricing_config_id",
+        "not_null": false,
+        "position": 8
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "distance_meters",
+        "not_null": true,
+        "position": 9
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "distance_km",
+        "not_null": true,
+        "position": 10
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "estimated_duration_min",
+        "not_null": false,
+        "position": 11
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "actual_duration_min",
+        "not_null": false,
+        "position": 12
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "time_taken_seconds",
+        "not_null": false,
+        "position": 13
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "pickup_address",
+        "not_null": true,
+        "position": 14
+      },
+      {
+        "acl": null,
+        "type": "double precision",
+        "table": "orders",
+        "column": "pickup_lat",
+        "not_null": true,
+        "position": 15
+      },
+      {
+        "acl": null,
+        "type": "double precision",
+        "table": "orders",
+        "column": "pickup_lng",
+        "not_null": true,
+        "position": 16
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "destination_address",
+        "not_null": true,
+        "position": 17
+      },
+      {
+        "acl": null,
+        "type": "double precision",
+        "table": "orders",
+        "column": "destination_lat",
+        "not_null": true,
+        "position": 18
+      },
+      {
+        "acl": null,
+        "type": "double precision",
+        "table": "orders",
+        "column": "destination_lng",
+        "not_null": true,
+        "position": 19
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "actual_fare",
+        "not_null": true,
+        "position": 20
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "current_fare",
+        "not_null": true,
+        "position": 21
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "final_fare",
+        "not_null": false,
+        "position": 22
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "base_fare",
+        "not_null": false,
+        "position": 23
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "distance_fare",
+        "not_null": false,
+        "position": 24
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "time_fare",
+        "not_null": false,
+        "position": 25
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "waiting_charge",
+        "not_null": false,
+        "position": 26
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "platform_fee",
+        "not_null": false,
+        "position": 27
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "gst_percentage",
+        "not_null": false,
+        "position": 28
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "gst_amount",
+        "not_null": false,
+        "position": 29
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "commission_percentage",
+        "not_null": false,
+        "position": 30
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "commission_amount",
+        "not_null": false,
+        "position": 31
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "rider_earning",
+        "not_null": false,
+        "position": 32
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "boost_amount",
+        "not_null": false,
+        "position": 33
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "orders",
+        "column": "subscription_commission_waived",
+        "not_null": false,
+        "position": 34
+      },
+      {
+        "acl": null,
+        "type": "jsonb",
+        "table": "orders",
+        "column": "pricing_snapshot",
+        "not_null": true,
+        "position": 35
+      },
+      {
+        "acl": null,
+        "type": "payment_mode_enum",
+        "table": "orders",
+        "column": "payment_mode",
+        "not_null": true,
+        "position": 36
+      },
+      {
+        "acl": null,
+        "type": "payment_status_enum",
+        "table": "orders",
+        "column": "payment_status",
+        "not_null": true,
+        "position": 37
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "orders",
+        "column": "payment_id",
+        "not_null": false,
+        "position": 38
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "pickup_otp",
+        "not_null": false,
+        "position": 39
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "delivery_otp",
+        "not_null": false,
+        "position": 40
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "search_expires_at",
+        "not_null": false,
+        "position": 41
+      },
+      {
+        "acl": null,
+        "type": "cancelled_by_enum",
+        "table": "orders",
+        "column": "cancelled_by",
+        "not_null": false,
+        "position": 42
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "cancel_reason",
+        "not_null": false,
+        "position": 43
+      },
+      {
+        "acl": null,
+        "type": "parcel_type_enum",
+        "table": "orders",
+        "column": "parcel_type",
+        "not_null": false,
+        "position": 44
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "receiver_name",
+        "not_null": false,
+        "position": 45
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "receiver_phone",
+        "not_null": false,
+        "position": 46
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "weight_category",
+        "not_null": false,
+        "position": 47
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "actual_weight_kg",
+        "not_null": false,
+        "position": 48
+      },
+      {
+        "acl": null,
+        "type": "text[]",
+        "table": "orders",
+        "column": "parcel_images",
+        "not_null": false,
+        "position": 49
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "special_instructions",
+        "not_null": false,
+        "position": 50
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "created_at",
+        "not_null": false,
+        "position": 51
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "updated_at",
+        "not_null": false,
+        "position": 52
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "accepted_at",
+        "not_null": false,
+        "position": 53
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "rider_arrived_at",
+        "not_null": false,
+        "position": 54
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "picked_up_at",
+        "not_null": false,
+        "position": 55
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "rider_at_drop_at",
+        "not_null": false,
+        "position": 56
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "completed_at",
+        "not_null": false,
+        "position": 57
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "cancelled_at",
+        "not_null": false,
+        "position": 58
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "pickup_otp_attempts",
+        "not_null": false,
+        "position": 59
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "delivery_otp_attempts",
+        "not_null": false,
+        "position": 60
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "boost_company_earning",
+        "not_null": false,
+        "position": 61
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "boost_rider_earning",
+        "not_null": false,
+        "position": 62
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "boost_percentage",
+        "not_null": false,
+        "position": 63
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "dispatch_attempts",
+        "not_null": false,
+        "position": 64
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "boost_round",
+        "not_null": false,
+        "position": 65
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "current_search_radius_km",
+        "not_null": false,
+        "position": 66
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "last_dispatched_at",
+        "not_null": false,
+        "position": 67
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "rider_rejections_count",
+        "not_null": false,
+        "position": 68
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "redispatch_count",
+        "not_null": false,
+        "position": 69
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "pickup_city",
+        "not_null": false,
+        "position": 70
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "destination_city",
+        "not_null": false,
+        "position": 71
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "travel_date",
+        "not_null": false,
+        "position": 72
+      },
+      {
+        "acl": null,
+        "type": "jsonb",
+        "table": "orders",
+        "column": "dispatch_state",
+        "not_null": false,
+        "position": 73
+      },
+      {
+        "acl": null,
+        "type": "inet",
+        "table": "orders",
+        "column": "created_ip_address",
+        "not_null": false,
+        "position": 75
+      },
+      {
+        "acl": null,
+        "type": "double precision",
+        "table": "orders",
+        "column": "created_lat",
+        "not_null": false,
+        "position": 76
+      },
+      {
+        "acl": null,
+        "type": "double precision",
+        "table": "orders",
+        "column": "created_lng",
+        "not_null": false,
+        "position": 77
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "orders",
+        "column": "sender_declaration_accepted",
+        "not_null": false,
+        "position": 78
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "sender_declaration_accepted_at",
+        "not_null": false,
+        "position": 79
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "orders",
+        "column": "pickup_verification_completed",
+        "not_null": false,
+        "position": 84
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "pickup_verification_completed_at",
+        "not_null": false,
+        "position": 85
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "orders",
+        "column": "compliance_flagged",
+        "not_null": false,
+        "position": 86
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "compliance_notes",
+        "not_null": false,
+        "position": 87
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "created_device_ref",
+        "not_null": false,
+        "position": 88
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "orders",
+        "column": "created_device_record_id",
+        "not_null": false,
+        "position": 89
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "created_device_model",
+        "not_null": false,
+        "position": 90
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "created_device_brand",
+        "not_null": false,
+        "position": 91
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "created_os_version",
+        "not_null": false,
+        "position": 92
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "created_app_version",
+        "not_null": false,
+        "position": 93
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "compliance_status",
+        "not_null": false,
+        "position": 94
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "compliance_score",
+        "not_null": false,
+        "position": 95
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "compliance_retention_until",
+        "not_null": false,
+        "position": 96
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "parcel_declared_value",
+        "not_null": false,
+        "position": 97
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "orders",
+        "column": "high_risk_parcel",
+        "not_null": false,
+        "position": 98
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "orders",
+        "column": "dispatch_worker_running",
+        "not_null": false,
+        "position": 99
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "dispatch_worker_started_at",
+        "not_null": false,
+        "position": 100
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "orders",
+        "column": "seats_requested",
+        "not_null": true,
+        "position": 101
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "orders",
+        "column": "near_destination_notified",
+        "not_null": true,
+        "position": 102
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "trip_started_at",
+        "not_null": false,
+        "position": 103
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "upi_payment_prompted_at",
+        "not_null": false,
+        "position": 104
+      },
+      {
+        "acl": null,
+        "type": "fare_payment_method_enum",
+        "table": "orders",
+        "column": "fare_payment_method",
+        "not_null": false,
+        "position": 105
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "fare_payment_attempted_at",
+        "not_null": false,
+        "position": 106
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "orders",
+        "column": "fare_paid_at",
+        "not_null": false,
+        "position": 107
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "fare_payment_reference",
+        "not_null": false,
+        "position": 108
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "fare_payment_screenshot_url",
+        "not_null": false,
+        "position": 109
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "orders",
+        "column": "idempotency_key",
+        "not_null": false,
+        "position": 110
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "orders",
+        "column": "pg_charge_amount",
+        "not_null": true,
+        "position": 111
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "rider_assignments",
+        "column": "id",
+        "not_null": true,
+        "position": 1
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "rider_assignments",
+        "column": "order_id",
+        "not_null": true,
+        "position": 2
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "rider_assignments",
+        "column": "rider_id",
+        "not_null": true,
+        "position": 3
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "rider_assignments",
+        "column": "assignment_round",
+        "not_null": true,
+        "position": 4
+      },
+      {
+        "acl": null,
+        "type": "intercity_assignment_status_enum",
+        "table": "rider_assignments",
+        "column": "assignment_status",
+        "not_null": true,
+        "position": 5
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "rider_assignments",
+        "column": "distance_km",
+        "not_null": false,
+        "position": 6
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "rider_assignments",
+        "column": "estimated_earnings",
+        "not_null": false,
+        "position": 7
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_assignments",
+        "column": "sent_at",
+        "not_null": true,
+        "position": 8
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_assignments",
+        "column": "viewed_at",
+        "not_null": false,
+        "position": 9
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_assignments",
+        "column": "responded_at",
+        "not_null": false,
+        "position": 10
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_assignments",
+        "column": "expires_at",
+        "not_null": true,
+        "position": 11
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_assignments",
+        "column": "created_at",
+        "not_null": false,
+        "position": 12
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_assignments",
+        "column": "updated_at",
+        "not_null": false,
+        "position": 13
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_assignments",
+        "column": "last_seen_at",
+        "not_null": false,
+        "position": 14
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_assignments",
+        "column": "last_response_at",
+        "not_null": false,
+        "position": 15
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_assignments",
+        "column": "response_type",
+        "not_null": false,
+        "position": 16
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_assignments",
+        "column": "hidden_until",
+        "not_null": false,
+        "position": 17
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "rider_assignments",
+        "column": "last_seen_fare",
+        "not_null": false,
+        "position": 18
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_assignments",
+        "column": "accepted_at",
+        "not_null": false,
+        "position": 19
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_assignments",
+        "column": "rejected_at",
+        "not_null": false,
+        "position": 20
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "rider_kyc",
+        "column": "id",
+        "not_null": true,
+        "position": 1
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "rider_kyc",
+        "column": "user_id",
+        "not_null": true,
+        "position": 2
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "full_name",
+        "not_null": true,
+        "position": 3
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "father_name",
+        "not_null": true,
+        "position": 5
+      },
+      {
+        "acl": null,
+        "type": "vehicle_type_enum",
+        "table": "rider_kyc",
+        "column": "vehicle_type",
+        "not_null": true,
+        "position": 6
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "aadhaar_number",
+        "not_null": true,
+        "position": 7
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "pan_number",
+        "not_null": true,
+        "position": 8
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "driving_license_number",
+        "not_null": true,
+        "position": 9
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "vehicle_number",
+        "not_null": true,
+        "position": 10
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "rider_image",
+        "not_null": true,
+        "position": 11
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "aadhaar_front_image",
+        "not_null": true,
+        "position": 12
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "aadhaar_back_image",
+        "not_null": true,
+        "position": 13
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "pan_front_image",
+        "not_null": true,
+        "position": 14
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "pan_back_image",
+        "not_null": true,
+        "position": 15
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "license_front_image",
+        "not_null": true,
+        "position": 16
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "license_back_image",
+        "not_null": true,
+        "position": 17
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "vehicle_image",
+        "not_null": true,
+        "position": 18
+      },
+      {
+        "acl": null,
+        "type": "kyc_status_enum",
+        "table": "rider_kyc",
+        "column": "kyc_status",
+        "not_null": true,
+        "position": 19
+      },
+      {
+        "acl": null,
+        "type": "activation_status_enum",
+        "table": "rider_kyc",
+        "column": "activation_status",
+        "not_null": true,
+        "position": 20
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "rider_kyc",
+        "column": "handled_by_admin_id",
+        "not_null": false,
+        "position": 21
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_kyc",
+        "column": "approved_at",
+        "not_null": false,
+        "position": 22
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_kyc",
+        "column": "rejected_at",
+        "not_null": false,
+        "position": 23
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "rejection_reason",
+        "not_null": false,
+        "position": 24
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_kyc",
+        "column": "activated_at",
+        "not_null": false,
+        "position": 25
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_kyc",
+        "column": "created_at",
+        "not_null": false,
+        "position": 26
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_kyc",
+        "column": "updated_at",
+        "not_null": false,
+        "position": 27
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "rider_kyc",
+        "column": "rejection_count",
+        "not_null": false,
+        "position": 28
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "rider_kyc",
+        "column": "blocked_until",
+        "not_null": false,
+        "position": 29
+      },
+      {
+        "acl": null,
+        "type": "date",
+        "table": "rider_kyc",
+        "column": "date_of_birth",
+        "not_null": true,
+        "position": 30
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "VECHILE_RC_front_image",
+        "not_null": false,
+        "position": 31
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "rider_kyc",
+        "column": "VECHILE_RC_back_image",
+        "not_null": false,
+        "position": 32
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "riders",
+        "column": "id",
+        "not_null": true,
+        "position": 1
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "riders",
+        "column": "kyc_id",
+        "not_null": true,
+        "position": 2
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "riders",
+        "column": "user_id",
+        "not_null": true,
+        "position": 3
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "riders",
+        "column": "rating",
+        "not_null": false,
+        "position": 4
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "riders",
+        "column": "total_orders",
+        "not_null": false,
+        "position": 5
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "riders",
+        "column": "total_completed_orders",
+        "not_null": false,
+        "position": 6
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "riders",
+        "column": "total_cancelled_orders",
+        "not_null": false,
+        "position": 7
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "riders",
+        "column": "total_earnings",
+        "not_null": false,
+        "position": 8
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "riders",
+        "column": "today_earnings",
+        "not_null": false,
+        "position": 9
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "riders",
+        "column": "wallet_balance",
+        "not_null": false,
+        "position": 10
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "riders",
+        "column": "cod_pending_amount",
+        "not_null": false,
+        "position": 11
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "riders",
+        "column": "cod_limit",
+        "not_null": false,
+        "position": 12
+      },
+      {
+        "acl": null,
+        "type": "rider_account_status_enum",
+        "table": "riders",
+        "column": "account_status",
+        "not_null": true,
+        "position": 13
+      },
+      {
+        "acl": null,
+        "type": "double precision",
+        "table": "riders",
+        "column": "current_lat",
+        "not_null": false,
+        "position": 14
+      },
+      {
+        "acl": null,
+        "type": "double precision",
+        "table": "riders",
+        "column": "current_lng",
+        "not_null": false,
+        "position": 15
+      },
+      {
+        "acl": null,
+        "type": "double precision",
+        "table": "riders",
+        "column": "current_heading",
+        "not_null": false,
+        "position": 16
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "riders",
+        "column": "last_location_updated_at",
+        "not_null": false,
+        "position": 17
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "riders",
+        "column": "last_active_at",
+        "not_null": false,
+        "position": 18
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "riders",
+        "column": "subscription_active",
+        "not_null": false,
+        "position": 19
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "riders",
+        "column": "subscription_expires_at",
+        "not_null": false,
+        "position": 20
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "riders",
+        "column": "commission_waiver_active",
+        "not_null": false,
+        "position": 21
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "riders",
+        "column": "is_verified",
+        "not_null": false,
+        "position": 22
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "riders",
+        "column": "created_at",
+        "not_null": false,
+        "position": 23
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "riders",
+        "column": "updated_at",
+        "not_null": false,
+        "position": 24
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "riders",
+        "column": "last_dormant_notification_sent_at",
+        "not_null": false,
+        "position": 25
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "riders",
+        "column": "last_sub_offline_notification_sent_at",
+        "not_null": false,
+        "position": 26
+      },
+      {
+        "acl": null,
+        "type": "partner_service_mode_enum",
+        "table": "riders",
+        "column": "service_mode",
+        "not_null": false,
+        "position": 27
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "riders",
+        "column": "government_tax_due_balance",
+        "not_null": true,
+        "position": 28
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "riders",
+        "column": "rating_sum",
+        "not_null": true,
+        "position": 29
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "riders",
+        "column": "total_ratings",
+        "not_null": true,
+        "position": 30
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "riders",
+        "column": "free_trial_started_at",
+        "not_null": false,
+        "position": 31
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "riders",
+        "column": "free_trial_expires_at",
+        "not_null": false,
+        "position": 32
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "riders",
+        "column": "free_trial_used",
+        "not_null": true,
+        "position": 33
+      },
+      {
+        "acl": null,
+        "type": "uuid",
+        "table": "users",
+        "column": "id",
+        "not_null": true,
+        "position": 1
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "users",
+        "column": "phone",
+        "not_null": false,
+        "position": 2
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "users",
+        "column": "created_at",
+        "not_null": false,
+        "position": 3
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "users",
+        "column": "full_name",
+        "not_null": false,
+        "position": 4
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "users",
+        "column": "email",
+        "not_null": false,
+        "position": 5
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "users",
+        "column": "profile_completed",
+        "not_null": false,
+        "position": 6
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "users",
+        "column": "onboarding_completed",
+        "not_null": false,
+        "position": 7
+      },
+      {
+        "acl": null,
+        "type": "preferred_mode_enum",
+        "table": "users",
+        "column": "preferred_mode",
+        "not_null": false,
+        "position": 8
+      },
+      {
+        "acl": null,
+        "type": "preferred_mode_enum",
+        "table": "users",
+        "column": "last_active_mode",
+        "not_null": false,
+        "position": 9
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "users",
+        "column": "role",
+        "not_null": false,
+        "position": 10
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "users",
+        "column": "pref_order_notifications",
+        "not_null": true,
+        "position": 11
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "users",
+        "column": "pref_chat_notifications",
+        "not_null": true,
+        "position": 12
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "users",
+        "column": "pref_rating_notifications",
+        "not_null": true,
+        "position": 13
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "users",
+        "column": "pref_admin_notifications",
+        "not_null": true,
+        "position": 14
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "users",
+        "column": "user_code",
+        "not_null": false,
+        "position": 15
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "users",
+        "column": "order_notification_mode",
+        "not_null": true,
+        "position": 16
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "users",
+        "column": "rating",
+        "not_null": false,
+        "position": 17
+      },
+      {
+        "acl": null,
+        "type": "integer",
+        "table": "users",
+        "column": "total_ratings",
+        "not_null": false,
+        "position": 18
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "users",
+        "column": "gender",
+        "not_null": false,
+        "position": 19
+      },
+      {
+        "acl": null,
+        "type": "text",
+        "table": "users",
+        "column": "profile_photo_url",
+        "not_null": false,
+        "position": 20
+      },
+      {
+        "acl": null,
+        "type": "boolean",
+        "table": "users",
+        "column": "is_developer",
+        "not_null": true,
+        "position": 21
+      },
+      {
+        "acl": null,
+        "type": "numeric",
+        "table": "users",
+        "column": "rating_sum",
+        "not_null": true,
+        "position": 22
+      },
+      {
+        "acl": null,
+        "type": "timestamp with time zone",
+        "table": "users",
+        "column": "deleted_at",
+        "not_null": false,
+        "position": 23
+      }
+    ],
+    "helpers": [
+      {
+        "name": "check_is_order_passenger",
+        "definition": "CREATE OR REPLACE FUNCTION public.check_is_order_passenger(p_order_id uuid, p_user_id uuid)\n RETURNS boolean\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n    SELECT EXISTS (\n        SELECT 1 FROM public.orders\n        WHERE id = p_order_id AND user_id = p_user_id\n    );\n$function$\n"
+      },
+      {
+        "name": "check_is_order_passenger_for_intercity",
+        "definition": "CREATE OR REPLACE FUNCTION public.check_is_order_passenger_for_intercity(p_order_id uuid, p_user_id uuid)\n RETURNS boolean\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n    SELECT EXISTS (\n        SELECT 1 FROM public.orders\n        WHERE id = p_order_id\n          AND user_id = p_user_id\n          AND order_type IN ('intercity_ride', 'intercity_parcel')\n    );\n$function$\n"
+      }
+    ]
+  }
+}

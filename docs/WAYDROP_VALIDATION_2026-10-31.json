@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-31",
+  "analyze": {
+    "errors": 0,
+    "warnings": 75,
+    "infos": 433,
+    "summary": "508 issues found. (ran in 8.1s)"
+  },
+  "suite": {
+    "summary": "00:48 +1993 -20: Some tests failed.",
+    "failures": [
+      "00:08 +259 -1: C:/Users/karth/Desktop/appclad/test/subscription_stale_pending_payment_regression_test.dart: H. The exact current dueBalance/plan amount becomes the new Cashfree order amount customer_phone mapping is untouched by this fix [E]",
+      "00:10 +343 -2: C:/Users/karth/Desktop/appclad/test/rider_self_rematch_regression_test.dart: Issue 1 follow-up -- rider_self_rematch() immediate busy->free rematch RiderOrdersScreen calls rider_self_rematch() on its own busy->free transition, before re-fetching, without adding a new polling timer [E]",
+      "00:10 +343 -3: C:/Users/karth/Desktop/appclad/test/rider_self_rematch_regression_test.dart: Issue 1 follow-up -- rider_self_rematch() immediate busy->free rematch a failed self-rematch RPC call is non-fatal -- async trigger and cron backstop remain as fallback [E]",
+      "00:11 +352 -4: C:/Users/karth/Desktop/appclad/test/rider_pending_ride_after_completion_regression_test.dart: rider_orders_screen.dart -- busy->free forced refetch still intact _pollActiveOrderFallback() still snapshots wasBusy and forces a refetch on the busy->free transition [E]",
+      "00:12 +372 -5: C:/Users/karth/Desktop/appclad/test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart: Untouched: assignment-expiry, rider status, and dispatch-critical rematch semantics rider_self_rematch() is still called synchronously on the busy->free transition, inside _pollActiveOrderFallback() itself -- untouched by this fix [E]",
+      "00:13 +382 -6: C:/Users/karth/Desktop/appclad/test/rider_orders_busy_to_free_refetch_regression_test.dart: RiderOrdersScreen -- busy->free transition forces a pending-orders refetch _pollActiveOrderFallback() branches on the busy->free transition, mirroring listenRiderStatus()'s wasOffline->online forced refetch [E]",
+      "00:13 +382 -7: C:/Users/karth/Desktop/appclad/test/rider_orders_busy_to_free_refetch_regression_test.dart: RiderOrdersScreen -- busy->free transition forces a pending-orders refetch the busy->free branch calls fetchSearchingOrders() [E]",
+      "00:13 +382 -8: C:/Users/karth/Desktop/appclad/test/rider_orders_busy_to_free_refetch_regression_test.dart: RiderOrdersScreen -- busy->free transition forces a pending-orders refetch the forced refetch is scoped to the busy->free transition only, not fired unconditionally elsewhere in this method (would reintroduce excessive polling) [E]",
+      "00:13 +409 -9: C:/Users/karth/Desktop/appclad/test/rider_kyc_submission_reliability_regression_test.dart: create-rider-kyc and validate-rider-kyc never trust body.user_id on its own create-rider-kyc rejects a body.user_id that does not match the authenticated user [E]",
+      "00:13 +412 -10: C:/Users/karth/Desktop/appclad/test/rider_kyc_submission_reliability_regression_test.dart: create-rider-kyc and validate-rider-kyc never trust body.user_id on its own validate-rider-kyc rejects a body.user_id that does not match the authenticated user [E]",
+      "00:14 +429 -11: C:/Users/karth/Desktop/appclad/test/rider_home_active_order_duplicate_work_suppressed_regression_test.dart: RiderActiveOrderScreen -- sets the flag around its own lifecycle dispose() sets isOpen = false, alongside the existing PipService.setPipEnabled(false) [E]",
+      "00:14 +432 -12: C:/Users/karth/Desktop/appclad/test/rider_home_active_order_duplicate_work_suppressed_regression_test.dart: RiderHomeTab -- reconciliation when the covering screen closes _onActiveOrderScreenVisibilityChanged exists and refreshes exactly what subscribeActiveOrder's callback would have [E]",
+      "00:14 +433 -13: C:/Users/karth/Desktop/appclad/test/rider_home_active_order_duplicate_work_suppressed_regression_test.dart: RiderHomeTab -- 30s silent refresh timer skips its DB call while covered _startSilentRefreshTimer's periodic callback now also checks isOpen, without changing the timer's own start/stop lifecycle [E]",
+      "00:20 +712 -14: C:/Users/karth/Desktop/appclad/test/production_fix_2026_07_29_regression_test.dart: Issue 1 -- one authoritative passenger fare on the Travel Together searching screen Test 1: PartnerCard in the \"Available Drop Partners\" list is passed yourFare (the passenger's own order fare) [E]",
+      "00:29 +1161 -15: C:/Users/karth/Desktop/appclad/test/intercity_parcel_fixes_regression_test.dart: Issue 1: calculate-order-pricing reads the actual pricing_config key shape 1. per_km_rate is a recognized alias for the per-km charge (root cause of the ₹0.00 bug) [E]",
+      "00:36 +1494 -16: C:/Users/karth/Desktop/appclad/test/create_order_surgical_phase1_regression_test.dart: (setUpAll) [E]",
+      "00:37 +1505 -17: C:/Users/karth/Desktop/appclad/test/chat_regression_test.dart: order_chat_screen.dart structural guards (Bug 2: ride isolation) realtime subscription filter is scoped to the current order id [E]",
+      "00:37 +1506 -18: C:/Users/karth/Desktop/appclad/test/chat_regression_test.dart: order_chat_screen.dart structural guards (Bug 2: ride isolation) dispose() removes the chat realtime channel [E]",
+      "00:39 +1635 -19: C:/Users/karth/Desktop/appclad/test/local_order_delivery_regression_test.dart: Foreground resume reconciles pending requests instead of waiting for the next poll loadRider() calls _reconcilePendingAssignments, not just the realtime subscribe calls [E]",
+      "00:44 +1821 -20: C:/Users/karth/Desktop/appclad/test/nearby_partner_count_regression_test.dart: Test 18: passenger availability and dispatch use consistent eligibility (documented, intentional differences noted) the pre-booking map marker queries (home_tab.dart) are a DIFFERENT feature (map pins, not the nearby count) with a stricter, documented, intentionally different filter [E]"
+    ]
+  },
+  "trackedHeadBaseline": {
+    "summary": "00:01 +244 -18: Some tests failed.",
+    "failures": [
+      "00:00 +0 -1: Issue 1: calculate-order-pricing reads the actual pricing_config key shape 1. per_km_rate is a recognized alias for the per-km charge (root cause of the ₹0.00 bug) [E]",
+      "00:00 +53 -2: Foreground resume reconciles pending requests instead of waiting for the next poll loadRider() calls _reconcilePendingAssignments, not just the realtime subscribe calls [E]",
+      "00:00 +75 -3: Test 18: passenger availability and dispatch use consistent eligibility (documented, intentional differences noted) the pre-booking map marker queries (home_tab.dart) are a DIFFERENT feature (map pins, not the nearby count) with a stricter, documented, intentionally different filter [E]",
+      "00:00 +109 -4: H. The exact current dueBalance/plan amount becomes the new Cashfree order amount customer_phone mapping is untouched by this fix [E]",
+      "00:00 +111 -5: Issue 1 follow-up -- rider_self_rematch() immediate busy->free rematch RiderOrdersScreen calls rider_self_rematch() on its own busy->free transition, before re-fetching, without adding a new polling timer [E]",
+      "00:00 +111 -6: Issue 1 follow-up -- rider_self_rematch() immediate busy->free rematch a failed self-rematch RPC call is non-fatal -- async trigger and cron backstop remain as fallback [E]",
+      "00:00 +113 -7: rider_orders_screen.dart -- busy->free forced refetch still intact _pollActiveOrderFallback() still snapshots wasBusy and forces a refetch on the busy->free transition [E]",
+      "00:00 +128 -8: Untouched: assignment-expiry, rider status, and dispatch-critical rematch semantics rider_self_rematch() is still called synchronously on the busy->free transition, inside _pollActiveOrderFallback() itself -- untouched by this fix [E]",
+      "00:00 +131 -9: RiderOrdersScreen -- busy->free transition forces a pending-orders refetch _pollActiveOrderFallback() branches on the busy->free transition, mirroring listenRiderStatus()'s wasOffline->online forced refetch [E]",
+      "00:00 +131 -10: RiderOrdersScreen -- busy->free transition forces a pending-orders refetch the busy->free branch calls fetchSearchingOrders() [E]",
+      "00:00 +131 -11: RiderOrdersScreen -- busy->free transition forces a pending-orders refetch the forced refetch is scoped to the busy->free transition only, not fired unconditionally elsewhere in this method (would reintroduce excessive polling) [E]",
+      "00:00 +141 -12: AppStartScreen never mislabels an arbitrary error as \"no internet\" a TimeoutException on startup is shown as a backend/timeout error, not \"No Internet Connection\" [E]",
+      "00:00 +144 -13: create-rider-kyc and validate-rider-kyc never trust body.user_id on its own create-rider-kyc rejects a body.user_id that does not match the authenticated user [E]",
+      "00:00 +147 -14: create-rider-kyc and validate-rider-kyc never trust body.user_id on its own validate-rider-kyc rejects a body.user_id that does not match the authenticated user [E]",
+      "00:00 +150 -15: RiderActiveOrderScreen -- sets the flag around its own lifecycle dispose() sets isOpen = false, alongside the existing PipService.setPipEnabled(false) [E]",
+      "00:00 +153 -16: RiderHomeTab -- reconciliation when the covering screen closes _onActiveOrderScreenVisibilityChanged exists and refreshes exactly what subscribeActiveOrder's callback would have [E]",
+      "00:00 +154 -17: RiderHomeTab -- 30s silent refresh timer skips its DB call while covered _startSilentRefreshTimer's periodic callback now also checks isOpen, without changing the timer's own start/stop lifecycle [E]",
+      "00:00 +158 -18: Issue 1 -- one authoritative passenger fare on the Travel Together searching screen Test 1: PartnerCard in the \"Available Drop Partners\" list is passed yourFare (the passenger's own order fare) [E]"
+    ]
+  },
+  "notRun": [
+    "pricing_dedup_regression_test.dart (live backend)",
+    "intercity_parcel_pricing_regression_test.dart (live backend)",
+    "Android/iOS cold and warm startup, profile frames, production workflows and background GPS: no attached Android device, no test account supplied"
+  ]
+}

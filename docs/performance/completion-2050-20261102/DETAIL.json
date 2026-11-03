@@ -1,0 +1,111 @@
+{
+  "sql": "SELECT timestamp,source,\nCASE WHEN source='edge_logs' THEN CASE WHEN position(log_attributes['request.path'],'/verifications/pickup/')>0 THEN 'pickup_photo_upload' WHEN position(log_attributes['request.path'],'/verifications/dropoff/')>0 THEN 'dropoff_photo_upload' WHEN position(log_attributes['request.path'],'/parcels/')>0 THEN 'booking_photo_upload' ELSE 'other_object_upload' END\nWHEN source='postgres_logs' THEN CASE WHEN positionCaseInsensitive(log_attributes['parsed.query'],'realtime.subscription')>0 THEN 'Realtime_subscription' WHEN positionCaseInsensitive(log_attributes['parsed.query'],'list_changes')>0 THEN 'Realtime_list_changes' WHEN positionCaseInsensitive(log_attributes['parsed.query'],'riders')>0 THEN 'riders_query' ELSE 'other_SQL' END\nELSE 'storage_error' END AS operation,\nlog_attributes['response.status_code'] AS status,log_attributes['response.origin_time'] AS origin_ms,log_attributes['request.headers.content_length'] AS request_bytes,\nlog_attributes['parsed.application_name'] AS application_name,log_attributes['parsed.sql_state_code'] AS sqlstate,\nCASE WHEN positionCaseInsensitive(event_message,'canceling statement due to statement timeout')>0 THEN 'statement_timeout' WHEN positionCaseInsensitive(event_message,'canceling statement due to user request')>0 THEN 'user_cancel' WHEN positionCaseInsensitive(event_message,'timeout')>0 THEN 'timeout' WHEN positionCaseInsensitive(event_message,'aborted')>0 THEN 'aborted' WHEN positionCaseInsensitive(event_message,'connection')>0 THEN 'connection_error' ELSE 'other' END AS error_class,\nextract(event_message,'(ECONNRESET|ETIMEDOUT|EPIPE|RequestAborted|DatabaseTimeout|57014|PGRST003)') AS safe_error_code,\narrayFilter(k->positionCaseInsensitive(k,'error')>0 OR positionCaseInsensitive(k,'duration')>0 OR positionCaseInsensitive(k,'time')>0 OR positionCaseInsensitive(k,'status')>0,mapKeys(log_attributes)) AS diagnostic_field_names\nFROM logs WHERE (source='edge_logs' AND startsWith(log_attributes['request.path'],'/storage/') AND log_attributes['request.method'] IN('POST','PUT','PATCH') AND NOT startsWith(log_attributes['request.path'],'/storage/v1/object/sign/'))\nOR(source='postgres_logs' AND log_attributes['parsed.sql_state_code']='57014')\nOR(source='storage_logs' AND (positionCaseInsensitive(event_message,'error')>0 OR positionCaseInsensitive(event_message,'timeout')>0 OR positionCaseInsensitive(event_message,'aborted')>0))\nORDER BY timestamp LIMIT 25",
+  "window_utc": [
+    "2026-11-02T15:20:00Z",
+    "2026-11-02T15:35:00Z"
+  ],
+  "rows": [
+    {
+      "application_name": "",
+      "diagnostic_field_names": [
+        "response.origin_time",
+        "response.status_code",
+        "response.headers.cf_cache_status"
+      ],
+      "error_class": "other",
+      "operation": "booking_photo_upload",
+      "origin_ms": "16111",
+      "request_bytes": "52852",
+      "safe_error_code": "",
+      "source": "edge_logs",
+      "sqlstate": "",
+      "status": "200",
+      "timestamp": "2026-11-02T15:27:50.842000"
+    },
+    {
+      "application_name": "",
+      "diagnostic_field_names": [
+        "response.origin_time",
+        "response.status_code",
+        "response.headers.cf_cache_status"
+      ],
+      "error_class": "other",
+      "operation": "pickup_photo_upload",
+      "origin_ms": "33209",
+      "request_bytes": "566848",
+      "safe_error_code": "",
+      "source": "edge_logs",
+      "sqlstate": "",
+      "status": "544",
+      "timestamp": "2026-11-02T15:28:44.503000"
+    },
+    {
+      "application_name": "realtime_subscription_manager_pub",
+      "diagnostic_field_names": [
+        "parsed.error_severity",
+        "parsed.session_start_time",
+        "parsed.timestamp"
+      ],
+      "error_class": "statement_timeout",
+      "operation": "Realtime_subscription",
+      "origin_ms": "",
+      "request_bytes": "",
+      "safe_error_code": "",
+      "source": "postgres_logs",
+      "sqlstate": "57014",
+      "status": "",
+      "timestamp": "2026-11-02T15:28:55.316000"
+    },
+    {
+      "application_name": "realtime_subscription_manager_pub",
+      "diagnostic_field_names": [
+        "parsed.error_severity",
+        "parsed.session_start_time",
+        "parsed.timestamp"
+      ],
+      "error_class": "statement_timeout",
+      "operation": "Realtime_subscription",
+      "origin_ms": "",
+      "request_bytes": "",
+      "safe_error_code": "",
+      "source": "postgres_logs",
+      "sqlstate": "57014",
+      "status": "",
+      "timestamp": "2026-11-02T15:28:55.417000"
+    },
+    {
+      "application_name": "Supabase Storage API",
+      "diagnostic_field_names": [
+        "parsed.error_severity",
+        "parsed.session_start_time",
+        "parsed.timestamp"
+      ],
+      "error_class": "statement_timeout",
+      "operation": "other_SQL",
+      "origin_ms": "",
+      "request_bytes": "",
+      "safe_error_code": "",
+      "source": "postgres_logs",
+      "sqlstate": "57014",
+      "status": "",
+      "timestamp": "2026-11-02T15:29:17.636000"
+    },
+    {
+      "application_name": "",
+      "diagnostic_field_names": [
+        "response.origin_time",
+        "response.status_code",
+        "response.headers.cf_cache_status"
+      ],
+      "error_class": "other",
+      "operation": "dropoff_photo_upload",
+      "origin_ms": "15094",
+      "request_bytes": "437821",
+      "safe_error_code": "",
+      "source": "edge_logs",
+      "sqlstate": "",
+      "status": "200",
+      "timestamp": "2026-11-02T15:30:41.115000"
+    }
+  ]
+}

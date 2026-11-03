@@ -1,4 +1,10 @@
 import 'dart:async';
+import 'package:waydrop/core/services/session/auth_routing_policy.dart';
+import 'package:waydrop/core/services/session/rider_access_service.dart';
+import 'package:waydrop/core/providers/initial_data_provider.dart';
+import 'package:waydrop/features/auth/screens/login_screen.dart';
+import 'package:waydrop/shared/screens/connection_error_screen.dart';
+import 'package:waydrop/shared/helpers/global_error_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,151 +17,117 @@ import 'package:waydrop/features/rider/onboarding/screens/service_mode_selection
 import 'package:waydrop/features/rider/services/rider_status_service.dart';
 import 'package:waydrop/features/rider/navigation/rider_main_navigation_screen.dart';
 
-class RiderEntryHandler extends StatefulWidget {
-  const RiderEntryHandler({
-    super.key,
-  });
+class RiderEntryHandler extends ConsumerStatefulWidget {
+  final Widget? readyScreen;
+  const RiderEntryHandler({super.key, this.readyScreen});
 
   @override
-  State<RiderEntryHandler> createState() => _RiderEntryHandlerState();
+  ConsumerState<RiderEntryHandler> createState() => _RiderEntryHandlerState();
 }
 
-class _RiderEntryHandlerState extends State<RiderEntryHandler> {
+class _RiderEntryHandlerState extends ConsumerState<RiderEntryHandler> {
   bool loading = true;
-  String state = 'none';
-  Map<String, dynamic>? kyc;
-  bool riderExists = false;
+  RiderAccess? access;
+  Object? error;
+  StreamSubscription<AuthState>? _authSubscription;
+  int _generation = 0;
+  late final AuthRoutingPolicy _authRoutingPolicy;
 
   @override
   void initState() {
     super.initState();
+    _authRoutingPolicy = AuthRoutingPolicy(Supabase.instance.client.auth.currentUser?.id);
+    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((event) {
+      if (_authRoutingPolicy.shouldRecheck(event)) load();
+    }, onError: (Object failure, StackTrace stack) {
+      if (mounted && Supabase.instance.client.auth.currentSession == null) load();
+    });
     load();
   }
 
   Future<void> load() async {
+    final generation = ++_generation;
+    if (mounted) setState(() { loading = true; error = null; });
     try {
-      final supabase = Supabase.instance.client;
-      final user = supabase.auth.currentUser;
-
-      if (user == null) {
-        return;
+      final result = await RiderAccessService.instance.resolve();
+      if (!mounted || generation != _generation) return;
+      access = result;
+      if (result.state == RiderAccessState.ready) {
+        final rider = result.rider!;
+        final kyc = rider['rider_kyc!riders_kyc_id_fkey'] ?? rider['rider_kyc'];
+        if (kyc is Map) {
+          rider['full_name'] = kyc['full_name'];
+          rider['rider_image'] = kyc['rider_image'];
+        }
+        ref.read(initialRiderDataProvider.notifier).state = InitialRiderData(
+          rider: rider, todayEarnings: null);
       }
-
-      // Egress fix: narrowed to the fields read off kycResponse/kyc in this file (here and in
-      // KycRejectedScreen/KycBlockedScreen, both of which receive this exact map wholesale).
-      final kycResponse = await supabase
-          .from('rider_kyc')
-          .select('blocked_until, kyc_status, rejection_reason')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-      if (kycResponse == null) {
-        state = 'none';
+    } catch (failure) {
+      if (!mounted || generation != _generation) return;
+      if (RiderAccessService.requiresLogin(failure)) {
+        access = const RiderAccess(RiderAccessState.unauthenticated);
       } else {
-        kyc = kycResponse;
-
-        // Egress fix: only existence + service_mode are read below.
-        final riderResponse = await supabase
-            .from('riders')
-            .select('service_mode')
-            .eq('user_id', user.id)
-            .maybeSingle();
-
-        riderExists = riderResponse != null;
-
-        final String? blockedUntilStr = kycResponse['blocked_until'];
-        if (blockedUntilStr != null) {
-          final blockedUntil = DateTime.tryParse(blockedUntilStr);
-          if (blockedUntil != null && blockedUntil.isAfter(DateTime.now())) {
-            state = 'blocked';
-          }
-        }
-
-        if (state != 'blocked') {
-          final String kycStatus = kycResponse['kyc_status'] ?? 'pending';
-          if (kycStatus == 'pending' || kycStatus == 'under_review' || kycStatus == 'resubmitted') {
-            state = 'pending';
-          } else if (kycStatus == 'rejected') {
-            state = 'rejected';
-          } else if (kycStatus == 'approved' && !riderExists) {
-            state = 'approved_waiting';
-          } else if (riderExists) {
-            // Egress fix: only existence is checked below.
-            final payoutResponse = await supabase
-                .from('rider_payout_accounts')
-                .select('id')
-                .eq('user_id', user.id)
-                .eq('cashfree_beneficiary_status', 'active')
-                .maybeSingle();
-
-            if (payoutResponse == null) {
-              state = 'payout_details_required';
-            } else if (riderResponse!['service_mode'] == null) {
-              state = 'service_mode_required';
-            } else {
-              state = 'rider_ready';
-            }
-          }
-        }
+        error = failure;
       }
-    } catch (e) {
-      debugPrint('RIDER RATING ENTRANCE ERROR => $e');
+    } finally {
+      if (mounted && generation == _generation) setState(() => loading = false);
     }
+  }
 
-    if (mounted) {
-      setState(() {
-        loading = false;
-      });
-    }
+  @override
+  void dispose() {
+    ++_generation;
+    unawaited(_authSubscription?.cancel());
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     if (loading) {
       return const Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFF0B0F19),
         body: Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFF10B981),
-            strokeWidth: 2,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(
+                color: Color(0xFFC5FF30),
+                strokeWidth: 2,
+              ),
+              SizedBox(height: 16),
+              Text('Checking partner access…', style: TextStyle(color: Colors.white70)),
+            ],
           ),
         ),
       );
     }
 
-    if (state == 'none') {
-      return const RiderKycScreen();
+    if (error != null) {
+      return ConnectionErrorScreen(errorType: ErrorType.backend,
+        errorMessage: 'Unable to check your partner account. Please try again.', onRetry: load);
     }
-
-    if (state == 'pending') {
-      return const RiderKycPendingScreen();
+    switch (access?.state) {
+      case RiderAccessState.unauthenticated:
+        return const LoginScreen();
+      case RiderAccessState.none:
+        return const RiderKycScreen();
+      case RiderAccessState.pending:
+        return const RiderKycPendingScreen();
+      case RiderAccessState.blocked:
+        return KycBlockedScreen(kyc: access!.kyc!);
+      case RiderAccessState.rejected:
+        return KycRejectedScreen(kyc: access!.kyc!);
+      case RiderAccessState.approvedWaiting:
+        return const KycVerifiedWaitingScreen();
+      case RiderAccessState.payoutRequired:
+        return const RiderPayoutDetailsScreen();
+      case RiderAccessState.serviceModeRequired:
+        return const ServiceModeSelectionScreen();
+      case RiderAccessState.ready:
+        return widget.readyScreen ?? const WelcomeRiderScreen();
+      case null:
+        return ConnectionErrorScreen(errorType: ErrorType.general, onRetry: load);
     }
-
-    if (state == 'blocked') {
-      return KycBlockedScreen(
-        kyc: kyc!,
-      );
-    }
-
-    if (state == 'rejected') {
-      return KycRejectedScreen(
-        kyc: kyc!,
-      );
-    }
-
-    if (state == 'approved_waiting') {
-      return const KycVerifiedWaitingScreen();
-    }
-
-    if (state == 'payout_details_required') {
-      return const RiderPayoutDetailsScreen();
-    }
-
-    if (state == 'service_mode_required') {
-      return const ServiceModeSelectionScreen();
-    }
-
-    return const WelcomeRiderScreen();
   }
 }
 

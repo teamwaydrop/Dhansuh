@@ -1,0 +1,14 @@
+{
+  "passed": 6,
+  "failed": 0,
+  "checks": [
+    "apply hash",
+    "repeat apply fails closed",
+    "default rollback is dry-run",
+    "explicit rollback restores original",
+    "repeat rollback fails closed",
+    "ACL preserved"
+  ],
+  "fixture_only_substitution": "owner postgres -> waydrop_local",
+  "final_definition_md5": "b486cd2e7650778ba2a41fe3eac5ea0a"
+}

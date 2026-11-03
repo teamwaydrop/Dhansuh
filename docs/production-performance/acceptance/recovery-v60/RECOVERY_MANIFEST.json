@@ -1,0 +1,42 @@
+{
+  "status": "SOURCE_RECONSTRUCTION_VERIFIED_HOSTED_ROLLBACK_PENDING",
+  "version": 60,
+  "verify_jwt": false,
+  "originalBundleIdentifier": "9e6101aa857a902aefaa82d64d066f845e506e18e60f34441f85a4dc08af9f01",
+  "files": [
+    {
+      "file": "functions/accept-order/index.ts",
+      "sha256": "521fd8533d8a6d0fde15ccf9ceb211a8c631e3822f82c7f324b9e629736c9dfc"
+    },
+    {
+      "file": "functions/_shared/production_config_cache.ts",
+      "sha256": "9994144024984b6a40a0abdc66fb98991bc008322b28fee552e0e54f9f87f40a"
+    },
+    {
+      "file": "deno.lock",
+      "sha256": "b48275a31d72f0947b0e5b7d9c4538d457ba65a059dc7b03dbfd09818de6f311"
+    },
+    {
+      "file": "deno.json",
+      "sha256": "7aec10f4e17d93fbe1087ae64e904ff9e51dc1595a9969746ad151abf3d51733"
+    }
+  ],
+  "productionContacted": false,
+  "productionModified": false,
+  "limits": [
+    "Original source bytes and unchanged relative helper reconstructed and reread successfully.",
+    "Lockfile is the current locally verified dependency snapshot, not evidence of the original v60 production dependency graph.",
+    "Deno 2.9.8 is the local runtime; hosted runtime/bundle reproduction is not proven.",
+    "v60 contains the known acceptance race. Restoring it must not reopen acceptance traffic.",
+    "No historical hosted bundle retrieval or managed redeployment/rollback has been performed."
+  ],
+  "localFrozenTypecheck": {
+    "status": "FAIL",
+    "runtime": "Deno 2.9.8",
+    "code": "TS2353",
+    "file": "functions/accept-order/index.ts",
+    "line": 483,
+    "reason": "responded_at is not in inferred { id; assignment_status } type",
+    "capturedSourceModified": false
+  }
+}

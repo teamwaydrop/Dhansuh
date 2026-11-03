@@ -1,0 +1,47 @@
+{
+  "sql": "SELECT timestamp,log_attributes['parsed.application_name'] AS application_name,\nCASE WHEN positionCaseInsensitive(log_attributes['parsed.query'],'storage.objects')>0 THEN 'storage.objects' WHEN positionCaseInsensitive(log_attributes['parsed.query'],'objects')>0 THEN 'objects' WHEN positionCaseInsensitive(log_attributes['parsed.query'],'realtime.subscription')>0 THEN 'realtime.subscription' ELSE 'other' END AS target,\nlength(log_attributes['parsed.query']) AS query_length,\nextract(log_attributes['parsed.query'],'(?i)(select|insert|update|delete|with)') AS query_kind,\narrayFilter(x->positionCaseInsensitive(log_attributes['parsed.query'],x)>0,['for update','for share','pg_advisory','on conflict','storage.objects','storage.buckets','insert into','update','delete from','bucket_id','owner_id','is_admin','foldername','create_folders','lock_top_prefixes','storage.add_prefixes']) AS query_features,\nextract(log_attributes['parsed.context'],'(?:PL/pgSQL|SQL) function ([a-zA-Z0-9_.]+)') AS function_context,\nCASE WHEN positionCaseInsensitive(event_message,'statement timeout')>0 THEN 'statement_timeout' ELSE 'other_cancel' END AS kind\nFROM logs WHERE source='postgres_logs' AND log_attributes['parsed.sql_state_code']='57014' ORDER BY timestamp LIMIT 8",
+  "rows": [
+    {
+      "application_name": "realtime_subscription_manager_pub",
+      "function_context": "",
+      "kind": "statement_timeout",
+      "query_features": [
+        "on conflict",
+        "insert into",
+        "update"
+      ],
+      "query_kind": "with",
+      "query_length": 2357,
+      "target": "realtime.subscription",
+      "timestamp": "2026-11-02T15:28:55.316000"
+    },
+    {
+      "application_name": "realtime_subscription_manager_pub",
+      "function_context": "",
+      "kind": "statement_timeout",
+      "query_features": [
+        "on conflict",
+        "insert into",
+        "update"
+      ],
+      "query_kind": "with",
+      "query_length": 2357,
+      "target": "realtime.subscription",
+      "timestamp": "2026-11-02T15:28:55.417000"
+    },
+    {
+      "application_name": "Supabase Storage API",
+      "function_context": "",
+      "kind": "statement_timeout",
+      "query_features": [],
+      "query_kind": "",
+      "query_length": 0,
+      "target": "other",
+      "timestamp": "2026-11-02T15:29:17.636000"
+    }
+  ],
+  "window_utc": [
+    "2026-11-02T15:20:00Z",
+    "2026-11-02T15:35:00Z"
+  ]
+}

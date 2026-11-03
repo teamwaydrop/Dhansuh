@@ -1536,18 +1536,18 @@ class _ParcelTrackingScreenState extends State<ParcelTrackingScreen> {
         '_hasLeftScreen=$_hasLeftScreen epoch=${DateTime.now().millisecondsSinceEpoch}',
       );
 
-      if (mounted && !_hasLeftScreen) {
+      if (mounted && context.mounted && !_hasLeftScreen) {
         _hasLeftScreen = true;
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(this.context).showSnackBar(
           const SnackBar(content: Text('Order has been cancelled successfully')),
         );
         NavTrace.begin('ParcelTrackingScreen._performCancel', 'returnToLocalParcelHome (API success)');
-        returnToLocalParcelHome(context, isRider: false);
+        returnToLocalParcelHome(this.context, isRider: false);
         NavTrace.end('ParcelTrackingScreen._performCancel', 'returnToLocalParcelHome (API success)');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(content: Text('Failed to cancel order: $e')),
         );
       }

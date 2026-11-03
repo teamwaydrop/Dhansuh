@@ -1,0 +1,91 @@
+{
+  "window_utc": [
+    "2026-11-03T04:24:00Z",
+    "2026-11-03T04:34:00Z"
+  ],
+  "evidence": {
+    "result": [
+      {
+        "max_ms": 19991,
+        "n": 159,
+        "p50_ms": 78,
+        "p95_ms": 2675,
+        "path": "/rest/v1/riders",
+        "source": "edge_logs",
+        "status": "200"
+      },
+      {
+        "max_ms": 18631,
+        "n": 34,
+        "p50_ms": 364,
+        "p95_ms": 16106,
+        "path": "/functions/v1/calculate-order-pricing",
+        "source": "function_edge_logs",
+        "status": "200"
+      },
+      {
+        "max_ms": 16117,
+        "n": 17,
+        "p50_ms": 219,
+        "p95_ms": 16117,
+        "path": "/rest/v1/riders",
+        "source": "edge_logs",
+        "status": "204"
+      },
+      {
+        "max_ms": 15993,
+        "n": 33,
+        "p50_ms": 141,
+        "p95_ms": 15350,
+        "path": "/rest/v1/pricing_config",
+        "source": "edge_logs",
+        "status": "200"
+      },
+      {
+        "max_ms": 13925,
+        "n": 36,
+        "p50_ms": 109,
+        "p95_ms": 13763,
+        "path": "/rest/v1/pricing_zones",
+        "source": "edge_logs",
+        "status": "200"
+      },
+      {
+        "max_ms": 13889,
+        "n": 88,
+        "p50_ms": 31,
+        "p95_ms": 2242,
+        "path": "/rest/v1/production_config",
+        "source": "edge_logs",
+        "status": "200"
+      },
+      {
+        "max_ms": 12310,
+        "n": 123,
+        "p50_ms": 49,
+        "p95_ms": 1527,
+        "path": "/auth/v1/user",
+        "source": "edge_logs",
+        "status": "200"
+      },
+      {
+        "max_ms": 3884,
+        "n": 76,
+        "p50_ms": 29,
+        "p95_ms": 1518,
+        "path": "/rest/v1/dispatch_config",
+        "source": "edge_logs",
+        "status": "200"
+      },
+      {
+        "max_ms": 2130,
+        "n": 30,
+        "p50_ms": 60,
+        "p95_ms": 1053,
+        "path": "/rest/v1/rpc/find_nearby_riders",
+        "source": "edge_logs",
+        "status": "200"
+      }
+    ]
+  }
+}

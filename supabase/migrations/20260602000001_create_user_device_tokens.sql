@@ -1,5 +1,5 @@
 -- Create user_device_tokens table to store FCM tokens
-create table public.user_device_tokens (
+create table if not exists public.user_device_tokens (
   id uuid not null default gen_random_uuid (),
   user_id uuid not null,
   fcm_token text not null,
@@ -13,12 +13,15 @@ create table public.user_device_tokens (
 
 -- Indices for performance
 create index if not exists idx_user_device_tokens_user_id on public.user_device_tokens using btree (user_id);
+
 create index if not exists idx_user_device_tokens_token on public.user_device_tokens using btree (fcm_token);
 
 -- Enable RLS
 alter table public.user_device_tokens enable row level security;
 
 -- Policy to allow authenticated users to perform operations on their own tokens
+drop policy if exists "Users can manage their own device tokens" on public.user_device_tokens;
+
 create policy "Users can manage their own device tokens"
 on public.user_device_tokens
 for all

@@ -498,7 +498,7 @@ class _IntercitySearchingScreenState extends State<IntercitySearchingScreen> wit
         if (planIds.isNotEmpty) {
           final plansDetails = await supabase
               .from('rider_travel_plans')
-              .select('id, seats_preference, max_bookings, max_weight_kg, weight_preference')
+              .select('id, max_bookings, max_weight_kg, weight_preference')
               .inFilter('id', planIds);
           
           final plansDetailsMap = {for (var p in plansDetails) p['id'].toString(): p};
@@ -566,7 +566,6 @@ class _IntercitySearchingScreenState extends State<IntercitySearchingScreen> wit
               tempMatches[i] = {
                 ...tempMatches[i],
                 if (details != null) ...{
-                  'seats_preference': details['seats_preference'],
                   'max_bookings': details['max_bookings'],
                   'max_weight_kg': maxWeight,
                 },

@@ -1,0 +1,43 @@
+00:00 +0: loading C:/Users/karth/Desktop/appclad/test/waydrop_startup_parallel_test.dart
+00:00 +0: (setUpAll)
+supabase.supabase_flutter: WARNING: Error while receiving deeplink MissingPluginException(No implementation found for method getInitialAppLink on channel com.llfbandit.app_links/messages)
+supabase.supabase_flutter: INFO: ***** Supabase init completed ***** 
+00:00 +0: maintenance is displayed without waiting for a stalled parallel profile request
+[PERF_STARTUP] checkUserFlow begin epoch=1793425627428
+[TRACE_APPSTART] config/profile parallel batch START epoch=1793425627428
+[TRACE_APPSTART] onAuthStateChange event=AuthChangeEvent.tokenRefreshed session=true epoch=1793425627639
+[NAV_TRACE] 2026-10-31T11:17:07.639379 MARK source=AppStartScreen detail="onAuthStateChange event=AuthChangeEvent.tokenRefreshed skipped (no-op event, see PERF FIX comment)" inFlight=0 epoch=1793425627639
+ProductionConfigService: fetched fresh production_config.
+CacheService initialization failed, attempting fallback recovery: MissingPluginException(No implementation found for method getApplicationDocumentsDirectory on channel plugins.flutter.io/path_provider)
+CacheService fallback recovery also failed: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage)
+[PERF_STARTUP] profile response at +352ms
+[TRACE_APPSTART] changeScreen -> MaintenanceScreen epoch=1793425627782
+[NAV_TRACE] 2026-10-31T11:17:07.782940 BEGIN source=AppStartScreen detail="changeScreen _BrandSplashView -> MaintenanceScreen" inFlightBefore=0 overlapping=false lastSource=null lastDetail="null" lastStart=null epoch=1793425627782
+[NAV_TRACE] 2026-10-31T11:17:07.784037 END source=AppStartScreen detail="changeScreen _BrandSplashView -> MaintenanceScreen" inFlightAfter=0 epoch=1793425627784
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "MaintenanceScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/karth/Desktop/appclad/test/waydrop_startup_parallel_test.dart:57:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/karth/Desktop/appclad/test/waydrop_startup_parallel_test.dart line 57
+The test description was:
+  maintenance is displayed without waiting for a stalled parallel profile request
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -1: maintenance is displayed without waiting for a stalled parallel profile request [E]
+  Test failed. See exception logs above.
+  The test description was: maintenance is displayed without waiting for a stalled parallel profile request
+  
+00:01 +0 -1: (tearDownAll)
+00:01 +0 -1: Some tests failed.

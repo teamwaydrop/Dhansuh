@@ -1,0 +1,146 @@
+[
+  {
+    "slug": "create-rider-withdrawal",
+    "version": 20,
+    "verify_jwt": false,
+    "file": "create-rider-withdrawal/index.ts",
+    "identity_checks": [
+      {
+        "line": 78,
+        "text": "const { data: { user }, error: authError } = await supabase.auth.getUser(token);"
+      },
+      {
+        "line": 94,
+        "text": ".eq(\"user_id\", user.id)"
+      }
+    ]
+  },
+  {
+    "slug": "create-rider-payout",
+    "version": 30,
+    "verify_jwt": false,
+    "file": "create-rider-payout/index.ts",
+    "identity_checks": [
+      {
+        "line": 82,
+        "text": "const { data: { user }, error: authError } = await supabase.auth.getUser(token);"
+      },
+      {
+        "line": 96,
+        "text": ".eq(\"user_id\", user.id);"
+      },
+      {
+        "line": 243,
+        "text": ".eq(\"user_id\", user.id)"
+      },
+      {
+        "line": 288,
+        "text": ".eq(\"user_id\", user.id)"
+      }
+    ]
+  },
+  {
+    "slug": "create-payment",
+    "version": 64,
+    "verify_jwt": false,
+    "file": "functions/create-payment/index.ts",
+    "identity_checks": [
+      {
+        "line": 95,
+        "text": "const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);"
+      },
+      {
+        "line": 198,
+        "text": ".eq(\"user_id\", user.id)"
+      },
+      {
+        "line": 262,
+        "text": "if (taxRider.user_id !== user.id) {"
+      },
+      {
+        "line": 311,
+        "text": "if (codRider.user_id !== user.id) {"
+      },
+      {
+        "line": 367,
+        "text": "if (subRider.user_id !== user.id) {"
+      },
+      {
+        "line": 425,
+        "text": ".eq(\"user_id\", subRider.user_id)"
+      },
+      {
+        "line": 479,
+        "text": ".eq(\"user_id\", user.id)"
+      }
+    ]
+  },
+  {
+    "slug": "create-rider-kyc",
+    "version": 51,
+    "verify_jwt": false,
+    "file": "create-rider-kyc/index.ts",
+    "identity_checks": [
+      {
+        "line": 45,
+        "text": "const { data: authData, error: authError } = await supabase.auth.getUser(authToken);"
+      },
+      {
+        "line": 54,
+        "text": "if (!body.user_id || body.user_id !== authData.user.id) {"
+      },
+      {
+        "line": 272,
+        "text": ".eq(\"user_id\", user_id)"
+      }
+    ]
+  },
+  {
+    "slug": "validate-rider-kyc",
+    "version": 41,
+    "verify_jwt": false,
+    "file": "validate-rider-kyc/index.ts",
+    "identity_checks": [
+      {
+        "line": 40,
+        "text": "const { data: authData, error: authError } = await supabase.auth.getUser(authToken);"
+      },
+      {
+        "line": 48,
+        "text": "if (!body.user_id || body.user_id !== authData.user.id) {"
+      },
+      {
+        "line": 277,
+        "text": ".eq(\"user_id\", user_id)"
+      }
+    ]
+  },
+  {
+    "slug": "send-push-notification",
+    "version": 24,
+    "verify_jwt": false,
+    "file": "functions/send-push-notification/index.ts",
+    "identity_checks": [
+      {
+        "line": 152,
+        "text": "const { data: authData, error: authError } = await supabase.auth.getUser(token);"
+      },
+      {
+        "line": 291,
+        "text": ".eq(\"user_id\", user_id);"
+      }
+    ]
+  },
+  {
+    "slug": "cashfree-webhook",
+    "version": 43,
+    "verify_jwt": false,
+    "file": "cashfree-webhook/index.ts",
+    "identity_checks": [
+      {
+        "line": 248,
+        "text": "if (!timingSafeEqual(expectedSignature, signature)) {"
+      }
+    ]
+  }
+]

@@ -25,8 +25,8 @@ void main() {
     final pollStart = source.indexOf('Future<void> _pollActiveOrderFallback() async {');
     final pollEnd = source.indexOf('void startActiveOrderPollTimer() {');
     final pollBody = source.substring(pollStart, pollEnd);
-    final ifIndex = pollBody.indexOf('if (wasBusy && !hasActiveOrder)');
-    final catchIndex = pollBody.indexOf('} catch (_) {}');
+    final ifIndex = pollBody.indexOf('if ((wasBusy || isFirstPollForThisInstance) && !hasActiveOrder)');
+    final catchIndex = pollBody.indexOf('} catch (_) {');
 
     test('_pollActiveOrderFallback() captures hasActiveOrder before overwriting it '
         '(wasBusy snapshot)', () {

@@ -1,0 +1,32 @@
+[
+  {
+    "verified_at": "2026-11-02 14:50:09.330319+05:30",
+    "signature": "assign_new_order_to_nearby_online_riders_core(uuid)",
+    "owner": "postgres",
+    "acl": "{postgres=X/postgres,service_role=X/postgres}",
+    "md5": "2d934518592e53a06c25a2adbc91259c",
+    "anon_execute": false,
+    "authenticated_execute": false,
+    "service_execute": true
+  },
+  {
+    "verified_at": "2026-11-02 14:50:09.331272+05:30",
+    "signature": "redispatch_freed_riders()",
+    "owner": "postgres",
+    "acl": "{postgres=X/postgres,service_role=X/postgres}",
+    "md5": "74afe7767f445453e4fbff3dbae87c9a",
+    "anon_execute": false,
+    "authenticated_execute": false,
+    "service_execute": true
+  },
+  {
+    "verified_at": "2026-11-02 14:50:09.33134+05:30",
+    "signature": "redispatch_stalled_searching_orders()",
+    "owner": "postgres",
+    "acl": "{postgres=X/postgres,service_role=X/postgres}",
+    "md5": "b486cd2e7650778ba2a41fe3eac5ea0a",
+    "anon_execute": false,
+    "authenticated_execute": false,
+    "service_execute": true
+  }
+]

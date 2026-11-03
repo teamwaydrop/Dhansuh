@@ -1,0 +1,80 @@
+{
+  "scope": "Read-only later snapshot; not historical CPU/IO/wait proof",
+  "metadata": [
+    {
+      "evidence": {
+        "gps_triggers": [
+          {
+            "definition": "CREATE TRIGGER trg_rider_locations_near_destination_check AFTER UPDATE OF current_lat, current_lng ON public.rider_locations FOR EACH ROW EXECUTE FUNCTION check_rider_near_destination_from_rider_locations()",
+            "table_name": "rider_locations",
+            "trigger_name": "trg_rider_locations_near_destination_check",
+            "function_name": "check_rider_near_destination_from_rider_locations"
+          },
+          {
+            "definition": "CREATE TRIGGER on_rider_status_change AFTER UPDATE OF account_status ON public.riders FOR EACH ROW EXECUTE FUNCTION handle_rider_status_change()",
+            "table_name": "riders",
+            "trigger_name": "on_rider_status_change",
+            "function_name": "handle_rider_status_change"
+          },
+          {
+            "definition": "CREATE TRIGGER protect_rider_financial_columns_trigger BEFORE UPDATE ON public.riders FOR EACH ROW EXECUTE FUNCTION protect_rider_financial_columns()",
+            "table_name": "riders",
+            "trigger_name": "protect_rider_financial_columns_trigger",
+            "function_name": "protect_rider_financial_columns"
+          },
+          {
+            "definition": "CREATE TRIGGER trg_riders_gps_bridge_to_rider_locations AFTER UPDATE OF current_lat, current_lng ON public.riders FOR EACH ROW WHEN (((old.current_lat IS DISTINCT FROM new.current_lat) OR (old.current_lng IS DISTINCT FROM new.current_lng) OR (old.current_heading IS DISTINCT FROM new.current_heading) OR (old.last_location_updated_at IS DISTINCT FROM new.last_location_updated_at) OR (old.last_active_at IS DISTINCT FROM new.last_active_at))) EXECUTE FUNCTION sync_riders_gps_to_rider_locations()",
+            "table_name": "riders",
+            "trigger_name": "trg_riders_gps_bridge_to_rider_locations",
+            "function_name": "sync_riders_gps_to_rider_locations"
+          },
+          {
+            "definition": "CREATE TRIGGER trigger_assign_nearby_orders AFTER UPDATE OF account_status ON public.riders FOR EACH ROW WHEN (((new.account_status = 'online'::rider_account_status_enum) AND (old.account_status IS DISTINCT FROM 'online'::rider_account_status_enum))) EXECUTE FUNCTION assign_nearby_searching_orders_to_rider()",
+            "table_name": "riders",
+            "trigger_name": "trigger_assign_nearby_orders",
+            "function_name": "assign_nearby_searching_orders_to_rider"
+          },
+          {
+            "definition": "CREATE TRIGGER trigger_prevent_service_mode_switch_during_active_order BEFORE UPDATE OF service_mode ON public.riders FOR EACH ROW EXECUTE FUNCTION prevent_service_mode_switch_during_active_order()",
+            "table_name": "riders",
+            "trigger_name": "trigger_prevent_service_mode_switch_during_active_order",
+            "function_name": "prevent_service_mode_switch_during_active_order"
+          },
+          {
+            "definition": "CREATE TRIGGER trigger_rider_wallet_balance_update AFTER UPDATE OF wallet_balance ON public.riders FOR EACH ROW EXECUTE FUNCTION on_rider_wallet_balance_update()",
+            "table_name": "riders",
+            "trigger_name": "trigger_rider_wallet_balance_update",
+            "function_name": "on_rider_wallet_balance_update"
+          }
+        ],
+        "role_timeouts": [
+          {
+            "cfg": "statement_timeout=20s",
+            "rolname": "anon"
+          },
+          {
+            "cfg": "statement_timeout=20s",
+            "rolname": "authenticated"
+          },
+          {
+            "cfg": "lock_timeout=8s",
+            "rolname": "authenticator"
+          },
+          {
+            "cfg": "statement_timeout=8s",
+            "rolname": "authenticator"
+          }
+        ],
+        "query_stats_meta": {
+          "dealloc": 20,
+          "stats_reset": "2026-05-07T11:50:14.71209+05:30"
+        },
+        "query_stats_totals": {
+          "retained_entries": 4980,
+          "temp_blocks_read": 435041,
+          "temp_blocks_written": 1158477
+        }
+      }
+    }
+  ]
+}

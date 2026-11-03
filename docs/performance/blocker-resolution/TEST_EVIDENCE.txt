@@ -1,0 +1,44 @@
+Synthetic local evidence. No production rows/tokens/messages.
+NATIVE:
+PASS disabled additive schema then explicit local cutover
+PASS 12 overlapping requests enqueue once and one generation has one owner
+PASS pause old owner, expire, replace, resume old owner: no writes/release
+PASS crash/rollback during step rolls back offer, audit, notification and state
+PASS shared offer/accept eligibility denies each inconsistent rider state
+PASS concurrent push handlers claim each registration exactly once
+PASS crashes before/after send intent cannot create a second provider attempt
+PASS partial success retained; only transient sibling retries with bounded budget
+PASS unregistered cleanup cannot delete a refreshed registration
+PASS enqueue failure preserves inbox and durable intent; recovery kicks once
+PASS claims cannot target a foreign recipient or run as an untrusted role
+PASS atomic acceptance with new guards: one rider wins, financial retry unchanged
+PASS new-order, rider rematch, self-rematch and both cron paths coalesce
+PASS repeated pre-intent crashes have a bounded terminal retry budget
+PASS crash before each delivery commit leaves no partial durable transition
+PASS KYC revocation serializes with the rider ownership lock
+PASS bounded recovery skips already queued jobs without starving due work
+{"passed": 17, "failed": 0}
+EDGE:
+eight simultaneous full handlers make one provider attempt per device ... ok (1s)
+handler interruption at before_begin has no duplicate downstream send ... ok (810ms)
+handler interruption at after_begin has no duplicate downstream send ... ok (1s)
+handler interruption at before_finish has no duplicate downstream send ... ok (860ms)
+handler interruption at after_finish has no duplicate downstream send ... ok (648ms)
+partial device success survives a sibling unknown receipt; no auto-resend ... ok (921ms)
+transient rejection retries only after persisted backoff ... ok (1s)
+auth denial and actor scoping cannot mutate another notification ... ok (395ms)
+preferences skip durably without an FCM call or inbox deletion ... ok (702ms)
+typed invalid registration is cleaned by SQL recipient/version CAS ... ok (1s)
+provider classification and Retry-After do not treat generic 404 as invalid token ... ok (692µs)
+dispatch runner cannot fall back to unsafe writes after missing RPC ... ok (962µs)
+buffered deadline aborts a response whose headers arrived but body stalled ... ok (15ms)
+actual dispatch runner commits one step and a lost response cannot duplicate offers ... ok (994ms)
+restore mocked provider transport ... ok (724µs)
+ok | 15 passed | 0 failed (10s)
+FLUTTER:
+01:05 +2118: All tests passed!
+ANALYZER:
+{'errors': 0, 'warnings': 73, 'info': 384}
+457 findings retained; analyzer returns nonzero for existing warnings.
+Type checks: dispatch, push, acceptance exit 0.
+Local PostgreSQL stopped after tests.

@@ -5,11 +5,13 @@ class ConnectionErrorScreen extends StatelessWidget {
   final VoidCallback onRetry;
   final String errorMessage;
   final ErrorType errorType;
+  final bool retryEnabled;
 
   const ConnectionErrorScreen({
     super.key,
     required this.onRetry,
     this.errorType = ErrorType.offline,
+    this.retryEnabled = true,
     this.errorMessage = "We couldn't connect to the WayDrop servers. Please check your internet connection.",
   });
 
@@ -98,7 +100,7 @@ class ConnectionErrorScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               ElevatedButton.icon(
-                onPressed: onRetry,
+                onPressed: retryEnabled ? onRetry : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: accentColor,
                   foregroundColor: Colors.white,

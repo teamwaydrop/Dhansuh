@@ -22,7 +22,9 @@ import 'package:waydrop/shared/helpers/insets.dart';
 
 
 class ActivityTab extends StatefulWidget {
-  const ActivityTab({super.key});
+  const ActivityTab({super.key, this.isActive = true});
+
+  final bool isActive;
 
   @override
   State<ActivityTab> createState() => ActivityTabState();
@@ -83,6 +85,9 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
   // action / foreground event should never be silently skipped), so this only slows
   // the passive background poll, never a user-visible refresh trigger.
   final PollBackoff _refreshBackoff = PollBackoff();
+  bool _loadInFlight = false;
+  bool _reloadQueued = false;
+  bool _appResumed = true;
 
   @override
   // Lifecycle method called once when the stateful widget initialized for the first time
@@ -114,9 +119,10 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
 
   void _startSilentRefreshTimer() {
     _activitySilentRefreshTimer?.cancel();
+    if (!widget.isActive || !_appResumed) return;
     // Setup a timer instance for delayed execution or polling intervals
     _activitySilentRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      if (!mounted) return;
+      if (!mounted || !widget.isActive || !_appResumed) return;
       // Realtime-health gate: realtime already refreshed orders within the
       // last period, so the heavy loadOrders() would be a duplicate. Falls
       // back to the full refresh when realtime is quiet or stale.
@@ -135,8 +141,28 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
   }
 
   @override
+  void didUpdateWidget(covariant ActivityTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive == oldWidget.isActive) return;
+    if (widget.isActive && _appResumed) {
+      loadOrders(showLoading: false);
+      _startSilentRefreshTimer();
+    } else {
+      _activitySilentRefreshTimer?.cancel();
+      _debounceTimer?.cancel();
+    }
+  }
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
+    _appResumed = state == AppLifecycleState.resumed;
+    if (!_appResumed) {
+      _lastRealtimeEventAt = null;
+      _activitySilentRefreshTimer?.cancel();
+      _debounceTimer?.cancel();
+    }
+    if (_appResumed && widget.isActive) {
+      _startSilentRefreshTimer();
       // R16 perf fix: same realtime-health gate _startSilentRefreshTimer() already uses (see its
       // comment above) -- if realtime delivered an order update within the last 30s, that event's
       // own debounced loadOrders() call already refreshed this exact data, so a resume-triggered
@@ -259,6 +285,9 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
   /// old single mixed-type `.range()` past query, which both starved whichever type wasn't in the
   /// most recent page and (before that) was failing outright on every call (see _orderColumns).
   Future<void> loadOrders({bool showLoading = false}) async {
+    if (!mounted) return;
+    if (_loadInFlight) { _reloadQueued = true; return; }
+    _loadInFlight = true;
     if (showLoading) {
       // Update the widget state to trigger a UI rebuild with the new variables
       if (mounted) setState(() => loading = true);
@@ -296,7 +325,8 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
           .order('id', ascending: false)
           .limit(_pastPageSize);
 
-      final results = await Future.wait([activeFuture, pastRidesFuture, pastParcelsFuture]);
+      final results = await Future.wait([activeFuture, pastRidesFuture, pastParcelsFuture])
+          .timeout(const Duration(seconds: 8));
       if (!mounted) return;
 
       final activeList = List<Map<String, dynamic>>.from(results[0]);
@@ -332,6 +362,12 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
       _refreshBackoff.recordFailure();
       // Update the widget state to trigger a UI rebuild with the new variables
       if (mounted) setState(() => loading = false);
+    } finally {
+      _loadInFlight = false;
+      if (_reloadQueued && mounted) {
+        _reloadQueued = false;
+        unawaited(loadOrders());
+      }
     }
   }
 
@@ -437,12 +473,14 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
       filterColumn: 'user_id',
       filterValue: user.id,
       callback: (payload) {
+        // Hidden changes are reconciled once on tab activation/resume.
+        if (!widget.isActive || !_appResumed) return;
         _lastRealtimeEventAt = DateTime.now();
         debugPrint('REALTIME ORDER EVENT RECEIVED => DEBOUNCING SYNC');
         _debounceTimer?.cancel();
         // Setup a timer instance for delayed execution or polling intervals
         _debounceTimer = Timer(const Duration(milliseconds: 500), () {
-          if (mounted) loadOrders(showLoading: false);
+          if (mounted && widget.isActive && _appResumed) loadOrders(showLoading: false);
         });
       },
     );

@@ -1,0 +1,31 @@
+{
+  "engine": "PostgreSQL 18.6 (PGlite 0.5.13) on wasm32-unknown-emscripten, compiled by emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.5 (1db513782be24469589d7cb8a1f1834e9a33f271), 32-bit",
+  "productionConnected": false,
+  "scope": "Synthetic PostgreSQL 18.6; service-mode/busy/threshold dependencies are fixture stubs. No production execution, dispatch writes, provider call or Deno deployment.",
+  "results": [
+    {
+      "check": "Actual original/proposed nearby SQL: 56 synthetic eligibility/radius result comparisons",
+      "passed": true
+    },
+    {
+      "check": "Matching bodies byte-identical after removal of the explicit prefilters/materialization/declarations",
+      "passed": true
+    },
+    {
+      "check": "GPS/index proposal parses, passes drift guards and rolls back all changes on a synthetic schema",
+      "passed": true
+    },
+    {
+      "check": "Narrow admin-policy proposal parses and rolls back against all four expected policy names/guards",
+      "passed": true
+    },
+    {
+      "check": "Actual proposed OAuth wrapper: ten overlapping requests share one mint; rejected mint clears for retry",
+      "passed": true
+    },
+    {
+      "check": "Token prefetch remains after the global flag; OAuth/FCM remains after preference and empty-token gates",
+      "passed": true
+    }
+  ]
+}

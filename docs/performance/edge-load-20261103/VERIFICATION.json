@@ -1,0 +1,64 @@
+{
+  "cache_baseline": {
+    "passed": 7,
+    "failed": 5,
+    "note": "Completed behavioral reproduction after fixing fixture permissions/type annotation; no implementation correction yet."
+  },
+  "cache_corrected": {
+    "passed": 12,
+    "failed": 0
+  },
+  "pricing_cache": {
+    "passed": 4,
+    "failed": 0
+  },
+  "pure_pricing_and_corridor_existing": {
+    "passed": 51,
+    "failed": 0
+  },
+  "focused_deno_combined": {
+    "passed": 67,
+    "failed": 0
+  },
+  "photo_original_eight_case_baseline": {
+    "passed": 3,
+    "failed": 5
+  },
+  "photo_corrected_including_two_extra_cases": {
+    "passed": 10,
+    "failed": 0
+  },
+  "flutter_full": {
+    "passed": 2193,
+    "skipped_live_opt_in": 10,
+    "failed": 0
+  },
+  "measurements": {
+    "same_path_three_concurrent_sign_requests": {
+      "before": 3,
+      "after": 1
+    },
+    "same_order_three_concurrent_eta_calls": {
+      "before": 3,
+      "after": 1
+    },
+    "eta_timeout_then_overlap_provider_calls": {
+      "before": 2,
+      "after": 1
+    },
+    "unauthorized_foreign_photo_request": {
+      "before": {
+        "downloads": 1,
+        "table_writes": 4,
+        "http": 200
+      },
+      "after": {
+        "downloads": 0,
+        "table_writes": 0,
+        "http": 403
+      }
+    }
+  },
+  "production_deployment": false,
+  "network_permissions_in_mock_tests": false
+}

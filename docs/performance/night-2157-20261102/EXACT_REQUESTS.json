@@ -1,0 +1,16 @@
+{
+  "sql": "SELECT timestamp,source,log_attributes['request_id'] AS request_id,log_attributes['operation'] AS operation,splitByChar('?',log_attributes['req.url'])[1] AS object_route,log_attributes['res.statusCode'] AS status,log_attributes['responseTime'] AS response_ms FROM logs WHERE source='storage_logs' AND log_attributes['request_id'] IN ('01a19d18-f7ab-7082-9de2-c32bbf2ad598','01a19d1a-138f-7d2f-b8a7-a1fee8097527') ORDER BY timestamp LIMIT 5",
+  "rows": {
+    "result": [
+      {
+        "operation": "storage.object.upload",
+        "request_id": "01a19d1a-138f-7d2f-b8a7-a1fee8097527",
+        "response_ms": "36936.34518599883",
+        "source": "storage_logs",
+        "status": "",
+        "timestamp": "2026-11-02T16:32:11.240000",
+        "booking_photo": true
+      }
+    ]
+  }
+}

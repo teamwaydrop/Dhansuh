@@ -1,0 +1,197 @@
+[
+  {
+    "table": "orders",
+    "path": "lib/core/services/realtime/realtime_order_controller.dart",
+    "line": 580
+  },
+  {
+    "table": "riders",
+    "path": "lib/core/services/realtime/realtime_order_controller.dart",
+    "line": 626
+  },
+  {
+    "table": "users",
+    "path": "lib/core/services/session/user_session_service.dart",
+    "line": 52
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/intercity/parcels/dashboard/intercity_parcels_screen.dart",
+    "line": 134
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/intercity/rides/dashboard/intercity_rides_screen.dart",
+    "line": 146
+  },
+  {
+    "table": "rider_assignments",
+    "path": "lib/features/intercity/shared/screens/intercity_searching_screen.dart",
+    "line": 662
+  },
+  {
+    "table": "intercity_requests",
+    "path": "lib/features/intercity/shared/screens/intercity_searching_screen.dart",
+    "line": 723
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/rider/activity/rider_activity_tab.dart",
+    "line": 149
+  },
+  {
+    "table": "rider_withdrawals",
+    "path": "lib/features/rider/earnings/rider_earnings_tab.dart",
+    "line": 194
+  },
+  {
+    "table": "riders",
+    "path": "lib/features/rider/earnings/rider_earnings_tab.dart",
+    "line": 228
+  },
+  {
+    "table": "riders",
+    "path": "lib/features/rider/home/rider_home_tab.dart",
+    "line": 623
+  },
+  {
+    "table": "rider_assignments",
+    "path": "lib/features/rider/home/rider_home_tab.dart",
+    "line": 734
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/rider/home/rider_home_tab.dart",
+    "line": 808
+  },
+  {
+    "table": "rider_travel_plans",
+    "path": "lib/features/rider/home/rider_home_tab.dart",
+    "line": 904
+  },
+  {
+    "table": "intercity_requests",
+    "path": "lib/features/rider/intercity/intercity_bookings_screen.dart",
+    "line": 162
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/rider/intercity/intercity_bookings_screen.dart",
+    "line": 183
+  },
+  {
+    "table": "riders",
+    "path": "lib/features/rider/navigation/rider_main_navigation_screen.dart",
+    "line": 134
+  },
+  {
+    "table": "riders",
+    "path": "lib/features/rider/orders/rider_orders_screen.dart",
+    "line": 376
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/rider/orders/rider_orders_screen.dart",
+    "line": 760
+  },
+  {
+    "table": "rider_assignments",
+    "path": "lib/features/rider/orders/rider_orders_screen.dart",
+    "line": 938
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/rider/orders/rider_orders_screen.dart",
+    "line": 992
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/rider/orders/screens/rider_active_order_screen.dart",
+    "line": 1280
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/rider/orders/widgets/incoming_order_card.dart",
+    "line": 179
+  },
+  {
+    "table": "rider_assignments",
+    "path": "lib/features/rider/orders/widgets/incoming_order_card.dart",
+    "line": 212
+  },
+  {
+    "table": "rider_withdrawals",
+    "path": "lib/features/rider/payouts/rider_payouts_screen.dart",
+    "line": 100
+  },
+  {
+    "table": "riders",
+    "path": "lib/features/rider/profile/rider_profile_tab.dart",
+    "line": 224
+  },
+  {
+    "table": "rider_assignments",
+    "path": "lib/features/rider/travel_plans/screens/travel_plan_details_screen.dart",
+    "line": 416
+  },
+  {
+    "table": "intercity_requests",
+    "path": "lib/features/rider/travel_plans/screens/travel_plan_details_screen.dart",
+    "line": 436
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/rider/travel_plans/screens/travel_plan_details_screen.dart",
+    "line": 470
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/user/activity/activity_tab.dart",
+    "line": 470
+  },
+  {
+    "table": "users",
+    "path": "lib/features/user/home/home_tab.dart",
+    "line": 957
+  },
+  {
+    "table": "rider_kyc",
+    "path": "lib/features/user/home/home_tab.dart",
+    "line": 978
+  },
+  {
+    "table": "riders",
+    "path": "lib/features/user/home/home_tab.dart",
+    "line": 1005
+  },
+  {
+    "table": "orders",
+    "path": "lib/features/user/home/home_tab.dart",
+    "line": 1081
+  },
+  {
+    "table": "intercity_requests",
+    "path": "lib/modules/chat/screens/order_chat_screen.dart",
+    "line": 598
+  },
+  {
+    "table": "order_chat_messages",
+    "path": "lib/modules/chat/screens/order_chat_screen.dart",
+    "line": 1213
+  },
+  {
+    "table": "notifications",
+    "path": "lib/modules/notifications/services/notification_badge_service.dart",
+    "line": 99
+  },
+  {
+    "table": "payments",
+    "path": "lib/modules/payments/services/payment_service.dart",
+    "line": 343
+  },
+  {
+    "table": "order_chat_messages",
+    "path": "lib/modules/support/screens/admin_support_chats_screen.dart",
+    "line": 81
+  }
+]

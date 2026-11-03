@@ -1,3 +1,6 @@
+import 'package:waydrop/core/services/realtime/rider_update_filter.dart';
+import 'package:waydrop/core/services/diagnostics/performance_trace.dart';
+import 'profile_refresh_window.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -45,7 +48,8 @@ import 'package:waydrop/core/services/location/serviceability_service.dart';
 import 'package:waydrop/core/theme/responsive_layout.dart';
 
 class HomeTab extends ConsumerStatefulWidget {
-  const HomeTab({super.key});
+  final bool isActive;
+  const HomeTab({super.key, this.isActive = true});
 
   @override
   ConsumerState<HomeTab> createState() => _HomeTabState();
@@ -70,6 +74,14 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
   // [PERF] Issue #1B: the 1 s cooldown tick drives only this notifier (no setState).
   final ValueNotifier<DateTime> _cooldownTicker = ValueNotifier<DateTime>(DateTime.now());
   Timer? _silentRefreshTimer;
+
+  Future<void> _removeMultiplexedHomeChannel(RealtimeChannel channelToRemove) async {
+    try {
+      await supabase.removeChannel(channelToRemove);
+    } catch (error) {
+      debugPrint('HomeTab: failed to remove multiplexed realtime channel: $error');
+    }
+  }
   // Timestamp of the last realtime delivery for this tab (users/riders/kyc/orders
   // channels). Used to skip the redundant 30s silent refresh while realtime is
   // healthy -- the timer stays as the pure fallback when realtime is stale.
@@ -79,6 +91,12 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
   // success/catch paths. Consulted by the 30s silent-refresh timer only -- initState,
   // resume, and realtime callbacks all call _load() unconditionally.
   final PollBackoff _refreshBackoff = PollBackoff();
+  bool _loadInFlight = false;
+  bool _reloadQueued = false;
+  bool _queuedFullRefresh = false;
+  bool _ordersRefreshPending = false;
+  final _profileRefreshWindow = ProfileRefreshWindow();
+  bool _appResumed = true;
 
   String? _subscribedUserId;
   String? _subscribedRiderId;
@@ -173,7 +191,9 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
       loading = false;
     }
 
-    // B3: AppStartScreen already fetched this tab's data into
+    // Reuse the startup profile; Home fetches its secondary data after navigation.
+    // A complete seed from another caller still skips the first batch.
+    // B3: AppStartScreen provides this tab's initial data through
     // initialUserDataProvider — skip the duplicate first fetch; the 30s
     // fallback, resume, and realtime callbacks still perform full refreshes.
     _load(useInitialData: initialData != null);
@@ -201,14 +221,18 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
 
   void _startSilentRefreshTimer() {
     _silentRefreshTimer?.cancel();
+    if (!widget.isActive || !_appResumed) return;
     // Setup a timer instance for delayed execution or polling intervals
     _silentRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      if (!mounted) return;
+      if (!mounted || !widget.isActive || !_appResumed ||
+          !(ModalRoute.of(context)?.isCurrent ?? true)) {
+        return;
+      }
       // Realtime-health gate: realtime already refreshed this tab's data
       // within the last period, so the full _load() would be a duplicate.
       // Falls back to the full refresh when realtime is quiet or stale.
       final lastEvent = _lastRealtimeEventAt;
-      if (lastEvent != null &&
+      if (!_ordersRefreshPending && !_refreshBackoff.isBackedOff && lastEvent != null &&
           DateTime.now().difference(lastEvent) <
               const Duration(seconds: 30)) {
         return;
@@ -232,8 +256,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
     // Unregister lifecycle observers to prevent callbacks when the widget is dead
     WidgetsBinding.instance.removeObserver(this);
     if (channel != null) {
-      // Perform an asynchronous database operation using the Supabase client wrapper
-      supabase.removeChannel(channel!);
+      unawaited(_removeMultiplexedHomeChannel(channel!));
       channel = null;
     }
     if (_homeActiveOrdersSubId != null && _homeActiveOrdersChannelName != null) {
@@ -254,10 +277,21 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    _appResumed = state == AppLifecycleState.resumed;
+    if (!_appResumed) _silentRefreshTimer?.cancel();
     if (state == AppLifecycleState.resumed) {
       _checkLocationPermission();
-      _load();
+      if (widget.isActive) {
+        _startSilentRefreshTimer();
+        _load();
+      }
     }
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive != oldWidget.isActive) _startSilentRefreshTimer();
   }
 
   Future<void> _initializeLocationFlow() async {
@@ -659,7 +693,17 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
     _hasCheckedServiceabilityOnInit = true;
   }
 
-  Future<void> _load({bool useInitialData = false}) async {
+  Future<void> _load({bool useInitialData = false, bool ordersOnly = false}) => PerformanceTrace.measure('passenger_home', () => _loadMeasured(useInitialData: useInitialData, ordersOnly: ordersOnly));
+
+  Future<void> _loadMeasured({bool useInitialData = false, bool ordersOnly = false}) async {
+    if (ordersOnly) _ordersRefreshPending = true;
+    if (!mounted || (ordersOnly && _refreshBackoff.isBackedOff)) return;
+    if (_loadInFlight) {
+      _reloadQueued = true;
+      _queuedFullRefresh |= !ordersOnly;
+      return;
+    }
+    _loadInFlight = true;
     final Stopwatch perfLoad = Stopwatch()..start();
     try {
       // Perform an asynchronous database operation using the Supabase client wrapper
@@ -674,13 +718,14 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
         return;
       }
 
-      // B3: On the initial mount, AppStartScreen already fetched this exact
+      // Reuse a complete seed when available. A profile-only startup seed
+      // still needs the secondary batch below. Previously startup fetched the exact
       // dataset (users/riders/rider_kyc/orders) into initialUserDataProvider,
       // and initState applied it above — skip the 4 redundant queries. All
       // later refreshes (resume, 30s fallback, realtime callbacks) still run
       // the full query; the side effects below run in both paths.
       final bool skipQuery =
-          useInitialData && ref.read(initialUserDataProvider) != null;
+          useInitialData && ref.read(initialUserDataProvider)?.secondaryDataLoaded == true;
 
       if (!skipQuery) {
         final Stopwatch perfQuery = Stopwatch()..start();
@@ -689,17 +734,26 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
         // (grepped exhaustively) -- projected instead of pulling full rows
         // (which include KYC document URLs/numbers on rider_kyc) on every
         // initState, 30s silent refresh, resume, and realtime callback.
-        final userFuture = supabase
+        final reuseProfiles = _profileRefreshWindow.reuseFor(user.id,
+            ordersOnly: ordersOnly, now: DateTime.now());
+        final seedProfile = useInitialData ? ref.read(initialUserDataProvider)?.userProfile : null;
+        final Future<Map<String, dynamic>?> userFuture = reuseProfiles
+            ? Future<Map<String, dynamic>?>.value(userProfile)
+            : seedProfile?['id'] == user.id
+            ? Future<Map<String, dynamic>?>.value(seedProfile)
+            : supabase
             .from('users')
             .select('full_name')
             .eq('id', user.id)
             .maybeSingle();
-        final riderFuture = supabase
+        final riderFuture = reuseProfiles
+            ? Future<Map<String, dynamic>?>.value(riderProfile) : supabase
             .from('riders')
             .select('id')
             .eq('user_id', user.id)
             .maybeSingle();
-        final kycFuture = supabase
+        final kycFuture = reuseProfiles
+            ? Future<Map<String, dynamic>?>.value(kycProfile) : supabase
             .from('rider_kyc')
             .select('id, blocked_until, kyc_status')
             .eq('user_id', user.id)
@@ -736,14 +790,17 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
             .limit(10);
 
         // Execute multiple future tasks concurrently to optimize screen load times
-        final results = await Future.wait([
+        final results = await Future.wait<dynamic>([
           userFuture,
           riderFuture,
           kycFuture,
           ordersFuture,
         ]);
         debugPrint('[PERF_HOME] _load 4-query batch took ${perfQuery.elapsedMilliseconds}ms epoch=${DateTime.now().millisecondsSinceEpoch}');
-        if (!mounted) return;
+        if (!mounted || supabase.auth.currentUser?.id != user.id) return;
+        if (!reuseProfiles) {
+          _profileRefreshWindow.recordSuccess(user.id, DateTime.now());
+        }
 
         // Update the widget state to trigger a UI rebuild with the new variables
         setState(() {
@@ -804,10 +861,20 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
       _subscribeActiveOrders(user.id);
       _checkServiceabilityOnInit();
       _refreshBackoff.recordSuccess();
+      _ordersRefreshPending = false;
     } catch (e) {
       _refreshBackoff.recordFailure();
+      _ordersRefreshPending = true;
       // Update the widget state to trigger a UI rebuild with the new variables
       if (mounted) setState(() => loading = false);
+    } finally {
+      _loadInFlight = false;
+      if (_reloadQueued && mounted) {
+        _reloadQueued = false;
+        final fullRefresh = _queuedFullRefresh;
+        _queuedFullRefresh = false;
+        unawaited(_load(ordersOnly: !fullRefresh));
+      }
     }
   }
 
@@ -877,8 +944,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
     _subscribedKycId = kycId;
 
     if (channel != null) {
-      // Perform an asynchronous database operation using the Supabase client wrapper
-      supabase.removeChannel(channel!);
+      unawaited(_removeMultiplexedHomeChannel(channel!));
       channel = null;
     }
 
@@ -948,17 +1014,13 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
           // _lastRealtimeEventAt stamp, no setState -- when it's an UPDATE confined to GPS
           // heartbeat columns. Scoped to eventType == update only, so INSERT/DELETE (this
           // subscription's event: .all covers both) are never gated. Conservative fallback
-          // (matches RiderHomeTab's own gating): if oldRecord is empty (no diff available), every
+          // (matches RiderHomeTab's own gating): if oldRecord is empty or incomplete (diff unavailable), every
           // key counts as changed, so this still falls through to the existing unconditional
           // behavior below instead of silently skipping.
           if (payload.eventType == PostgresChangeEvent.update) {
             final oldRecord = payload.oldRecord;
             final newRecord = payload.newRecord;
-            final isLocationOnlyUpdate = oldRecord.isNotEmpty &&
-                newRecord.keys.every((key) =>
-                    !oldRecord.containsKey(key) ||
-                    oldRecord[key] == newRecord[key] ||
-                    _locationHeartbeatFields.contains(key));
+            final isLocationOnlyUpdate = isLocationOnlyRiderUpdate(oldRecord, newRecord, _locationHeartbeatFields);
             if (isLocationOnlyUpdate) return;
           }
           _lastRealtimeEventAt = DateTime.now();
@@ -998,6 +1060,10 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
   // untouched.
 
   void _subscribeActiveOrders(String userId) {
+    if (_homeActiveOrdersChannelName == 'home-active-orders-$userId' &&
+        _homeActiveOrdersSubId != null) {
+      return;
+    }
     if (_homeActiveOrdersSubId != null && _homeActiveOrdersChannelName != null) {
       // Remove the real-time Postgres subscription to release memory resources
       RealtimeManager.instance.unsubscribe(
@@ -1025,7 +1091,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
           final oldRecord = payload.oldRecord;
           if (oldRecord.isNotEmpty && oldRecord['user_id'] == userId) {
             _lastOrderStateHash = ""; // reset hash to allow forced reload
-            _load();
+            _load(ordersOnly: true);
           }
           return;
         }
@@ -1044,7 +1110,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
         _lastOrderStateHash = stateHash;
 
         // Reload recent orders list in real-time
-        _load();
+        _load(ordersOnly: true);
 
         final orderType = record['order_type']?.toString() ?? '';
         final distanceMeters =
@@ -1264,8 +1330,11 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
   // Build method responsible for rendering the entire widget layout hierarchy on the viewport
   Widget build(BuildContext context) {
     final initialData = ref.watch(initialUserDataProvider);
+    // GPS may remain unavailable (permission denied, disabled service, or a
+    // failed fix). Once Home's data attempt finishes, show the existing location
+    // setup/error UI instead of keeping a full-screen skeleton indefinitely.
     final shouldShowSkeleton =
-        initialData == null && !LocationCacheService.isInitialized;
+        loading && initialData == null && !LocationCacheService.isInitialized;
     if (!shouldShowSkeleton) _contentBuildCount++;
 
     // Retrieve the active theme parameters (like colors, text style, dark mode) from BuildContext

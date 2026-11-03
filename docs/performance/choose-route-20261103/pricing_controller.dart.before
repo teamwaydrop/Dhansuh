@@ -1,0 +1,378 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:convert';
+
+class PricingController extends ChangeNotifier {
+  final supabase = Supabase.instance.client;
+
+  // =====================================================
+  // STATE
+  // =====================================================
+
+  bool _loading = false;
+
+  bool get loading => _loading;
+
+  Map<String, dynamic> _pricingData = {};
+
+  Map<String, dynamic> get pricingData => _pricingData;
+
+  String _error = '';
+
+  String get error => _error;
+  int _generation = 0;
+  bool _disposed = false;
+
+  bool _owns(int generation, String? userId) =>
+      !_disposed &&
+      generation == _generation &&
+      supabase.auth.currentUser?.id == userId;
+
+  // =====================================================
+  // IN-FLIGHT REQUEST DEDUPLICATION (P3)
+  // =====================================================
+  // Per-instance only -- each screen creates its own PricingController (see
+  // fetchMultiplePricing() call sites), so this map is never shared across users, screens, or
+  // controllers. Keyed by the exact request body a per-vehicle call would send to
+  // calculate-order-pricing, so two calls only ever share a request when every fare-affecting
+  // input is identical. An entry exists only while its network call is actually in flight and is
+  // removed the instant that call resolves (success or failure) -- there is no TTL and nothing
+  // is cached after completion. A caller timeout retains the raw pending owner;
+  // a retry after actual transport settlement starts a fresh request.
+  final Map<String, Future<MapEntry<String, dynamic>?>> _inFlightPricingRequests = {};
+
+  String _dedupKeyFor(Map<String, dynamic> body) {
+    // Share only the exact transmitted input and account/credential scope.
+    // Rounding here could incorrectly reuse a quote from another zone/distance.
+    final keys = body.keys.toList()..sort();
+    return jsonEncode([
+      supabase.auth.currentUser?.id,
+      supabase.auth.currentSession?.accessToken,
+      {for (final key in keys) key: body[key]},
+    ]);
+  }
+
+  // =====================================================
+  // FETCH MULTIPLE PRICING
+  // =====================================================
+
+  Future<void> fetchMultiplePricing({
+    required String orderType,
+    required double distanceKm,
+    required String pickupAddress,
+    required double maxBoostAmount,
+    String? weightCategory,
+    double? pickupLat,
+    double? pickupLng,
+  }) async {
+    if (_disposed) return;
+    final generation = ++_generation;
+    final userId = supabase.auth.currentUser?.id;
+    _loading = true;
+    _error = '';
+    _pricingData = {};
+    notifyListeners();
+    try {
+      await _fetchPricingFallback(
+        orderType: orderType,
+        distanceKm: distanceKm,
+        pickupAddress: pickupAddress,
+        maxBoostAmount: maxBoostAmount,
+        weightCategory: weightCategory,
+        pickupLat: pickupLat,
+        pickupLng: pickupLng,
+        generation: generation,
+        userId: userId,
+      );
+    } catch (_) {
+      if (_owns(generation, userId)) _error = 'Pricing service failure';
+    } finally {
+      if (_owns(generation, userId)) {
+        _loading = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  // =====================================================
+  // FALLBACK PRICING
+  // =====================================================
+
+  Future<void> _fetchPricingFallback({
+    required String orderType,
+    required int generation,
+    required String? userId,
+    required double distanceKm,
+    required String pickupAddress,
+    required double maxBoostAmount,
+    String? weightCategory,
+    double? pickupLat,
+    double? pickupLng,
+  }) async {
+    if (!_owns(generation, userId)) return;
+    try {
+      List<String> vehicles;
+      if (orderType == 'ride' ||
+          orderType == 'intercity_ride' ||
+          orderType == 'ride_sharing') {
+        vehicles = ['bike', 'auto', 'cab'];
+      } else if (orderType == 'local_parcel') {
+        // Offer every vehicle the parcel's weight is actually eligible for, instead of picking
+        // one on the user's behalf -- ParcelBookingScreen renders a selector over whatever this
+        // returns and lets the rider choose. Auto has no upper weight bound in this system, so
+        // it's always eligible; Bike is excluded once the parcel is too heavy for it.
+        double weight = 0.0;
+        if (weightCategory != null) {
+          weight = double.tryParse(weightCategory) ?? 0.0;
+        }
+        vehicles = weight > 10.0 ? ['auto'] : ['bike', 'auto'];
+      } else {
+        double weight = 0.0;
+        if (weightCategory != null) {
+          weight = double.tryParse(weightCategory) ?? 0.0;
+        }
+        vehicles = [weight > 10.0 ? 'auto' : 'bike'];
+      }
+
+      final Map<String, dynamic> tempPricing = {};
+
+      final futures = vehicles.map((vehicle) async {
+        final body = {
+          'order_type': orderType,
+          'vehicle_type': vehicle,
+          'distance_km': distanceKm,
+          'pickup_address': pickupAddress,
+          'max_boost_amount': maxBoostAmount,
+          'weight_category': weightCategory,
+          'pickup_lat': pickupLat,
+          'pickup_lng': pickupLng,
+        };
+        final dedupKey = _dedupKeyFor(body);
+
+        final inFlight = _inFlightPricingRequests[dedupKey];
+        if (inFlight != null) {
+          // An identical request (same vehicle + same fare-affecting inputs) is already
+          // running -- await its result instead of firing a second network call. Whichever
+          // caller resolves first, both receive the exact same outcome, success or failure.
+          return inFlight.timeout(
+            const Duration(seconds: 15),
+            onTimeout: () => null,
+          );
+        }
+
+        late final Future<MapEntry<String, dynamic>?> requestFuture;
+        requestFuture = _fetchSinglePricing(vehicle, body).whenComplete(() {
+          if (identical(_inFlightPricingRequests[dedupKey], requestFuture)) {
+            _inFlightPricingRequests.remove(dedupKey);
+          }
+        });
+        _inFlightPricingRequests[dedupKey] = requestFuture;
+        // Bound this caller without losing raw transport ownership on timeout.
+        return requestFuture.timeout(
+          const Duration(seconds: 15),
+          onTimeout: () => null,
+        );
+      });
+
+      final results = await Future.wait(futures);
+
+      if (!_owns(generation, userId)) return;
+      for (final result in results) {
+        if (result != null) {
+          tempPricing[result.key] = result.value;
+        }
+      }
+
+      // -----------------------------------------------
+      // SAVE
+      // -----------------------------------------------
+
+      if (tempPricing.isNotEmpty) {
+        _pricingData = tempPricing;
+      } else {
+        _error = 'Unable to fetch pricing';
+      }
+    } catch (e) {
+      if (!_owns(generation, userId)) return;
+      _error = 'Pricing service failure';
+
+      debugPrint('PRICING FALLBACK GENERAL ERROR => $e');
+    }
+  }
+
+  // =====================================================
+  // SINGLE VEHICLE PRICING REQUEST
+  // (extracted from _fetchPricingFallback so it can be shared by the in-flight dedup map above)
+  // =====================================================
+
+  Future<MapEntry<String, dynamic>?> _fetchSinglePricing(
+    String vehicle,
+    Map<String, dynamic> body,
+  ) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'calculate-order-pricing',
+        body: body,
+        // WayDrop Progressive Degradation Audit, finding CLIENT-1: this call had no bound,
+        // so a stalled request left this vehicle's fetchMultiplePricing() future waiting
+        // forever (the direct cause of "price calculation sometimes never returns"). The
+        // surrounding try/catch already treats any failure here as "this vehicle's pricing
+        // unavailable" and continues with the others, so a timeout is handled identically
+        // to any other per-vehicle error — no behavior change beyond bounding the wait.
+      );
+
+      dynamic decodedData = response.data;
+      if (decodedData is String) {
+        try {
+          decodedData = jsonDecode(decodedData);
+        } catch (e) {
+          debugPrint('PRICING DECODE ERROR [$vehicle] => $e');
+        }
+      }
+
+      if (decodedData is Map && decodedData['pricing'] != null) {
+        final pricing = decodedData['pricing'] as Map<String, dynamic>;
+        return MapEntry(vehicle, pricing);
+      } else {
+        debugPrint('PRICING WARNING [$vehicle]: missing or invalid quote.');
+      }
+    } catch (e) {
+      debugPrint('FALLBACK ERROR [$vehicle] => $e');
+    }
+
+    return null;
+  }
+
+  // =====================================================
+  // GET PRICING BY VEHICLE
+  // =====================================================
+
+  Map<String, dynamic>? getVehiclePricing(String vehicle) {
+    if (!_pricingData.containsKey(vehicle)) {
+      return null;
+    }
+
+    return _pricingData[vehicle];
+  }
+
+  // =====================================================
+  // GET FINAL FARE
+  // BACKEND ALREADY INCLUDES BOOST
+  // NEVER ADD AGAIN
+  // =====================================================
+
+  double _parsePrice(dynamic val) {
+    if (val == null) return 0.0;
+    if (val is num) return val.toDouble();
+    return double.tryParse(val.toString()) ?? 0.0;
+  }
+
+  double getFinalFare(String vehicle) {
+    return _parsePrice(getVehiclePricing(vehicle)?['final_fare']);
+  }
+
+  double getBaseFare(String vehicle) {
+    return _parsePrice(getVehiclePricing(vehicle)?['base_fare']);
+  }
+
+  double getBoostAmount(String vehicle) {
+    return _parsePrice(getVehiclePricing(vehicle)?['boost_amount']);
+  }
+
+  String getCityTier(String vehicle) {
+    final pricing = getVehiclePricing(vehicle);
+
+    if (pricing == null) {
+      return 'tier_2';
+    }
+
+    return pricing['city_tier']?.toString() ?? 'tier_2';
+  }
+
+  double getCommissionPercent(String vehicle) {
+    final pricing = getVehiclePricing(vehicle);
+    if (pricing == null) return 10.0;
+    return _parsePrice(pricing['commission_percent'] ?? 10.0);
+  }
+
+  double getCommissionAmount(String vehicle) {
+    return _parsePrice(getVehiclePricing(vehicle)?['commission_amount']);
+  }
+
+  double getGstPercentage(String vehicle) {
+    final pricing = getVehiclePricing(vehicle);
+    if (pricing == null) return 5.0;
+    return _parsePrice(pricing['gst_percentage'] ?? 5.0);
+  }
+
+  double getGstAmount(String vehicle) {
+    return _parsePrice(getVehiclePricing(vehicle)?['gst_amount']);
+  }
+
+  double getRiderEarning(String vehicle) {
+    return _parsePrice(getVehiclePricing(vehicle)?['rider_earning']);
+  }
+
+  double getSubtotal(String vehicle) {
+    return _parsePrice(getVehiclePricing(vehicle)?['subtotal']);
+  }
+
+  double getCancellationFee(String vehicle) {
+    return _parsePrice(getVehiclePricing(vehicle)?['cancellation_fee']);
+  }
+
+  double getWaitingChargePerMin(String vehicle) {
+    return _parsePrice(getVehiclePricing(vehicle)?['waiting_charge_per_min']);
+  }
+
+  // =====================================================
+  // GET SUBSCRIPTION COMMISSION WAIVER
+  // =====================================================
+  bool getSubscriptionCommissionWaiver(String vehicle) {
+    final pricing = getVehiclePricing(vehicle);
+    if (pricing == null) return true;
+    return pricing['subscription_commission_waiver'] ?? true;
+  }
+
+  // =====================================================
+  // GET PRICING CODE
+  // =====================================================
+  String? getPricingCode(String vehicle) {
+    final pricing = getVehiclePricing(vehicle);
+    return pricing?['pricing_code']?.toString();
+  }
+
+  // =====================================================
+  // GET CONFIG ID
+  // =====================================================
+  String? getConfigId(String vehicle) {
+    final pricing = getVehiclePricing(vehicle);
+    return pricing?['config_id']?.toString();
+  }
+
+  // =====================================================
+  // RESET
+  // =====================================================
+
+  void reset() {
+    if (_disposed) return;
+    ++_generation;
+
+    _loading = false;
+
+    _pricingData = {};
+
+    _error = '';
+
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    ++_generation;
+    super.dispose();
+  }
+}

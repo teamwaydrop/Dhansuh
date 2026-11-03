@@ -1,0 +1,105 @@
+{
+  "project": "yvwpchffctiagevpqgwy",
+  "production_changed": false,
+  "charges": 0,
+  "new_tests_and_suites": {
+    "native_dispatch": 5,
+    "edge_worker_audit": 5,
+    "reject_handler": 3,
+    "flutter_dispatch": 49,
+    "native_acceptance": 16,
+    "actual_acceptance_handler": 4
+  },
+  "final_passed": 82,
+  "final_failed": 0,
+  "deno_check_exit": 0,
+  "old_edge_expected_baseline": {
+    "worker_audit_pass": 2,
+    "worker_audit_fail": 3,
+    "reject_pass": 2,
+    "reject_fail": 1
+  },
+  "measurements": {
+    "audit_exceptions_six_reoffers": [
+      6,
+      0
+    ],
+    "rider_core_calls_three_empty_sweeps": [
+      3,
+      0
+    ],
+    "assignment_selects_ordinary_reject": [
+      2,
+      1
+    ],
+    "recovery_selector_recoverable_fixtures": [
+      1,
+      3
+    ],
+    "concurrent_worker_claims": 12,
+    "worker_claim_winners": 1,
+    "concurrent_rematches": 12,
+    "rematch_rows": 1,
+    "rematch_notification_effects": 1
+  },
+  "limits": [
+    "No production benchmark or post-change latency measurement",
+    "Native dispatch uses local pg_net/Vault/notification captures",
+    "Source-block HTTP model is not managed PostgREST parity",
+    "Stale owner resuming after takeover and cross-writer acceptance/offer races remain release gates",
+    "Acceptance suites exercise the existing local implementation, not a newly deployed production version"
+  ],
+  "initial_fixture_failures_resolved": [
+    "Historical RPC harness did not match current direct-SQL implementation",
+    "Synthetic notification capture sequence permission missing",
+    "Duplicate test-only acceptance capture trigger",
+    "Source-block model CORS constant missing"
+  ],
+  "required_production_actions_pending_approval": [
+    "Review two Edge deployments plus type-only shared helper",
+    "Prepare/review three SQL function migrations and rollback from captured definitions",
+    "Rebase pre-existing matching-wave drift guards if core changes are approved",
+    "Complete stale-owner fencing and managed fault tests before automatic stale-true recovery"
+  ],
+  "source_sha256": {
+    "supabase/functions/start-dispatch/index.ts": "3562387b41e7dc5a58f0f9c70a4920783b8da283a1ec153aa844d4afbbd9a584",
+    "supabase/functions/reject-order/index.ts": "5850166e2fea38ba8f2eb1020277f8b9f1fe62881fa4ad19df80db6f08fe3d2a",
+    "supabase/functions/_shared/http.ts": "7592be0f9749e0400144fac15e696e3e028f8a262b58dcddc35e5bd992d08c45",
+    "docs/performance/PART_3_DISPATCH_CRON.md": "8f553a497d69a49b4983b8afa4f37c4dd9a1aac15898d2e1e06c63fdeecea8d1",
+    "docs/performance/WAYDROP_PERFORMANCE_FIX_REPORT.md": "cc2819080059f9dfc4148a73ed7f4ddc2bf3b86874e6e172620bb95501ee934d",
+    "docs/performance/dispatch-cron-20261102/acceptance-handler-test.ts": "c450354cc7564fbd335759281bd66fb35717bb27af0d3ec54c8bc5afca03f0bf",
+    "docs/performance/dispatch-cron-20261102/assign_nearby_searching_orders_core.before.sql": "392e0d3ecd45ac85646801a455715dd9026e746dcf2521a6d98009d128989c13",
+    "docs/performance/dispatch-cron-20261102/assign_nearby_searching_orders_core.candidate.sql": "927223fca767fe206be03f76d01ca8726cef9a8232c694b587fcb0e36ab3011b",
+    "docs/performance/dispatch-cron-20261102/assign_nearby_searching_orders_core.captured.sql": "392e0d3ecd45ac85646801a455715dd9026e746dcf2521a6d98009d128989c13",
+    "docs/performance/dispatch-cron-20261102/assign_nearby_searching_orders_on_rider_freed.captured.sql": "db610f2752f3ee560e0169fd56c67f5a7b922cf75101d5c84a45699d0517095d",
+    "docs/performance/dispatch-cron-20261102/assign_nearby_searching_orders_to_rider.captured.sql": "9166ab0fb81fdb6ffc43d324c0bb128810f20c4a87a52cb78cdcb19c3f8528ea",
+    "docs/performance/dispatch-cron-20261102/assign_new_order_to_nearby_online_riders.captured.sql": "2b466f5822ac68e2e91f6ad249836086ed22f9b849f5112c3eb1036e01c7a011",
+    "docs/performance/dispatch-cron-20261102/CATALOG.json": "dd2473b6b9f5713c9dc43b32f7954cbbe071f1d4cd94decf5acba33cda93be5f",
+    "docs/performance/dispatch-cron-20261102/edge-tests.mjs": "540e9940f3ee8eed177fa8a7ffdb4dbdc042875c52042c9cdb6f73feab1b25a1",
+    "docs/performance/dispatch-cron-20261102/expire_stale_active_orders.captured.sql": "dd684eff458f04635a68b4a567f6d71d06d1dea44137a2d33234eadda7db0db0",
+    "docs/performance/dispatch-cron-20261102/expire_stale_searching_orders.captured.sql": "16480411b05cbe8d5a97fa66ba9cde1da35ff8f96b44566e486aa5128a6d62f4",
+    "docs/performance/dispatch-cron-20261102/EXTRA_CATALOG.json": "91cb0ec61114a264da81e05e45cd5fc3ebc9ab523157d52eb420d400521084af",
+    "docs/performance/dispatch-cron-20261102/find_nearby_riders.captured.sql": "f9cbac8a79b66b7266dd002e631a131ea48aeddcd9d18160a76fd4fe3a5259a4",
+    "docs/performance/dispatch-cron-20261102/get_dispatch_round_status.captured.sql": "f9c5e8001d9b7c11eb4e3fdbfbf1e184953950f51908438f3beba4c1470add08",
+    "docs/performance/dispatch-cron-20261102/HANDLER_RESULTS.json": "9091c1bbd6e3b3266104215fa645cd9a9730a74c7e5c6a4b016842c7bf267efa",
+    "docs/performance/dispatch-cron-20261102/INCIDENT.json": "2244ad0e0a934d49f16e9d150998f01607ce96cf283d075f8cf10d570d47e1b4",
+    "docs/performance/dispatch-cron-20261102/native-acceptance-test.ts": "7cf029eac099a2400963e463531fdca94b4aa488338fa6e0c74cb8b52cfff387",
+    "docs/performance/dispatch-cron-20261102/on_rider_assignment_change.captured.sql": "ffc8f8abe9f2efe430ef0635fe9098c61496c1de9870794aa33ccf52d60152ae",
+    "docs/performance/dispatch-cron-20261102/pg17-tests.mjs": "21c1238ae013f55886720e5f1e335d47a8cfaa6a9363db96445da79d73f8b21a",
+    "docs/performance/dispatch-cron-20261102/PG17_RESULTS.json": "ce6ffe762ff55046f5f0ee79b4eba00a7bd4c8a6a63e45265da56a981310d164",
+    "docs/performance/dispatch-cron-20261102/prevent_local_ride_assignment_to_busy_rider.captured.sql": "d8d6b8c1c2bb8e0b165e03d6dd45db5193a95c103eddeb8739b4beca8f798847",
+    "docs/performance/dispatch-cron-20261102/production-create-order.ts": "856435c642e3b9d779b178699ed663a67e6329abffb0df15e4dc9a280c5f74e4",
+    "docs/performance/dispatch-cron-20261102/production-reject-order.ts": "1bfb893c7e2e04c3f19b2a2525e27d09c317611b2a5fdca563b0185963ad8485",
+    "docs/performance/dispatch-cron-20261102/production-start-dispatch.ts": "7916eb2029307412b930f3e0a5e4861f475f798f3338418f7428b0ac0b77f60f",
+    "docs/performance/dispatch-cron-20261102/redispatch_freed_riders.before.sql": "e029f68761fb6d4c285a0b48f32681841f4ba530eae524eed18e94481cab5c93",
+    "docs/performance/dispatch-cron-20261102/redispatch_freed_riders.candidate.sql": "53c31e0c1a07ef81e29b97b73264f6832d455d08b817d31c8b7b467643529fd7",
+    "docs/performance/dispatch-cron-20261102/redispatch_freed_riders.captured.sql": "e029f68761fb6d4c285a0b48f32681841f4ba530eae524eed18e94481cab5c93",
+    "docs/performance/dispatch-cron-20261102/redispatch_stalled_searching_orders.before.sql": "61c6a026f2e61d9ecc7533ac8c0554d731a33156be6557891c5c55fb2c3d38d2",
+    "docs/performance/dispatch-cron-20261102/redispatch_stalled_searching_orders.candidate.sql": "ea69f67cce7da18a47d2088f6e7e0dd2b4dec7dcd6e571e8f0f8d2eb388587c0",
+    "docs/performance/dispatch-cron-20261102/redispatch_stalled_searching_orders.captured.sql": "61c6a026f2e61d9ecc7533ac8c0554d731a33156be6557891c5c55fb2c3d38d2",
+    "docs/performance/dispatch-cron-20261102/reject-handler-test.ts": "5eb7691f1588187df9b4d614e5bb40c044253ba8c0fabf7bc7a0b65b9854b01b",
+    "docs/performance/dispatch-cron-20261102/rider_is_on_active_trip.captured.sql": "8456224ede707ac73a714e3488ad833967a2cf8a1f52d9dd20a14d10b65b28ad",
+    "docs/performance/dispatch-cron-20261102/rider_self_rematch.captured.sql": "9caaaa6a452a4a7a4edbdd0ac8e6f6666d022baee47cddf1296b0ecbb41075dc",
+    "docs/performance/dispatch-cron-20261102/SQL_SOURCE_HASHES.json": "3d8071fe43151ba2702a6eba75db25431ca1b47120dacfb967dbd1cf5b2f6108"
+  }
+}

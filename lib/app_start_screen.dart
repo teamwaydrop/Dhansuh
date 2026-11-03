@@ -1,4 +1,7 @@
+import 'package:waydrop/core/services/diagnostics/performance_trace.dart';
 import 'dart:async';
+import 'package:waydrop/core/services/session/auth_routing_policy.dart';
+import 'package:waydrop/core/services/session/account_profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/main.dart';
@@ -13,8 +16,6 @@ import 'package:waydrop/shared/screens/connection_error_screen.dart';
 import 'package:waydrop/shared/helpers/global_error_controller.dart';
 import 'package:waydrop/shared/widgets/app_snackbar.dart';
 import 'package:waydrop/core/services/session/user_session_service.dart';
-import 'package:waydrop/core/services/cache/cache_cleanup_helper.dart';
-import 'package:waydrop/shared/helpers/auth_session.dart';
 import 'package:waydrop/core/providers/initial_data_provider.dart';
 import 'package:waydrop/core/services/location/serviceability_service.dart';
 import 'package:waydrop/core/services/location/location_cache_service.dart';
@@ -23,6 +24,7 @@ import 'package:waydrop/core/services/config/production_config_service.dart';
 import 'package:waydrop/shared/screens/maintenance_screen.dart';
 import 'package:waydrop/shared/screens/update_required_screen.dart';
 import 'package:waydrop/modules/notifications/services/notification_service.dart';
+import 'package:waydrop/modules/notifications/services/notification_badge_service.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:waydrop/design_system/waydrop_design_system.dart';
 import 'package:waydrop/core/navigation/nav_trace.dart';
@@ -40,6 +42,8 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
   late Widget currentScreen;
   bool _isChecking = false;
   bool _pendingRecheck = false;
+  StreamSubscription<AuthState>? _authStateSubscription;
+  late final AuthRoutingPolicy _authRoutingPolicy;
   // Phase 1 production control: the non-blocking "update available" recommendation (CASE B) is
   // shown at most once per app session, after the user actually reaches a real app screen -- not
   // during onboarding/login, and not repeated on every checkUserFlow() re-run (auth state changes,
@@ -49,39 +53,42 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
   @override
   void initState() {
     super.initState();
+    _authRoutingPolicy = AuthRoutingPolicy(supabase.auth.currentUser?.id);
     currentScreen = _BrandSplashView(statusNotifier: _statusNotifier);
     checkUserFlow();
     listenAuthChanges();
   }
 
   void listenAuthChanges() {
-    supabase.auth.onAuthStateChange.listen((data) {
+    _authStateSubscription ??= supabase.auth.onAuthStateChange.listen((data) {
       debugPrint('[TRACE_APPSTART] onAuthStateChange event=${data.event} session=${data.session != null} epoch=${DateTime.now().millisecondsSinceEpoch}');
-      // PERF FIX: onAuthStateChange replays the current session as an `initialSession` event to
-      // every new subscriber (this listener is attached synchronously right after initState's own
-      // direct checkUserFlow() call above), and Supabase's client silently re-emits `tokenRefreshed`
-      // on its own refresh cadence (~every session lifetime, no user action) for as long as the app
-      // stays open. Both previously re-ran the FULL checkUserFlow() pipeline (profile query, then
-      // rider+kyc+earnings or riders+kyc+orders Future.wait) even though neither event represents an
-      // actual navigation-relevant change: `initialSession` duplicates the initState call that
-      // already ran (was previously masked by the _isChecking/_pendingRecheck guard queuing a SECOND
-      // full run right after the first completes, on every single cold start), and `tokenRefreshed`
-      // fires deep inside an already-running session where the current screen and provider data are
-      // still correct. Every event that DOES require re-evaluating the flow -- signedIn (OTP
-      // verification, see otp_screen.dart's comment on why it relies on this listener),
-      // signedOut/userDeleted (suspension/account-deletion self-logout paths), userUpdated, and
-      // passwordRecovery/mfaChallengeVerified -- is untouched and still triggers checkUserFlow()
-      // exactly as before.
-      if (data.event == AuthChangeEvent.initialSession || data.event == AuthChangeEvent.tokenRefreshed) {
-        NavTrace.mark('AppStartScreen', 'onAuthStateChange event=${data.event} skipped (no-op event, see PERF FIX comment)');
+      if (data.event == AuthChangeEvent.signedOut) {
+        AccountProfileService.instance.clear();
+        ref.invalidate(initialUserDataProvider);
+        ref.invalidate(initialRiderDataProvider);
+        ref.read(activeAssignmentsCountProvider.notifier).state = 0;
+        unawaited(LocationCacheService.stopRiderLiveTracking());
+        NotificationBadgeService.instance.stopListening();
+        UserSessionService().stopListening();
+      }
+      // Share routing decisions across guards. Routine refreshes keep the route;
+      // a restored or changed account must still be resolved.
+      if (!_authRoutingPolicy.shouldRecheck(data)) {
+        NavTrace.mark('AppStartScreen', 'onAuthStateChange event=${data.event} skipped (same identity)');
         return;
       }
       NavTrace.mark('AppStartScreen', 'onAuthStateChange event=${data.event} session=${data.session != null} currentScreen=${currentScreen.runtimeType} isChecking=$_isChecking');
       checkUserFlow();
+    }, onError: (Object error, StackTrace stack) {
+      // Offline refresh errors must not escape as unhandled zone exceptions.
+      debugPrint('Auth stream failed');
+      if (mounted && supabase.auth.currentSession == null) checkUserFlow();
     });
   }
 
-  Future<void> checkUserFlow() async {
+  Future<void> checkUserFlow() => PerformanceTrace.measure('startup', () => checkUserFlowMeasured());
+
+  Future<void> checkUserFlowMeasured() async {
     if (_isChecking) {
       _pendingRecheck = true;
       return;
@@ -105,12 +112,31 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
       // is a single-fetch-per-session no-op on every checkUserFlow() re-run after the first (auth
       // state changes, etc.), so this never causes duplicate network requests. See
       // ProductionConfigService's class doc for the full fail-open staleness policy.
-      await ProductionConfigService.instance.init();
+      // Profile and public configuration are independent. Observe profile failures
+      // immediately while allowing configuration-only routes to resolve first.
+      final startupUser = supabase.auth.currentUser;
+      debugPrint('[TRACE_APPSTART] config/profile parallel batch START epoch=${DateTime.now().millisecondsSinceEpoch}');
+      final configFuture = ProductionConfigService.instance.init();
+      final Future<Object?> profileFuture = startupUser == null
+          ? Future<Object?>.value(null)
+          : AccountProfileService.instance.load(startupUser.id)
+              .then<Object?>((profile) {
+                debugPrint('[PERF_STARTUP] profile response at +${DateTime.now().difference(startTime).inMilliseconds}ms');
+                return profile;
+              },
+                onError: (Object error, StackTrace stack) => AsyncError(error, stack));
+      // Maintenance/version decisions only require configuration. The observed,
+      // bounded profile future continues in parallel without delaying those screens.
+      await configFuture;
+      if (!mounted || startupUser?.id != supabase.auth.currentUser?.id) return;
       final config = ProductionConfigService.instance;
 
       if (config.maintenanceMode) {
         await changeScreen(
-          MaintenanceScreen(message: config.maintenanceMessage, onRetry: () => checkUserFlow()),
+          MaintenanceScreen(message: config.maintenanceMessage, onRetry: () async {
+            await config.refresh();
+            await checkUserFlow();
+          }),
           startTime,
         );
         return;
@@ -145,13 +171,13 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
       _statusNotifier.value = 'Connecting securely...';
 
       // 2. Fetch profile with an 8-second timeout limit
-      debugPrint('[TRACE_APPSTART] users profile query START epoch=${DateTime.now().millisecondsSinceEpoch}');
-      final profile = await supabase
-          .from('users')
-          .select()
-          .eq('id', user.id)
-          .maybeSingle()
-          .timeout(const Duration(seconds: 8));
+      debugPrint('[TRACE_APPSTART] applying startup profile epoch=${DateTime.now().millisecondsSinceEpoch}');
+      final profileResult = await profileFuture;
+      if (!mounted || startupUser?.id != supabase.auth.currentUser?.id) return;
+      if (profileResult is AsyncError) {
+        Error.throwWithStackTrace(profileResult.error, profileResult.stackTrace);
+      }
+      final profile = profileResult as Map<String, dynamic>?;
       debugPrint('[PERF_STARTUP] users profile query done at +${DateTime.now().difference(startTime).inMilliseconds}ms epoch=${DateTime.now().millisecondsSinceEpoch}');
 
       if (profile == null) {
@@ -160,26 +186,6 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
       }
 
       DeveloperModeService.instance.setFromProfile(profile);
-
-      final isSuspended = profile['is_suspended'] ?? false;
-      if (isSuspended) {
-        await supabase.auth.signOut();
-        await CacheCleanupHelper.clearAllCaches();
-        AuthSession.clear();
-        DeveloperModeService.instance.clear();
-        UserSessionService().stopListening();
-        await changeScreen(const LoginScreen(), startTime);
-        Future.microtask(() {
-          if (mounted) {
-            showAppSnackBar(
-              context,
-              'Your account has been suspended. Please contact support.',
-              type: SnackBarType.error,
-            );
-          }
-        });
-        return;
-      }
 
       UserSessionService().listenUserSuspension();
 
@@ -203,45 +209,6 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
       _statusNotifier.value = 'Almost ready...';
 
       if (preferredMode == 'rider') {
-        final data = await supabase
-            .from('riders')
-            .select('''
-              *,
-              rider_kyc!riders_kyc_id_fkey(
-                full_name,
-                rider_image
-              )
-            ''')
-            .eq('user_id', user.id)
-            .maybeSingle();
-
-        double calculatedTodayEarnings = 0.0;
-        if (data != null) {
-          final kyc = data['rider_kyc!riders_kyc_id_fkey'] ?? data['rider_kyc'];
-          if (kyc is Map) {
-            data['full_name'] = kyc['full_name'];
-            data['rider_image'] = kyc['rider_image'];
-          }
-
-          final nowLocal = DateTime.now();
-          final startOfToday = DateTime(nowLocal.year, nowLocal.month, nowLocal.day).toUtc();
-          final ordersData = await supabase
-              .from('orders')
-              .select('rider_earning')
-              .eq('rider_id', data['id'])
-              .inFilter('order_status', ['completed', 'delivered'])
-              .gte('completed_at', startOfToday.toIso8601String());
-
-          for (var o in ordersData) {
-            calculatedTodayEarnings += double.tryParse(o['rider_earning']?.toString() ?? '0') ?? 0.0;
-          }
-        }
-
-        ref.read(initialRiderDataProvider.notifier).state = InitialRiderData(
-          rider: data,
-          todayEarnings: calculatedTodayEarnings,
-        );
-
         ref.read(appModeProvider.notifier).switchToRider();
         await changeScreen(const RiderMainNavigationScreen(), startTime);
         unawaited(NotificationService().processPendingNotificationQueue());
@@ -258,51 +225,11 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
           unawaited(LocationCacheService.initializeLocation().catchError((e) => null));
         }
 
-        // 2. Fetch rider, kyc, and orders in parallel, reuse 'profile' as userProfile to save 1 extra query
-        final riderFuture = supabase.from('riders').select().eq('user_id', user.id).maybeSingle();
-        final kycFuture = supabase.from('rider_kyc').select().eq('user_id', user.id).maybeSingle();
-        final ordersFuture = supabase
-            .from('orders')
-            .select()
-            .eq('user_id', user.id)
-            .inFilter('order_status', ['created', 'searching', 'expired', 'accepted', 'rider_arrived', 'picked_up', 'ongoing', 'rider_at_drop', 'payment_pending', 'completed', 'delivered', 'cancelled'])
-            .order('created_at', ascending: false)
-            .limit(10);
-
-        debugPrint('[TRACE_APPSTART] riders/kyc/orders Future.wait START epoch=${DateTime.now().millisecondsSinceEpoch}');
-        final results = await Future.wait([
-          riderFuture,
-          kycFuture,
-          ordersFuture,
-        ]).timeout(const Duration(seconds: 8));
-        debugPrint('[TRACE_APPSTART] riders/kyc/orders Future.wait DONE epoch=${DateTime.now().millisecondsSinceEpoch}');
-        debugPrint('[PERF_STARTUP] initial user data batch (riders/kyc/orders) done at +${DateTime.now().difference(startTime).inMilliseconds}ms epoch=${DateTime.now().millisecondsSinceEpoch}');
-        
-        final riderProfile = results[0] as Map<String, dynamic>?;
-        final kycProfile = results[1] as Map<String, dynamic>?;
-        final List<Map<String, dynamic>> rawOrders = List<Map<String, dynamic>>.from(results[2] as List);
-        
-        rawOrders.sort((a, b) {
-          final aStatus = a['order_status']?.toString() ?? 'completed';
-          final bStatus = b['order_status']?.toString() ?? 'completed';
-          final aActive = ['created', 'searching', 'accepted', 'rider_arrived', 'picked_up', 'ongoing', 'rider_at_drop', 'payment_pending'].contains(aStatus);
-          final bActive = ['created', 'searching', 'accepted', 'rider_arrived', 'picked_up', 'ongoing', 'rider_at_drop', 'payment_pending'].contains(bStatus);
-          
-          if (aActive && !bActive) return -1;
-          if (!aActive && bActive) return 1;
-          
-          final aTime = DateTime.tryParse(a['created_at']?.toString() ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-          final bTime = DateTime.tryParse(b['created_at']?.toString() ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-          return bTime.compareTo(aTime);
-        });
-
-        final recentOrders = rawOrders.take(4).toList();
-
+        // Home loads secondary data after navigation; profile/security gates are complete.
         ref.read(initialUserDataProvider.notifier).state = InitialUserData(
           userProfile: profile,
-          riderProfile: riderProfile,
-          kycProfile: kycProfile,
-          recentOrders: recentOrders,
+          recentOrders: const [],
+          secondaryDataLoaded: false,
         );
 
         ref.read(appModeProvider.notifier).switchToUser();
@@ -311,6 +238,9 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
         unawaited(NotificationService().processPendingNotificationQueue());
         _maybeShowUpdateRecommendation(config, installedVersion);
       }
+    } on AccountRestrictedException catch (error) {
+      await UserSessionService().handleAccountRestriction(isDeleted: error.deleted);
+      if (mounted) await changeScreen(const LoginScreen(), startTime);
     } on TimeoutException catch (e) {
       debugPrint('[TRACE_APPSTART] TimeoutException caught epoch=${DateTime.now().millisecondsSinceEpoch} elapsedMs=${DateTime.now().difference(startTime).inMilliseconds} => $e');
       // A slow/stalled backend response is not the same failure as no
@@ -330,10 +260,10 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
       // is not a connection problem and a Retry button will just fail again
       // with the same error -- route straight to Login instead, matching the
       // user==null path above.
-      final isAuthError = e is AuthException ||
+      final isAuthError = !AccountProfileService.isTransient(e) && (e is AuthException ||
           e.toString().contains('JWT') ||
           e.toString().contains('refresh_token_not_found') ||
-          e.toString().contains('invalid claim');
+          e.toString().contains('invalid claim'));
       if (isAuthError) {
         DeveloperModeService.instance.clear();
         await changeScreen(const LoginScreen(), startTime);
@@ -347,17 +277,23 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
       // and this catch-all never overrode it, so genuine app/backend bugs were
       // misreported to users as their own internet being down.
       final isConnectivityError = e.toString().contains('SocketException') || e.toString().contains('Failed host lookup');
-      final errorMsg = isConnectivityError
+      final schemaFailure = AccountProfileService.isSchemaError(e);
+      final transientFailure = AccountProfileService.isTransient(e);
+      final errorMsg = schemaFailure
+          ? 'Your app and account service are out of sync. Please update Waydrop or contact support.'
+          : isConnectivityError
           ? "Unable to connect to the internet. Please verify your data/WiFi connection."
-          : "Something went wrong while loading your account. Please try again.";
+          : transientFailure ? 'The account service is temporarily unavailable. Please try again shortly.'
+          : "We couldn't verify your account. Please contact support if this continues.";
       await changeScreen(ConnectionErrorScreen(
-        errorType: isConnectivityError ? ErrorType.offline : ErrorType.general,
+        errorType: isConnectivityError ? ErrorType.offline : ErrorType.backend,
+        retryEnabled: !schemaFailure && transientFailure,
         onRetry: () => checkUserFlow(),
         errorMessage: errorMsg,
       ), startTime);
     } finally {
       _isChecking = false;
-      if (_pendingRecheck) {
+      if (_pendingRecheck && mounted) {
         _pendingRecheck = false;
         checkUserFlow();
       }
@@ -401,25 +337,24 @@ class _AppStartScreenState extends ConsumerState<AppStartScreen> {
     // app).
     final wasLoginScreen = currentScreen is LoginScreen;
     try {
-      if (startTime != null) {
-        final elapsed = DateTime.now().difference(startTime);
-        // Brand-beat floor: brief minimum splash on fast starts so the logo
-        // entrance reads; slow starts already exceed it and are never padded.
-        if (elapsed.inMilliseconds < 500) {
-          await Future.delayed(Duration(milliseconds: 500 - elapsed.inMilliseconds));
-        }
-      }
       if (!mounted) {
         NavTrace.mark('AppStartScreen', 'changeScreen($detail) ABORTED -- not mounted');
         return;
       }
       setState(() => currentScreen = screen);
-      if (wasLoginScreen) {
+      if (wasLoginScreen || screen is LoginScreen) {
         navigatorKey.currentState?.popUntil((route) => route.isFirst);
       }
     } finally {
       NavTrace.end('AppStartScreen', detail);
     }
+  }
+
+  @override
+  void dispose() {
+    _statusNotifier.dispose();
+    unawaited(_authStateSubscription?.cancel());
+    super.dispose();
   }
 
   @override

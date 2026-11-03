@@ -10,7 +10,7 @@ import 'package:waydrop/core/services/developer/developer_mode_service.dart';
 class ServiceabilityService {
   static List<Map<String, dynamic>>? _cachedActiveZones;
   static List<CachedZone>? _cachedZones;
-  static bool _isLoadingZones = false;
+  static Future<void>? _zonesInFlight;
   static DateTime? _lastLoadedTime;
 
   static const Duration zoneCacheTtl = Duration(minutes: 15);
@@ -23,16 +23,27 @@ class ServiceabilityService {
 
   /// Loads active pricing zones from the database to dynamically determine serviceability.
   /// Enforces a 15-minute Cache TTL unless forceRefresh is true.
-  static Future<void> loadActiveZones({bool forceRefresh = false}) async {
+  static Future<void> loadActiveZones({bool forceRefresh = false}) {
+    // Startup prefetch, location initialization and Home can all arrive here.
+    // Join the actual read, including a forced refresh, instead of returning
+    // "done" while the resolver is still empty or stale.
+    final existing = _zonesInFlight;
+    if (existing != null) return existing;
     final now = DateTime.now();
     if (_cachedActiveZones != null && 
         !forceRefresh && 
         _lastLoadedTime != null && 
         now.difference(_lastLoadedTime!) < zoneCacheTtl) {
-      return;
+      return Future<void>.value();
     }
-    if (_isLoadingZones) return;
-    _isLoadingZones = true;
+    final operation = _loadActiveZones(now).whenComplete(() {
+      _zonesInFlight = null;
+    });
+    _zonesInFlight = operation;
+    return operation;
+  }
+
+  static Future<void> _loadActiveZones(DateTime now) async {
     try {
       final supabase = Supabase.instance.client;
       final response = await supabase
@@ -94,8 +105,6 @@ class ServiceabilityService {
       LocationCacheService.updateServiceability();
     } catch (e) {
       debugPrint('Error loading active zones: $e');
-    } finally {
-      _isLoadingZones = false;
     }
   }
 

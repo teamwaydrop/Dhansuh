@@ -1,0 +1,22 @@
+{
+  "window_start_utc": "2026-11-02T16:27:00Z",
+  "window_end_utc": "2026-11-02T16:33:30Z",
+  "sql": "SELECT timestamp,log_attributes['request.headers.cf_ray'] AS gateway_id,log_attributes['request.headers.x_request_id'] AS request_id,log_attributes['response.headers.x_request_id'] AS response_id,log_attributes['response.status_code'] AS status,log_attributes['response.origin_time'] AS origin_ms,log_attributes['request.headers.content_length'] AS bytes,CASE WHEN position(log_attributes['request.path'],'/parcels/')>0 THEN 'booking_photo' WHEN position(log_attributes['request.path'],'/verifications/')>0 THEN 'verification_photo' ELSE 'other' END AS kind,arrayFilter(k->positionCaseInsensitive(k,'request_id')>0 OR positionCaseInsensitive(k,'duration')>0,mapKeys(log_attributes)) AS correlation_fields FROM logs WHERE source='edge_logs' AND startsWith(log_attributes['request.path'],'/storage/v1/object/parcel_images/') AND log_attributes['request.method'] IN('POST','PUT') ORDER BY timestamp LIMIT 12",
+  "rows": {
+    "result": [
+      {
+        "bytes": "32079",
+        "correlation_fields": [
+          "request_id"
+        ],
+        "gateway_id": "a54485f89e00d8ea",
+        "kind": "booking_photo",
+        "origin_ms": "60012",
+        "request_id": "",
+        "response_id": "",
+        "status": "504",
+        "timestamp": "2026-11-02T16:30:21.611000"
+      }
+    ]
+  }
+}

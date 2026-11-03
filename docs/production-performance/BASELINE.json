@@ -1,0 +1,194 @@
+{
+  "project": "yvwpchffctiagevpqgwy",
+  "status": "BEFORE_ONLY_NO_DEPLOYMENT",
+  "window": {
+    "start": "2026-10-31T07:37:38.000Z",
+    "end": "2026-11-01T07:37:38.000Z"
+  },
+  "captured_at": "2026-11-01T13:09:07.165438+05:30",
+  "postgres": "17.6",
+  "sql_stats_reset": "2026-05-07T11:50:14.71209+05:30",
+  "cumulative_sql": [
+    {
+      "role": "service_role",
+      "calls": 9066,
+      "queryid": "2437111727167673324",
+      "mean_exec_ms": 59.0890707593206,
+      "total_exec_ms": 535701.515504
+    },
+    {
+      "role": "authenticated",
+      "calls": 25917,
+      "queryid": "5508167732040855196",
+      "mean_exec_ms": 79.4516617977393,
+      "total_exec_ms": 2059148.718812
+    },
+    {
+      "role": "authenticated",
+      "calls": 6142,
+      "queryid": "2437111727167673324",
+      "mean_exec_ms": 228.459360635461,
+      "total_exec_ms": 1403197.393023
+    },
+    {
+      "role": "anon",
+      "calls": 102,
+      "queryid": "3009413018500335724",
+      "mean_exec_ms": 1.75377060784314,
+      "total_exec_ms": 178.884602
+    },
+    {
+      "role": "anon",
+      "calls": 2,
+      "queryid": "2437111727167673324",
+      "mean_exec_ms": 53.1884635,
+      "total_exec_ms": 106.376927
+    },
+    {
+      "role": "authenticated",
+      "calls": 189,
+      "queryid": "3009413018500335724",
+      "mean_exec_ms": 2.23514514285714,
+      "total_exec_ms": 422.442432
+    },
+    {
+      "role": "service_role",
+      "calls": 3257,
+      "queryid": "7500410470614416398",
+      "mean_exec_ms": 2.36079469941664,
+      "total_exec_ms": 7689.10833599999
+    }
+  ],
+  "api": [
+    {
+      "endpoint": "/rest/v1/users",
+      "http_errors": 0,
+      "mean_function_ms": null,
+      "mean_origin_ms": 40.85,
+      "method": "GET",
+      "p95_function_ms": null,
+      "p95_origin_ms": 84,
+      "requests": 27,
+      "server_errors": 0,
+      "source": "edge_logs"
+    },
+    {
+      "endpoint": "/functions/v1/send-push-notification",
+      "http_errors": 0,
+      "mean_function_ms": 2265.48,
+      "mean_origin_ms": null,
+      "method": "POST",
+      "p95_function_ms": 3053,
+      "p95_origin_ms": null,
+      "requests": 23,
+      "server_errors": 0,
+      "source": "function_edge_logs"
+    },
+    {
+      "endpoint": "/rest/v1/production_config",
+      "http_errors": 0,
+      "mean_function_ms": null,
+      "mean_origin_ms": 684.5,
+      "method": "GET",
+      "p95_function_ms": null,
+      "p95_origin_ms": 1146,
+      "requests": 20,
+      "server_errors": 0,
+      "source": "edge_logs"
+    },
+    {
+      "endpoint": "/rest/v1/orders",
+      "http_errors": 0,
+      "mean_function_ms": null,
+      "mean_origin_ms": 88.9,
+      "method": "GET",
+      "p95_function_ms": null,
+      "p95_origin_ms": 287,
+      "requests": 10,
+      "server_errors": 0,
+      "source": "edge_logs"
+    },
+    {
+      "endpoint": "/rest/v1/rider_kyc",
+      "http_errors": 0,
+      "mean_function_ms": null,
+      "mean_origin_ms": 49.5,
+      "method": "GET",
+      "p95_function_ms": null,
+      "p95_origin_ms": 107,
+      "requests": 8,
+      "server_errors": 0,
+      "source": "edge_logs"
+    },
+    {
+      "endpoint": "/rest/v1/notifications",
+      "http_errors": 0,
+      "mean_function_ms": null,
+      "mean_origin_ms": 22.88,
+      "method": "PATCH",
+      "p95_function_ms": null,
+      "p95_origin_ms": 40,
+      "requests": 8,
+      "server_errors": 0,
+      "source": "edge_logs"
+    },
+    {
+      "endpoint": "/rest/v1/riders",
+      "http_errors": 0,
+      "mean_function_ms": null,
+      "mean_origin_ms": 27.25,
+      "method": "GET",
+      "p95_function_ms": null,
+      "p95_origin_ms": 41,
+      "requests": 4,
+      "server_errors": 0,
+      "source": "edge_logs"
+    },
+    {
+      "endpoint": "/rest/v1/notifications",
+      "http_errors": 0,
+      "mean_function_ms": null,
+      "mean_origin_ms": 50,
+      "method": "GET",
+      "p95_function_ms": null,
+      "p95_origin_ms": 50,
+      "requests": 1,
+      "server_errors": 0,
+      "source": "edge_logs"
+    }
+  ],
+  "health": {
+    "waiting_locks": 0,
+    "max_connections": "60",
+    "blocked_sessions": 0,
+    "client_connections": 4
+  },
+  "aggregate_checks": {
+    "recent_cron": [
+      {
+        "runs": 100,
+        "status": "succeeded"
+      }
+    ],
+    "index_dependents": [],
+    "notification_delivery": [
+      {
+        "push_sent": false,
+        "notifications": 15,
+        "delivery_status": "pending"
+      },
+      {
+        "push_sent": true,
+        "notifications": 8,
+        "delivery_status": "sent"
+      }
+    ]
+  },
+  "limitations": [
+    "SQL means are cumulative since May 7, not timings from the 24-hour API window.",
+    "HTTP 200 push responses do not establish delivery success. Pending notifications may be intentional skips or undelivered; not diagnosed.",
+    "No recent matching or GPS PATCH request in the bounded API result; current workload p95 unknown.",
+    "No CPU/RSS measurement, staging-equivalent test or recovery drill.",
+    "No production after metrics exist."
+  ]
+}

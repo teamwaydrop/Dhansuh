@@ -1,0 +1,1869 @@
+{
+  "project_ref": "yvwpchffctiagevpqgwy",
+  "captured_date_ist": "2026-11-03",
+  "scope": "Already-applied production migration history; no pending drafts in auto-apply path",
+  "files": [
+    {
+      "version": "20260529000000",
+      "name": "baseline_foundational_schema",
+      "path": "supabase/migrations/20260529000000_baseline_foundational_schema.sql",
+      "sha256_lf": "42fab8e79c906fd8d31f7b59f8e4281c8edcb0e982953e05657b094f3f31ebb2"
+    },
+    {
+      "version": "20260530000000",
+      "name": "rider_payout_accounts",
+      "path": "supabase/migrations/20260530000000_rider_payout_accounts.sql",
+      "sha256_lf": "f95daf16eb8689ce72021bace4887928b247ae2bf4150d806eb78183f3baf5da"
+    },
+    {
+      "version": "20260530000001",
+      "name": "rider_withdrawals",
+      "path": "supabase/migrations/20260530000001_rider_withdrawals.sql",
+      "sha256_lf": "82f8911525694ea0e8936830e12d8c3d30cd33971aa651ef21f4b26e964e9cbf"
+    },
+    {
+      "version": "20260530000002",
+      "name": "enable_realtime",
+      "path": "supabase/migrations/20260530000002_enable_realtime.sql",
+      "sha256_lf": "98f77c6c37f0de28ef116cf78ec7ac912bee44f20eafd0eb3141b59ef093e67c"
+    },
+    {
+      "version": "20260531000003",
+      "name": "fix_find_nearby_riders",
+      "path": "supabase/migrations/20260531000003_fix_find_nearby_riders.sql",
+      "sha256_lf": "43dc771e0f73456b45e980f542b4ac936cbb4709e262bf0e6bda69c95c12b43a"
+    },
+    {
+      "version": "20260531000004",
+      "name": "rider_ratings",
+      "path": "supabase/migrations/20260531000004_rider_ratings.sql",
+      "sha256_lf": "6f3947857455cba34e2da5c5deb1b14fabbd636e36ad5b20c08be2162c2f9b18"
+    },
+    {
+      "version": "20260531000005",
+      "name": "storage_policies",
+      "path": "supabase/migrations/20260531000005_storage_policies.sql",
+      "sha256_lf": "29091ea6c30a04ea21bb3e5b9cffcfe11ef91e034ce167211bb5d42b3402350f"
+    },
+    {
+      "version": "20260601000006",
+      "name": "convert_timestamps_to_timestamptz",
+      "path": "supabase/migrations/20260601000006_convert_timestamps_to_timestamptz.sql",
+      "sha256_lf": "fcb9404e8d0415571a9dac57f09fc319a3f5698133682f7475900552d10f7777"
+    },
+    {
+      "version": "20260601000007",
+      "name": "rider_travel_plans",
+      "path": "supabase/migrations/20260601000007_rider_travel_plans.sql",
+      "sha256_lf": "0f8d75b1a37358d1c1263317b2429c11de12a48dc8da1f4bedc47a2cc851df5e"
+    },
+    {
+      "version": "20260601000008",
+      "name": "create_order_chat_messages",
+      "path": "supabase/migrations/20260601000008_create_order_chat_messages.sql",
+      "sha256_lf": "a5c7e208949ecdf8e03d68b26979932fc4b06393f49c499c6ea5a10795153f0b"
+    },
+    {
+      "version": "20260601000009",
+      "name": "generic_chat_and_roles",
+      "path": "supabase/migrations/20260601000009_generic_chat_and_roles.sql",
+      "sha256_lf": "a16ef4088f8cb2e616cf703f23d074d43f0032145d5b6ae71a5bbf0f3c01f39c"
+    },
+    {
+      "version": "20260601000010",
+      "name": "grant_travel_plans_permissions",
+      "path": "supabase/migrations/20260601000010_grant_travel_plans_permissions.sql",
+      "sha256_lf": "d9f95401ae382a2b624c8e6678feed7c9c5de474f931b8c694c7c26343edc21a"
+    },
+    {
+      "version": "20260601000011",
+      "name": "add_accepted_by_user_to_enum",
+      "path": "supabase/migrations/20260601000011_add_accepted_by_user_to_enum.sql",
+      "sha256_lf": "3e32a7c4c03719a94e982d575c6dec3d9f491259e2e6d89f8cbf375ab628c66c"
+    },
+    {
+      "version": "20260601000012",
+      "name": "rider_travel_plans_policy",
+      "path": "supabase/migrations/20260601000012_rider_travel_plans_policy.sql",
+      "sha256_lf": "5a03af62bc50270a4c04add599d38a30d72bb24c4be8c60180f60dd458db5d67"
+    },
+    {
+      "version": "20260601000013",
+      "name": "rider_assignments_insert_policy",
+      "path": "supabase/migrations/20260601000013_rider_assignments_insert_policy.sql",
+      "sha256_lf": "36c065424344ff054162c7496f15053f532bf718ddfe07a07016989a00dd023e"
+    },
+    {
+      "version": "20260601000014",
+      "name": "rider_assignments_passenger_policy",
+      "path": "supabase/migrations/20260601000014_rider_assignments_passenger_policy.sql",
+      "sha256_lf": "3263fc96326265d14343342716e7a9a80df5c84f5eb22ae3917d901d89bda8c2"
+    },
+    {
+      "version": "20260601000015",
+      "name": "fix_orders_recursion",
+      "path": "supabase/migrations/20260601000015_fix_orders_recursion.sql",
+      "sha256_lf": "8791d043d82a0e7b67afcc2fbe9ab06371d5fc8f50289c9a0fae1d6516dc0b1a"
+    },
+    {
+      "version": "20260602000000",
+      "name": "prevent_self_matching",
+      "path": "supabase/migrations/20260602000000_prevent_self_matching.sql",
+      "sha256_lf": "c2a89b1190917b5f0b645d1c15caed9f5b94064e6274c511c506660130f5ff9e"
+    },
+    {
+      "version": "20260602000001",
+      "name": "create_user_device_tokens",
+      "path": "supabase/migrations/20260602000001_create_user_device_tokens.sql",
+      "sha256_lf": "de1250dd8e781561f658eb68088a7b82eed6a9586d753acaa66131d148192ac1"
+    },
+    {
+      "version": "20260602000002",
+      "name": "create_notification_triggers",
+      "path": "supabase/migrations/20260602000002_create_notification_triggers.sql",
+      "sha256_lf": "c66eaa27d9a5d0ca5e8ca59630a13999e7a71b0c79591d500ab04e0bfb51f595"
+    },
+    {
+      "version": "20260602000003",
+      "name": "expand_notifications_logic",
+      "path": "supabase/migrations/20260602000003_expand_notifications_logic.sql",
+      "sha256_lf": "f2c5bd0806600dd20d3514534d7bf4f8b7f294da24b00be6b5be9ea52ef77bc2"
+    },
+    {
+      "version": "20260602000004",
+      "name": "grant_user_device_tokens_permissions",
+      "path": "supabase/migrations/20260602000004_grant_user_device_tokens_permissions.sql",
+      "sha256_lf": "4d5fb7d6c6f00b6c153dd859549ce14a4131a201804dbf020e26e31d47b56cef"
+    },
+    {
+      "version": "20260602000005",
+      "name": "enable_pg_net",
+      "path": "supabase/migrations/20260602000005_enable_pg_net.sql",
+      "sha256_lf": "27c8b6a64b02153c12209c8f68eb707a943ed1be42a92aa8b298b5df71c8f0b5"
+    },
+    {
+      "version": "20260602000006",
+      "name": "add_user_notification_preferences",
+      "path": "supabase/migrations/20260602000006_add_user_notification_preferences.sql",
+      "sha256_lf": "dc94ab525e7543e6fa867cea9c0451344cb925e90bd3cb787fdf6d36ea78d5e4"
+    },
+    {
+      "version": "20260603000000",
+      "name": "add_travel_date_to_orders",
+      "path": "supabase/migrations/20260603000000_add_travel_date_to_orders.sql",
+      "sha256_lf": "2886dd78777f37cb522061b90c9a42a21279becb390b2186f0ec2abb3b542ce5"
+    },
+    {
+      "version": "20260603000001",
+      "name": "create_intercity_requests",
+      "path": "supabase/migrations/20260603000001_create_intercity_requests.sql",
+      "sha256_lf": "319e9b171792f8000c93c671a2addca2518c8e84f55e3d624fcbd051fe1a9fe4"
+    },
+    {
+      "version": "20260603000002",
+      "name": "add_warangal_pricing_zone",
+      "path": "supabase/migrations/20260603000002_add_warangal_pricing_zone.sql",
+      "sha256_lf": "b1e472db798a148cd66acfeaf8b6d0433a1dc334d87eb281fcb7d3ecd6844933"
+    },
+    {
+      "version": "20260603000003",
+      "name": "update_order_type_enum",
+      "path": "supabase/migrations/20260603000003_update_order_type_enum.sql",
+      "sha256_lf": "4d6de9e11cee08b38f36db76dab8df26caba35f99df05a1e81b8c07a331509ef"
+    },
+    {
+      "version": "20260610000000",
+      "name": "update_dispatch_vehicle_weight_matching",
+      "path": "supabase/migrations/20260610000000_update_dispatch_vehicle_weight_matching.sql",
+      "sha256_lf": "6c879e6b2b6029bc136f353709b617ea5164d63ae20f0ef1e4802796e0594939"
+    },
+    {
+      "version": "20260611000000",
+      "name": "add_pricing_zones_select_policy",
+      "path": "supabase/migrations/20260611000000_add_pricing_zones_select_policy.sql",
+      "sha256_lf": "c09c012d2c512c9f328d933c25f7b55096f92b820aeb13595658aa96b729a3a5"
+    },
+    {
+      "version": "20260611000001",
+      "name": "fix_trigger_enum",
+      "path": "supabase/migrations/20260611000001_fix_trigger_enum.sql",
+      "sha256_lf": "eb9d19fda1eace36c92b3a38e0c78f0c9cd2f8f555dc23662ef1b97a4fbadb0e"
+    },
+    {
+      "version": "20260611000002",
+      "name": "prefixed_alphanumeric_codes",
+      "path": "supabase/migrations/20260611000002_prefixed_alphanumeric_codes.sql",
+      "sha256_lf": "fb20e96d55e1fd4848927213c3be2a5bf8d58e7105bb1114891e123acdd71ad2"
+    },
+    {
+      "version": "20260612000000",
+      "name": "pricing_zones_geofence_constraints",
+      "path": "supabase/migrations/20260612000000_pricing_zones_geofence_constraints.sql",
+      "sha256_lf": "ffb2428e04023b596a0ec5ad8e3457b5a5083ed1d9d185d6d02711dbf8352586"
+    },
+    {
+      "version": "20260612000001",
+      "name": "dispatch_config_dynamic_rounds",
+      "path": "supabase/migrations/20260612000001_dispatch_config_dynamic_rounds.sql",
+      "sha256_lf": "10bb7cf9afeb408c8df7e4272a064392ec13bcf0f9ad15e6b2e1ac37d9ba39d1"
+    },
+    {
+      "version": "20260612000002",
+      "name": "compliance_tables_and_columns",
+      "path": "supabase/migrations/20260612000002_compliance_tables_and_columns.sql",
+      "sha256_lf": "fe5cf3c296be29d4bf6bfca62adc903c90ff62fc60c19e0f0d9263338b4c68b4"
+    },
+    {
+      "version": "20260612000003",
+      "name": "compliance_adjustments",
+      "path": "supabase/migrations/20260612000003_compliance_adjustments.sql",
+      "sha256_lf": "be479c901b1351b92c878218f52d40683cc1fcb446ced0d7b1693854ec43672d"
+    },
+    {
+      "version": "20260612000005",
+      "name": "grant_compliance_permissions",
+      "path": "supabase/migrations/20260612000005_grant_compliance_permissions.sql",
+      "sha256_lf": "675a52b6d0cf58d9ffa1f35f6ff85a23b713f313b904fc6a627e1ef417bfb034"
+    },
+    {
+      "version": "20260612000006",
+      "name": "update_payment_for_enum",
+      "path": "supabase/migrations/20260612000006_update_payment_for_enum.sql",
+      "sha256_lf": "3ce4b2bd564950af6bdc89bb2e702ba4a721d15ed94c9e7b641a89ce35d029ff"
+    },
+    {
+      "version": "20260613000000",
+      "name": "fix_car_cab_matching",
+      "path": "supabase/migrations/20260613000000_fix_car_cab_matching.sql",
+      "sha256_lf": "4f4c5758433ff4549a5920b89ef02dfa333bf532f5b0f0fa04c9a252bb0e542b"
+    },
+    {
+      "version": "20260615000000",
+      "name": "update_dispatch_timeouts",
+      "path": "supabase/migrations/20260615000000_update_dispatch_timeouts.sql",
+      "sha256_lf": "4871dc21ea337be549acdfe97b82e3e2bd31649dab086f9c9f53f54620d3db70"
+    },
+    {
+      "version": "20260616000005",
+      "name": "feature_flags",
+      "path": "supabase/migrations/20260616000005_feature_flags.sql",
+      "sha256_lf": "bf4c7933c39811e187dc791e8f999417f56298991130c004c07a6e6141819bc5"
+    },
+    {
+      "version": "20260616000006",
+      "name": "financial_audits",
+      "path": "supabase/migrations/20260616000006_financial_audits.sql",
+      "sha256_lf": "9192ac001f21e01c7458ee02e3692dc8dfe14306002cae51c2f102528ffc6946"
+    },
+    {
+      "version": "20260616000007",
+      "name": "otp_limits_rls",
+      "path": "supabase/migrations/20260616000007_otp_limits_rls.sql",
+      "sha256_lf": "482ff7f5ae3434dc3ca1905570c4cdd11b0578b3ba1e876bd1d2c80fcae08232"
+    },
+    {
+      "version": "20260616000008",
+      "name": "promos",
+      "path": "supabase/migrations/20260616000008_promos.sql",
+      "sha256_lf": "d95749ba41b6c3173c3d92e396c7f5ed8ac31325398588b1758b9c4fd1f5b7a8"
+    },
+    {
+      "version": "20260616000009",
+      "name": "rider_daily_activity",
+      "path": "supabase/migrations/20260616000009_rider_daily_activity.sql",
+      "sha256_lf": "0faef3ca2161f0167abf955c634c7767012c373ec88d9fe53df0eb00424aae45"
+    },
+    {
+      "version": "20260616000010",
+      "name": "timezone_alignment",
+      "path": "supabase/migrations/20260616000010_timezone_alignment.sql",
+      "sha256_lf": "6e8d3a46eee1296b816a8f74abd475f2a1aeb988ddcfc4982a44c1cb985407a2"
+    },
+    {
+      "version": "20260616000011",
+      "name": "add_dispatch_worker_lock",
+      "path": "supabase/migrations/20260616000011_add_dispatch_worker_lock.sql",
+      "sha256_lf": "7fe2c3d3b77b5a997812b93b7bb635717d28b8241c00624d579f9a7dbbbf6df8"
+    },
+    {
+      "version": "20260617000000",
+      "name": "add_order_notification_mode",
+      "path": "supabase/migrations/20260617000000_add_order_notification_mode.sql",
+      "sha256_lf": "84423111ee1cf109c19cb28c10d6f93309983173e1c7b35a4ad3bb6e961d60a5"
+    },
+    {
+      "version": "20260617000001",
+      "name": "intercity_workflow_updates",
+      "path": "supabase/migrations/20260617000001_intercity_workflow_updates.sql",
+      "sha256_lf": "12911f8952e753713c637d7414f1cd6a20484559b7a0505fad4f1debefb6ad07"
+    },
+    {
+      "version": "20260620000000",
+      "name": "fix_weight_category_matching_and_intercity",
+      "path": "supabase/migrations/20260620000000_fix_weight_category_matching_and_intercity.sql",
+      "sha256_lf": "bdfdbaf0eba546c916329dbc7539837395c740430acb56bf4212f05866dcc7f7"
+    },
+    {
+      "version": "20260622000002",
+      "name": "smart_matching_final_production",
+      "path": "supabase/migrations/20260622000002_smart_matching_final_production.sql",
+      "sha256_lf": "32c06e22eeb6a8ae1f08da69250c9661847f7f2f7d5ff3b53955692ec4a48604"
+    },
+    {
+      "version": "20260622000003",
+      "name": "add_route_geometry_to_plans",
+      "path": "supabase/migrations/20260622000003_add_route_geometry_to_plans.sql",
+      "sha256_lf": "b167c537b0246ac509d668ee19cf53b9a1aa8f563856db458d46805720b3f562"
+    },
+    {
+      "version": "20260623000000",
+      "name": "suggested_dispatch_logic",
+      "path": "supabase/migrations/20260623000000_suggested_dispatch_logic.sql",
+      "sha256_lf": "e492d001dee0473a2f5aa3d8c05572dfe8f904cda65277818d98338673898b33"
+    },
+    {
+      "version": "20260630000000",
+      "name": "accept_intercity_request",
+      "path": "supabase/migrations/20260630000000_accept_intercity_request.sql",
+      "sha256_lf": "9d48e37985d5ef87712bd8193cb4a4d9eb18c30f2e45e5fd987910ff1a1cde21"
+    },
+    {
+      "version": "20260702000000",
+      "name": "drop_feature_flags",
+      "path": "supabase/migrations/20260702000000_drop_feature_flags.sql",
+      "sha256_lf": "eaae920f175de68dc5507676928166156c59a9e2c9719a2830239fcf779fa1ff"
+    },
+    {
+      "version": "20260708000000",
+      "name": "fix_accept_intercity_request",
+      "path": "supabase/migrations/20260708000000_fix_accept_intercity_request.sql",
+      "sha256_lf": "e2827a2d3ca4ce517e7fc00bb0b48d0d63b29cbe31f51ea0980f0660d299a367"
+    },
+    {
+      "version": "20260714000000",
+      "name": "fix_accept_intercity_chat_sender_id",
+      "path": "supabase/migrations/20260714000000_fix_accept_intercity_chat_sender_id.sql",
+      "sha256_lf": "c9312649c59e399c7cf7fc47b3f9c8fee92178bcd13d741307dc41d57127a7c1"
+    },
+    {
+      "version": "20260715000001",
+      "name": "fix_trip_share_tokens_rls",
+      "path": "supabase/migrations/20260715000001_fix_trip_share_tokens_rls.sql",
+      "sha256_lf": "1966a306a91fb8304c3759692141d871633c7396bd7bf8719980ea6c41bb8400"
+    },
+    {
+      "version": "20260715000002",
+      "name": "revoke_public_notification_rpcs",
+      "path": "supabase/migrations/20260715000002_revoke_public_notification_rpcs.sql",
+      "sha256_lf": "21e41a775300905ce4a836fdb1aa047adac14deffeaaafe880fdee7b1776344b"
+    },
+    {
+      "version": "20260715000003",
+      "name": "fix_compliance_tables_rls",
+      "path": "supabase/migrations/20260715000003_fix_compliance_tables_rls.sql",
+      "sha256_lf": "21e4756a349a198d7652d18d1864783c80165c59db44df2697885494f2abfdc8"
+    },
+    {
+      "version": "20260716000000",
+      "name": "fix_dispatch_trigger_self_match_and_weight",
+      "path": "supabase/migrations/20260716000000_fix_dispatch_trigger_self_match_and_weight.sql",
+      "sha256_lf": "f22e3cac152e7b4e52bf6af68d3dbdd96cedce2f0d3c85c07b501559385ce5fe"
+    },
+    {
+      "version": "20260716000001",
+      "name": "fix_wallet_ledger_withdrawal_functions",
+      "path": "supabase/migrations/20260716000001_fix_wallet_ledger_withdrawal_functions.sql",
+      "sha256_lf": "550a6f4cbb071f5954868c58ad84cfa015a156341f1570459645ca04a74d980d"
+    },
+    {
+      "version": "20260716000002",
+      "name": "restrict_passenger_rider_assignments_to_intercity",
+      "path": "supabase/migrations/20260716000002_restrict_passenger_rider_assignments_to_intercity.sql",
+      "sha256_lf": "684ebe33101642e35ba97eeccaa85ea68b186f1f5863a9e189ae41a97e2d87a3"
+    },
+    {
+      "version": "20260716000003",
+      "name": "restrict_chat_message_edit_delete_to_sender",
+      "path": "supabase/migrations/20260716000003_restrict_chat_message_edit_delete_to_sender.sql",
+      "sha256_lf": "016a62069c7909474220213e72a9670cb8bbd2e31a00f4f15d3b06d85fe0fb69"
+    },
+    {
+      "version": "20260716000004",
+      "name": "narrow_intercity_requests_direct_write_policy",
+      "path": "supabase/migrations/20260716000004_narrow_intercity_requests_direct_write_policy.sql",
+      "sha256_lf": "8f83dd042d89141787056c295bf2b979b196ca6c81e276aa20f242356741f945"
+    },
+    {
+      "version": "20260716000005",
+      "name": "prevent_role_self_escalation",
+      "path": "supabase/migrations/20260716000005_prevent_role_self_escalation.sql",
+      "sha256_lf": "0162e5fe1d0c0a74472654dee343c71e257aee6b66cf62eca6995541677914ba"
+    },
+    {
+      "version": "20260716000006",
+      "name": "fix_promo_redemption_race_condition",
+      "path": "supabase/migrations/20260716000006_fix_promo_redemption_race_condition.sql",
+      "sha256_lf": "a35004631eb1d253b9b5e1065aee3d55f90a88870bb2288600f8b0db8eca4661"
+    },
+    {
+      "version": "20260716000007",
+      "name": "harden_security_definer_search_path",
+      "path": "supabase/migrations/20260716000007_harden_security_definer_search_path.sql",
+      "sha256_lf": "334126849f1c1153fcb9e8d4b3a9e51b84f8b859622773125b8bd8bced5be60e"
+    },
+    {
+      "version": "20260716000008",
+      "name": "enforce_travel_plan_weight_capacity",
+      "path": "supabase/migrations/20260716000008_enforce_travel_plan_weight_capacity.sql",
+      "sha256_lf": "83437e032f0c8177e392f2ef7904eaeb9f27dedda3965778a68db4389db02cee"
+    },
+    {
+      "version": "20260716000009",
+      "name": "remove_hardcoded_notification_credentials",
+      "path": "supabase/migrations/20260716000009_remove_hardcoded_notification_credentials.sql",
+      "sha256_lf": "16a6cc9b930dc23d69790aa6ef97f84b1e5162bb6ccfbb77c47b7cc2b0e16b7f"
+    },
+    {
+      "version": "20260716000010",
+      "name": "baseline_foundational_policies_late",
+      "path": "supabase/migrations/20260716000010_baseline_foundational_policies_late.sql",
+      "sha256_lf": "57428b260c655daf097de57ca97c1fe30865e538ba5372d6299ba5db4fa17a9f"
+    },
+    {
+      "version": "20260716000011",
+      "name": "send_push_notification_use_service_role_key",
+      "path": "supabase/migrations/20260716000011_send_push_notification_use_service_role_key.sql",
+      "sha256_lf": "4046a846d8596bfa86f0ebd93efbd1856766ef40975a78237449ac4055edbde2"
+    },
+    {
+      "version": "20260716000012",
+      "name": "restrict_chat_message_insert_to_participants",
+      "path": "supabase/migrations/20260716000012_restrict_chat_message_insert_to_participants.sql",
+      "sha256_lf": "2074e6ced14c1d59d2752117ae2dada1b9978828804e6b0d19b2f032d3da542e"
+    },
+    {
+      "version": "20260717000000",
+      "name": "add_rider_vehicles_table",
+      "path": "supabase/migrations/20260717000000_add_rider_vehicles_table.sql",
+      "sha256_lf": "ce1fe70aaab0351d0c2add9c62608af5e687362b66b2350f88217e2958e6094e"
+    },
+    {
+      "version": "20260717000001",
+      "name": "add_intercity_ride_pricing_config",
+      "path": "supabase/migrations/20260717000001_add_intercity_ride_pricing_config.sql",
+      "sha256_lf": "f636246f8ebe672f4c7509f1e46df3f235b5dd3e0cc059725341bd64e3e6fd89"
+    },
+    {
+      "version": "20260717000002",
+      "name": "lock_travel_plan_fare_at_creation",
+      "path": "supabase/migrations/20260717000002_lock_travel_plan_fare_at_creation.sql",
+      "sha256_lf": "19dc34e379a6aa77dd23328ea59ada33e7b10b981fcb0f8dd30c1d9070f85103"
+    },
+    {
+      "version": "20260717000003",
+      "name": "add_orders_seats_requested",
+      "path": "supabase/migrations/20260717000003_add_orders_seats_requested.sql",
+      "sha256_lf": "a5c535127408017145b1072b2ef57a142f49c1c460a97b1001ff4ffd2bb55b75"
+    },
+    {
+      "version": "20260717000004",
+      "name": "add_intercity_parcel_pricing_config",
+      "path": "supabase/migrations/20260717000004_add_intercity_parcel_pricing_config.sql",
+      "sha256_lf": "8f4d04c5840afb83d1ce82dec91b1a9598fd9c8a67f8c2466118f3123131f236"
+    },
+    {
+      "version": "20260717000005",
+      "name": "intercity_reject_and_double_booking_guard",
+      "path": "supabase/migrations/20260717000005_intercity_reject_and_double_booking_guard.sql",
+      "sha256_lf": "d749f8a5f3bc0af838a5742e16a0c32b38aece9cefac2691096faf2e5244c106"
+    },
+    {
+      "version": "20260717000006",
+      "name": "intercity_seat_availability_view",
+      "path": "supabase/migrations/20260717000006_intercity_seat_availability_view.sql",
+      "sha256_lf": "7f36a107add7a83f5606e9f633ebab5da6c4baddd48f5b137f1dd1319c32f6b6"
+    },
+    {
+      "version": "20260717000007",
+      "name": "intercity_bidirectional_ratings",
+      "path": "supabase/migrations/20260717000007_intercity_bidirectional_ratings.sql",
+      "sha256_lf": "5e332f62487ba1598c562840ce2f8b5f65ebb7fe15dff41fa19ebcf4180077ac"
+    },
+    {
+      "version": "20260717000008",
+      "name": "intercity_expiry_scheduling_and_notifications",
+      "path": "supabase/migrations/20260717000008_intercity_expiry_scheduling_and_notifications.sql",
+      "sha256_lf": "a6793f3c26cb88d3372a44321158863ff133eae352e0ad32c3e73476f8050246"
+    },
+    {
+      "version": "20260717000009",
+      "name": "intercity_notification_copy_and_near_destination",
+      "path": "supabase/migrations/20260717000009_intercity_notification_copy_and_near_destination.sql",
+      "sha256_lf": "d8324e598fa0e56aeaf16523fcd4ec7293ea9446914e057a0db47ef00ae1c5c4"
+    },
+    {
+      "version": "20260718000000",
+      "name": "push_notification_delivery_via_vault",
+      "path": "supabase/migrations/20260718000000_push_notification_delivery_via_vault.sql",
+      "sha256_lf": "ad6b821b48a4e1271f6fa9c9e73ed7d22c0d8905c169451c9ce78c674247db0f"
+    },
+    {
+      "version": "20260718000001",
+      "name": "fix_order_type_enum_like_operator",
+      "path": "supabase/migrations/20260718000001_fix_order_type_enum_like_operator.sql",
+      "sha256_lf": "fe6f8bd6527f6238b89c27802470de018f5213f48d5a3cbc202c237601f25944"
+    },
+    {
+      "version": "20260718000002",
+      "name": "fix_stale_send_push_notification_fnc",
+      "path": "supabase/migrations/20260718000002_fix_stale_send_push_notification_fnc.sql",
+      "sha256_lf": "3cc6fc5ca0f4f525f6a690f28b0ddbcc76145ffb88e0b25d6066829106971a26"
+    },
+    {
+      "version": "20260718000003",
+      "name": "apply_intercity_rls_narrowing_and_accept_offer_hardening",
+      "path": "supabase/migrations/20260718000003_apply_intercity_rls_narrowing_and_accept_offer_hardening.sql",
+      "sha256_lf": "0e54cad9f85b868884eeff819a18293de7e6907be48f7ea16f2e24582f8f3a9c"
+    },
+    {
+      "version": "20260718000004",
+      "name": "reapply_search_path_hardening_batch",
+      "path": "supabase/migrations/20260718000004_reapply_search_path_hardening_batch.sql",
+      "sha256_lf": "935270b9b93faf294fc6e6209a65345a130903b8e5579898bfbc9d0c608e96a8"
+    },
+    {
+      "version": "20260718000005",
+      "name": "apply_chat_message_edit_delete_restriction",
+      "path": "supabase/migrations/20260718000005_apply_chat_message_edit_delete_restriction.sql",
+      "sha256_lf": "bcb8f6d3417a87168d1ba24361fa577be86c0bfc94858f71c88803ed861e7dfb"
+    },
+    {
+      "version": "20260718000006",
+      "name": "fix_intercity_traveller_order_visibility",
+      "path": "supabase/migrations/20260718000006_fix_intercity_traveller_order_visibility.sql",
+      "sha256_lf": "981564a41828ade8f38f738a3749827cf8eb3c71d8043dbb8d58f723ae9bc06a"
+    },
+    {
+      "version": "20260718000007",
+      "name": "intercity_requests_status_lifecycle",
+      "path": "supabase/migrations/20260718000007_intercity_requests_status_lifecycle.sql",
+      "sha256_lf": "52511d0038edd365552e324bb83bc82695b4164add1d647a1e0d6297ed79af49"
+    },
+    {
+      "version": "20260718000008",
+      "name": "add_partner_service_mode",
+      "path": "supabase/migrations/20260718000008_add_partner_service_mode.sql",
+      "sha256_lf": "8f8299f994fc549f1c0432f1b920af4b6db334d80e90fb5263d71839dfb1dd50"
+    },
+    {
+      "version": "20260718000009",
+      "name": "add_get_required_service_mode_fn",
+      "path": "supabase/migrations/20260718000009_add_get_required_service_mode_fn.sql",
+      "sha256_lf": "9e106f3bc7352635c28dfbb7c4ebf3634e66b527549c232cc347ac435dc407bd"
+    },
+    {
+      "version": "20260718000010",
+      "name": "enforce_service_mode_in_dispatch_functions",
+      "path": "supabase/migrations/20260718000010_enforce_service_mode_in_dispatch_functions.sql",
+      "sha256_lf": "b5b368e9ed17fe102cd24073334ffbca7a40a10547c48fc97b08f6930791f709"
+    },
+    {
+      "version": "20260718000011",
+      "name": "add_rider_assignment_service_mode_guard_triggers",
+      "path": "supabase/migrations/20260718000011_add_rider_assignment_service_mode_guard_triggers.sql",
+      "sha256_lf": "8c992a0195dce4c36cf1ae28d2ff0539de96d80db466f6f9b21da99fc27b4823"
+    },
+    {
+      "version": "20260718000012",
+      "name": "restrict_travel_plans_and_intercity_requests_to_intercity_mode",
+      "path": "supabase/migrations/20260718000012_restrict_travel_plans_and_intercity_requests_to_intercity_mode.sql",
+      "sha256_lf": "4251c6ad7c02da2ed3d77c484943f27a446dd3b8cfc521d6834c1da9475430e5"
+    },
+    {
+      "version": "20260718000013",
+      "name": "prevent_service_mode_switch_during_active_order",
+      "path": "supabase/migrations/20260718000013_prevent_service_mode_switch_during_active_order.sql",
+      "sha256_lf": "043384709ebce4ca9b8ae461e1df289d3885ec0c181ed309a70f78f416ef7d33"
+    },
+    {
+      "version": "20260720000000",
+      "name": "traveller_available_and_trip_lifecycle",
+      "path": "supabase/migrations/20260720000000_traveller_available_and_trip_lifecycle.sql",
+      "sha256_lf": "8eedb210bad4fcf8dc61cc65d8789034d1224c680cbf5541a9c34fc7c2855b0b"
+    },
+    {
+      "version": "20260720000001",
+      "name": "align_intercity_request_notification_copy",
+      "path": "supabase/migrations/20260720000001_align_intercity_request_notification_copy.sql",
+      "sha256_lf": "7c558529d95e7dc055e9408b7b0f703f9b4443ea1e354a56b9cb83b77c70fb57"
+    },
+    {
+      "version": "20260720000002",
+      "name": "grant_travel_matches_permissions",
+      "path": "supabase/migrations/20260720000002_grant_travel_matches_permissions.sql",
+      "sha256_lf": "acf2329eaaa7b486b08d0884e6369895175c6039940d60b76a5769e315250734"
+    },
+    {
+      "version": "20260720000003",
+      "name": "align_trip_started_notification_copy",
+      "path": "supabase/migrations/20260720000003_align_trip_started_notification_copy.sql",
+      "sha256_lf": "6fc4ec66ed4d059e988f67c3ded51f3ac7a01ed957cff9133399d4b38b5f2c73"
+    },
+    {
+      "version": "20260720000004",
+      "name": "intercity_trip_activity_business_logic",
+      "path": "supabase/migrations/20260720000004_intercity_trip_activity_business_logic.sql",
+      "sha256_lf": "f5228108ad2a084e9cc14cc5b5fa47d4b81030622b1b9fadf2e1abd7daaaadbd"
+    },
+    {
+      "version": "20260721000000",
+      "name": "open_intercity_order_visibility_for_travellers",
+      "path": "supabase/migrations/20260721000000_open_intercity_order_visibility_for_travellers.sql",
+      "sha256_lf": "71b8703e08d2791e1b4e6b12fbed1e84afea0efa474b2495806ef90aaad81d85"
+    },
+    {
+      "version": "20260721000001",
+      "name": "fix_passenger_conflict_date_check",
+      "path": "supabase/migrations/20260721000001_fix_passenger_conflict_date_check.sql",
+      "sha256_lf": "a862e4f9637fe82466fd17ff83188fb008afb0f3b363e24ac3129733b29fad43"
+    },
+    {
+      "version": "20260721000002",
+      "name": "fix_seat_race_and_add_plan_fully_booked_guard",
+      "path": "supabase/migrations/20260721000002_fix_seat_race_and_add_plan_fully_booked_guard.sql",
+      "sha256_lf": "b15309a6a11163765d11284b31de1219111f5f034654a25f6e2fcadb438f625d"
+    },
+    {
+      "version": "20260721000003",
+      "name": "start_intercity_trip_for_plan",
+      "path": "supabase/migrations/20260721000003_start_intercity_trip_for_plan.sql",
+      "sha256_lf": "a6bc8f7e9106c65fac06781f278eab9e33b5b5b437b91bf0f3af8613a98f95aa"
+    },
+    {
+      "version": "20260721000004",
+      "name": "lock_service_mode_while_travel_plan_active",
+      "path": "supabase/migrations/20260721000004_lock_service_mode_while_travel_plan_active.sql",
+      "sha256_lf": "0a08f01c45f5b099d859f26e8b7cf3686b2fa995c33f2f43339ed4252895acc9"
+    },
+    {
+      "version": "20260721000005",
+      "name": "start_trip_never_depends_on_payment",
+      "path": "supabase/migrations/20260721000005_start_trip_never_depends_on_payment.sql",
+      "sha256_lf": "3345d330771a340ad510d9f6c3fb72707b407e2bfbd69e5c908d4e0fe35a1b76"
+    },
+    {
+      "version": "20260721000006",
+      "name": "add_passenger_gender_photo_and_trip_stats",
+      "path": "supabase/migrations/20260721000006_add_passenger_gender_photo_and_trip_stats.sql",
+      "sha256_lf": "2501fc70dd44d551ad2b360feb679729009c40ee98c29f3edcb06cb0b3511697"
+    },
+    {
+      "version": "20260722000000",
+      "name": "upi_intent_payment_mode",
+      "path": "supabase/migrations/20260722000000_upi_intent_payment_mode.sql",
+      "sha256_lf": "e54253176009269cf0fa18caefdda54395c796cdb0e04f3417d4ec454dcd7e56"
+    },
+    {
+      "version": "20260722000001",
+      "name": "get_order_driver_upi_vpa_fn",
+      "path": "supabase/migrations/20260722000001_get_order_driver_upi_vpa_fn.sql",
+      "sha256_lf": "6f09b1027fe287f4f98f37a8b6b40f214eb95ce3cd5f07ca07cfd70b5f77b899"
+    },
+    {
+      "version": "20260724000000",
+      "name": "add_developer_test_mode_flag",
+      "path": "supabase/migrations/20260724000000_add_developer_test_mode_flag.sql",
+      "sha256_lf": "981ee73d47a1f701392995dcd693e11f1ce088c8ddc7c31ae9615c06b4e81de0"
+    },
+    {
+      "version": "20260724000001",
+      "name": "upi_payment_pending_flow",
+      "path": "supabase/migrations/20260724000001_upi_payment_pending_flow.sql",
+      "sha256_lf": "44d579a58140bf04aa48d0f1152ed1b8e53fdf193d90bcdf427e512ba20cfb27"
+    },
+    {
+      "version": "20260724000002",
+      "name": "upi_payment_pending_flow_support",
+      "path": "supabase/migrations/20260724000002_upi_payment_pending_flow_support.sql",
+      "sha256_lf": "2c6ee810828d12b5c8e8448098a5a601302d71c3f93c8490d372c4909b207574"
+    },
+    {
+      "version": "20260724000003",
+      "name": "atomic_rider_completion_credit",
+      "path": "supabase/migrations/20260724000003_atomic_rider_completion_credit.sql",
+      "sha256_lf": "4c99b4c586c1ea596825f6de2ecdb37485e01c620393058db737197167f0c255"
+    },
+    {
+      "version": "20260724000004",
+      "name": "protect_order_financial_columns",
+      "path": "supabase/migrations/20260724000004_protect_order_financial_columns.sql",
+      "sha256_lf": "7f693d449afa7257dc43499b1b59543ebd511672c563a9f89e01bdc897f8d365"
+    },
+    {
+      "version": "20260724000005",
+      "name": "canonical_fare_breakdown_and_intercity_fix",
+      "path": "supabase/migrations/20260724000005_canonical_fare_breakdown_and_intercity_fix.sql",
+      "sha256_lf": "c831ab1aa98a199c2468270531711d31960a544b7fc1df69a0909a94212fb436"
+    },
+    {
+      "version": "20260725000000",
+      "name": "driver_fare_payment_preference",
+      "path": "supabase/migrations/20260725000000_driver_fare_payment_preference.sql",
+      "sha256_lf": "427a217edb09bd82e5833d4cbac069dae99a75500e2260016a6f72df06807727"
+    },
+    {
+      "version": "20260725000001",
+      "name": "fare_payment_rpcs",
+      "path": "supabase/migrations/20260725000001_fare_payment_rpcs.sql",
+      "sha256_lf": "e13f5b6147dacdee5c99d1e30583fea865555080906b0704fc18266044b02916"
+    },
+    {
+      "version": "20260725000002",
+      "name": "fix_fare_payment_financial_guard_bypass",
+      "path": "supabase/migrations/20260725000002_fix_fare_payment_financial_guard_bypass.sql",
+      "sha256_lf": "f88811345ab614983809fe5c5a45d8b9b5cade34b26380c353f7e6998f18e260"
+    },
+    {
+      "version": "20260725000003",
+      "name": "lock_down_upi_verification",
+      "path": "supabase/migrations/20260725000003_lock_down_upi_verification.sql",
+      "sha256_lf": "56428f44436355f9ece9953c1baa5f53e661e1f75f8a9823bd3edfef274ff841"
+    },
+    {
+      "version": "20260725000004",
+      "name": "upi_verification_audit_trail",
+      "path": "supabase/migrations/20260725000004_upi_verification_audit_trail.sql",
+      "sha256_lf": "7b0454e388276073134281f402d6c0929c4a26dc422cdfc755280ce87ffdb795"
+    },
+    {
+      "version": "20260725000005",
+      "name": "final_payment_architecture",
+      "path": "supabase/migrations/20260725000005_final_payment_architecture.sql",
+      "sha256_lf": "a5d7c6c5e79248333523f2bcdb8b0adf3b907269b94c52b18cf1e5376cfe9215"
+    },
+    {
+      "version": "20260725000006",
+      "name": "driver_personal_qr_upload",
+      "path": "supabase/migrations/20260725000006_driver_personal_qr_upload.sql",
+      "sha256_lf": "9a1651eaa2b833a2c67d3c6f8339e3ab0a2b57172c961593fe39f7a469ce9324"
+    },
+    {
+      "version": "20260725000007",
+      "name": "fix_mark_fare_payment_attempted_guard_bypass",
+      "path": "supabase/migrations/20260725000007_fix_mark_fare_payment_attempted_guard_bypass.sql",
+      "sha256_lf": "7873be05cca5d22c98f8e6ba3dde24cdacc6ab3b7d4b729c73586b7c04689d2e"
+    },
+    {
+      "version": "20260725000008",
+      "name": "drop_unused_get_order_driver_fare_payment_info",
+      "path": "supabase/migrations/20260725000008_drop_unused_get_order_driver_fare_payment_info.sql",
+      "sha256_lf": "9b7e0391d211eb94858a93ed49382594d2d3dad2ce1bacaec1630e895ce7107b"
+    },
+    {
+      "version": "20260726000000",
+      "name": "fix_chat_message_rider_assignment_order_scope",
+      "path": "supabase/migrations/20260726000000_fix_chat_message_rider_assignment_order_scope.sql",
+      "sha256_lf": "a3c93f648b143398378689eb894a0e4e0eb54277983c733be8c52bf3b1b453ea"
+    },
+    {
+      "version": "20260726000001",
+      "name": "fix_service_mode_lock_on_scheduled_travel_plan",
+      "path": "supabase/migrations/20260726000001_fix_service_mode_lock_on_scheduled_travel_plan.sql",
+      "sha256_lf": "2820c55f5934231bf65e542d3b4a11d9e88f131b86eea9da8e95af3ac86126b0"
+    },
+    {
+      "version": "20260726000002",
+      "name": "subscription_plan_allowlist",
+      "path": "supabase/migrations/20260726000002_subscription_plan_allowlist.sql",
+      "sha256_lf": "86e191c4592cc8b26191d8c7251b4953b40685783cbc8b94dcdeaabee213b4b3"
+    },
+    {
+      "version": "20260726000003",
+      "name": "government_tax_due_schema",
+      "path": "supabase/migrations/20260726000003_government_tax_due_schema.sql",
+      "sha256_lf": "d286765f474d57a6877aa2a1d29bd86ba27ce4fb4b63e19831b85fa422400c48"
+    },
+    {
+      "version": "20260726000004",
+      "name": "government_tax_due_functions",
+      "path": "supabase/migrations/20260726000004_government_tax_due_functions.sql",
+      "sha256_lf": "48b45175114303821c449f02d16a53928830b8972008eed16e774ff1ed9abe04"
+    },
+    {
+      "version": "20260728000000",
+      "name": "fix_intercity_parcel_pricing_and_fare_guard",
+      "path": "supabase/migrations/20260728000000_fix_intercity_parcel_pricing_and_fare_guard.sql",
+      "sha256_lf": "1bd791ff82571ccc8867df6391bf3d08d52f6bac423fb067068ba63490c91fcd"
+    },
+    {
+      "version": "20260729000000",
+      "name": "intercity_match_notification_wording_and_dedup",
+      "path": "supabase/migrations/20260729000000_intercity_match_notification_wording_and_dedup.sql",
+      "sha256_lf": "ff9b925518c2564ca3017eda99d757c5716380eec6ed4da1649689646e0602ef"
+    },
+    {
+      "version": "20260729000001",
+      "name": "find_nearby_riders_security_definer_and_authz",
+      "path": "supabase/migrations/20260729000001_find_nearby_riders_security_definer_and_authz.sql",
+      "sha256_lf": "a797cf9ff72fcf9fb233094093779e41dcbbfc04eb7b24ad1cd9f689f24a81a4"
+    },
+    {
+      "version": "20260729000002",
+      "name": "fix_rating_notification_direction",
+      "path": "supabase/migrations/20260729000002_fix_rating_notification_direction.sql",
+      "sha256_lf": "11fefdb1fc4be3dd6ba6061fd470689d0d03bfa237f2bfec6d4efcff696711c9"
+    },
+    {
+      "version": "20260729000003",
+      "name": "cascade_cancel_travel_plan_dependents",
+      "path": "supabase/migrations/20260729000003_cascade_cancel_travel_plan_dependents.sql",
+      "sha256_lf": "2a64089fb48076e0bd608c05998726c3954cb3ba6a8fe52dff076846f5ed5283"
+    },
+    {
+      "version": "20260730000000",
+      "name": "protect_rider_financial_columns",
+      "path": "supabase/migrations/20260730000000_protect_rider_financial_columns.sql",
+      "sha256_lf": "c00d59c9330c71ae0843ca41c5531701e6eb5469ef64bbd214e58cde94fc0720"
+    },
+    {
+      "version": "20260730000001",
+      "name": "fix_intercity_trip_notification_copy_and_dedup",
+      "path": "supabase/migrations/20260730000001_fix_intercity_trip_notification_copy_and_dedup.sql",
+      "sha256_lf": "615b2a0f0409676a5b6286955ca3f13d2311e291f56c7fcf42ffed610e04d4f6"
+    },
+    {
+      "version": "20260730000002",
+      "name": "protect_order_fare_columns",
+      "path": "supabase/migrations/20260730000002_protect_order_fare_columns.sql",
+      "sha256_lf": "84bd4c23e04d559a17322e62b24b89d478213523b210dd6a838f5433d4fe3809"
+    },
+    {
+      "version": "20260730000003",
+      "name": "add_notifications_indexes",
+      "path": "supabase/migrations/20260730000003_add_notifications_indexes.sql",
+      "sha256_lf": "cb0b6eaa1cbb6d7c88c7739dc39889a877b2a8afc06761c644f12d2071f2e20f"
+    },
+    {
+      "version": "20260730000004",
+      "name": "intercity_parcel_delivery_settlement",
+      "path": "supabase/migrations/20260730000004_intercity_parcel_delivery_settlement.sql",
+      "sha256_lf": "632c801cd9f78072a094287ec639170c0c2acac201fc1b93bb979c983211f2c6"
+    },
+    {
+      "version": "20260730000005",
+      "name": "intercity_delivery_otp_resend",
+      "path": "supabase/migrations/20260730000005_intercity_delivery_otp_resend.sql",
+      "sha256_lf": "488432e89e0c1ae8ef8fcd86ecf2987d4cecd9bd618729eba97128214490672c"
+    },
+    {
+      "version": "20260730000006",
+      "name": "confirm_intercity_search_rider",
+      "path": "supabase/migrations/20260730000006_confirm_intercity_search_rider.sql",
+      "sha256_lf": "69f5e67fc49cb515d66c8ffe0bae99030af2f30b39e37ced9616be6eae8b1ee0"
+    },
+    {
+      "version": "20260730000007",
+      "name": "confirm_intercity_handover",
+      "path": "supabase/migrations/20260730000007_confirm_intercity_handover.sql",
+      "sha256_lf": "8ae14682fa080970a2588c7aa2e08cc88abf81d4d80fe5d868a1240377d52003"
+    },
+    {
+      "version": "20260730000008",
+      "name": "lock_order_status_and_otp_columns",
+      "path": "supabase/migrations/20260730000008_lock_order_status_and_otp_columns.sql",
+      "sha256_lf": "2498dc1ae97d838f8727ae1fde27793749237b7136fda9879a31fd3c27c8f8ee"
+    },
+    {
+      "version": "20260730000009",
+      "name": "data_deletion_requests",
+      "path": "supabase/migrations/20260730000009_data_deletion_requests.sql",
+      "sha256_lf": "7c1726f1d3298c71cc434b74cc48fc561e2666e71c28e898449f0665582b367f"
+    },
+    {
+      "version": "20260731000000",
+      "name": "fix_rider_kyc_pii_exposure",
+      "path": "supabase/migrations/20260731000000_fix_rider_kyc_pii_exposure.sql",
+      "sha256_lf": "f10f442a4a4f864347bec8e48ee065ad6234a991fc3405bcacab29e850aadd16"
+    },
+    {
+      "version": "20260731000001",
+      "name": "deny_direct_orders_insert",
+      "path": "supabase/migrations/20260731000001_deny_direct_orders_insert.sql",
+      "sha256_lf": "e4f4642b1146a81efd95e32148586686121171b30964be2b5f76a7381e08d1ff"
+    },
+    {
+      "version": "20260731000002",
+      "name": "fix_parcel_online_payment_wallet_credit",
+      "path": "supabase/migrations/20260731000002_fix_parcel_online_payment_wallet_credit.sql",
+      "sha256_lf": "985146c82b02606febdb0ae14549460443a2977742ca74560b58f70f92a8c19e"
+    },
+    {
+      "version": "20260731000003",
+      "name": "fix_chat_stale_rider_assignment_access",
+      "path": "supabase/migrations/20260731000003_fix_chat_stale_rider_assignment_access.sql",
+      "sha256_lf": "e71e532f812e9d6a1afa95db317f9b7fbb82ea1d383164496529d7d3bafa4619"
+    },
+    {
+      "version": "20260731000004",
+      "name": "rider_kyc_bucket_private",
+      "path": "supabase/migrations/20260731000004_rider_kyc_bucket_private.sql",
+      "sha256_lf": "84965bc63d02973a22383daef07c4d7ffa52bc7cc75cc696d2970b90432b4cc8"
+    },
+    {
+      "version": "20260801000000",
+      "name": "fix_role_escalation_search_path",
+      "path": "supabase/migrations/20260801000000_fix_role_escalation_search_path.sql",
+      "sha256_lf": "8e7782cc0b68b66830707b45cd0ff8ab4a52b39dae94002d415c395cac763b77"
+    },
+    {
+      "version": "20260801000001",
+      "name": "fix_intercity_accept_notification_dedup",
+      "path": "supabase/migrations/20260801000001_fix_intercity_accept_notification_dedup.sql",
+      "sha256_lf": "9f675ad83aad97067fdea907a73b26de70879bfaa7c6b621dc669844698d54dc"
+    },
+    {
+      "version": "20260801000002",
+      "name": "add_rider_reviews_rating_indexes",
+      "path": "supabase/migrations/20260801000002_add_rider_reviews_rating_indexes.sql",
+      "sha256_lf": "67c8263d0bce32865b8e557f61c44f81a201384a98ece46daa2c9b07239d07f0"
+    },
+    {
+      "version": "20260801000003",
+      "name": "scope_order_protection_triggers_to_guarded_columns",
+      "path": "supabase/migrations/20260801000003_scope_order_protection_triggers_to_guarded_columns.sql",
+      "sha256_lf": "16c42c8b13a7c31e4d7b498f848ae07cd64e3130ebdeec820480761e5134f65a"
+    },
+    {
+      "version": "20260801000004",
+      "name": "add_riders_dispatch_eligibility_index",
+      "path": "supabase/migrations/20260801000004_add_riders_dispatch_eligibility_index.sql",
+      "sha256_lf": "040c252b018d276b3247830f0e68f6927d0b2c45fbba462f1a5ed429cd1a42d1"
+    },
+    {
+      "version": "20260801000005",
+      "name": "add_get_dispatch_round_status_rpc",
+      "path": "supabase/migrations/20260801000005_add_get_dispatch_round_status_rpc.sql",
+      "sha256_lf": "1f543334b2bb29a3f79209535c659176bd4ce3b0871db2a6018188da90aafeea"
+    },
+    {
+      "version": "20260801000006",
+      "name": "set_statement_timeout_for_client_roles",
+      "path": "supabase/migrations/20260801000006_set_statement_timeout_for_client_roles.sql",
+      "sha256_lf": "9d1c9f6b4324c56bd5e6a60a964b14c3200eed38a98d6c40fa2c345e7e09fe56"
+    },
+    {
+      "version": "20260801000007",
+      "name": "incremental_rider_review_rating_aggregation",
+      "path": "supabase/migrations/20260801000007_incremental_rider_review_rating_aggregation.sql",
+      "sha256_lf": "69aa526f76566d3dc6ac677030d3f24b22001c4ee288a8d6b7919e9740b92b86"
+    },
+    {
+      "version": "20260802000000",
+      "name": "delete_own_account",
+      "path": "supabase/migrations/20260802000000_delete_own_account.sql",
+      "sha256_lf": "f85ea5990530bf08afd0ad60a24c0746cdab0ee64c18dc4c05bd92778c339539"
+    },
+    {
+      "version": "20260803000000",
+      "name": "kyc_evidence_retention_on_deletion",
+      "path": "supabase/migrations/20260803000000_kyc_evidence_retention_on_deletion.sql",
+      "sha256_lf": "5e47b7562ab322fb5faf0bdf143b565e0935cc87a96e7a661def33d2a122fd42"
+    },
+    {
+      "version": "20260804000000",
+      "name": "fix_rider_kyc_public_view_gaps",
+      "path": "supabase/migrations/20260804000000_fix_rider_kyc_public_view_gaps.sql",
+      "sha256_lf": "ff0c167bd220bbc47cdf34b52287db12a68c375b9718f26ea28379eb3952adb9"
+    },
+    {
+      "version": "20260805000000",
+      "name": "prevent_busy_rider_local_ride_assignment",
+      "path": "supabase/migrations/20260805000000_prevent_busy_rider_local_ride_assignment.sql",
+      "sha256_lf": "47f97a7b7f947c4047701ac92a83884378049f1c2be7b14601420db88db6eb13"
+    },
+    {
+      "version": "20260806000000",
+      "name": "fix_intercity_parcel_start_trip_notification_wording",
+      "path": "supabase/migrations/20260806000000_fix_intercity_parcel_start_trip_notification_wording.sql",
+      "sha256_lf": "541cdcfd12c3ea73ad9b70997d087bf825e3e552e0b3c605e586c422d475960a"
+    },
+    {
+      "version": "20260806000001",
+      "name": "ensure_intercity_parcel_pricing_config",
+      "path": "supabase/migrations/20260806000001_ensure_intercity_parcel_pricing_config.sql",
+      "sha256_lf": "c93c8b226bb576e87ce844472e043db440d82388d9b275eb1f7ca18189715ab5"
+    },
+    {
+      "version": "20260806000002",
+      "name": "bound_dispatch_trigger_ttl_and_online_transition_only",
+      "path": "supabase/migrations/20260806000002_bound_dispatch_trigger_ttl_and_online_transition_only.sql",
+      "sha256_lf": "6bcc25520a94574ef855a77bb6a685bf0b54121afb2a5af3330c558f6789e499"
+    },
+    {
+      "version": "20260806000003",
+      "name": "add_dispatch_staleness_partial_indexes",
+      "path": "supabase/migrations/20260806000003_add_dispatch_staleness_partial_indexes.sql",
+      "sha256_lf": "d93b036e93abcdb93af607001990052556d9c19dcf81adad4490e1f4c44743a8"
+    },
+    {
+      "version": "20260806000004",
+      "name": "add_expire_stale_searching_orders_and_schedule",
+      "path": "supabase/migrations/20260806000004_add_expire_stale_searching_orders_and_schedule.sql",
+      "sha256_lf": "f8725114ce259c029bacc231fbb44d6f949ecf4a694c251654ce6b6ed8d3b778"
+    },
+    {
+      "version": "20260806000005",
+      "name": "add_expired_order_notification_copy",
+      "path": "supabase/migrations/20260806000005_add_expired_order_notification_copy.sql",
+      "sha256_lf": "9f0667332c6b248ae6dbf261bc6b81202f99f3471894f1ef7eb4609e6bdfa7d5"
+    },
+    {
+      "version": "20260807000000",
+      "name": "schedule_missing_pg_cron_jobs",
+      "path": "supabase/migrations/20260807000000_schedule_missing_pg_cron_jobs.sql",
+      "sha256_lf": "9e6c10aed6783e1a8614a1b808b5a76545019df3407d3814fe1f8647155e53ed"
+    },
+    {
+      "version": "20260807000001",
+      "name": "add_order_chat_messages_index",
+      "path": "supabase/migrations/20260807000001_add_order_chat_messages_index.sql",
+      "sha256_lf": "ed496097fc8da9204a60534d79e28fda2e55f8f5fb839fc99154e234cfb1c5c0"
+    },
+    {
+      "version": "20260807000002",
+      "name": "grant_service_role_order_verifications",
+      "path": "supabase/migrations/20260807000002_grant_service_role_order_verifications.sql",
+      "sha256_lf": "d24f7143a3b3001d8fd5a4b58ca1cb606b3d83db4d5fb1379258329fc1839f76"
+    },
+    {
+      "version": "20260808000000",
+      "name": "reassign_orders_when_rider_freed",
+      "path": "supabase/migrations/20260808000000_reassign_orders_when_rider_freed.sql",
+      "sha256_lf": "3f7e34647312ed06a6d63999492b33c367a00812be650789f8b116fb31372368"
+    },
+    {
+      "version": "20260808000001",
+      "name": "fix_traveller_accept_confirmation_wording",
+      "path": "supabase/migrations/20260808000001_fix_traveller_accept_confirmation_wording.sql",
+      "sha256_lf": "181b01b6ad890742706b0c1d5003c5ade50bc45fd9487d831f112ba926222fb2"
+    },
+    {
+      "version": "20260808000002",
+      "name": "enforce_cod_limit_at_dispatch",
+      "path": "supabase/migrations/20260808000002_enforce_cod_limit_at_dispatch.sql",
+      "sha256_lf": "0d8f206a2e84d5623a274f4ca25882a8cc527c8ab97b0a808ee82d7bc749d1e1"
+    },
+    {
+      "version": "20260808000003",
+      "name": "redispatch_stalled_searching_orders_cron",
+      "path": "supabase/migrations/20260808000003_redispatch_stalled_searching_orders_cron.sql",
+      "sha256_lf": "e0faecf2d4a008d079175a2ec78a716509d825354ecb0e9e1966df1783321ed6"
+    },
+    {
+      "version": "20260808000004",
+      "name": "add_rider_assignments_unique_order_rider",
+      "path": "supabase/migrations/20260808000004_add_rider_assignments_unique_order_rider.sql",
+      "sha256_lf": "8668d5646f88c763a7d00cb4b8d53d3629b3a344a1f60b4d8db3d0698492f6a5"
+    },
+    {
+      "version": "20260808000005",
+      "name": "assign_new_order_to_nearby_online_riders",
+      "path": "supabase/migrations/20260808000005_assign_new_order_to_nearby_online_riders.sql",
+      "sha256_lf": "b502971828ee9585d7b93fc8265de4d1d0bcf723d006abbbfb3dc05af454e60f"
+    },
+    {
+      "version": "20260808000006",
+      "name": "secure_accept_intercity_request_authz",
+      "path": "supabase/migrations/20260808000006_secure_accept_intercity_request_authz.sql",
+      "sha256_lf": "1e8050a53c3aafdb2c76fb1a94c9a33c02ad7f7869143615f6e5615d2e4f0303"
+    },
+    {
+      "version": "20260808000007",
+      "name": "remove_insecure_rider_kyc_public_read_policy",
+      "path": "supabase/migrations/20260808000007_remove_insecure_rider_kyc_public_read_policy.sql",
+      "sha256_lf": "a438912b9ea49d37c9191bbc348532f59ce2fcc334f673971bd28840ce022e5f"
+    },
+    {
+      "version": "20260808000008",
+      "name": "drop_untracked_unscoped_rider_kyc_storage_policies",
+      "path": "supabase/migrations/20260808000008_drop_untracked_unscoped_rider_kyc_storage_policies.sql",
+      "sha256_lf": "fe6b9db7fd9203a52a7844fcb1eb361d117cfdb921adf685b7f4ec0ba778c068"
+    },
+    {
+      "version": "20260808000009",
+      "name": "harden_rider_assignments_self_write_policies",
+      "path": "supabase/migrations/20260808000009_harden_rider_assignments_self_write_policies.sql",
+      "sha256_lf": "018f9361455088d9625cbb1fe7a89b4b75d368510c2632575caa2ee368f97927"
+    },
+    {
+      "version": "20260808000010",
+      "name": "fix_withdrawal_beneficiary_status_check",
+      "path": "supabase/migrations/20260808000010_fix_withdrawal_beneficiary_status_check.sql",
+      "sha256_lf": "ce9bbfd1e68ed6087d27b6969d8d8a706a836f2c314da554e84975679bfaa94e"
+    },
+    {
+      "version": "20260808000011",
+      "name": "cod_settlement_payment_flow",
+      "path": "supabase/migrations/20260808000011_cod_settlement_payment_flow.sql",
+      "sha256_lf": "e8cc51f62c11d489809d518a3d21f0a89f69b89f70b30632855bd8b481e5f322"
+    },
+    {
+      "version": "20260808000012",
+      "name": "fix_payout_update_limit_counts_success_only",
+      "path": "supabase/migrations/20260808000012_fix_payout_update_limit_counts_success_only.sql",
+      "sha256_lf": "0ce94b5d9b04180f971ed367ce48744a2f2a3735a4b7d81803765a08939467ec"
+    },
+    {
+      "version": "20260808000013",
+      "name": "fix_withdrawal_transfer_id_overwrite",
+      "path": "supabase/migrations/20260808000013_fix_withdrawal_transfer_id_overwrite.sql",
+      "sha256_lf": "53295fa3850425358ba08b5f9adfcf40f640fe8cf29e2506f9a58722e0deab16"
+    },
+    {
+      "version": "20260808000014",
+      "name": "correct_misrefunded_withdrawals_291fe5ee",
+      "path": "supabase/migrations/20260808000014_correct_misrefunded_withdrawals_291fe5ee.sql",
+      "sha256_lf": "e071efe1f44659f6861372e17bb68a0cffdcdb1639c7ce7fc6eda76f13e20707"
+    },
+    {
+      "version": "20260809000000",
+      "name": "clear_orphaned_dispatch_worker_locks",
+      "path": "supabase/migrations/20260809000000_clear_orphaned_dispatch_worker_locks.sql",
+      "sha256_lf": "f358524c64aca36760d9c7e3c92adac8d35a27b439ad55a45107a71f69e5d284"
+    },
+    {
+      "version": "20260809000001",
+      "name": "async_rider_freed_rematch",
+      "path": "supabase/migrations/20260809000001_async_rider_freed_rematch.sql",
+      "sha256_lf": "11e217249e112a3733ebe0157eed312fcc7867b30cebc257703dc522586542cb"
+    },
+    {
+      "version": "20260809000002",
+      "name": "expire_stale_active_orders",
+      "path": "supabase/migrations/20260809000002_expire_stale_active_orders.sql",
+      "sha256_lf": "66c0b4ba83a097bcb9e8493f79d26d3ce269c352145c7fe5658b79c18bb99bdc"
+    },
+    {
+      "version": "20260809000003",
+      "name": "temp_diagnostic_timings",
+      "path": "supabase/migrations/20260809000003_temp_diagnostic_timings.sql",
+      "sha256_lf": "063f421bd7c25dfb9d6005c10dcb20d781c40ce8bf9ed8aea8a930da1c80dc31"
+    },
+    {
+      "version": "20260810000000",
+      "name": "async_order_status_notifications",
+      "path": "supabase/migrations/20260810000000_async_order_status_notifications.sql",
+      "sha256_lf": "1979e84a575e53f6497ed8d3131a1d6de8bd8ff734fa1743eb8dd566c763080a"
+    },
+    {
+      "version": "20260811000000",
+      "name": "client_diagnostic_timings_rls",
+      "path": "supabase/migrations/20260811000000_client_diagnostic_timings_rls.sql",
+      "sha256_lf": "3afb69432b07aa964547b643d4ac175a91fbb8765bf3604fe9ea243d6019a9ed"
+    },
+    {
+      "version": "20260812000000",
+      "name": "reduce_backstop_cron_frequency",
+      "path": "supabase/migrations/20260812000000_reduce_backstop_cron_frequency.sql",
+      "sha256_lf": "d8505ebe9e4e9f284d37ae4621d147bb345f2a096b55b6132ffeabd52bc55ae8"
+    },
+    {
+      "version": "20260813000000",
+      "name": "atomic_order_completion_settlement",
+      "path": "supabase/migrations/20260813000000_atomic_order_completion_settlement.sql",
+      "sha256_lf": "a6ba176049d988acd26b5ad5d45f6e3ac51642933c7619d9722c3e0d87296344"
+    },
+    {
+      "version": "20260814000000",
+      "name": "fix_complete_order_and_settle_enum_cast",
+      "path": "supabase/migrations/20260814000000_fix_complete_order_and_settle_enum_cast.sql",
+      "sha256_lf": "2c1b68620d2f157881ed60f9361f7a6c6b89a5ff0756e2e5a183cb585f40e325"
+    },
+    {
+      "version": "20260814000001",
+      "name": "fix_complete_intercity_parcel_delivery_enum_cast",
+      "path": "supabase/migrations/20260814000001_fix_complete_intercity_parcel_delivery_enum_cast.sql",
+      "sha256_lf": "d361c5cbd6b10848bd88c1fa5f3c1db700e233f015e85037beb7835a334a55d3"
+    },
+    {
+      "version": "20260815000000",
+      "name": "drop_temp_diagnostic_timings",
+      "path": "supabase/migrations/20260815000000_drop_temp_diagnostic_timings.sql",
+      "sha256_lf": "aacca48346bed21d2cbde7d170c0d0253e7ba8e98f03c145d69e13e240ef16eb"
+    },
+    {
+      "version": "20260816000000",
+      "name": "add_orders_idempotency_key",
+      "path": "supabase/migrations/20260816000000_add_orders_idempotency_key.sql",
+      "sha256_lf": "8a44fe4034340dbde500735346fb396e6d94111720516610250d77c269178c8f"
+    },
+    {
+      "version": "20260817000000",
+      "name": "async_new_order_nearby_rider_match",
+      "path": "supabase/migrations/20260817000000_async_new_order_nearby_rider_match.sql",
+      "sha256_lf": "b531ba7d21609106a6799191874329aa4ae1d2fc584b8411c53bb80415362414"
+    },
+    {
+      "version": "20260818000000",
+      "name": "scope_intercity_request_dedup_to_travel_plan",
+      "path": "supabase/migrations/20260818000000_scope_intercity_request_dedup_to_travel_plan.sql",
+      "sha256_lf": "a80538d5e81823319c5d19316d8f507262853ebc0b3456fb01f2bc35368c26bf"
+    },
+    {
+      "version": "20260819000000",
+      "name": "block_delete_account_during_active_order",
+      "path": "supabase/migrations/20260819000000_block_delete_account_during_active_order.sql",
+      "sha256_lf": "9f0569e92e40ccddbef69ca1f7f016770782937cc79a1ff3b0fad34e15758bc5"
+    },
+    {
+      "version": "20260820000000",
+      "name": "fix_intercity_parcel_delivery_rider_credit_guard",
+      "path": "supabase/migrations/20260820000000_fix_intercity_parcel_delivery_rider_credit_guard.sql",
+      "sha256_lf": "4f7a45a0074c963af314952514d39f2bf24b62db1f64b316a96880e8e87c2dc1"
+    },
+    {
+      "version": "20260820000001",
+      "name": "fix_apply_order_government_tax_rider_guard_gap",
+      "path": "supabase/migrations/20260820000001_fix_apply_order_government_tax_rider_guard_gap.sql",
+      "sha256_lf": "d229431a71619fb305c8d87d361f622ec67764e18803aab9be326fd8b87519e2"
+    },
+    {
+      "version": "20260821000000",
+      "name": "local_ride_status_notification_copy",
+      "path": "supabase/migrations/20260821000000_local_ride_status_notification_copy.sql",
+      "sha256_lf": "f7724c907dee54423895811b36e22cf985341059537d56e2a1201b11f59db07b"
+    },
+    {
+      "version": "20260822000000",
+      "name": "intercity_cancellation_actor_and_notification_copy",
+      "path": "supabase/migrations/20260822000000_intercity_cancellation_actor_and_notification_copy.sql",
+      "sha256_lf": "3840d304c97f240d38ea5a35100989ee4fb985252c199dd6ff491f13a70ec83f"
+    },
+    {
+      "version": "20260823000000",
+      "name": "phase3_intercity_fixes",
+      "path": "supabase/migrations/20260823000000_phase3_intercity_fixes.sql",
+      "sha256_lf": "a1136d0420e2864ebb56d946c44d6f056d22691073d0e0bebd88183bc0d50787"
+    },
+    {
+      "version": "20260824000000",
+      "name": "backstop_redispatch_freed_riders",
+      "path": "supabase/migrations/20260824000000_backstop_redispatch_freed_riders.sql",
+      "sha256_lf": "965b9146b22042026d4cc9b42224629538c829c57a2bcd8225ea3d363a10b548"
+    },
+    {
+      "version": "20260825000000",
+      "name": "payment_pending_busy_state_fix",
+      "path": "supabase/migrations/20260825000000_payment_pending_busy_state_fix.sql",
+      "sha256_lf": "2388cbc40847962c7d8193a669811aeac07ac78ea40aacb112044ada0927f4ad"
+    },
+    {
+      "version": "20260826000000",
+      "name": "rider_self_rematch_and_backstop_hardening",
+      "path": "supabase/migrations/20260826000000_rider_self_rematch_and_backstop_hardening.sql",
+      "sha256_lf": "d1be9a1326c87c3efac3badf3518821d53efdb90aa51c8504f9408e6408a01b5"
+    },
+    {
+      "version": "20260827000000",
+      "name": "fix_travel_plan_seats_full_vs_inactive_message",
+      "path": "supabase/migrations/20260827000000_fix_travel_plan_seats_full_vs_inactive_message.sql",
+      "sha256_lf": "2cc764f3fcdfd3388f231b89ff18ac943ae094ffd73dfb4eb1f0d52aa6d61b56"
+    },
+    {
+      "version": "20260828000000",
+      "name": "block_chat_before_intercity_request_acceptance",
+      "path": "supabase/migrations/20260828000000_block_chat_before_intercity_request_acceptance.sql",
+      "sha256_lf": "ef532b710fb5bdda5a22175edb9863efd5ea10cedd1e4700c733e4ff7dcc0e38"
+    },
+    {
+      "version": "20260829000000",
+      "name": "cancel_individual_accepted_intercity_request",
+      "path": "supabase/migrations/20260829000000_cancel_individual_accepted_intercity_request.sql",
+      "sha256_lf": "44e4ef35d278d73e4be06414e77cda8e621960bf3970eda0fabf0a0494eb45db"
+    },
+    {
+      "version": "20260830000000",
+      "name": "intercity_parcel_payment_confirmation_step",
+      "path": "supabase/migrations/20260830000000_intercity_parcel_payment_confirmation_step.sql",
+      "sha256_lf": "2f2c57432130d181c1ae13fa58e374c75b648ff96eae626173cf7b94f4553722"
+    },
+    {
+      "version": "20260831000000",
+      "name": "add_passenger_rating_review_tag_values",
+      "path": "supabase/migrations/20260831000000_add_passenger_rating_review_tag_values.sql",
+      "sha256_lf": "2045c30b0c7a9bf054afa500fba80ea45d0d18a684a95d16d38ca97fc702836f"
+    },
+    {
+      "version": "20260901000000",
+      "name": "intercity_cancellation_reason_columns",
+      "path": "supabase/migrations/20260901000000_intercity_cancellation_reason_columns.sql",
+      "sha256_lf": "7b358b11b7bcc06503fffae05812ca74ebbced720a92c34abf2b7b6e6ace5316"
+    },
+    {
+      "version": "20260901000001",
+      "name": "fix_cascade_cancel_travel_plan_dependents",
+      "path": "supabase/migrations/20260901000001_fix_cascade_cancel_travel_plan_dependents.sql",
+      "sha256_lf": "30e66436fd65a52a345875cd3dd7b128bc50ab8899df445d5c217e72c2d29245"
+    },
+    {
+      "version": "20260901000002",
+      "name": "cancel_travel_plan_by_traveller",
+      "path": "supabase/migrations/20260901000002_cancel_travel_plan_by_traveller.sql",
+      "sha256_lf": "f27ec24275b4a09e3afdc5db64954c482b381ffd38a5ec986152666da7f35a03"
+    },
+    {
+      "version": "20260901000003",
+      "name": "cancel_intercity_request_reason_column_and_scope",
+      "path": "supabase/migrations/20260901000003_cancel_intercity_request_reason_column_and_scope.sql",
+      "sha256_lf": "aaf6fd7966b7a266606fd1734721ca1b628fd5fa334d14b49a038fef801a40fe"
+    },
+    {
+      "version": "20260901000004",
+      "name": "intercity_cancellation_notification_wording",
+      "path": "supabase/migrations/20260901000004_intercity_cancellation_notification_wording.sql",
+      "sha256_lf": "ba0226bfe88530c9e8ae78bcb55b2841d4760b9b078c44dc2aff94cf07da6780"
+    },
+    {
+      "version": "20260901000005",
+      "name": "orphaned_remote_ledger_reconciliation_stub",
+      "path": "supabase/migrations/20260901000005_orphaned_remote_ledger_reconciliation_stub.sql",
+      "sha256_lf": "601dae44a3bb0ef7820f2dfa7bc4aba2938a28f7316f08ff05fc814f0761f3a1"
+    },
+    {
+      "version": "20260901000006",
+      "name": "orphaned_remote_ledger_reconciliation_stub",
+      "path": "supabase/migrations/20260901000006_orphaned_remote_ledger_reconciliation_stub.sql",
+      "sha256_lf": "1b1a8a58e6fbc0cfb45cfa0cf81e9c8fca2ef76fbf30361788d6dc487186e9c2"
+    },
+    {
+      "version": "20260901000007",
+      "name": "orphaned_remote_ledger_reconciliation_stub",
+      "path": "supabase/migrations/20260901000007_orphaned_remote_ledger_reconciliation_stub.sql",
+      "sha256_lf": "6c991a97c9cd601d6119584b6adbf241e38285c3e47b045f22e1c6569ae59ba6"
+    },
+    {
+      "version": "20260901000008",
+      "name": "mark_is_rider_blocked_by_cod_limit_stable",
+      "path": "supabase/migrations/20260901000008_mark_is_rider_blocked_by_cod_limit_stable.sql",
+      "sha256_lf": "e72513bce0521e4de27684c462a757b814a9051cf79040642da79e69e9612da4"
+    },
+    {
+      "version": "20260901000009",
+      "name": "find_nearby_riders_single_haversine_calc",
+      "path": "supabase/migrations/20260901000009_find_nearby_riders_single_haversine_calc.sql",
+      "sha256_lf": "68807e258ac20907697ba257a442f40a69e64c3d276fba38910b2651d7d28dd9"
+    },
+    {
+      "version": "20260901000010",
+      "name": "find_nearby_riders_excluded_rider_ids",
+      "path": "supabase/migrations/20260901000010_find_nearby_riders_excluded_rider_ids.sql",
+      "sha256_lf": "e6e84477846b15c04aba271898691bd386451a9dce2a84ede0abd8a1b91f0bde"
+    },
+    {
+      "version": "20260901000011",
+      "name": "find_nearby_riders_inline_tax_cod_checks",
+      "path": "supabase/migrations/20260901000011_find_nearby_riders_inline_tax_cod_checks.sql",
+      "sha256_lf": "e0fe07d4c9db3c85bcbf96a6b6194a469c97ca53f8f47e826c0d6bb864b32f07"
+    },
+    {
+      "version": "20260901000016",
+      "name": "rider_free_trial",
+      "path": "supabase/migrations/20260901000016_rider_free_trial.sql",
+      "sha256_lf": "d49126751887b8292573c58d22dad1d43755dca0b011a6aa2f25986e7688e588"
+    },
+    {
+      "version": "20260901000017",
+      "name": "redispatch_freed_riders_include_rider_at_drop",
+      "path": "supabase/migrations/20260901000017_redispatch_freed_riders_include_rider_at_drop.sql",
+      "sha256_lf": "8e5f65601d966c8095f477729938cf37cb3ca8ebe3b9305f162a7935279c180c"
+    },
+    {
+      "version": "20260901000018",
+      "name": "whole_rupee_fare_rounding",
+      "path": "supabase/migrations/20260901000018_whole_rupee_fare_rounding.sql",
+      "sha256_lf": "486aca47c52c03ba7bd886503a872de9fd94351ca126dbb055f7494e49f626d9"
+    },
+    {
+      "version": "20260901000019",
+      "name": "gate_free_trial_waiver_to_local_orders",
+      "path": "supabase/migrations/20260901000019_gate_free_trial_waiver_to_local_orders.sql",
+      "sha256_lf": "a703ebaa3cd2d3a19701bdfe134138f947328932eb59000a1dc4ac249414d2dc"
+    },
+    {
+      "version": "20260901000020",
+      "name": "intercity_assignment_push_no_local_sound",
+      "path": "supabase/migrations/20260901000020_intercity_assignment_push_no_local_sound.sql",
+      "sha256_lf": "3cfe5e97d47100c39a04be585404fa80531df724706fec4046551ed4beb46746"
+    },
+    {
+      "version": "20260901000021",
+      "name": "intercity_ride_gov_tax_and_stale_negotiated_commission",
+      "path": "supabase/migrations/20260901000021_intercity_ride_gov_tax_and_stale_negotiated_commission.sql",
+      "sha256_lf": "798f2c6157928297b1a5e53e21fe7ba077d0832f2f81bb30cf26331be3c04ca7"
+    },
+    {
+      "version": "20260901000022",
+      "name": "intercity_auto_commission_10_percent",
+      "path": "supabase/migrations/20260901000022_intercity_auto_commission_10_percent.sql",
+      "sha256_lf": "0688685a4d1ae75c86bf7b98e3577880fa6d07faa90b47c689e07d137f8cc64a"
+    },
+    {
+      "version": "20260901000023",
+      "name": "orders_user_history_pagination_index",
+      "path": "supabase/migrations/20260901000023_orders_user_history_pagination_index.sql",
+      "sha256_lf": "70997add03d74d8517cd685cab7fd5f02efc88f70da12494f5aeea842814bb8b"
+    },
+    {
+      "version": "20260901000024",
+      "name": "intercity_request_cancel_actor_column_and_wording",
+      "path": "supabase/migrations/20260901000024_intercity_request_cancel_actor_column_and_wording.sql",
+      "sha256_lf": "dc868dbc4add7215b23e54e755d0d5e2240257ff32b19be675c131e7d3b12924"
+    },
+    {
+      "version": "20260901000025",
+      "name": "local_parcel_partner_notification_wording",
+      "path": "supabase/migrations/20260901000025_local_parcel_partner_notification_wording.sql",
+      "sha256_lf": "3cd7ca17b0106a139bfdaee55ad72bb00e25b933723c7b75c805d01f88f67533"
+    },
+    {
+      "version": "20260901000026",
+      "name": "fix_order_assignment_logs_rollback_on_reoffer",
+      "path": "supabase/migrations/20260901000026_fix_order_assignment_logs_rollback_on_reoffer.sql",
+      "sha256_lf": "850232795781838c9cc404ca8950f93a8270d8c332734da34c4fb610be203973"
+    },
+    {
+      "version": "20260901000027",
+      "name": "reject_past_travel_plan_date",
+      "path": "supabase/migrations/20260901000027_reject_past_travel_plan_date.sql",
+      "sha256_lf": "1e094ae4033821169b87622c2fdf8e80af97fe1a12ad6662412cf6becd0e3c87"
+    },
+    {
+      "version": "20260901000028",
+      "name": "intercity_cancel_reason_in_traveller_notification",
+      "path": "supabase/migrations/20260901000028_intercity_cancel_reason_in_traveller_notification.sql",
+      "sha256_lf": "cf39491b84782c9eef8b77ebb1d9ac4ccb34b07a5bd909039e3cf4a0840e884c"
+    },
+    {
+      "version": "20260901000029",
+      "name": "travel_plan_deleted_notification_no_chat",
+      "path": "supabase/migrations/20260901000029_travel_plan_deleted_notification_no_chat.sql",
+      "sha256_lf": "9268a6d85a64eac40d62ea6a72959982e4f443f657982a67bd60545bf1e69683"
+    },
+    {
+      "version": "20260901000030",
+      "name": "intercity_parcel_heading_to_pickup_wording",
+      "path": "supabase/migrations/20260901000030_intercity_parcel_heading_to_pickup_wording.sql",
+      "sha256_lf": "1df4d3ce725ac1386d14c04be8cc7b82d18ae3dad41b2fb9b0841263a3b30390"
+    },
+    {
+      "version": "20260901000031",
+      "name": "travel_plan_insert_triggers_matching_server_side",
+      "path": "supabase/migrations/20260901000031_travel_plan_insert_triggers_matching_server_side.sql",
+      "sha256_lf": "4e1225fe380641889dc712ab62016d2485752779b0e7a6e2b0cdd9650816d07c"
+    },
+    {
+      "version": "20260901000032",
+      "name": "rating_notification_full_feedback",
+      "path": "supabase/migrations/20260901000032_rating_notification_full_feedback.sql",
+      "sha256_lf": "d0f4cb29fe270cf993936c5a1ba169de6de607b93203ceaddc2de61beba70c99"
+    },
+    {
+      "version": "20260901000033",
+      "name": "vehicle_specific_subscription_pricing",
+      "path": "supabase/migrations/20260901000033_vehicle_specific_subscription_pricing.sql",
+      "sha256_lf": "fedae00bcc84c6a249584014865f6fdb35c5534312862f776ad83d70e03f7a1e"
+    },
+    {
+      "version": "20260901000034",
+      "name": "production_config",
+      "path": "supabase/migrations/20260901000034_production_config.sql",
+      "sha256_lf": "085006e502e7c932b3e2dfa6416fe7183cc4d7b1f61fe4841b6eaff50d9d4588"
+    },
+    {
+      "version": "20260901000035",
+      "name": "notification_failure_tracking",
+      "path": "supabase/migrations/20260901000035_notification_failure_tracking.sql",
+      "sha256_lf": "f285ca57a5a86888275e177bd1bf0f13a0cfd88f43dff8f1f9e9c7f10735374f"
+    },
+    {
+      "version": "20260901000036",
+      "name": "item5_trigger_notification_failure_wrapping",
+      "path": "supabase/migrations/20260901000036_item5_trigger_notification_failure_wrapping.sql",
+      "sha256_lf": "4838bd2c951e57f3128bc7696dda0408041dc01d979585de82fb2b1c4bda34f3"
+    },
+    {
+      "version": "20260901000037",
+      "name": "eligible_cashfree_ride_pg_charge",
+      "path": "supabase/migrations/20260901000037_eligible_cashfree_ride_pg_charge.sql",
+      "sha256_lf": "32fd22bbef64a82e6c889e34d25e87ef680d9f77bdf6e5edac74730026930467"
+    },
+    {
+      "version": "20260901000038",
+      "name": "cashfree_pg_charge_wallet_gst_separation",
+      "path": "supabase/migrations/20260901000038_cashfree_pg_charge_wallet_gst_separation.sql",
+      "sha256_lf": "3f36ae69a17b6dddfdff2aff02d97110ef53bb6bc6b5552397980045a00c3aa0"
+    },
+    {
+      "version": "20260901000039",
+      "name": "reconcile_live_cascade_cancel_travel_plan_dependents",
+      "path": "supabase/migrations/20260901000039_reconcile_live_cascade_cancel_travel_plan_dependents.sql",
+      "sha256_lf": "f44c3bfd0a6715b07ec0805f5e5161739d4ea322ec2583c9ab1f8953598804f5"
+    },
+    {
+      "version": "20260902000000",
+      "name": "waydrop_rewards_system",
+      "path": "supabase/migrations/20260902000000_waydrop_rewards_system.sql",
+      "sha256_lf": "bddf1255b9e7ea50304141adde6b8eab2e57a0ce3369ebff46c9287b96044fb7"
+    },
+    {
+      "version": "20260903000000",
+      "name": "reward_activation_single_use_pass",
+      "path": "supabase/migrations/20260903000000_reward_activation_single_use_pass.sql",
+      "sha256_lf": "80316ff4e58edb9eba8da2f3c69fe4d8994a91b68a0d2853eb2821336ecb84b0"
+    },
+    {
+      "version": "20260905000000",
+      "name": "temporarily_disable_platform_gst",
+      "path": "supabase/migrations/20260905000000_temporarily_disable_platform_gst.sql",
+      "sha256_lf": "6e723be743a7dedda07d2552f0231f2e8ff7a0b3dd9cb96574a9fa470d0cd73c"
+    },
+    {
+      "version": "20260905000001",
+      "name": "add_selected_route_columns",
+      "path": "supabase/migrations/20260905000001_add_selected_route_columns.sql",
+      "sha256_lf": "c0fd162199e5fcfa97a475f9f0e06411ebb95c1ccdad4de9ad0fb251ae8abdad"
+    },
+    {
+      "version": "20260905000002",
+      "name": "forward_selected_route_fields_to_mode2_trigger",
+      "path": "supabase/migrations/20260905000002_forward_selected_route_fields_to_mode2_trigger.sql",
+      "sha256_lf": "75ee092784fa9fda6c16809cc4411ba4ebfa802d921929f70ce7f785115591c3"
+    },
+    {
+      "version": "20260906000000",
+      "name": "fix_parcel_completion_travel_plan_status_sync",
+      "path": "supabase/migrations/20260906000000_fix_parcel_completion_travel_plan_status_sync.sql",
+      "sha256_lf": "13eeebc0be61e885af457e5e3d4a790d86be7afcfb68058f963c24afa6d4aa63"
+    },
+    {
+      "version": "20260906000001",
+      "name": "revoke_public_execute_privileged_settlement_functions",
+      "path": "supabase/migrations/20260906000001_revoke_public_execute_privileged_settlement_functions.sql",
+      "sha256_lf": "c684c982f1eaef02eae43a81069b81efb57cff4af689f60bd181bc0b9a65ff3a"
+    },
+    {
+      "version": "20260906000002",
+      "name": "restore_users_role_self_escalation_guard",
+      "path": "supabase/migrations/20260906000002_restore_users_role_self_escalation_guard.sql",
+      "sha256_lf": "0970f8a9e287c2c9b903b6a74c9d310c7ebd417cbdc7d833ea9394f2f365b663"
+    },
+    {
+      "version": "20260906000003",
+      "name": "relockdown_push_notification_functions",
+      "path": "supabase/migrations/20260906000003_relockdown_push_notification_functions.sql",
+      "sha256_lf": "ae6a45d9a1630b915f4e50bca6d9d0c900960103bf319877e280727291cca88b"
+    },
+    {
+      "version": "20260906000004",
+      "name": "fix_intercity_parcel_live_per_km_rate_drift",
+      "path": "supabase/migrations/20260906000004_fix_intercity_parcel_live_per_km_rate_drift.sql",
+      "sha256_lf": "2b732b2e3ca3260ba12c7e158fd32e3e1d3db8064e80de686ec776cd495f2970"
+    },
+    {
+      "version": "20260907205806",
+      "name": "20260907000000_phase10d_add_unindexed_fk_indexes",
+      "path": "supabase/migrations/20260907205806_20260907000000_phase10d_add_unindexed_fk_indexes.sql",
+      "sha256_lf": "25cfdb1174d2bed514f3bfc8c46de59b2c56cb9e0e3af0e8afb6a86a84db1ec5"
+    },
+    {
+      "version": "20260907210055",
+      "name": "20260907000001_phase10d_rls_initplan_wrap_auth_calls",
+      "path": "supabase/migrations/20260907210055_20260907000001_phase10d_rls_initplan_wrap_auth_calls.sql",
+      "sha256_lf": "bca49a35711ff7e8c7ed71060a94ceee3918844dbb830dd16f8932f6a4d909f9"
+    },
+    {
+      "version": "20260908162927",
+      "name": "20260908000000_redispatch_cron_advisory_locks",
+      "path": "supabase/migrations/20260908162927_20260908000000_redispatch_cron_advisory_locks.sql",
+      "sha256_lf": "47ef0465bf47460df9a7563de5f6d51dfb8c6df48dc24d377bcb8e7a964c87d9"
+    },
+    {
+      "version": "20260908163009",
+      "name": "20260908000001_perf_riders_online_coords_composite_index",
+      "path": "supabase/migrations/20260908163009_20260908000001_perf_riders_online_coords_composite_index.sql",
+      "sha256_lf": "d92c7a3ab6238ff0938bf0736f511880ec32965e036cb82b33e9cedadd4e1b3c"
+    },
+    {
+      "version": "20260908163137",
+      "name": "20260908000002_perf_slow_redispatch_cron_frequency",
+      "path": "supabase/migrations/20260908163137_20260908000002_perf_slow_redispatch_cron_frequency.sql",
+      "sha256_lf": "c0dde452fd951259e245c2e306141897e9a5b616fda3903531bc59a57fe13cea"
+    },
+    {
+      "version": "20260908170238",
+      "name": "20260908000003_add_rider_assignments_accepted_rejected_at",
+      "path": "supabase/migrations/20260908170238_20260908000003_add_rider_assignments_accepted_rejected_at.sql",
+      "sha256_lf": "84cafa26f82aec8494d38e5e34031168d22b0ae6b210cbdf18316871006ea912"
+    },
+    {
+      "version": "20260908191620",
+      "name": "20260908000004_phase2blite_async_noncritical_completion_side_effects",
+      "path": "supabase/migrations/20260908191620_20260908000004_phase2blite_async_noncritical_completion_side_effects.sql",
+      "sha256_lf": "2f51c338b45ca159305d28fd3750f69a9393d3fd1417491e5b72a8bf1338aa45"
+    },
+    {
+      "version": "20260908214030",
+      "name": "20260908000005_phaseA1_rider_locations_foundation",
+      "path": "supabase/migrations/20260908214030_20260908000005_phaseA1_rider_locations_foundation.sql",
+      "sha256_lf": "c63434598e04dbefea8dcaa6aa4b3f2c31498dcc7e29f78e98797d2ee26543a7"
+    },
+    {
+      "version": "20260908223623",
+      "name": "phaseA4_near_destination_gps_source_to_rider_locations",
+      "path": "supabase/migrations/20260908223623_phaseA4_near_destination_gps_source_to_rider_locations.sql",
+      "sha256_lf": "0310a7f8df7bbb3e580a62966db2d24ab6ad464963df95cc1616e88905ad6e7d"
+    },
+    {
+      "version": "20260909082941",
+      "name": "phaseC_realtime_surface_reduction",
+      "path": "supabase/migrations/20260909082941_phaseC_realtime_surface_reduction.sql",
+      "sha256_lf": "87df911341d00912325667de3c4e3ebddafcc7eb419350ff5566429232b4dd33"
+    },
+    {
+      "version": "20260909100956",
+      "name": "pre_pro_realtime_amplifier_cleanup",
+      "path": "supabase/migrations/20260909100956_pre_pro_realtime_amplifier_cleanup.sql",
+      "sha256_lf": "85d10624f3ba56730a34999ac93c8e63a6c25106c5edc39e3623ea781073c452"
+    },
+    {
+      "version": "20260909115502",
+      "name": "fix_police_sos_logs_rls",
+      "path": "supabase/migrations/20260909115502_fix_police_sos_logs_rls.sql",
+      "sha256_lf": "447c4242ecb476455f3f55d51e98d2c5e9df6f35e96bdf47be6d3686435449b4"
+    },
+    {
+      "version": "20260909115600",
+      "name": "admin_kyc_review_workflow",
+      "path": "supabase/migrations/20260909115600_admin_kyc_review_workflow.sql",
+      "sha256_lf": "93686d9dfff333dd6499101cca2988785bfe268cbc9d7b4c026a6a73cda2523f"
+    },
+    {
+      "version": "20260909115640",
+      "name": "government_tax_month_end_report",
+      "path": "supabase/migrations/20260909115640_government_tax_month_end_report.sql",
+      "sha256_lf": "3bd556c0b5c596d76da49fde2abab9eb6b164401787c030b478eec9fe7a5626d"
+    },
+    {
+      "version": "20260909115758",
+      "name": "lawful_disclosure_workflow",
+      "path": "supabase/migrations/20260909115758_lawful_disclosure_workflow.sql",
+      "sha256_lf": "5bd579acad98b26959d18ff8b282e158dcaf9983e8cffbfd6b5f6234e537a895"
+    },
+    {
+      "version": "20260909121113",
+      "name": "harden_normalize_in_phone_10_search_path",
+      "path": "supabase/migrations/20260909121113_harden_normalize_in_phone_10_search_path.sql",
+      "sha256_lf": "5845132f054d857afce387329932a748ec470d018a89cef39ea983aea5c4d303"
+    },
+    {
+      "version": "20260909144234",
+      "name": "fix_parcel_security_logs_rls",
+      "path": "supabase/migrations/20260909144234_fix_parcel_security_logs_rls.sql",
+      "sha256_lf": "6efec7de639a2c9295de454540d939bed9d302ba746cfd141c5eed95d32a5e6c"
+    },
+    {
+      "version": "20260909144538",
+      "name": "lawful_disclosure_report_function",
+      "path": "supabase/migrations/20260909144538_lawful_disclosure_report_function.sql",
+      "sha256_lf": "17d34f9f57dd0057b6cf58709e6e71ad951ab4f7a3e9f640c5e33194da8b1d77"
+    },
+    {
+      "version": "20260909144619",
+      "name": "report_government_tax_remittance",
+      "path": "supabase/migrations/20260909144619_report_government_tax_remittance.sql",
+      "sha256_lf": "f6125c34ad0f946140c81e8812a39dff50ca327ad883eeb54ef956394ef6ba93"
+    },
+    {
+      "version": "20260909153853",
+      "name": "police_disclosure_tabular_reports",
+      "path": "supabase/migrations/20260909153853_police_disclosure_tabular_reports.sql",
+      "sha256_lf": "9595e2305ac462b3ebf882e9dd87e447590f2caa9fd84fc4f3da26f69bb5ba0b"
+    },
+    {
+      "version": "20260909155102",
+      "name": "police_last_trip_scope_sos_to_order",
+      "path": "supabase/migrations/20260909155102_police_last_trip_scope_sos_to_order.sql",
+      "sha256_lf": "7f909efd67a5f689627285a28fcdaf611c627477d3591144b6eac9f08b38860b"
+    },
+    {
+      "version": "20260909160523",
+      "name": "report_section_9_5_month_end",
+      "path": "supabase/migrations/20260909160523_report_section_9_5_month_end.sql",
+      "sha256_lf": "849d1a24cb0120d72c253b5c01aad7d0f0412c39688bd687185e33603726637a"
+    },
+    {
+      "version": "20260909160706",
+      "name": "report_section_9_5_month_end_fix_int_casts",
+      "path": "supabase/migrations/20260909160706_report_section_9_5_month_end_fix_int_casts.sql",
+      "sha256_lf": "ca31824f1aa8598d44a70226474b59ed13696218946c1ad499d4087bd20475e5"
+    },
+    {
+      "version": "20260909161645",
+      "name": "police_person_details_aadhaar_no_doc_paths",
+      "path": "supabase/migrations/20260909161645_police_person_details_aadhaar_no_doc_paths.sql",
+      "sha256_lf": "9c2bb5f74136975d3b9b1d691be16611307f7a437ade944e2997eccc69f845cd"
+    },
+    {
+      "version": "20260911160335",
+      "name": "local_search_duration_420sec",
+      "path": "supabase/migrations/20260911160335_local_search_duration_420sec.sql",
+      "sha256_lf": "1d797177081074f4c1c5fff7c9351384b774dc69d4fe9e2470b05662e6b1958a"
+    },
+    {
+      "version": "20260911162109",
+      "name": "round3_trigger_before_local_expiry",
+      "path": "supabase/migrations/20260911162109_round3_trigger_before_local_expiry.sql",
+      "sha256_lf": "9349f09c81aa6d0aea26f289dea0911c5ca68c48da4c228855a3a101614893b0"
+    },
+    {
+      "version": "20261102143243",
+      "name": "waydrop_independent_dispatch_load_fixes",
+      "path": "supabase/migrations/20261102143243_waydrop_independent_dispatch_load_fixes.sql",
+      "sha256_lf": "1197876f5c246daa4725b71e5302ea10a0bf4d0a2926e1b0dd96f840b0811e8c"
+    },
+    {
+      "version": "20261102144946",
+      "name": "waydrop_internal_dispatch_rpc_acl",
+      "path": "supabase/migrations/20261102144946_waydrop_internal_dispatch_rpc_acl.sql",
+      "sha256_lf": "b96f5fbd5d67a4e5a7db7d72abb73feb83e0eec17f8e07c5296de76e49766067"
+    },
+    {
+      "version": "20261103015444",
+      "name": "waydrop_skip_idle_stalled_redispatch_reads",
+      "path": "supabase/migrations/20261103015444_waydrop_skip_idle_stalled_redispatch_reads.sql",
+      "sha256_lf": "bd30aa73395d4325f140edf5b6357c77032d05b8ffcb7a2b8406c15f686511fb"
+    },
+    {
+      "version": "20261103162805",
+      "name": "waydrop_cache_admin_rls_checks_per_statement",
+      "path": "supabase/migrations/20261103162805_waydrop_cache_admin_rls_checks_per_statement.sql",
+      "sha256_lf": "e209312e07fddb07568116bcd01dde838df0a4a75f252bcb57e032ae4987786f"
+    }
+  ],
+  "review_files": [
+    {
+      "path": "docs/migration-review/superseded-local-history/20260530000001_rider_withdrawals.sql",
+      "original_path": "supabase/migrations/20260530000001_rider_withdrawals.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "1bba732a63d4f6bde7d0bc0a26735010afd4d31e814c1ade03879a8930bd369d"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260531000005_storage_policies.sql",
+      "original_path": "supabase/migrations/20260531000005_storage_policies.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "810cbc8dc0a939da7aafbf6748e0d4289fd447e6dbf95d45c23b5cfeede5af33"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260601000011_add_accepted_by_user_to_enum.sql",
+      "original_path": "supabase/migrations/20260601000011_add_accepted_by_user_to_enum.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "0a34e227fa3ec2e62c15b556164928257660821f8bc4eb724d58fdd9ce76953f"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260602000001_create_user_device_tokens.sql",
+      "original_path": "supabase/migrations/20260602000001_create_user_device_tokens.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "c8869bb46d3116b54bd0d56fbdbbd568bd374a73a04063db9cd2c1d9c12bca44"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260717000001_add_intercity_ride_pricing_config.sql",
+      "original_path": "supabase/migrations/20260717000001_add_intercity_ride_pricing_config.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "0c72e5f2369217d628cf19786527660da62b7b97cf7cff11a4429e7198616504"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260717000004_add_intercity_parcel_pricing_config.sql",
+      "original_path": "supabase/migrations/20260717000004_add_intercity_parcel_pricing_config.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "584aa21fbc3217c7b4af78c2e7e191bc226a2b628143d6f73feeb87d8a321d82"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260731000000_delete_account_archive_and_anonymization.sql",
+      "original_path": "supabase/migrations/20260731000000_delete_account_archive_and_anonymization.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "23559b2d40522b679a0a7bc54c119bef1712f3199b63ea746fbcff89f9909f18"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260731000001_fix_deletion_retention_cascades.sql",
+      "original_path": "supabase/migrations/20260731000001_fix_deletion_retention_cascades.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "f3d2b6b3af4b7b36d67a66faaf853f214c7a2492b34aebd861d119b7a5fee078"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260731000002_fix_compliance_views_rls_bypass.sql",
+      "original_path": "supabase/migrations/20260731000002_fix_compliance_views_rls_bypass.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "acc2e03b39147e6e3654b8bdb0336ae2c5c18bb6b4d14dc540ac088dd00324cd"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260731000003_prevent_duplicate_rider_kyc_rows.sql",
+      "original_path": "supabase/migrations/20260731000003_prevent_duplicate_rider_kyc_rows.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "b70c9d72b24a3ef65d90dfdec0aa66cb0f1fb803ad8d2d7c24d8929412ba13b6"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260801000000_kyc_upload_storage_policies_and_cleanup.sql",
+      "original_path": "supabase/migrations/20260801000000_kyc_upload_storage_policies_and_cleanup.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "6bdeb3d5734d4347ee3b400149a80b8facb3d12b718b1930b1b15ab05d7d0914"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260801000001_add_order_chat_messages_index.sql",
+      "original_path": "supabase/migrations/20260801000001_add_order_chat_messages_index.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "fc7720fa8848d9778caef2e7f476cde0688942327ae4113f8b041fde6f071904"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260809000003_temp_diagnostic_timings.sql",
+      "original_path": "supabase/migrations/20260809000003_temp_diagnostic_timings.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "8e6b3dbc8799737aaf8daff0b4c97f3459a052eaf151313924f5f1f4bb556943"
+    },
+    {
+      "path": "docs/migration-review/superseded-local-history/20260905000001_add_selected_route_columns.sql",
+      "original_path": "supabase/migrations/20260905000001_add_selected_route_columns.sql",
+      "category": "superseded-local-history",
+      "sha256_original_bytes": "40463a74c3c8f1581749549ca5cdfc04b7f3a7fcf07a73a358361d07d558218a"
+    },
+    {
+      "path": "docs/migration-review/retired-timestamp-aliases/20260907000000_phase10d_add_unindexed_fk_indexes.sql",
+      "original_path": "supabase/migrations/20260907000000_phase10d_add_unindexed_fk_indexes.sql",
+      "category": "retired-timestamp-aliases",
+      "sha256_original_bytes": "25cfdb1174d2bed514f3bfc8c46de59b2c56cb9e0e3af0e8afb6a86a84db1ec5"
+    },
+    {
+      "path": "docs/migration-review/retired-timestamp-aliases/20260907000001_phase10d_rls_initplan_wrap_auth_calls.sql",
+      "original_path": "supabase/migrations/20260907000001_phase10d_rls_initplan_wrap_auth_calls.sql",
+      "category": "retired-timestamp-aliases",
+      "sha256_original_bytes": "bca49a35711ff7e8c7ed71060a94ceee3918844dbb830dd16f8932f6a4d909f9"
+    },
+    {
+      "path": "docs/migration-review/retired-timestamp-aliases/20260908000000_redispatch_cron_advisory_locks.sql",
+      "original_path": "supabase/migrations/20260908000000_redispatch_cron_advisory_locks.sql",
+      "category": "retired-timestamp-aliases",
+      "sha256_original_bytes": "1f76674c2c5fc626cf241e020205155d053d65d28bc37a6b70927374ed60ed43"
+    },
+    {
+      "path": "docs/migration-review/not-applied/20261026000000_remove_legacy_find_nearby_riders_overload.sql",
+      "original_path": "supabase/migrations/20261026000000_remove_legacy_find_nearby_riders_overload.sql",
+      "category": "not-applied",
+      "sha256_original_bytes": "838cd3b1053a1a26f1ffcb720f77a5df37b49d7d91c006e7d8ad8f5798888d29"
+    },
+    {
+      "path": "docs/migration-review/not-applied/20261102044001_waydrop_dispatch_fencing_and_delivery_outbox.sql",
+      "original_path": "supabase/migrations/20261102044001_waydrop_dispatch_fencing_and_delivery_outbox.sql",
+      "category": "not-applied",
+      "sha256_original_bytes": "584ab8ec4c75b3ada57f0a634b270a7b1e79793dc9ee9b6a2ac639e5377ec02e"
+    }
+  ]
+}

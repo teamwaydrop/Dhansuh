@@ -1,0 +1,707 @@
+[
+  {
+    "file": "lib/app_start_screen.dart",
+    "methods": [
+      {
+        "name": "initState",
+        "line": 54
+      },
+      {
+        "name": "listenAuthChanges",
+        "line": 62
+      },
+      {
+        "name": "checkUserFlow",
+        "line": 88
+      },
+      {
+        "name": "changeScreen",
+        "line": 331
+      },
+      {
+        "name": "dispose",
+        "line": 365
+      },
+      {
+        "name": "shouldRepaint",
+        "line": 593
+      }
+    ]
+  },
+  {
+    "file": "lib/core/providers/initial_data_provider.dart",
+    "methods": [
+      {
+        "name": "isUsableFor",
+        "line": 30
+      }
+    ]
+  },
+  {
+    "file": "lib/core/services/config/production_config_service.dart",
+    "methods": [
+      {
+        "name": "_fetch",
+        "line": 93
+      },
+      {
+        "name": "_loadAppVersion",
+        "line": 97
+      },
+      {
+        "name": "_fetchConfig",
+        "line": 111
+      }
+    ]
+  },
+  {
+    "file": "lib/core/services/diagnostics/api_metrics_client.dart",
+    "methods": [
+      {
+        "name": "send",
+        "line": 24
+      },
+      {
+        "name": "close",
+        "line": 42
+      }
+    ]
+  },
+  {
+    "file": "lib/core/services/location/location_cache_service.dart",
+    "methods": [
+      {
+        "name": "_notifyListeners",
+        "line": 41
+      },
+      {
+        "name": "_performHeartbeatUpdate",
+        "line": 324
+      },
+      {
+        "name": "startRiderLiveTracking",
+        "line": 399
+      },
+      {
+        "name": "_handlePositionUpdate",
+        "line": 569
+      },
+      {
+        "name": "stopRiderLiveTracking",
+        "line": 663
+      },
+      {
+        "name": "updateRiderLocation",
+        "line": 695
+      },
+      {
+        "name": "clearCache",
+        "line": 1030
+      }
+    ]
+  },
+  {
+    "file": "lib/core/services/realtime/realtime_manager.dart",
+    "methods": [
+      {
+        "name": "_isCurrentChannel",
+        "line": 80
+      },
+      {
+        "name": "_removeChannelSafely",
+        "line": 83
+      },
+      {
+        "name": "subscribe",
+        "line": 93
+      },
+      {
+        "name": "unsubscribe",
+        "line": 222
+      },
+      {
+        "name": "_subscribeToChannel",
+        "line": 293
+      },
+      {
+        "name": "_reconnectChannel",
+        "line": 322
+      },
+      {
+        "name": "dispose",
+        "line": 429
+      }
+    ]
+  },
+  {
+    "file": "lib/core/services/realtime/realtime_order_controller.dart",
+    "methods": [
+      {
+        "name": "start",
+        "line": 68
+      },
+      {
+        "name": "_start",
+        "line": 73
+      },
+      {
+        "name": "_refreshOrderAndLiveState",
+        "line": 179
+      },
+      {
+        "name": "_applyOrderData",
+        "line": 220
+      },
+      {
+        "name": "fetchOrder",
+        "line": 251
+      },
+      {
+        "name": "_drainOrderReads",
+        "line": 265
+      },
+      {
+        "name": "_queryOrder",
+        "line": 272
+      },
+      {
+        "name": "_fetchUserName",
+        "line": 297
+      },
+      {
+        "name": "_queryUserName",
+        "line": 313
+      },
+      {
+        "name": "fetchLiveOrderState",
+        "line": 329
+      },
+      {
+        "name": "_fetchRider",
+        "line": 405
+      },
+      {
+        "name": "_queryRider",
+        "line": 426
+      },
+      {
+        "name": "_updateRiderLocation",
+        "line": 559
+      },
+      {
+        "name": "_setRiderLocation",
+        "line": 569
+      },
+      {
+        "name": "_subscribeOrder",
+        "line": 577
+      },
+      {
+        "name": "_subscribeRider",
+        "line": 607
+      },
+      {
+        "name": "didChangeAppLifecycleState",
+        "line": 656
+      },
+      {
+        "name": "dispose",
+        "line": 665
+      }
+    ]
+  },
+  {
+    "file": "lib/core/services/session/auth_routing_policy.dart",
+    "methods": [
+      {
+        "name": "shouldRecheck",
+        "line": 9
+      }
+    ]
+  },
+  {
+    "file": "lib/core/services/session/rider_access_service.dart",
+    "methods": [
+      {
+        "name": "resolve",
+        "line": 58
+      },
+      {
+        "name": "_fetch",
+        "line": 75
+      }
+    ]
+  },
+  {
+    "file": "lib/core/services/session/user_session_service.dart",
+    "methods": [
+      {
+        "name": "listenUserSuspension",
+        "line": 27
+      },
+      {
+        "name": "handleAccountRestriction",
+        "line": 56
+      },
+      {
+        "name": "stopListening",
+        "line": 106
+      }
+    ]
+  },
+  {
+    "file": "lib/features/auth/screens/profile_setup_screen.dart",
+    "methods": [
+      {
+        "name": "saveProfile",
+        "line": 60
+      },
+      {
+        "name": "build",
+        "line": 383
+      }
+    ]
+  },
+  {
+    "file": "lib/features/intercity/shared/screens/intercity_tracking_screen.dart",
+    "methods": [
+      {
+        "name": "_performCancel",
+        "line": 1995
+      }
+    ]
+  },
+  {
+    "file": "lib/features/local_parcels/booking/screens/parcel_location_screen.dart",
+    "methods": [
+      {
+        "name": "continueFlow",
+        "line": 1112
+      }
+    ]
+  },
+  {
+    "file": "lib/features/local_parcels/tracking/screens/parcel_tracking_screen.dart",
+    "methods": [
+      {
+        "name": "_performCancel",
+        "line": 1509
+      }
+    ]
+  },
+  {
+    "file": "lib/features/local_rides/booking/screens/ride_location_screen.dart",
+    "methods": [
+      {
+        "name": "continueFlow",
+        "line": 1203
+      }
+    ]
+  },
+  {
+    "file": "lib/features/local_rides/tracking/screens/ride_tracking_screen.dart",
+    "methods": [
+      {
+        "name": "_performCancel",
+        "line": 1623
+      }
+    ]
+  },
+  {
+    "file": "lib/features/rider/earnings/rider_earnings_tab.dart",
+    "methods": [
+      {
+        "name": "didUpdateWidget",
+        "line": 143
+      },
+      {
+        "name": "dispose",
+        "line": 160
+      },
+      {
+        "name": "_subscribeWithdrawals",
+        "line": 182
+      },
+      {
+        "name": "_subscribeRider",
+        "line": 208
+      },
+      {
+        "name": "fetchData",
+        "line": 262
+      },
+      {
+        "name": "_drainDataRequests",
+        "line": 274
+      },
+      {
+        "name": "_fetchDataOnce",
+        "line": 281
+      },
+      {
+        "name": "_showWithdrawBottomSheet",
+        "line": 1104
+      }
+    ]
+  },
+  {
+    "file": "lib/features/rider/home/rider_home_tab.dart",
+    "methods": [
+      {
+        "name": "_fetchTodayEarnings",
+        "line": 161
+      },
+      {
+        "name": "_queryTodayEarnings",
+        "line": 169
+      },
+      {
+        "name": "initState",
+        "line": 201
+      },
+      {
+        "name": "_startSilentRefreshTimer",
+        "line": 251
+      },
+      {
+        "name": "didChangeAppLifecycleState",
+        "line": 308
+      },
+      {
+        "name": "dispose",
+        "line": 319
+      },
+      {
+        "name": "loadRider",
+        "line": 355
+      },
+      {
+        "name": "_loadRiderOnce",
+        "line": 375
+      },
+      {
+        "name": "subscribeRider",
+        "line": 608
+      },
+      {
+        "name": "_showFreeTrialBottomSheet",
+        "line": 1508
+      },
+      {
+        "name": "_showSubscriptionBottomSheet",
+        "line": 1870
+      },
+      {
+        "name": "_handleOrderAction",
+        "line": 3216
+      }
+    ]
+  },
+  {
+    "file": "lib/features/rider/navigation/rider_main_navigation_screen.dart",
+    "methods": [
+      {
+        "name": "build",
+        "line": 22
+      },
+      {
+        "name": "initState",
+        "line": 60
+      },
+      {
+        "name": "_subscribeServiceMode",
+        "line": 126
+      },
+      {
+        "name": "build",
+        "line": 203
+      }
+    ]
+  },
+  {
+    "file": "lib/features/rider/onboarding/screens/rider_entry_handler.dart",
+    "methods": [
+      {
+        "name": "initState",
+        "line": 37
+      },
+      {
+        "name": "load",
+        "line": 48
+      },
+      {
+        "name": "dispose",
+        "line": 79
+      },
+      {
+        "name": "build",
+        "line": 86
+      },
+      {
+        "name": "build",
+        "line": 541
+      }
+    ]
+  },
+  {
+    "file": "lib/features/rider/orders/rider_orders_screen.dart",
+    "methods": [
+      {
+        "name": "resolveRiderAndLoad",
+        "line": 204
+      }
+    ]
+  },
+  {
+    "file": "lib/features/rider/orders/screens/rider_active_order_screen.dart",
+    "methods": [
+      {
+        "name": "confirmCancellation",
+        "line": 2060
+      }
+    ]
+  },
+  {
+    "file": "lib/features/rider/orders/widgets/incoming_order_card.dart",
+    "methods": [
+      {
+        "name": "dispose",
+        "line": 56
+      },
+      {
+        "name": "_subscribeToOrder",
+        "line": 173
+      },
+      {
+        "name": "_subscribeToAssignment",
+        "line": 206
+      }
+    ]
+  },
+  {
+    "file": "lib/features/rider/profile/rider_profile_tab.dart",
+    "methods": [
+      {
+        "name": "loadProfileData",
+        "line": 137
+      }
+    ]
+  },
+  {
+    "file": "lib/features/rider/services/rider_status_service.dart",
+    "methods": [
+      {
+        "name": "switchToRiderMode",
+        "line": 104
+      }
+    ]
+  },
+  {
+    "file": "lib/features/rider/travel_plans/screens/travel_plan_details_screen.dart",
+    "methods": [
+      {
+        "name": "_confirmDeletePlan",
+        "line": 680
+      }
+    ]
+  },
+  {
+    "file": "lib/features/user/activity/activity_tab.dart",
+    "methods": [
+      {
+        "name": "_startSilentRefreshTimer",
+        "line": 120
+      },
+      {
+        "name": "didUpdateWidget",
+        "line": 144
+      },
+      {
+        "name": "didChangeAppLifecycleState",
+        "line": 157
+      },
+      {
+        "name": "loadOrders",
+        "line": 287
+      },
+      {
+        "name": "_subscribeRealtime",
+        "line": 454
+      }
+    ]
+  },
+  {
+    "file": "lib/features/user/home/home_tab.dart",
+    "methods": [
+      {
+        "name": "_removeMultiplexedHomeChannel",
+        "line": 75
+      },
+      {
+        "name": "initState",
+        "line": 157
+      },
+      {
+        "name": "_startSilentRefreshTimer",
+        "line": 216
+      },
+      {
+        "name": "dispose",
+        "line": 241
+      },
+      {
+        "name": "didChangeAppLifecycleState",
+        "line": 270
+      },
+      {
+        "name": "didUpdateWidget",
+        "line": 283
+      },
+      {
+        "name": "_load",
+        "line": 687
+      },
+      {
+        "name": "_subscribeRealtime",
+        "line": 904
+      }
+    ]
+  },
+  {
+    "file": "lib/features/user/profile/profile_tab.dart",
+    "methods": [
+      {
+        "name": "_pickAndUploadProfilePhoto",
+        "line": 473
+      },
+      {
+        "name": "build",
+        "line": 528
+      }
+    ]
+  },
+  {
+    "file": "lib/main.dart",
+    "methods": [
+      {
+        "name": "main",
+        "line": 44
+      }
+    ]
+  },
+  {
+    "file": "lib/main_navigation_screen.dart",
+    "methods": [
+      {
+        "name": "setIndex",
+        "line": 29
+      },
+      {
+        "name": "initState",
+        "line": 39
+      },
+      {
+        "name": "build",
+        "line": 50
+      }
+    ]
+  },
+  {
+    "file": "lib/modules/admin/admin_dashboard_screen.dart",
+    "methods": [
+      {
+        "name": "build",
+        "line": 11
+      }
+    ]
+  },
+  {
+    "file": "lib/modules/chat/screens/order_chat_screen.dart",
+    "methods": [
+      {
+        "name": "mergeSentMessage",
+        "line": 29
+      },
+      {
+        "name": "dispose",
+        "line": 102
+      },
+      {
+        "name": "_subscribeChat",
+        "line": 1239
+      },
+      {
+        "name": "build",
+        "line": 1604
+      }
+    ]
+  },
+  {
+    "file": "lib/modules/notifications/services/notification_badge_service.dart",
+    "methods": [
+      {
+        "name": "refresh",
+        "line": 24
+      },
+      {
+        "name": "_drainRefreshQueue",
+        "line": 38
+      },
+      {
+        "name": "_refreshOnce",
+        "line": 45
+      },
+      {
+        "name": "startListening",
+        "line": 74
+      },
+      {
+        "name": "stopListening",
+        "line": 109
+      }
+    ]
+  },
+  {
+    "file": "lib/modules/payments/services/payment_service.dart",
+    "methods": [
+      {
+        "name": "listenPaymentStatus",
+        "line": 332
+      },
+      {
+        "name": "startPayment",
+        "line": 519
+      }
+    ]
+  },
+  {
+    "file": "lib/shared/widgets/account_guard.dart",
+    "methods": [
+      {
+        "name": "initState",
+        "line": 23
+      },
+      {
+        "name": "_check",
+        "line": 42
+      },
+      {
+        "name": "dispose",
+        "line": 59
+      },
+      {
+        "name": "build",
+        "line": 65
+      }
+    ]
+  },
+  {
+    "file": "lib/shared/widgets/lazy_indexed_stack.dart",
+    "methods": [
+      {
+        "name": "build",
+        "line": 24
+      }
+    ]
+  }
+]

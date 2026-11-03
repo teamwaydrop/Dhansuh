@@ -1,5 +1,7 @@
+import 'package:waydrop/shared/widgets/account_guard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:waydrop/shared/widgets/lazy_indexed_stack.dart';
 import 'package:waydrop/core/theme/app_colors.dart';
 
 import 'package:waydrop/features/user/home/home_tab.dart';
@@ -25,12 +27,10 @@ class MainNavigationScreenState
   final GlobalKey<ActivityTabState> activityTabKey = GlobalKey<ActivityTabState>();
 
   void setIndex(int index) {
+    if (index == currentIndex) return;
     setState(() {
       currentIndex = index;
     });
-    if (index == 2) {
-      activityTabKey.currentState?.loadOrders(showLoading: false);
-    }
   }
 
   late final List<Widget> screens;
@@ -39,10 +39,10 @@ class MainNavigationScreenState
   void initState() {
     super.initState();
     screens = [
-      const HomeTab(),
-      const ServicesTab(),
+      const HomeTab(key: ValueKey('home')),
+      const ServicesTab(key: ValueKey('services')),
       ActivityTab(key: activityTabKey),
-      const ProfileTab(),
+      const ProfileTab(key: ValueKey('profile')),
     ];
   }
 
@@ -67,12 +67,17 @@ class MainNavigationScreenState
 
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    return Scaffold(
+    return AccountGuard(child: Scaffold(
       body: Stack(
         children: [
-          IndexedStack(
+          LazyIndexedStack(
             index: currentIndex,
-            children: screens,
+            children: [
+              HomeTab(key: const ValueKey('home'), isActive: currentIndex == 0),
+              screens[1],
+              ActivityTab(key: activityTabKey, isActive: currentIndex == 2),
+              screens[3],
+            ],
           ),
           Positioned(
             left: 0,
@@ -109,6 +114,6 @@ class MainNavigationScreenState
           ),
         ],
       ),
-    );
+    ));
   }
 }

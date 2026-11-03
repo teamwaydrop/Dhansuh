@@ -1,0 +1,82 @@
+{
+  "date_ist": "2026-11-03",
+  "scope": "local deep pricing/booking code corrections after Build59",
+  "production": {
+    "reads": 0,
+    "writes": 0,
+    "deployments": 0,
+    "paid_resources": 0,
+    "new_projects": 0
+  },
+  "tests": {
+    "pricing_original": {
+      "passed": 1,
+      "expected_failures": 8,
+      "cases": 9
+    },
+    "pricing_corrected": {
+      "passed": 10,
+      "failed": 0,
+      "account_switch_case_added_after_baseline": true
+    },
+    "hidden_preview_original": {
+      "passed": 0,
+      "expected_failures": 1,
+      "actual_edge_requests": 2
+    },
+    "hidden_preview_corrected": {
+      "actual_edge_requests": 0
+    },
+    "combined_focused": {
+      "passed": 37,
+      "failed": 0
+    },
+    "full_flutter": {
+      "passed": 2203,
+      "failed": 0,
+      "previous": 2192,
+      "added": 11
+    },
+    "changed_four_file_analyzer": {
+      "errors": 0,
+      "warnings": 0,
+      "existing_infos": 8,
+      "exit_code": 1
+    },
+    "new_controller_test_subset_analyzer": {
+      "issues": 0,
+      "exit_code": 0
+    },
+    "android_e2e_run": false,
+    "managed_backend_tests_run": false
+  },
+  "request_semantics": {
+    "normal_identical_inputs_still_share": true,
+    "distinct_exact_inputs_do_not_share": true,
+    "credentials_not_logged_or_persisted": true,
+    "completed_quotes_not_cached": true,
+    "raw_request_not_cancelled": true,
+    "per_caller_deadline_seconds": 15,
+    "artificial_minimum_500ms_removed": true
+  },
+  "new_apk_built": false,
+  "build59_unchanged": true,
+  "source_sha256": {
+    "lib/modules/payments/controllers/pricing_controller.dart": "87a03757ee053ac2d440c3937208a967112ee8e2e89140bfdc55e1e124ba7409",
+    "lib/features/local_parcels/booking/screens/parcel_details_screen.dart": "1102958364c42dc82c90d39b923f8e68cb0b0f5cb1c5a55681fe28f462bd3309",
+    "test/pricing_request_lifecycle_test.dart": "4c3e5210ebb093b8c9a699fabd34ee557d4217279c1af959f665d44cf3ed81b8",
+    "test/parcel_photo_screen_recovery_test.dart": "d80c70c0bf09a38d232fc43c0978a74a5cf89370de7d8aafd6f0bab469636006",
+    "artifacts/waydrop-1.0.0-build59.apk": "3135eb0e436df82b424f1d1aede201a7d72b4f4d2c1d16809a59f078196cbf1c"
+  },
+  "logs_sha256": {
+    "pricing-deep-before-final.log": "5e8707e665a98e95d9dcabdddf0d38a1b364b6b20374a9ab687185c5621a155b",
+    "parcel-hidden-pricing-before.log": "b82b4aae8437dfa87487b5bfe54a557d6a6fca6989c9d6c3cc416906b271b48b",
+    "pricing-deep-after.log": "a63eb3c9989a4ab0a80f80f3d8f4b35e002b90d56c04ab091ac5728eedc3d7a5",
+    "pricing-deep-focused.log": "3acc4bd2eaa93542ec1af73522a719382706e24875aefa3e867da7cb38f4a864",
+    "pricing-deep-analyze.log": "ff86655571f2205365262d7e9becdc47852caf871207fa0dcb60fdd33e64857c",
+    "pricing-deep-new-code-analyze.log": "caf9b2f9486f9c08fe939042c44e832e8229b039adb512bb75bc4ed2284e653c",
+    "pricing-deep-full.log": "8c93daa4e714117a878dfd4d44af3136204f854c15caeb40b20e290a4d6b9064"
+  },
+  "backend_initiating_resource_cause": "unproven; Storage/database incident unresolved",
+  "combined_sql_edge_gates": "unchanged NO-GO"
+}

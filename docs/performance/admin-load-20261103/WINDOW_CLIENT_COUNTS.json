@@ -1,0 +1,101 @@
+{
+  "project": "yvwpchffctiagevpqgwy",
+  "log_window_utc": [
+    "2026-11-03T04:24:00Z",
+    "2026-11-03T04:34:00Z"
+  ],
+  "evidence": {
+    "result": [
+      {
+        "client_family": "Dart",
+        "live_map_projection_matches": 0,
+        "max_ms": 18622,
+        "method": "GET",
+        "n": 283,
+        "p95_ms": 2140,
+        "path": "/rest/v1/orders"
+      },
+      {
+        "client_family": "Dart",
+        "live_map_projection_matches": 0,
+        "max_ms": 19991,
+        "method": "GET",
+        "n": 149,
+        "p95_ms": 2675,
+        "path": "/rest/v1/riders"
+      },
+      {
+        "client_family": "Deno",
+        "live_map_projection_matches": 0,
+        "max_ms": 3376,
+        "method": "GET",
+        "n": 132,
+        "p95_ms": 2032,
+        "path": "/rest/v1/orders"
+      },
+      {
+        "client_family": "Deno",
+        "live_map_projection_matches": 0,
+        "max_ms": 1893,
+        "method": "PATCH",
+        "n": 50,
+        "p95_ms": 753,
+        "path": "/rest/v1/orders"
+      },
+      {
+        "client_family": "Dart",
+        "live_map_projection_matches": 0,
+        "max_ms": 12600,
+        "method": "GET",
+        "n": 47,
+        "p95_ms": 2929,
+        "path": "/rest/v1/rider_kyc"
+      },
+      {
+        "client_family": "Dart",
+        "live_map_projection_matches": 0,
+        "max_ms": 16117,
+        "method": "PATCH",
+        "n": 17,
+        "p95_ms": 16117,
+        "path": "/rest/v1/riders"
+      },
+      {
+        "client_family": "Deno",
+        "live_map_projection_matches": 0,
+        "max_ms": 279,
+        "method": "GET",
+        "n": 10,
+        "p95_ms": 279,
+        "path": "/rest/v1/riders"
+      },
+      {
+        "client_family": "Deno",
+        "live_map_projection_matches": 0,
+        "max_ms": 580,
+        "method": "POST",
+        "n": 8,
+        "p95_ms": 580,
+        "path": "/rest/v1/orders"
+      },
+      {
+        "client_family": "Dart",
+        "live_map_projection_matches": 0,
+        "max_ms": 24,
+        "method": "GET",
+        "n": 1,
+        "p95_ms": 24,
+        "path": "/rest/v1/rider_withdrawals"
+      },
+      {
+        "client_family": "Deno",
+        "live_map_projection_matches": 0,
+        "max_ms": 81,
+        "method": "GET",
+        "n": 1,
+        "p95_ms": 81,
+        "path": "/rest/v1/rider_withdrawals"
+      }
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+00:00 +0: loading C:/Users/karth/Desktop/appclad/test/waydrop_realtime_lifecycle_test.dart
+00:00 +0: matching owners pool; releasing one keeps the remaining owner live
+[INSTR] 2026-10-31T11:39:55.296361 RealtimeManager: Creating NEW channel [orders] for owner [a] table=orders event=PostgresChangeEvent.all filterColumn=id filterValue=a
+RealtimeManager: Creating new channel [orders] for owner [a] on table [orders]
+[INSTR] 2026-10-31T11:39:55.317364 RealtimeManager: Channel [orders] status changed to [RealtimeSubscribeStatus.subscribed], error: null, subscriberCount=1, owners=[a]
+RealtimeManager: Channel [orders] status is [RealtimeSubscribeStatus.subscribed], error: null
+Realtime channels: 1
+[INSTR] 2026-10-31T11:39:55.319365 RealtimeManager: Appended listener [b_1793426995319365] owned by [b] to EXISTING channel [orders] (existing channel was created for table=orders, event=PostgresChangeEvent.all, filterColumn=id, filterValue=a; this new subscribe() requested table=orders, event=PostgresChangeEvent.all, filterColumn=id, filterValue=a, currentStatus=RealtimeSubscribeStatus.subscribed). Subscriber count: 2
+RealtimeManager: Appended listener [b_1793426995319365] owned by [b] to existing channel [orders]. Subscriber count: 2
+RealtimeManager: Removed listener [a_1793426995294362] owned by [a] from channel [orders]. Remaining subscribers: 1
+RealtimeManager: Removed listener [b_1793426995319365] owned by [b] from channel [orders]. Remaining subscribers: 0
+RealtimeManager: Channel [orders] has 0 subscribers. Disposing channel.
+Realtime channels: 0
+00:00 +1: different order filters isolate streams and unsubscribe through original key
+[INSTR] 2026-10-31T11:39:55.360375 RealtimeManager: Creating NEW channel [orders] for owner [a] table=orders event=PostgresChangeEvent.all filterColumn=id filterValue=a
+RealtimeManager: Creating new channel [orders] for owner [a] on table [orders]
+[INSTR] 2026-10-31T11:39:55.360375 RealtimeManager: Channel [orders] status changed to [RealtimeSubscribeStatus.subscribed], error: null, subscriberCount=1, owners=[a]
+RealtimeManager: Channel [orders] status is [RealtimeSubscribeStatus.subscribed], error: null
+Realtime channels: 1
+[RealtimeManager] REFUSING TO POOL onto channel [orders]: requested config differs from the config already registered there. Existing: table=orders, event=PostgresChangeEvent.all, schema=public, filterColumn=id, filterValue=a. Requested by [b]: table=orders, event=PostgresChangeEvent.all, schema=public, filterColumn=id, filterValue=b. Creating a SEPARATE channel [orders::cfgmismatch::public|orders|PostgresChangeEvent.all|id|b] for this subscriber instead of silently attaching it to the wrong stream. Use a unique channelName per distinct config to avoid this in future.
+[INSTR] 2026-10-31T11:39:55.361886 RealtimeManager: Creating NEW channel [orders::cfgmismatch::public|orders|PostgresChangeEvent.all|id|b] for owner [b] table=orders event=PostgresChangeEvent.all filterColumn=id filterValue=b
+RealtimeManager: Creating new channel [orders::cfgmismatch::public|orders|PostgresChangeEvent.all|id|b] for owner [b] on table [orders]
+[INSTR] 2026-10-31T11:39:55.361886 RealtimeManager: Channel [orders::cfgmismatch::public|orders|PostgresChangeEvent.all|id|b] status changed to [RealtimeSubscribeStatus.subscribed], error: null, subscriberCount=1, owners=[b]
+RealtimeManager: Channel [orders::cfgmismatch::public|orders|PostgresChangeEvent.all|id|b] status is [RealtimeSubscribeStatus.subscribed], error: null
+Realtime channels: 2
+RealtimeManager: Removed listener [b_1793426995360375] owned by [b] from channel [orders::cfgmismatch::public|orders|PostgresChangeEvent.all|id|b]. Remaining subscribers: 0
+RealtimeManager: Channel [orders::cfgmismatch::public|orders|PostgresChangeEvent.all|id|b] has 0 subscribers. Disposing channel.
+Realtime channels: 1
+00:00 +2: a throwing owner does not suppress another listener
+[INSTR] 2026-10-31T11:39:55.378900 RealtimeManager: Creating NEW channel [orders] for owner [broken] table=orders event=PostgresChangeEvent.all filterColumn=id filterValue=a
+RealtimeManager: Creating new channel [orders] for owner [broken] on table [orders]
+[INSTR] 2026-10-31T11:39:55.379897 RealtimeManager: Channel [orders] status changed to [RealtimeSubscribeStatus.subscribed], error: null, subscriberCount=1, owners=[broken]
+RealtimeManager: Channel [orders] status is [RealtimeSubscribeStatus.subscribed], error: null
+Realtime channels: 1
+[INSTR] 2026-10-31T11:39:55.379897 RealtimeManager: Appended listener [healthy_1793426995379897] owned by [healthy] to EXISTING channel [orders] (existing channel was created for table=orders, event=PostgresChangeEvent.all, filterColumn=id, filterValue=a; this new subscribe() requested table=orders, event=PostgresChangeEvent.all, filterColumn=id, filterValue=a, currentStatus=RealtimeSubscribeStatus.subscribed). Subscriber count: 2
+RealtimeManager: Appended listener [healthy_1793426995379897] owned by [healthy] to existing channel [orders]. Subscriber count: 2
+RealtimeManager callback error [broken]: Bad state: owner disposed
+00:00 +3: queued messages after manager disposal never reach former owners
+[INSTR] 2026-10-31T11:39:55.390899 RealtimeManager: Creating NEW channel [orders] for owner [screen] table=orders event=PostgresChangeEvent.all filterColumn=id filterValue=a
+RealtimeManager: Creating new channel [orders] for owner [screen] on table [orders]
+[INSTR] 2026-10-31T11:39:55.391910 RealtimeManager: Channel [orders] status changed to [RealtimeSubscribeStatus.subscribed], error: null, subscriberCount=1, owners=[screen]
+RealtimeManager: Channel [orders] status is [RealtimeSubscribeStatus.subscribed], error: null
+Realtime channels: 1
+00:00 +3 -1: queued messages after manager disposal never reach former owners [E]
+  Expected: <0>
+    Actual: <1>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\waydrop_realtime_lifecycle_test.dart 88:5      main.<fn>
+  
+00:00 +3 -1: Some tests failed.

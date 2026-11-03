@@ -1,0 +1,3727 @@
+{
+  "enums": [
+    {
+      "labels": [
+        "inactive",
+        "profile_pending",
+        "active",
+        "suspended"
+      ],
+      "typname": "activation_status_enum"
+    },
+    {
+      "labels": [
+        "sent",
+        "viewed",
+        "accepted",
+        "rejected",
+        "timed_out",
+        "expired",
+        "cancelled"
+      ],
+      "typname": "assignment_status_enum"
+    },
+    {
+      "labels": [
+        "user",
+        "rider",
+        "admin",
+        "system"
+      ],
+      "typname": "cancelled_by_enum"
+    },
+    {
+      "labels": [
+        "pending",
+        "active",
+        "failed",
+        "disabled"
+      ],
+      "typname": "cashfree_beneficiary_status_enum"
+    },
+    {
+      "labels": [
+        "open",
+        "investigating",
+        "resolved_paid",
+        "resolved_unpaid"
+      ],
+      "typname": "dispute_status_enum"
+    },
+    {
+      "labels": [
+        "personal_upi",
+        "cashfree",
+        "cash"
+      ],
+      "typname": "fare_payment_method_enum"
+    },
+    {
+      "labels": [
+        "sent",
+        "viewed",
+        "accepted",
+        "rejected",
+        "timed_out",
+        "expired",
+        "cancelled",
+        "accepted_by_user"
+      ],
+      "typname": "intercity_assignment_status_enum"
+    },
+    {
+      "labels": [
+        "pending",
+        "under_review",
+        "approved",
+        "rejected",
+        "resubmitted"
+      ],
+      "typname": "kyc_status_enum"
+    },
+    {
+      "labels": [
+        "created",
+        "searching",
+        "accepted",
+        "rider_arrived",
+        "picked_up",
+        "ongoing",
+        "rider_at_drop",
+        "completed",
+        "delivered",
+        "cancelled",
+        "expired",
+        "payment_pending"
+      ],
+      "typname": "order_status_enum"
+    },
+    {
+      "labels": [
+        "ride",
+        "intercity_ride",
+        "ride_sharing",
+        "local_parcel",
+        "intercity_parcel",
+        "batch_delivery",
+        "food_delivery",
+        "grocery_delivery"
+      ],
+      "typname": "order_type_enum"
+    },
+    {
+      "labels": [
+        "documents",
+        "electronics",
+        "food",
+        "clothes",
+        "fragile",
+        "others"
+      ],
+      "typname": "parcel_type_enum"
+    },
+    {
+      "labels": [
+        "local",
+        "intercity"
+      ],
+      "typname": "partner_service_mode_enum"
+    },
+    {
+      "labels": [
+        "ride_order",
+        "parcel_order",
+        "wallet_topup",
+        "subscription",
+        "withdrawal",
+        "refund",
+        "cod_settlement",
+        "ride_boost",
+        "intercity_ride_boost",
+        "intercity_parcel_boost",
+        "intercity_ride_order",
+        "intercity_parcel_order",
+        "ride_sharing",
+        "tax_due"
+      ],
+      "typname": "payment_for_enum"
+    },
+    {
+      "labels": [
+        "upi",
+        "card",
+        "wallet",
+        "netbanking",
+        "cash",
+        "cod",
+        "cashfree"
+      ],
+      "typname": "payment_method_enum"
+    },
+    {
+      "labels": [
+        "cash",
+        "online",
+        "wallet",
+        "upi"
+      ],
+      "typname": "payment_mode_enum"
+    },
+    {
+      "labels": [
+        "pending",
+        "paid",
+        "failed",
+        "refunded",
+        "partial_refund",
+        "cash_collected",
+        "cash_pending_settlement"
+      ],
+      "typname": "payment_status_enum"
+    },
+    {
+      "labels": [
+        "bank_account",
+        "upi"
+      ],
+      "typname": "payout_method_enum"
+    },
+    {
+      "labels": [
+        "user",
+        "rider"
+      ],
+      "typname": "preferred_mode_enum"
+    },
+    {
+      "labels": [
+        "tier_1",
+        "tier_2"
+      ],
+      "typname": "pricing_city_tier_enum"
+    },
+    {
+      "labels": [
+        "ride",
+        "local_parcel",
+        "intercity_parcel",
+        "intercity_ride",
+        "ride_sharing"
+      ],
+      "typname": "pricing_service_type_enum"
+    },
+    {
+      "labels": [
+        "clean_vehicle",
+        "polite_behavior",
+        "safe_driving",
+        "on_time",
+        "dirty_vehicle",
+        "rude_behavior",
+        "unsafe_driving",
+        "late_arrival",
+        "other",
+        "good_behaviour",
+        "respectful",
+        "easy_to_communicate",
+        "clear_instructions",
+        "cooperative",
+        "ready_at_pickup",
+        "late_at_pickup",
+        "rude_behaviour",
+        "poor_communication",
+        "uncooperative",
+        "changed_plans",
+        "no_show"
+      ],
+      "typname": "review_tag"
+    },
+    {
+      "labels": [
+        "online",
+        "offline",
+        "busy",
+        "blocked"
+      ],
+      "typname": "rider_account_status_enum"
+    },
+    {
+      "labels": [
+        "pending",
+        "processing",
+        "success",
+        "failed"
+      ],
+      "typname": "rider_withdrawal_status_enum"
+    },
+    {
+      "labels": [
+        "active",
+        "expired",
+        "cancelled",
+        "pending"
+      ],
+      "typname": "subscription_status_enum"
+    },
+    {
+      "labels": [
+        "active",
+        "completed",
+        "cancelled",
+        "fully_booked",
+        "expired"
+      ],
+      "typname": "travel_plan_status_enum"
+    },
+    {
+      "labels": [
+        "bike",
+        "auto",
+        "cab"
+      ],
+      "typname": "vehicle_type_enum"
+    },
+    {
+      "labels": [
+        "0_5",
+        "6_15",
+        "16_25",
+        "26_50"
+      ],
+      "typname": "weight_category_enum"
+    }
+  ],
+  "columns": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "dispatch_config",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "name": "config_code",
+      "type": "text",
+      "table": "dispatch_config",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "round_1_radius_km",
+      "type": "numeric",
+      "table": "dispatch_config",
+      "default": "3",
+      "nullable": "NO"
+    },
+    {
+      "name": "round_1_batch_size",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "3",
+      "nullable": "NO"
+    },
+    {
+      "name": "round_2_radius_km",
+      "type": "numeric",
+      "table": "dispatch_config",
+      "default": "6",
+      "nullable": "NO"
+    },
+    {
+      "name": "round_2_batch_size",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "5",
+      "nullable": "NO"
+    },
+    {
+      "name": "round_3_radius_km",
+      "type": "numeric",
+      "table": "dispatch_config",
+      "default": "10",
+      "nullable": "NO"
+    },
+    {
+      "name": "round_3_batch_size",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "8",
+      "nullable": "NO"
+    },
+    {
+      "name": "rider_response_timeout_sec",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "25",
+      "nullable": "NO"
+    },
+    {
+      "name": "max_search_duration_sec",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "900",
+      "nullable": "NO"
+    },
+    {
+      "name": "reject_cooldown_sec",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "600",
+      "nullable": "NO"
+    },
+    {
+      "name": "timeout_cooldown_sec",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "120",
+      "nullable": "NO"
+    },
+    {
+      "name": "rider_location_stale_sec",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "30",
+      "nullable": "NO"
+    },
+    {
+      "name": "max_active_orders_per_rider",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "1",
+      "nullable": "NO"
+    },
+    {
+      "name": "allow_round_3",
+      "type": "bool",
+      "table": "dispatch_config",
+      "default": "true",
+      "nullable": "YES"
+    },
+    {
+      "name": "allow_boosted_priority",
+      "type": "bool",
+      "table": "dispatch_config",
+      "default": "true",
+      "nullable": "YES"
+    },
+    {
+      "name": "is_active",
+      "type": "bool",
+      "table": "dispatch_config",
+      "default": "true",
+      "nullable": "YES"
+    },
+    {
+      "name": "updated_by_admin_id",
+      "type": "uuid",
+      "table": "dispatch_config",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "dispatch_config",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "dispatch_config",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "round_2_trigger_if_no_riders_sec",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "60",
+      "nullable": "YES"
+    },
+    {
+      "name": "round_2_trigger_after_sec",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "300",
+      "nullable": "YES"
+    },
+    {
+      "name": "round_3_trigger_after_sec",
+      "type": "int4",
+      "table": "dispatch_config",
+      "default": "600",
+      "nullable": "YES"
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "order_assignment_logs",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "name": "order_id",
+      "type": "uuid",
+      "table": "order_assignment_logs",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "rider_id",
+      "type": "uuid",
+      "table": "order_assignment_logs",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "assignment_status",
+      "type": "intercity_assignment_status_enum",
+      "table": "order_assignment_logs",
+      "default": "'sent'::intercity_assignment_status_enum",
+      "nullable": "NO"
+    },
+    {
+      "name": "assignment_round",
+      "type": "int4",
+      "table": "order_assignment_logs",
+      "default": "1",
+      "nullable": "YES"
+    },
+    {
+      "name": "rider_distance_km",
+      "type": "numeric",
+      "table": "order_assignment_logs",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "estimated_pickup_time_min",
+      "type": "int4",
+      "table": "order_assignment_logs",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "sent_at",
+      "type": "timestamptz",
+      "table": "order_assignment_logs",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "viewed_at",
+      "type": "timestamptz",
+      "table": "order_assignment_logs",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "responded_at",
+      "type": "timestamptz",
+      "table": "order_assignment_logs",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "rejection_reason",
+      "type": "text",
+      "table": "order_assignment_logs",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "metadata",
+      "type": "jsonb",
+      "table": "order_assignment_logs",
+      "default": "'{}'::jsonb",
+      "nullable": "YES"
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "order_assignment_logs",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "orders",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "name": "order_code",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "rider_id",
+      "type": "uuid",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "order_type",
+      "type": "order_type_enum",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "vehicle_type",
+      "type": "vehicle_type_enum",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "order_status",
+      "type": "order_status_enum",
+      "table": "orders",
+      "default": "'created'::order_status_enum",
+      "nullable": "NO"
+    },
+    {
+      "name": "pricing_config_id",
+      "type": "uuid",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "distance_meters",
+      "type": "int4",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "distance_km",
+      "type": "numeric",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "estimated_duration_min",
+      "type": "int4",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "actual_duration_min",
+      "type": "int4",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "time_taken_seconds",
+      "type": "int4",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "pickup_address",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "pickup_lat",
+      "type": "float8",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "pickup_lng",
+      "type": "float8",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "destination_address",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "destination_lat",
+      "type": "float8",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "destination_lng",
+      "type": "float8",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "actual_fare",
+      "type": "numeric",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "current_fare",
+      "type": "numeric",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "final_fare",
+      "type": "numeric",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "base_fare",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "distance_fare",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "time_fare",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "waiting_charge",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "platform_fee",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "gst_percentage",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "gst_amount",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "commission_percentage",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "commission_amount",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "rider_earning",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "boost_amount",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "subscription_commission_waived",
+      "type": "bool",
+      "table": "orders",
+      "default": "false",
+      "nullable": "YES"
+    },
+    {
+      "name": "pricing_snapshot",
+      "type": "jsonb",
+      "table": "orders",
+      "default": "'{}'::jsonb",
+      "nullable": "NO"
+    },
+    {
+      "name": "payment_mode",
+      "type": "payment_mode_enum",
+      "table": "orders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "payment_status",
+      "type": "payment_status_enum",
+      "table": "orders",
+      "default": "'pending'::payment_status_enum",
+      "nullable": "NO"
+    },
+    {
+      "name": "payment_id",
+      "type": "uuid",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "pickup_otp",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "delivery_otp",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "search_expires_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "cancelled_by",
+      "type": "cancelled_by_enum",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "cancel_reason",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "parcel_type",
+      "type": "parcel_type_enum",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "receiver_name",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "receiver_phone",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "weight_category",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "actual_weight_kg",
+      "type": "numeric",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "parcel_images",
+      "type": "_text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "special_instructions",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "accepted_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "rider_arrived_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "picked_up_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "rider_at_drop_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "completed_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "cancelled_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "pickup_otp_attempts",
+      "type": "int4",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "delivery_otp_attempts",
+      "type": "int4",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "boost_company_earning",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "boost_rider_earning",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "boost_percentage",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "dispatch_attempts",
+      "type": "int4",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "boost_round",
+      "type": "int4",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "current_search_radius_km",
+      "type": "numeric",
+      "table": "orders",
+      "default": "3",
+      "nullable": "YES"
+    },
+    {
+      "name": "last_dispatched_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "rider_rejections_count",
+      "type": "int4",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "redispatch_count",
+      "type": "int4",
+      "table": "orders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "pickup_city",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "destination_city",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "travel_date",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "dispatch_state",
+      "type": "jsonb",
+      "table": "orders",
+      "default": "'{}'::jsonb",
+      "nullable": "YES"
+    },
+    {
+      "name": "created_ip_address",
+      "type": "inet",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_lat",
+      "type": "float8",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_lng",
+      "type": "float8",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "sender_declaration_accepted",
+      "type": "bool",
+      "table": "orders",
+      "default": "false",
+      "nullable": "YES"
+    },
+    {
+      "name": "sender_declaration_accepted_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "pickup_verification_completed",
+      "type": "bool",
+      "table": "orders",
+      "default": "false",
+      "nullable": "YES"
+    },
+    {
+      "name": "pickup_verification_completed_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "compliance_flagged",
+      "type": "bool",
+      "table": "orders",
+      "default": "false",
+      "nullable": "YES"
+    },
+    {
+      "name": "compliance_notes",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_device_ref",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_device_record_id",
+      "type": "uuid",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_device_model",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_device_brand",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_os_version",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_app_version",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "compliance_status",
+      "type": "text",
+      "table": "orders",
+      "default": "'pending'::text",
+      "nullable": "YES"
+    },
+    {
+      "name": "compliance_score",
+      "type": "int4",
+      "table": "orders",
+      "default": "100",
+      "nullable": "YES"
+    },
+    {
+      "name": "compliance_retention_until",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "parcel_declared_value",
+      "type": "numeric",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "high_risk_parcel",
+      "type": "bool",
+      "table": "orders",
+      "default": "false",
+      "nullable": "YES"
+    },
+    {
+      "name": "dispatch_worker_running",
+      "type": "bool",
+      "table": "orders",
+      "default": "false",
+      "nullable": "YES"
+    },
+    {
+      "name": "dispatch_worker_started_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "seats_requested",
+      "type": "int4",
+      "table": "orders",
+      "default": "1",
+      "nullable": "NO"
+    },
+    {
+      "name": "near_destination_notified",
+      "type": "bool",
+      "table": "orders",
+      "default": "false",
+      "nullable": "NO"
+    },
+    {
+      "name": "trip_started_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "upi_payment_prompted_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "fare_payment_method",
+      "type": "fare_payment_method_enum",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "fare_payment_attempted_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "fare_paid_at",
+      "type": "timestamptz",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "fare_payment_reference",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "fare_payment_screenshot_url",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "idempotency_key",
+      "type": "text",
+      "table": "orders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "pg_charge_amount",
+      "type": "numeric",
+      "table": "orders",
+      "default": "0",
+      "nullable": "NO"
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "rider_assignments",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "name": "order_id",
+      "type": "uuid",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "rider_id",
+      "type": "uuid",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "assignment_round",
+      "type": "int4",
+      "table": "rider_assignments",
+      "default": "1",
+      "nullable": "NO"
+    },
+    {
+      "name": "assignment_status",
+      "type": "intercity_assignment_status_enum",
+      "table": "rider_assignments",
+      "default": "'sent'::intercity_assignment_status_enum",
+      "nullable": "NO"
+    },
+    {
+      "name": "distance_km",
+      "type": "numeric",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "estimated_earnings",
+      "type": "numeric",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "sent_at",
+      "type": "timestamptz",
+      "table": "rider_assignments",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "name": "viewed_at",
+      "type": "timestamptz",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "responded_at",
+      "type": "timestamptz",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "expires_at",
+      "type": "timestamptz",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "rider_assignments",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "rider_assignments",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "last_seen_at",
+      "type": "timestamptz",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "last_response_at",
+      "type": "timestamptz",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "response_type",
+      "type": "text",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "hidden_until",
+      "type": "timestamptz",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "last_seen_fare",
+      "type": "numeric",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "accepted_at",
+      "type": "timestamptz",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "rejected_at",
+      "type": "timestamptz",
+      "table": "rider_assignments",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "rider_kyc",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "full_name",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "father_name",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "vehicle_type",
+      "type": "vehicle_type_enum",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "aadhaar_number",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "pan_number",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "driving_license_number",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "vehicle_number",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "rider_image",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "aadhaar_front_image",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "aadhaar_back_image",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "pan_front_image",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "pan_back_image",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "license_front_image",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "license_back_image",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "vehicle_image",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "kyc_status",
+      "type": "kyc_status_enum",
+      "table": "rider_kyc",
+      "default": "'pending'::kyc_status_enum",
+      "nullable": "NO"
+    },
+    {
+      "name": "activation_status",
+      "type": "activation_status_enum",
+      "table": "rider_kyc",
+      "default": "'inactive'::activation_status_enum",
+      "nullable": "NO"
+    },
+    {
+      "name": "handled_by_admin_id",
+      "type": "uuid",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "approved_at",
+      "type": "timestamptz",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "rejected_at",
+      "type": "timestamptz",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "rejection_reason",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "activated_at",
+      "type": "timestamptz",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "rider_kyc",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "rider_kyc",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "rejection_count",
+      "type": "int4",
+      "table": "rider_kyc",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "blocked_until",
+      "type": "timestamptz",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "date_of_birth",
+      "type": "date",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "VECHILE_RC_front_image",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "VECHILE_RC_back_image",
+      "type": "text",
+      "table": "rider_kyc",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "rider_id",
+      "type": "uuid",
+      "table": "rider_locations",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "current_lat",
+      "type": "float8",
+      "table": "rider_locations",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "current_lng",
+      "type": "float8",
+      "table": "rider_locations",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "current_heading",
+      "type": "float8",
+      "table": "rider_locations",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "last_location_updated_at",
+      "type": "timestamptz",
+      "table": "rider_locations",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "last_active_at",
+      "type": "timestamptz",
+      "table": "rider_locations",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "rider_locations",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "rider_locations",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "riders",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "name": "kyc_id",
+      "type": "uuid",
+      "table": "riders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "riders",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "name": "rating",
+      "type": "numeric",
+      "table": "riders",
+      "default": "5",
+      "nullable": "YES"
+    },
+    {
+      "name": "total_orders",
+      "type": "int4",
+      "table": "riders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "total_completed_orders",
+      "type": "int4",
+      "table": "riders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "total_cancelled_orders",
+      "type": "int4",
+      "table": "riders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "total_earnings",
+      "type": "numeric",
+      "table": "riders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "today_earnings",
+      "type": "numeric",
+      "table": "riders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "wallet_balance",
+      "type": "numeric",
+      "table": "riders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "cod_pending_amount",
+      "type": "numeric",
+      "table": "riders",
+      "default": "0",
+      "nullable": "YES"
+    },
+    {
+      "name": "cod_limit",
+      "type": "numeric",
+      "table": "riders",
+      "default": "'500'::numeric",
+      "nullable": "YES"
+    },
+    {
+      "name": "account_status",
+      "type": "rider_account_status_enum",
+      "table": "riders",
+      "default": "'offline'::rider_account_status_enum",
+      "nullable": "NO"
+    },
+    {
+      "name": "current_lat",
+      "type": "float8",
+      "table": "riders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "current_lng",
+      "type": "float8",
+      "table": "riders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "current_heading",
+      "type": "float8",
+      "table": "riders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "last_location_updated_at",
+      "type": "timestamptz",
+      "table": "riders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "last_active_at",
+      "type": "timestamptz",
+      "table": "riders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "subscription_active",
+      "type": "bool",
+      "table": "riders",
+      "default": "false",
+      "nullable": "YES"
+    },
+    {
+      "name": "subscription_expires_at",
+      "type": "timestamptz",
+      "table": "riders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "commission_waiver_active",
+      "type": "bool",
+      "table": "riders",
+      "default": "false",
+      "nullable": "YES"
+    },
+    {
+      "name": "is_verified",
+      "type": "bool",
+      "table": "riders",
+      "default": "true",
+      "nullable": "YES"
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "riders",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "riders",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "name": "last_dormant_notification_sent_at",
+      "type": "timestamptz",
+      "table": "riders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "last_sub_offline_notification_sent_at",
+      "type": "timestamptz",
+      "table": "riders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "service_mode",
+      "type": "partner_service_mode_enum",
+      "table": "riders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "government_tax_due_balance",
+      "type": "numeric",
+      "table": "riders",
+      "default": "0",
+      "nullable": "NO"
+    },
+    {
+      "name": "rating_sum",
+      "type": "numeric",
+      "table": "riders",
+      "default": "0",
+      "nullable": "NO"
+    },
+    {
+      "name": "total_ratings",
+      "type": "int4",
+      "table": "riders",
+      "default": "0",
+      "nullable": "NO"
+    },
+    {
+      "name": "free_trial_started_at",
+      "type": "timestamptz",
+      "table": "riders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "free_trial_expires_at",
+      "type": "timestamptz",
+      "table": "riders",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "name": "free_trial_used",
+      "type": "bool",
+      "table": "riders",
+      "default": "false",
+      "nullable": "NO"
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "UPDATE",
+      "qual": "((( SELECT auth.uid() AS uid) = user_id) OR (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = orders.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow passengers and assigned riders to update orders",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((order_status = 'searching'::order_status_enum) AND ((order_type)::text ~~ 'intercity%'::text))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow travellers to browse searching intercity orders",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM (intercity_requests ir\n     JOIN riders r ON ((r.id = ir.traveller_id)))\n  WHERE ((ir.parcel_id = orders.id) AND (r.user_id = ( SELECT auth.uid() AS uid)) AND (ir.status <> ALL (ARRAY['cancelled'::text, 'rejected'::text, 'expired'::text])))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow travellers to view orders tied to active intercity reques",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((( SELECT auth.uid() AS uid) = user_id) OR (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = orders.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid))))) OR check_is_order_candidate_rider(id, ( SELECT auth.uid() AS uid)))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow users to view their own or assigned orders",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "Deny direct client orders insert (service-role only)",
+      "schemaname": "public",
+      "with_check": "false"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "admin_can_select_orders",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((( SELECT auth.uid() AS uid) = user_id) AND (order_status = 'searching'::order_status_enum))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "user_can_update_own_order",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rider_assignments",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow passengers to insert assignments for their own orders",
+      "schemaname": "public",
+      "with_check": "(check_is_order_passenger_for_intercity(order_id, ( SELECT auth.uid() AS uid)) AND (assignment_status = ANY (ARRAY['accepted_by_user'::intercity_assignment_status_enum, 'rejected'::intercity_assignment_status_enum])))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "check_is_order_passenger_for_intercity(order_id, ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rider_assignments",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow passengers to update assignments for their own orders",
+      "schemaname": "public",
+      "with_check": "(check_is_order_passenger_for_intercity(order_id, ( SELECT auth.uid() AS uid)) AND (assignment_status = ANY (ARRAY['accepted_by_user'::intercity_assignment_status_enum, 'rejected'::intercity_assignment_status_enum])))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "check_is_order_passenger(order_id, ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rider_assignments",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow passengers to view assignments for their own orders",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rider_assignments",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow riders to insert their own assignments",
+      "schemaname": "public",
+      "with_check": "((EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = rider_assignments.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid))))) AND (assignment_status = ANY (ARRAY['sent'::intercity_assignment_status_enum, 'expired'::intercity_assignment_status_enum])))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = rider_assignments.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rider_assignments",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow riders to update their own assignments",
+      "schemaname": "public",
+      "with_check": "((EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = rider_assignments.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid))))) AND (assignment_status = ANY (ARRAY['sent'::intercity_assignment_status_enum, 'expired'::intercity_assignment_status_enum])))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = rider_assignments.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rider_assignments",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow riders to view their own assignments",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = rider_assignments.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rider_assignments",
+      "permissive": "PERMISSIVE",
+      "policyname": "Riders can view own assignments",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "can_read_rider_location(rider_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rider_locations",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow owner rider or active-order passenger to view rider locat",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((account_status = 'online'::rider_account_status_enum) OR (( SELECT auth.uid() AS uid) = user_id))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "riders",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow authenticated users to view online riders",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "riders",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow riders to update their own profile",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "public"
+      ],
+      "tablename": "riders",
+      "permissive": "PERMISSIVE",
+      "policyname": "Riders can update own rider profile",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "public"
+      ],
+      "tablename": "riders",
+      "permissive": "PERMISSIVE",
+      "policyname": "Riders can view own rider profile",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "riders",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can view own rider profile",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "riders",
+      "permissive": "PERMISSIVE",
+      "policyname": "admin_can_select_riders",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "riders",
+      "permissive": "PERMISSIVE",
+      "policyname": "admin_can_update_riders",
+      "schemaname": "public",
+      "with_check": "is_admin()"
+    }
+  ],
+  "triggers": [
+    {
+      "ddl": "CREATE TRIGGER trigger_enforce_rider_assignment_service_mode BEFORE INSERT ON public.rider_assignments FOR EACH ROW EXECUTE FUNCTION enforce_rider_assignment_service_mode()",
+      "table": "rider_assignments",
+      "enabled": "O"
+    },
+    {
+      "ddl": "CREATE TRIGGER trigger_prevent_local_ride_assignment_to_busy_rider BEFORE INSERT OR UPDATE ON public.rider_assignments FOR EACH ROW EXECUTE FUNCTION prevent_local_ride_assignment_to_busy_rider()",
+      "table": "rider_assignments",
+      "enabled": "O"
+    },
+    {
+      "ddl": "CREATE TRIGGER trigger_rider_assignment_change AFTER INSERT OR UPDATE OF assignment_status ON public.rider_assignments FOR EACH ROW EXECUTE FUNCTION on_rider_assignment_change()",
+      "table": "rider_assignments",
+      "enabled": "O"
+    },
+    {
+      "ddl": "CREATE TRIGGER trg_rider_locations_near_destination_check AFTER UPDATE OF current_lat, current_lng ON public.rider_locations FOR EACH ROW EXECUTE FUNCTION check_rider_near_destination_from_rider_locations()",
+      "table": "rider_locations",
+      "enabled": "O"
+    },
+    {
+      "ddl": "CREATE TRIGGER on_rider_status_change AFTER UPDATE OF account_status ON public.riders FOR EACH ROW EXECUTE FUNCTION handle_rider_status_change()",
+      "table": "riders",
+      "enabled": "O"
+    },
+    {
+      "ddl": "CREATE TRIGGER protect_rider_financial_columns_trigger BEFORE UPDATE ON public.riders FOR EACH ROW EXECUTE FUNCTION protect_rider_financial_columns()",
+      "table": "riders",
+      "enabled": "O"
+    },
+    {
+      "ddl": "CREATE TRIGGER trg_riders_gps_bridge_to_rider_locations AFTER UPDATE OF current_lat, current_lng ON public.riders FOR EACH ROW WHEN (((old.current_lat IS DISTINCT FROM new.current_lat) OR (old.current_lng IS DISTINCT FROM new.current_lng) OR (old.current_heading IS DISTINCT FROM new.current_heading) OR (old.last_location_updated_at IS DISTINCT FROM new.last_location_updated_at) OR (old.last_active_at IS DISTINCT FROM new.last_active_at))) EXECUTE FUNCTION sync_riders_gps_to_rider_locations()",
+      "table": "riders",
+      "enabled": "O"
+    },
+    {
+      "ddl": "CREATE TRIGGER trigger_assign_nearby_orders AFTER UPDATE OF account_status ON public.riders FOR EACH ROW WHEN (((new.account_status = 'online'::rider_account_status_enum) AND (old.account_status IS DISTINCT FROM 'online'::rider_account_status_enum))) EXECUTE FUNCTION assign_nearby_searching_orders_to_rider()",
+      "table": "riders",
+      "enabled": "O"
+    },
+    {
+      "ddl": "CREATE TRIGGER trigger_prevent_service_mode_switch_during_active_order BEFORE UPDATE OF service_mode ON public.riders FOR EACH ROW EXECUTE FUNCTION prevent_service_mode_switch_during_active_order()",
+      "table": "riders",
+      "enabled": "O"
+    },
+    {
+      "ddl": "CREATE TRIGGER trigger_rider_wallet_balance_update AFTER UPDATE OF wallet_balance ON public.riders FOR EACH ROW EXECUTE FUNCTION on_rider_wallet_balance_update()",
+      "table": "riders",
+      "enabled": "O"
+    }
+  ],
+  "functions": [
+    {
+      "name": "assign_nearby_searching_orders_to_rider",
+      "definition": "CREATE OR REPLACE FUNCTION public.assign_nearby_searching_orders_to_rider()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    IF NEW.current_lat IS NULL OR NEW.current_lng IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    PERFORM public.assign_nearby_searching_orders_core(\n        NEW.id,\n        NEW.user_id,\n        NEW.current_lat,\n        NEW.current_lng,\n        NEW.service_mode\n    );\n\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "name": "check_rider_near_destination_from_rider_locations",
+      "definition": "CREATE OR REPLACE FUNCTION public.check_rider_near_destination_from_rider_locations()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_order RECORD;\n    v_dist_km double precision;\nBEGIN\n    IF NEW.current_lat IS NULL OR NEW.current_lng IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    SELECT id, user_id, destination_lat, destination_lng\n    INTO v_order\n    FROM public.orders\n    WHERE rider_id = NEW.rider_id\n      AND order_status = 'ongoing'\n      AND near_destination_notified = false\n      AND order_type::text LIKE 'intercity%'\n      AND destination_lat IS NOT NULL\n      AND destination_lng IS NOT NULL\n    LIMIT 1;\n\n    IF v_order.id IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    v_dist_km := 6371 * acos(\n        LEAST(GREATEST(\n            cos(radians(v_order.destination_lat))\n            * cos(radians(NEW.current_lat))\n            * cos(radians(NEW.current_lng) - radians(v_order.destination_lng))\n            + sin(radians(v_order.destination_lat))\n            * sin(radians(NEW.current_lat))\n        , -1.0), 1.0)\n    );\n\n    IF v_dist_km <= 3.0 THEN\n        UPDATE public.orders\n        SET near_destination_notified = true\n        WHERE id = v_order.id;\n\n        PERFORM public.send_push_notification_fnc(\n            v_order.user_id,\n            'Almost There',\n            'You are about 10 minutes away from your destination.',\n            jsonb_build_object('type', 'trip_near_destination', 'order_id', v_order.id)\n        );\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "name": "enforce_rider_assignment_service_mode",
+      "definition": "CREATE OR REPLACE FUNCTION public.enforce_rider_assignment_service_mode()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_order_type text;\n    v_distance_meters integer;\n    v_required_mode public.partner_service_mode_enum;\n    v_rider_mode public.partner_service_mode_enum;\nBEGIN\n    SELECT o.order_type::text, o.distance_meters\n    INTO v_order_type, v_distance_meters\n    FROM public.orders o\n    WHERE o.id = NEW.order_id;\n\n    SELECT r.service_mode INTO v_rider_mode\n    FROM public.riders r\n    WHERE r.id = NEW.rider_id;\n\n    v_required_mode := public.get_required_service_mode(v_order_type, v_distance_meters);\n\n    IF v_rider_mode IS NULL THEN\n        RAISE EXCEPTION 'Rider % has not selected a Service Mode yet and cannot be assigned any orders', NEW.rider_id\n            USING ERRCODE = 'check_violation';\n    END IF;\n\n    IF v_rider_mode != v_required_mode THEN\n        RAISE EXCEPTION 'Rider % service_mode (%) does not match the service mode required (%) for order %', NEW.rider_id, v_rider_mode, v_required_mode, NEW.order_id\n            USING ERRCODE = 'check_violation';\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "name": "get_active_tax_due_threshold",
+      "definition": "CREATE OR REPLACE FUNCTION public.get_active_tax_due_threshold()\n RETURNS numeric\n LANGUAGE sql\n STABLE\n SET search_path TO 'public'\nAS $function$\n    SELECT COALESCE(\n        (SELECT threshold_amount FROM public.government_tax_config WHERE is_active = true ORDER BY updated_at DESC LIMIT 1),\n        100.0\n    );\n$function$\n"
+    },
+    {
+      "name": "get_required_service_mode",
+      "definition": "CREATE OR REPLACE FUNCTION public.get_required_service_mode(p_order_type text, p_distance_meters integer)\n RETURNS partner_service_mode_enum\n LANGUAGE sql\n IMMUTABLE\n SET search_path TO 'public'\nAS $function$\n    SELECT CASE\n        WHEN p_order_type IN ('intercity_ride', 'intercity_parcel') THEN 'intercity'::public.partner_service_mode_enum\n        WHEN p_order_type = 'ride' AND COALESCE(p_distance_meters, 0) > 20000 THEN 'intercity'::public.partner_service_mode_enum\n        ELSE 'local'::public.partner_service_mode_enum\n    END;\n$function$\n"
+    },
+    {
+      "name": "is_rider_blocked_by_cod_limit",
+      "definition": "CREATE OR REPLACE FUNCTION public.is_rider_blocked_by_cod_limit(p_rider_id uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n    SELECT COALESCE(\n        (SELECT cod_pending_amount FROM public.riders WHERE id = p_rider_id),\n        0\n    ) >= COALESCE(\n        (SELECT cod_limit FROM public.riders WHERE id = p_rider_id),\n        500\n    );\n$function$\n"
+    },
+    {
+      "name": "is_rider_blocked_by_tax_due",
+      "definition": "CREATE OR REPLACE FUNCTION public.is_rider_blocked_by_tax_due(p_rider_id uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE\n SET search_path TO 'public'\nAS $function$\n    SELECT COALESCE(\n        (SELECT government_tax_due_balance FROM public.riders WHERE id = p_rider_id),\n        0\n    ) >= public.get_active_tax_due_threshold();\n$function$\n"
+    },
+    {
+      "name": "rider_is_on_active_trip",
+      "definition": "CREATE OR REPLACE FUNCTION public.rider_is_on_active_trip(p_rider_id uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE\n SET search_path TO 'public'\nAS $function$\n    SELECT EXISTS (\n        SELECT 1\n        FROM public.orders o\n        WHERE o.rider_id = p_rider_id\n          AND (\n                o.order_status::text IN ('rider_arrived', 'picked_up', 'rider_at_drop', 'ongoing', 'payment_pending')\n                OR (\n                    o.order_status::text = 'accepted'\n                    AND (\n                        public.get_required_service_mode(o.order_type::text, o.distance_meters) = 'local'\n                        OR o.trip_started_at IS NOT NULL\n                    )\n                )\n              )\n    );\n$function$\n"
+    },
+    {
+      "name": "sync_riders_gps_to_rider_locations",
+      "definition": "CREATE OR REPLACE FUNCTION public.sync_riders_gps_to_rider_locations()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    INSERT INTO public.rider_locations AS rl\n        (rider_id, current_lat, current_lng, current_heading,\n         last_location_updated_at, last_active_at, updated_at)\n    VALUES\n        (NEW.id, NEW.current_lat, NEW.current_lng, NEW.current_heading,\n         NEW.last_location_updated_at, NEW.last_active_at, now())\n    ON CONFLICT (rider_id) DO UPDATE SET\n        current_lat              = EXCLUDED.current_lat,\n        current_lng              = EXCLUDED.current_lng,\n        current_heading          = EXCLUDED.current_heading,\n        last_location_updated_at = EXCLUDED.last_location_updated_at,\n        last_active_at           = EXCLUDED.last_active_at,\n        updated_at               = now();\n\n    RETURN NULL;  -- AFTER trigger; return value is ignored\nEND;\n$function$\n"
+    }
+  ],
+  "extensions": [
+    "plpgsql",
+    "pg_stat_statements",
+    "uuid-ossp",
+    "pgcrypto",
+    "supabase_vault",
+    "pg_net",
+    "pg_cron",
+    "postgis",
+    "hypopg",
+    "index_advisor"
+  ],
+  "constraints": [
+    {
+      "ddl": "UNIQUE (config_code)",
+      "name": "dispatch_config_config_code_key",
+      "type": "u",
+      "table": "dispatch_config"
+    },
+    {
+      "ddl": "PRIMARY KEY (id)",
+      "name": "dispatch_config_pkey",
+      "type": "p",
+      "table": "dispatch_config"
+    },
+    {
+      "ddl": "FOREIGN KEY (updated_by_admin_id) REFERENCES admins(id) ON DELETE SET NULL",
+      "name": "dispatch_config_updated_by_admin_id_fkey",
+      "type": "f",
+      "table": "dispatch_config"
+    },
+    {
+      "ddl": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE",
+      "name": "order_assignment_logs_order_id_fkey",
+      "type": "f",
+      "table": "order_assignment_logs"
+    },
+    {
+      "ddl": "PRIMARY KEY (id)",
+      "name": "order_assignment_logs_pkey",
+      "type": "p",
+      "table": "order_assignment_logs"
+    },
+    {
+      "ddl": "FOREIGN KEY (rider_id) REFERENCES riders(id) ON DELETE CASCADE",
+      "name": "order_assignment_logs_rider_id_fkey",
+      "type": "f",
+      "table": "order_assignment_logs"
+    },
+    {
+      "ddl": "UNIQUE (order_id, rider_id, assignment_round)",
+      "name": "unique_order_rider_assignment",
+      "type": "u",
+      "table": "order_assignment_logs"
+    },
+    {
+      "ddl": "CHECK (((order_type <> 'intercity_parcel'::order_type_enum) OR ((actual_weight_kg IS NOT NULL) AND (actual_weight_kg > (0)::numeric))))",
+      "name": "check_intercity_parcel_weight",
+      "type": "c",
+      "table": "orders"
+    },
+    {
+      "ddl": "CHECK ((actual_fare >= (0)::numeric))",
+      "name": "chk_actual_fare",
+      "type": "c",
+      "table": "orders"
+    },
+    {
+      "ddl": "CHECK (((commission_percentage >= (0)::numeric) AND (commission_percentage <= (100)::numeric)))",
+      "name": "chk_commission_percentage",
+      "type": "c",
+      "table": "orders"
+    },
+    {
+      "ddl": "CHECK ((current_fare >= (0)::numeric))",
+      "name": "chk_current_fare",
+      "type": "c",
+      "table": "orders"
+    },
+    {
+      "ddl": "CHECK ((distance_km >= (0)::numeric))",
+      "name": "chk_distance_km",
+      "type": "c",
+      "table": "orders"
+    },
+    {
+      "ddl": "CHECK ((distance_meters >= 0))",
+      "name": "chk_distance_meters",
+      "type": "c",
+      "table": "orders"
+    },
+    {
+      "ddl": "CHECK (((final_fare IS NULL) OR (final_fare >= (0)::numeric)))",
+      "name": "chk_final_fare",
+      "type": "c",
+      "table": "orders"
+    },
+    {
+      "ddl": "CHECK (((gst_percentage >= (0)::numeric) AND (gst_percentage <= (100)::numeric)))",
+      "name": "chk_gst_percentage",
+      "type": "c",
+      "table": "orders"
+    },
+    {
+      "ddl": "CHECK ((compliance_status = ANY (ARRAY['pending'::text, 'verified'::text, 'flagged'::text, 'investigating'::text])))",
+      "name": "orders_compliance_status_check",
+      "type": "c",
+      "table": "orders"
+    },
+    {
+      "ddl": "FOREIGN KEY (created_device_record_id) REFERENCES user_devices(id) ON DELETE SET NULL",
+      "name": "orders_created_device_record_id_fkey",
+      "type": "f",
+      "table": "orders"
+    },
+    {
+      "ddl": "UNIQUE (order_code)",
+      "name": "orders_order_code_key",
+      "type": "u",
+      "table": "orders"
+    },
+    {
+      "ddl": "FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE SET NULL",
+      "name": "orders_payment_id_fkey",
+      "type": "f",
+      "table": "orders"
+    },
+    {
+      "ddl": "PRIMARY KEY (id)",
+      "name": "orders_pkey",
+      "type": "p",
+      "table": "orders"
+    },
+    {
+      "ddl": "FOREIGN KEY (pricing_config_id) REFERENCES pricing_config(id) ON DELETE SET NULL",
+      "name": "orders_pricing_config_id_fkey",
+      "type": "f",
+      "table": "orders"
+    },
+    {
+      "ddl": "FOREIGN KEY (rider_id) REFERENCES riders(id) ON DELETE SET NULL",
+      "name": "orders_rider_id_fkey",
+      "type": "f",
+      "table": "orders"
+    },
+    {
+      "ddl": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT",
+      "name": "orders_user_id_fkey",
+      "type": "f",
+      "table": "orders"
+    },
+    {
+      "ddl": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE",
+      "name": "rider_assignments_order_id_fkey",
+      "type": "f",
+      "table": "rider_assignments"
+    },
+    {
+      "ddl": "UNIQUE (order_id, rider_id)",
+      "name": "rider_assignments_order_id_rider_id_key",
+      "type": "u",
+      "table": "rider_assignments"
+    },
+    {
+      "ddl": "PRIMARY KEY (id)",
+      "name": "rider_assignments_pkey",
+      "type": "p",
+      "table": "rider_assignments"
+    },
+    {
+      "ddl": "FOREIGN KEY (rider_id) REFERENCES riders(id) ON DELETE CASCADE",
+      "name": "rider_assignments_rider_id_fkey",
+      "type": "f",
+      "table": "rider_assignments"
+    },
+    {
+      "ddl": "CHECK ((length(aadhaar_number) = 12))",
+      "name": "aadhaar_length_check",
+      "type": "c",
+      "table": "rider_kyc"
+    },
+    {
+      "ddl": "CHECK ((pan_number ~ '^[A-Z]{5}[0-9]{4}[A-Z]{1}$'::text))",
+      "name": "pan_format_check",
+      "type": "c",
+      "table": "rider_kyc"
+    },
+    {
+      "ddl": "FOREIGN KEY (handled_by_admin_id) REFERENCES admins(id)",
+      "name": "rider_kyc_handled_by_admin_id_fkey",
+      "type": "f",
+      "table": "rider_kyc"
+    },
+    {
+      "ddl": "PRIMARY KEY (id)",
+      "name": "rider_kyc_pkey",
+      "type": "p",
+      "table": "rider_kyc"
+    },
+    {
+      "ddl": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
+      "name": "rider_kyc_user_id_fkey",
+      "type": "f",
+      "table": "rider_kyc"
+    },
+    {
+      "ddl": "CHECK ((date_of_birth <= (CURRENT_DATE - '18 years'::interval)))",
+      "name": "rider_minimum_age_check",
+      "type": "c",
+      "table": "rider_kyc"
+    },
+    {
+      "ddl": "PRIMARY KEY (rider_id)",
+      "name": "rider_locations_pkey",
+      "type": "p",
+      "table": "rider_locations"
+    },
+    {
+      "ddl": "FOREIGN KEY (rider_id) REFERENCES riders(id) ON DELETE CASCADE",
+      "name": "rider_locations_rider_id_fkey",
+      "type": "f",
+      "table": "rider_locations"
+    },
+    {
+      "ddl": "FOREIGN KEY (kyc_id) REFERENCES rider_kyc(id) ON DELETE CASCADE",
+      "name": "riders_kyc_id_fkey",
+      "type": "f",
+      "table": "riders"
+    },
+    {
+      "ddl": "UNIQUE (kyc_id)",
+      "name": "riders_kyc_id_key",
+      "type": "u",
+      "table": "riders"
+    },
+    {
+      "ddl": "PRIMARY KEY (id)",
+      "name": "riders_pkey",
+      "type": "p",
+      "table": "riders"
+    },
+    {
+      "ddl": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
+      "name": "riders_user_id_fkey",
+      "type": "f",
+      "table": "riders"
+    },
+    {
+      "ddl": "UNIQUE (user_id)",
+      "name": "riders_user_id_key",
+      "type": "u",
+      "table": "riders"
+    }
+  ],
+  "column_types": [
+    {
+      "table": "dispatch_config",
+      "column": "id",
+      "format": "uuid"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "config_code",
+      "format": "text"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "round_1_radius_km",
+      "format": "numeric"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "round_1_batch_size",
+      "format": "integer"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "round_2_radius_km",
+      "format": "numeric"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "round_2_batch_size",
+      "format": "integer"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "round_3_radius_km",
+      "format": "numeric"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "round_3_batch_size",
+      "format": "integer"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "rider_response_timeout_sec",
+      "format": "integer"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "max_search_duration_sec",
+      "format": "integer"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "reject_cooldown_sec",
+      "format": "integer"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "timeout_cooldown_sec",
+      "format": "integer"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "rider_location_stale_sec",
+      "format": "integer"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "max_active_orders_per_rider",
+      "format": "integer"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "allow_round_3",
+      "format": "boolean"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "allow_boosted_priority",
+      "format": "boolean"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "is_active",
+      "format": "boolean"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "updated_by_admin_id",
+      "format": "uuid"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "created_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "updated_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "round_2_trigger_if_no_riders_sec",
+      "format": "integer"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "round_2_trigger_after_sec",
+      "format": "integer"
+    },
+    {
+      "table": "dispatch_config",
+      "column": "round_3_trigger_after_sec",
+      "format": "integer"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "id",
+      "format": "uuid"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "order_id",
+      "format": "uuid"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "rider_id",
+      "format": "uuid"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "assignment_status",
+      "format": "intercity_assignment_status_enum"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "assignment_round",
+      "format": "integer"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "rider_distance_km",
+      "format": "numeric"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "estimated_pickup_time_min",
+      "format": "integer"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "sent_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "viewed_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "responded_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "rejection_reason",
+      "format": "text"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "metadata",
+      "format": "jsonb"
+    },
+    {
+      "table": "order_assignment_logs",
+      "column": "created_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "id",
+      "format": "uuid"
+    },
+    {
+      "table": "orders",
+      "column": "order_code",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "user_id",
+      "format": "uuid"
+    },
+    {
+      "table": "orders",
+      "column": "rider_id",
+      "format": "uuid"
+    },
+    {
+      "table": "orders",
+      "column": "order_type",
+      "format": "order_type_enum"
+    },
+    {
+      "table": "orders",
+      "column": "vehicle_type",
+      "format": "vehicle_type_enum"
+    },
+    {
+      "table": "orders",
+      "column": "order_status",
+      "format": "order_status_enum"
+    },
+    {
+      "table": "orders",
+      "column": "pricing_config_id",
+      "format": "uuid"
+    },
+    {
+      "table": "orders",
+      "column": "distance_meters",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "distance_km",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "estimated_duration_min",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "actual_duration_min",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "time_taken_seconds",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "pickup_address",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "pickup_lat",
+      "format": "double precision"
+    },
+    {
+      "table": "orders",
+      "column": "pickup_lng",
+      "format": "double precision"
+    },
+    {
+      "table": "orders",
+      "column": "destination_address",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "destination_lat",
+      "format": "double precision"
+    },
+    {
+      "table": "orders",
+      "column": "destination_lng",
+      "format": "double precision"
+    },
+    {
+      "table": "orders",
+      "column": "actual_fare",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "current_fare",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "final_fare",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "base_fare",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "distance_fare",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "time_fare",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "waiting_charge",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "platform_fee",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "gst_percentage",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "gst_amount",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "commission_percentage",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "commission_amount",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "rider_earning",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "boost_amount",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "subscription_commission_waived",
+      "format": "boolean"
+    },
+    {
+      "table": "orders",
+      "column": "pricing_snapshot",
+      "format": "jsonb"
+    },
+    {
+      "table": "orders",
+      "column": "payment_mode",
+      "format": "payment_mode_enum"
+    },
+    {
+      "table": "orders",
+      "column": "payment_status",
+      "format": "payment_status_enum"
+    },
+    {
+      "table": "orders",
+      "column": "payment_id",
+      "format": "uuid"
+    },
+    {
+      "table": "orders",
+      "column": "pickup_otp",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "delivery_otp",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "search_expires_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "cancelled_by",
+      "format": "cancelled_by_enum"
+    },
+    {
+      "table": "orders",
+      "column": "cancel_reason",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "parcel_type",
+      "format": "parcel_type_enum"
+    },
+    {
+      "table": "orders",
+      "column": "receiver_name",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "receiver_phone",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "weight_category",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "actual_weight_kg",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "parcel_images",
+      "format": "text[]"
+    },
+    {
+      "table": "orders",
+      "column": "special_instructions",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "created_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "updated_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "accepted_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "rider_arrived_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "picked_up_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "rider_at_drop_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "completed_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "cancelled_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "pickup_otp_attempts",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "delivery_otp_attempts",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "boost_company_earning",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "boost_rider_earning",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "boost_percentage",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "dispatch_attempts",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "boost_round",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "current_search_radius_km",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "last_dispatched_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "rider_rejections_count",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "redispatch_count",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "pickup_city",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "destination_city",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "travel_date",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "dispatch_state",
+      "format": "jsonb"
+    },
+    {
+      "table": "orders",
+      "column": "created_ip_address",
+      "format": "inet"
+    },
+    {
+      "table": "orders",
+      "column": "created_lat",
+      "format": "double precision"
+    },
+    {
+      "table": "orders",
+      "column": "created_lng",
+      "format": "double precision"
+    },
+    {
+      "table": "orders",
+      "column": "sender_declaration_accepted",
+      "format": "boolean"
+    },
+    {
+      "table": "orders",
+      "column": "sender_declaration_accepted_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "pickup_verification_completed",
+      "format": "boolean"
+    },
+    {
+      "table": "orders",
+      "column": "pickup_verification_completed_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "compliance_flagged",
+      "format": "boolean"
+    },
+    {
+      "table": "orders",
+      "column": "compliance_notes",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "created_device_ref",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "created_device_record_id",
+      "format": "uuid"
+    },
+    {
+      "table": "orders",
+      "column": "created_device_model",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "created_device_brand",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "created_os_version",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "created_app_version",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "compliance_status",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "compliance_score",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "compliance_retention_until",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "parcel_declared_value",
+      "format": "numeric"
+    },
+    {
+      "table": "orders",
+      "column": "high_risk_parcel",
+      "format": "boolean"
+    },
+    {
+      "table": "orders",
+      "column": "dispatch_worker_running",
+      "format": "boolean"
+    },
+    {
+      "table": "orders",
+      "column": "dispatch_worker_started_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "seats_requested",
+      "format": "integer"
+    },
+    {
+      "table": "orders",
+      "column": "near_destination_notified",
+      "format": "boolean"
+    },
+    {
+      "table": "orders",
+      "column": "trip_started_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "upi_payment_prompted_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "fare_payment_method",
+      "format": "fare_payment_method_enum"
+    },
+    {
+      "table": "orders",
+      "column": "fare_payment_attempted_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "fare_paid_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "orders",
+      "column": "fare_payment_reference",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "fare_payment_screenshot_url",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "idempotency_key",
+      "format": "text"
+    },
+    {
+      "table": "orders",
+      "column": "pg_charge_amount",
+      "format": "numeric"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "id",
+      "format": "uuid"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "order_id",
+      "format": "uuid"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "rider_id",
+      "format": "uuid"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "assignment_round",
+      "format": "integer"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "assignment_status",
+      "format": "intercity_assignment_status_enum"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "distance_km",
+      "format": "numeric"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "estimated_earnings",
+      "format": "numeric"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "sent_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "viewed_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "responded_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "expires_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "created_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "updated_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "last_seen_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "last_response_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "response_type",
+      "format": "text"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "hidden_until",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "last_seen_fare",
+      "format": "numeric"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "accepted_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_assignments",
+      "column": "rejected_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "id",
+      "format": "uuid"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "user_id",
+      "format": "uuid"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "full_name",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "father_name",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "vehicle_type",
+      "format": "vehicle_type_enum"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "aadhaar_number",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "pan_number",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "driving_license_number",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "vehicle_number",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "rider_image",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "aadhaar_front_image",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "aadhaar_back_image",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "pan_front_image",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "pan_back_image",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "license_front_image",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "license_back_image",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "vehicle_image",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "kyc_status",
+      "format": "kyc_status_enum"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "activation_status",
+      "format": "activation_status_enum"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "handled_by_admin_id",
+      "format": "uuid"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "approved_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "rejected_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "rejection_reason",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "activated_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "created_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "updated_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "rejection_count",
+      "format": "integer"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "blocked_until",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "date_of_birth",
+      "format": "date"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "VECHILE_RC_front_image",
+      "format": "text"
+    },
+    {
+      "table": "rider_kyc",
+      "column": "VECHILE_RC_back_image",
+      "format": "text"
+    },
+    {
+      "table": "rider_locations",
+      "column": "rider_id",
+      "format": "uuid"
+    },
+    {
+      "table": "rider_locations",
+      "column": "current_lat",
+      "format": "double precision"
+    },
+    {
+      "table": "rider_locations",
+      "column": "current_lng",
+      "format": "double precision"
+    },
+    {
+      "table": "rider_locations",
+      "column": "current_heading",
+      "format": "double precision"
+    },
+    {
+      "table": "rider_locations",
+      "column": "last_location_updated_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_locations",
+      "column": "last_active_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_locations",
+      "column": "created_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "rider_locations",
+      "column": "updated_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "riders",
+      "column": "id",
+      "format": "uuid"
+    },
+    {
+      "table": "riders",
+      "column": "kyc_id",
+      "format": "uuid"
+    },
+    {
+      "table": "riders",
+      "column": "user_id",
+      "format": "uuid"
+    },
+    {
+      "table": "riders",
+      "column": "rating",
+      "format": "numeric"
+    },
+    {
+      "table": "riders",
+      "column": "total_orders",
+      "format": "integer"
+    },
+    {
+      "table": "riders",
+      "column": "total_completed_orders",
+      "format": "integer"
+    },
+    {
+      "table": "riders",
+      "column": "total_cancelled_orders",
+      "format": "integer"
+    },
+    {
+      "table": "riders",
+      "column": "total_earnings",
+      "format": "numeric"
+    },
+    {
+      "table": "riders",
+      "column": "today_earnings",
+      "format": "numeric"
+    },
+    {
+      "table": "riders",
+      "column": "wallet_balance",
+      "format": "numeric"
+    },
+    {
+      "table": "riders",
+      "column": "cod_pending_amount",
+      "format": "numeric"
+    },
+    {
+      "table": "riders",
+      "column": "cod_limit",
+      "format": "numeric"
+    },
+    {
+      "table": "riders",
+      "column": "account_status",
+      "format": "rider_account_status_enum"
+    },
+    {
+      "table": "riders",
+      "column": "current_lat",
+      "format": "double precision"
+    },
+    {
+      "table": "riders",
+      "column": "current_lng",
+      "format": "double precision"
+    },
+    {
+      "table": "riders",
+      "column": "current_heading",
+      "format": "double precision"
+    },
+    {
+      "table": "riders",
+      "column": "last_location_updated_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "riders",
+      "column": "last_active_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "riders",
+      "column": "subscription_active",
+      "format": "boolean"
+    },
+    {
+      "table": "riders",
+      "column": "subscription_expires_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "riders",
+      "column": "commission_waiver_active",
+      "format": "boolean"
+    },
+    {
+      "table": "riders",
+      "column": "is_verified",
+      "format": "boolean"
+    },
+    {
+      "table": "riders",
+      "column": "created_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "riders",
+      "column": "updated_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "riders",
+      "column": "last_dormant_notification_sent_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "riders",
+      "column": "last_sub_offline_notification_sent_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "riders",
+      "column": "service_mode",
+      "format": "partner_service_mode_enum"
+    },
+    {
+      "table": "riders",
+      "column": "government_tax_due_balance",
+      "format": "numeric"
+    },
+    {
+      "table": "riders",
+      "column": "rating_sum",
+      "format": "numeric"
+    },
+    {
+      "table": "riders",
+      "column": "total_ratings",
+      "format": "integer"
+    },
+    {
+      "table": "riders",
+      "column": "free_trial_started_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "riders",
+      "column": "free_trial_expires_at",
+      "format": "timestamp with time zone"
+    },
+    {
+      "table": "riders",
+      "column": "free_trial_used",
+      "format": "boolean"
+    }
+  ],
+  "additional_functions": [
+    "CREATE OR REPLACE FUNCTION public.is_admin()\n RETURNS boolean\n LANGUAGE sql\n STABLE\n SET search_path TO 'public'\nAS $function$\n  SELECT EXISTS (\n    SELECT 1 FROM public.admins\n    WHERE email = auth.email() AND is_active = true\n  );\n$function$\n",
+    "CREATE OR REPLACE FUNCTION public.prevent_local_ride_assignment_to_busy_rider()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_new_order_type text;\n    v_new_distance integer;\nBEGIN\n    IF NEW.assignment_status IS DISTINCT FROM 'sent' THEN\n        RETURN NEW;\n    END IF;\n\n    SELECT o.order_type::text, o.distance_meters\n    INTO v_new_order_type, v_new_distance\n    FROM public.orders o\n    WHERE o.id = NEW.order_id;\n\n    -- Only local rides are in scope for this guard.\n    IF v_new_order_type IS DISTINCT FROM 'ride' OR COALESCE(v_new_distance, 0) > 20000 THEN\n        RETURN NEW;\n    END IF;\n\n    IF EXISTS (\n        SELECT 1\n        FROM public.orders bo\n        WHERE bo.rider_id = NEW.rider_id\n          AND bo.id != NEW.order_id\n          AND bo.order_type = 'ride'\n          AND COALESCE(bo.distance_meters, 0) <= 20000\n          AND bo.order_status IN ('accepted', 'rider_arrived', 'picked_up', 'ongoing', 'payment_pending')\n    ) THEN\n        RETURN NULL;\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n",
+    "CREATE OR REPLACE FUNCTION public.on_rider_assignment_change()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_rider_user_id uuid := NULL;\n    v_order_type text := NULL;\n    v_notification_type text := 'order_assignment';\nBEGIN\n    -- Notify when status is set or updated to 'sent'\n    IF NEW.assignment_status = 'sent' AND (TG_OP = 'INSERT' OR OLD.assignment_status IS DISTINCT FROM 'sent') THEN\n        SELECT user_id INTO v_rider_user_id FROM public.riders WHERE id = NEW.rider_id;\n\n        IF v_rider_user_id IS NOT NULL THEN\n            SELECT order_type::text INTO v_order_type FROM public.orders WHERE id = NEW.order_id;\n\n            IF v_order_type IN ('intercity_ride', 'intercity_parcel') THEN\n                v_notification_type := 'intercity_order_assignment';\n            END IF;\n\n            PERFORM public.send_push_notification_fnc(\n                v_rider_user_id,\n                'New Order Request',\n                'You have a new order request nearby!',\n                jsonb_build_object(\n                    'type', v_notification_type,\n                    'order_id', NEW.order_id,\n                    'assignment_id', NEW.id\n                )\n            );\n        END IF;\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n",
+    "CREATE OR REPLACE FUNCTION public.prevent_service_mode_switch_during_active_order()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    IF NEW.service_mode IS NOT DISTINCT FROM OLD.service_mode THEN\n        RETURN NEW;\n    END IF;\n\n    IF public.rider_is_on_active_trip(NEW.id) THEN\n        RAISE EXCEPTION 'Cannot switch Service Mode while a trip is active. Complete or cancel your current trip first.'\n            USING ERRCODE = 'check_violation';\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n",
+    "CREATE OR REPLACE FUNCTION public.protect_rider_financial_columns()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    IF auth.role() <> 'service_role'\n       AND current_setting('app.bypass_rider_financial_guard', true) IS DISTINCT FROM 'true'\n    THEN\n        IF NEW.wallet_balance IS DISTINCT FROM OLD.wallet_balance\n           OR NEW.cod_pending_amount IS DISTINCT FROM OLD.cod_pending_amount\n           OR NEW.cod_limit IS DISTINCT FROM OLD.cod_limit\n           OR NEW.subscription_active IS DISTINCT FROM OLD.subscription_active\n           OR NEW.subscription_expires_at IS DISTINCT FROM OLD.subscription_expires_at\n           OR NEW.commission_waiver_active IS DISTINCT FROM OLD.commission_waiver_active\n           OR NEW.government_tax_due_balance IS DISTINCT FROM OLD.government_tax_due_balance\n           OR NEW.is_verified IS DISTINCT FROM OLD.is_verified\n           OR NEW.free_trial_started_at IS DISTINCT FROM OLD.free_trial_started_at\n           OR NEW.free_trial_expires_at IS DISTINCT FROM OLD.free_trial_expires_at\n           OR NEW.free_trial_used IS DISTINCT FROM OLD.free_trial_used\n        THEN\n            RAISE EXCEPTION 'Direct modification of rider financial/subscription columns is not permitted. Use the appropriate server-side function.';\n        END IF;\n    END IF;\n    RETURN NEW;\nEND;\n$function$\n",
+    "CREATE OR REPLACE FUNCTION public.check_is_order_candidate_rider(p_order_id uuid, p_user_id uuid)\n RETURNS boolean\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n    SELECT EXISTS (\n        SELECT 1 FROM public.rider_assignments ra\n        INNER JOIN public.riders r ON r.id = ra.rider_id\n        WHERE ra.order_id = p_order_id AND r.user_id = p_user_id\n    );\n$function$\n",
+    "CREATE OR REPLACE FUNCTION public.check_is_order_passenger(p_order_id uuid, p_user_id uuid)\n RETURNS boolean\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n    SELECT EXISTS (\n        SELECT 1 FROM public.orders\n        WHERE id = p_order_id AND user_id = p_user_id\n    );\n$function$\n",
+    "CREATE OR REPLACE FUNCTION public.check_is_order_passenger_for_intercity(p_order_id uuid, p_user_id uuid)\n RETURNS boolean\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n    SELECT EXISTS (\n        SELECT 1 FROM public.orders\n        WHERE id = p_order_id\n          AND user_id = p_user_id\n          AND order_type IN ('intercity_ride', 'intercity_parcel')\n    );\n$function$\n",
+    "CREATE OR REPLACE FUNCTION public.can_read_rider_location(p_rider_id uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n    SELECT\n        -- (A) the rider themselves\n        EXISTS (\n            SELECT 1 FROM public.riders r\n            WHERE r.id = p_rider_id\n              AND r.user_id = (SELECT auth.uid())\n        )\n        OR\n        -- (B) a passenger with an ACTIVE order assigned to this rider\n        EXISTS (\n            SELECT 1 FROM public.orders o\n            WHERE o.rider_id = p_rider_id\n              AND o.user_id  = (SELECT auth.uid())\n              AND o.order_status IN (\n                    'accepted', 'rider_arrived', 'picked_up',\n                    'rider_at_drop', 'ongoing', 'payment_pending'\n                  )\n        );\n$function$\n"
+  ]
+}

@@ -1,0 +1,449 @@
+{
+  "columns": [
+    {
+      "type": "uuid",
+      "table": "notifications",
+      "column": "id",
+      "default": "gen_random_uuid()"
+    },
+    {
+      "type": "uuid",
+      "table": "notifications",
+      "column": "user_id",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "notifications",
+      "column": "title",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "notifications",
+      "column": "body",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "notifications",
+      "column": "notification_type",
+      "default": null
+    },
+    {
+      "type": "uuid",
+      "table": "notifications",
+      "column": "reference_id",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "notifications",
+      "column": "reference_type",
+      "default": null
+    },
+    {
+      "type": "boolean",
+      "table": "notifications",
+      "column": "is_read",
+      "default": "false"
+    },
+    {
+      "type": "boolean",
+      "table": "notifications",
+      "column": "push_sent",
+      "default": "false"
+    },
+    {
+      "type": "text",
+      "table": "notifications",
+      "column": "delivery_status",
+      "default": "'pending'::text"
+    },
+    {
+      "type": "text",
+      "table": "notifications",
+      "column": "delivery_error",
+      "default": null
+    },
+    {
+      "type": "jsonb",
+      "table": "notifications",
+      "column": "payload",
+      "default": "'{}'::jsonb"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "notifications",
+      "column": "created_at",
+      "default": "now()"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "notifications",
+      "column": "read_at",
+      "default": null
+    },
+    {
+      "type": "uuid",
+      "table": "order_chat_messages",
+      "column": "id",
+      "default": "gen_random_uuid()"
+    },
+    {
+      "type": "uuid",
+      "table": "order_chat_messages",
+      "column": "order_id",
+      "default": null
+    },
+    {
+      "type": "uuid",
+      "table": "order_chat_messages",
+      "column": "rider_id",
+      "default": null
+    },
+    {
+      "type": "uuid",
+      "table": "order_chat_messages",
+      "column": "sender_id",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "order_chat_messages",
+      "column": "sender_type",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "order_chat_messages",
+      "column": "message",
+      "default": null
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "order_chat_messages",
+      "column": "created_at",
+      "default": "timezone('utc'::text, now())"
+    },
+    {
+      "type": "boolean",
+      "table": "order_chat_messages",
+      "column": "is_support",
+      "default": "false"
+    },
+    {
+      "type": "uuid",
+      "table": "order_chat_messages",
+      "column": "user_id",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "order_chat_messages",
+      "column": "message_type",
+      "default": "'text'::text"
+    },
+    {
+      "type": "jsonb",
+      "table": "order_chat_messages",
+      "column": "metadata",
+      "default": "'{}'::jsonb"
+    },
+    {
+      "type": "uuid",
+      "table": "user_device_tokens",
+      "column": "id",
+      "default": "gen_random_uuid()"
+    },
+    {
+      "type": "uuid",
+      "table": "user_device_tokens",
+      "column": "user_id",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "user_device_tokens",
+      "column": "fcm_token",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "user_device_tokens",
+      "column": "device_type",
+      "default": null
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "user_device_tokens",
+      "column": "created_at",
+      "default": "now()"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "user_device_tokens",
+      "column": "updated_at",
+      "default": "now()"
+    },
+    {
+      "type": "text",
+      "table": "user_device_tokens",
+      "column": "device_id",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "user_device_tokens",
+      "column": "device_model",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "user_device_tokens",
+      "column": "device_brand",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "user_device_tokens",
+      "column": "os_version",
+      "default": null
+    },
+    {
+      "type": "text",
+      "table": "user_device_tokens",
+      "column": "app_version",
+      "default": null
+    },
+    {
+      "type": "inet",
+      "table": "user_device_tokens",
+      "column": "last_ip_address",
+      "default": null
+    },
+    {
+      "type": "double precision",
+      "table": "user_device_tokens",
+      "column": "last_lat",
+      "default": null
+    },
+    {
+      "type": "double precision",
+      "table": "user_device_tokens",
+      "column": "last_lng",
+      "default": null
+    },
+    {
+      "type": "uuid",
+      "table": "user_device_tokens",
+      "column": "user_device_id",
+      "default": null
+    }
+  ],
+  "indexes": [
+    {
+      "name": "idx_notifications_user_id_is_read",
+      "table": "notifications",
+      "definition": "CREATE INDEX idx_notifications_user_id_is_read ON public.notifications USING btree (user_id, is_read)"
+    },
+    {
+      "name": "idx_notifications_user_id_created_at",
+      "table": "notifications",
+      "definition": "CREATE INDEX idx_notifications_user_id_created_at ON public.notifications USING btree (user_id, created_at DESC)"
+    },
+    {
+      "name": "notifications_pkey",
+      "table": "notifications",
+      "definition": "CREATE UNIQUE INDEX notifications_pkey ON public.notifications USING btree (id)"
+    },
+    {
+      "name": "order_chat_messages_pkey",
+      "table": "order_chat_messages",
+      "definition": "CREATE UNIQUE INDEX order_chat_messages_pkey ON public.order_chat_messages USING btree (id)"
+    },
+    {
+      "name": "idx_order_chat_messages_order_id_created_at",
+      "table": "order_chat_messages",
+      "definition": "CREATE INDEX idx_order_chat_messages_order_id_created_at ON public.order_chat_messages USING btree (order_id, created_at)"
+    },
+    {
+      "name": "idx_order_chat_messages_sender_id",
+      "table": "order_chat_messages",
+      "definition": "CREATE INDEX idx_order_chat_messages_sender_id ON public.order_chat_messages USING btree (sender_id)"
+    },
+    {
+      "name": "idx_order_chat_messages_user_id",
+      "table": "order_chat_messages",
+      "definition": "CREATE INDEX idx_order_chat_messages_user_id ON public.order_chat_messages USING btree (user_id)"
+    },
+    {
+      "name": "idx_order_chat_messages_rider_id",
+      "table": "order_chat_messages",
+      "definition": "CREATE INDEX idx_order_chat_messages_rider_id ON public.order_chat_messages USING btree (rider_id)"
+    },
+    {
+      "name": "user_device_tokens_pkey",
+      "table": "user_device_tokens",
+      "definition": "CREATE UNIQUE INDEX user_device_tokens_pkey ON public.user_device_tokens USING btree (id)"
+    },
+    {
+      "name": "user_device_tokens_token_key",
+      "table": "user_device_tokens",
+      "definition": "CREATE UNIQUE INDEX user_device_tokens_token_key ON public.user_device_tokens USING btree (fcm_token)"
+    },
+    {
+      "name": "idx_user_device_tokens_user_id",
+      "table": "user_device_tokens",
+      "definition": "CREATE INDEX idx_user_device_tokens_user_id ON public.user_device_tokens USING btree (user_id)"
+    },
+    {
+      "name": "idx_user_device_tokens_token",
+      "table": "user_device_tokens",
+      "definition": "CREATE INDEX idx_user_device_tokens_token ON public.user_device_tokens USING btree (fcm_token)"
+    },
+    {
+      "name": "idx_user_device_tokens_user_device_id",
+      "table": "user_device_tokens",
+      "definition": "CREATE INDEX idx_user_device_tokens_user_device_id ON public.user_device_tokens USING btree (user_device_id)"
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "UPDATE",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "public"
+      ],
+      "tablename": "notifications",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can update their own notifications",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "public"
+      ],
+      "tablename": "notifications",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can view their own notifications",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "order_chat_messages",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow chat participants to send messages",
+      "schemaname": "public",
+      "with_check": "((EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = ( SELECT auth.uid() AS uid)) AND ((users.role = 'admin'::text) OR (users.role = 'support'::text))))) OR ((order_id IS NOT NULL) AND ((EXISTS ( SELECT 1\n   FROM orders o\n  WHERE ((o.id = order_chat_messages.order_id) AND (o.user_id = ( SELECT auth.uid() AS uid))))) OR (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.user_id = ( SELECT auth.uid() AS uid)) AND ((r.id = order_chat_messages.rider_id) OR (r.id IN ( SELECT o.rider_id\n           FROM orders o\n          WHERE (o.id = order_chat_messages.order_id))) OR (r.id IN ( SELECT ra.rider_id\n           FROM rider_assignments ra\n          WHERE ((ra.order_id = order_chat_messages.order_id) AND (ra.assignment_status = 'accepted'::intercity_assignment_status_enum)))))))))) OR ((order_id IS NULL) AND ((sender_id = ( SELECT auth.uid() AS uid)) OR (user_id = ( SELECT auth.uid() AS uid)) OR (rider_id IN ( SELECT riders.id\n   FROM riders\n  WHERE (riders.user_id = ( SELECT auth.uid() AS uid)))))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = ( SELECT auth.uid() AS uid)) AND ((users.role = 'admin'::text) OR (users.role = 'support'::text))))) OR (sender_id = ( SELECT auth.uid() AS uid)) OR (user_id = ( SELECT auth.uid() AS uid)) OR ((order_id IS NOT NULL) AND ((EXISTS ( SELECT 1\n   FROM orders o\n  WHERE ((o.id = order_chat_messages.order_id) AND (o.user_id = ( SELECT auth.uid() AS uid))))) OR (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.user_id = ( SELECT auth.uid() AS uid)) AND ((r.id = order_chat_messages.rider_id) OR (r.id IN ( SELECT o.rider_id\n           FROM orders o\n          WHERE (o.id = order_chat_messages.order_id))) OR (r.id IN ( SELECT ra.rider_id\n           FROM rider_assignments ra\n          WHERE ((ra.order_id = order_chat_messages.order_id) AND (ra.assignment_status = 'accepted'::intercity_assignment_status_enum)))))))))) OR ((order_id IS NULL) AND ((sender_id = ( SELECT auth.uid() AS uid)) OR (rider_id IN ( SELECT riders.id\n   FROM riders\n  WHERE (riders.user_id = ( SELECT auth.uid() AS uid)))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "order_chat_messages",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow chat participants to view messages",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "((sender_id = ( SELECT auth.uid() AS uid)) OR (EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = ( SELECT auth.uid() AS uid)) AND ((users.role = 'admin'::text) OR (users.role = 'support'::text))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "order_chat_messages",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow sender to delete own chat messages",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((sender_id = ( SELECT auth.uid() AS uid)) OR (EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = ( SELECT auth.uid() AS uid)) AND ((users.role = 'admin'::text) OR (users.role = 'support'::text))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "order_chat_messages",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow sender to update own chat messages",
+      "schemaname": "public",
+      "with_check": "((sender_id = ( SELECT auth.uid() AS uid)) OR (EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = ( SELECT auth.uid() AS uid)) AND ((users.role = 'admin'::text) OR (users.role = 'support'::text))))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "order_chat_messages",
+      "permissive": "PERMISSIVE",
+      "policyname": "admin_can_select_order_chat_messages",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "ALL",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "user_device_tokens",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can manage their own device tokens",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    }
+  ],
+  "triggers": [
+    {
+      "name": "trigger_notification_insert",
+      "table": "notifications",
+      "definition": "CREATE TRIGGER trigger_notification_insert AFTER INSERT ON public.notifications FOR EACH ROW EXECUTE FUNCTION on_notification_insert()"
+    },
+    {
+      "name": "trigger_new_chat_message",
+      "table": "order_chat_messages",
+      "definition": "CREATE TRIGGER trigger_new_chat_message AFTER INSERT ON public.order_chat_messages FOR EACH ROW EXECUTE FUNCTION on_new_chat_message()"
+    },
+    {
+      "name": "trigger_prevent_chat_before_intercity_acceptance",
+      "table": "order_chat_messages",
+      "definition": "CREATE TRIGGER trigger_prevent_chat_before_intercity_acceptance BEFORE INSERT ON public.order_chat_messages FOR EACH ROW EXECUTE FUNCTION prevent_chat_before_intercity_acceptance()"
+    }
+  ],
+  "definitions": [
+    {
+      "name": "deliver_push_notification_http_fnc",
+      "definition": "CREATE OR REPLACE FUNCTION public.deliver_push_notification_http_fnc(p_user_id uuid, p_title text, p_body text, p_data jsonb)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_supabase_url text := 'https://yvwpchffctiagevpqgwy.supabase.co';\n    v_service_role_key text;\n    v_notification_id uuid;\nBEGIN\n    -- Phase 6: best-effort extraction for failure-tracking context only -- never affects delivery,\n    -- and a bad/missing value here can never abort the function (guarded sub-block).\n    BEGIN\n        v_notification_id := NULLIF(p_data->>'notification_id', '')::uuid;\n    EXCEPTION WHEN OTHERS THEN\n        v_notification_id := NULL;\n    END;\n\n    SELECT decrypted_secret INTO v_service_role_key\n    FROM vault.decrypted_secrets\n    WHERE name = 'supabase_service_role_key'\n    LIMIT 1;\n\n    IF v_service_role_key IS NULL THEN\n        RAISE WARNING 'Push notification delivery skipped: vault secret \"supabase_service_role_key\" is not configured. Run vault.create_secret(...) once via the Supabase Dashboard SQL Editor.';\n        BEGIN\n            INSERT INTO public.notification_failures (\n                failure_stage, source_function, notification_type, reference_id, user_id,\n                notification_id, error_message\n            ) VALUES (\n                'enqueue', 'deliver_push_notification_http_fnc', p_data->>'type',\n                NULLIF(p_data->>'reference_id', '')::uuid, p_user_id, v_notification_id,\n                'vault secret \"supabase_service_role_key\" is not configured'\n            );\n        EXCEPTION WHEN OTHERS THEN\n            -- Failure-tracking must never itself introduce a new failure mode.\n            NULL;\n        END;\n        RETURN;\n    END IF;\n\n    PERFORM net.http_post(\n        url := v_supabase_url || '/functions/v1/send-push-notification',\n        headers := jsonb_build_object(\n            'Content-Type', 'application/json',\n            'Authorization', 'Bearer ' || v_service_role_key\n        ),\n        body := jsonb_build_object(\n            'user_id', p_user_id,\n            'title', p_title,\n            'body', p_body,\n            'data', p_data\n        ),\n        timeout_milliseconds := 5000\n    );\nEXCEPTION WHEN OTHERS THEN\n    RAISE WARNING 'Failed to send push notification HTTP call: %', SQLERRM;\n    BEGIN\n        INSERT INTO public.notification_failures (\n            failure_stage, source_function, notification_type, reference_id, user_id,\n            notification_id, error_code, error_message\n        ) VALUES (\n            'push_delivery', 'deliver_push_notification_http_fnc', p_data->>'type',\n            NULLIF(p_data->>'reference_id', '')::uuid, p_user_id, v_notification_id,\n            SQLSTATE, left(SQLERRM, 2000)\n        );\n    EXCEPTION WHEN OTHERS THEN\n        NULL;\n    END;\nEND;\n$function$\n"
+    },
+    {
+      "name": "on_new_chat_message",
+      "definition": "CREATE OR REPLACE FUNCTION public.on_new_chat_message()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_recipient_user_id uuid := NULL;\n    v_customer_user_id uuid := NULL;\n    v_rider_user_id uuid := NULL;\n    v_order_rider_id uuid := NULL;\n    v_sender_name text := 'Someone';\nBEGIN\n    -- Get sender name if possible\n    SELECT COALESCE(full_name, 'Someone') INTO v_sender_name \n    FROM public.users \n    WHERE id = NEW.sender_id;\n\n    IF NEW.order_id IS NOT NULL THEN\n        -- Order chat\n        SELECT user_id, rider_id INTO v_customer_user_id, v_order_rider_id \n        FROM public.orders \n        WHERE id = NEW.order_id;\n        \n        -- Get rider's user_id\n        IF NEW.rider_id IS NOT NULL THEN\n            SELECT user_id INTO v_rider_user_id FROM public.riders WHERE id = NEW.rider_id;\n        ELSIF v_order_rider_id IS NOT NULL THEN\n            SELECT user_id INTO v_rider_user_id FROM public.riders WHERE id = v_order_rider_id;\n        END IF;\n\n        IF NEW.sender_id = v_customer_user_id THEN\n            v_recipient_user_id := v_rider_user_id;\n        ELSIF NEW.sender_id = v_rider_user_id THEN\n            v_recipient_user_id := v_customer_user_id;\n        END IF;\n    ELSE\n        -- Support chat\n        IF NEW.user_id IS NOT NULL AND NEW.sender_id != NEW.user_id THEN\n            v_recipient_user_id := NEW.user_id;\n        END IF;\n    END IF;\n\n    -- Send notification if recipient is determined\n    IF v_recipient_user_id IS NOT NULL THEN\n        PERFORM public.send_push_notification_fnc(\n            v_recipient_user_id,\n            v_sender_name,\n            NEW.message,\n            jsonb_build_object(\n                'type', 'chat_message',\n                'order_id', NEW.order_id,\n                'message_id', NEW.id,\n                'sender_type', NEW.sender_type\n            )\n        );\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "name": "on_notification_insert",
+      "definition": "CREATE OR REPLACE FUNCTION public.on_notification_insert()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    -- Call delivery helper to trigger FCM send-push-notification edge function\n    PERFORM public.deliver_push_notification_http_fnc(\n        NEW.user_id,\n        NEW.title,\n        NEW.body,\n        NEW.payload || jsonb_build_object(\n            'notification_id', NEW.id,\n            'type', NEW.notification_type,\n            'reference_id', NEW.reference_id,\n            'reference_type', NEW.reference_type\n        )\n    );\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "name": "prevent_chat_before_intercity_acceptance",
+      "definition": "CREATE OR REPLACE FUNCTION public.prevent_chat_before_intercity_acceptance()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    IF NEW.order_id IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    -- Admin/support messages are never blocked, matching the existing RLS policy's own carve-out.\n    IF EXISTS (\n        SELECT 1 FROM public.users\n        WHERE id = auth.uid() AND role IN ('admin', 'support')\n    ) THEN\n        RETURN NEW;\n    END IF;\n\n    IF EXISTS (\n        SELECT 1 FROM public.intercity_requests ir\n        WHERE ir.parcel_id = NEW.order_id\n          AND ir.status = 'request_sent'\n    ) THEN\n        RAISE EXCEPTION 'You can send messages after the request is accepted.';\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "name": "send_push_notification_fnc",
+      "definition": "CREATE OR REPLACE FUNCTION public.send_push_notification_fnc(p_user_id uuid, p_title text, p_body text, p_data jsonb)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_notification_type text := COALESCE(p_data->>'type', 'general');\n    v_reference_id uuid := NULL;\n    v_reference_type text := NULL;\nBEGIN\n    -- Extract reference info if present\n    IF p_data ? 'order_id' THEN\n        BEGIN\n            v_reference_id := (p_data->>'order_id')::uuid;\n            v_reference_type := 'order';\n        EXCEPTION WHEN OTHERS THEN\n            -- Ignore formatting errors\n        END;\n    ELSIF p_data ? 'payment_id' THEN\n        BEGIN\n            v_reference_id := (p_data->>'payment_id')::uuid;\n            v_reference_type := 'payment';\n        EXCEPTION WHEN OTHERS THEN\n            -- Ignore formatting errors\n        END;\n    END IF;\n\n    -- Insert into notifications log table (which triggers async HTTP delivery)\n    INSERT INTO public.notifications (\n        user_id,\n        title,\n        body,\n        notification_type,\n        reference_id,\n        reference_type,\n        payload\n    ) VALUES (\n        p_user_id,\n        p_title,\n        p_body,\n        v_notification_type,\n        v_reference_id,\n        v_reference_type,\n        p_data\n    );\nEXCEPTION WHEN OTHERS THEN\n    RAISE WARNING 'send_push_notification_fnc: failed to insert notification for user %: %', p_user_id, SQLERRM;\n    BEGIN\n        INSERT INTO public.notification_failures (\n            failure_stage, source_function, notification_type, reference_id, user_id,\n            error_code, error_message\n        ) VALUES (\n            'insert', 'send_push_notification_fnc', v_notification_type, v_reference_id, p_user_id,\n            SQLSTATE, left(SQLERRM, 2000)\n        );\n    EXCEPTION WHEN OTHERS THEN\n        NULL;\n    END;\nEND;\n$function$\n"
+    }
+  ],
+  "observed_at": "2026-11-02T06:33:34.625774+05:30"
+}

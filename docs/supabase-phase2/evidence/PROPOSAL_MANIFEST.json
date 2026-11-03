@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-01",
+  "productionChangesApplied": false,
+  "resourcesCreated": 0,
+  "originalBackendFileChanges": [],
+  "phase1SourceOrTestChanges": [],
+  "sqlDefault": "ROLLBACK",
+  "proposals": [
+    {
+      "file": "proposals/01_matching_candidates.sql",
+      "sha256": "6bded62e2eae0a43304ecb85d000d0585412581e47822913a22ee86699afd97f"
+    },
+    {
+      "file": "proposals/02b_proximity_index_candidate.sql",
+      "sha256": "570e8cf5af9a31f86ec27845d9e1ca4246b855b781319ae59736657909a42c89"
+    },
+    {
+      "file": "proposals/02_gps_query_and_indexes.sql",
+      "sha256": "69df83e44cedc164f76e9f08534c14092f55b068355d1499d1da429b5ba75286"
+    },
+    {
+      "file": "proposals/03_send_push_notification.patch",
+      "sha256": "0690697a81af31efcacf787f79c11a7f47aebdf845988a15d0da260fd767fc8f"
+    },
+    {
+      "file": "proposals/03_send_push_notification.proposed.ts",
+      "sha256": "7ddbff6917ac417a897d5323fdd01a2aa7f3a0e512c8b5a5c98715dcc0ae5873"
+    },
+    {
+      "file": "proposals/04_admin_rls_initplan.sql",
+      "sha256": "47dca013cf72494df185878dad4553e5785f79308b07fe4bf4ee720b28de3ccd"
+    },
+    {
+      "file": "proposals/05_config_latency_probe.mjs",
+      "sha256": "89912984982664f8596253f61ee5eeeb434e7d67ce70d080a2826442a6d1c209"
+    },
+    {
+      "file": "proposals/validate_local.mjs",
+      "sha256": "6bf526216cc326eb4b131f7806a3ba3a3a5e7350e777834a9ffd0f0e31a3298d"
+    }
+  ]
+}

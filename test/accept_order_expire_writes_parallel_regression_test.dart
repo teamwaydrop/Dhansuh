@@ -1,79 +1,33 @@
-// Regression guard for the accept-order "expire other pending offers" parallelization
-// (WayDrop Phase I performance pass).
-//
-// CONTEXT: after successfully accepting/upserting this rider's own assignment, accept-order
-// expires every OTHER rider's still-pending ('sent') offer for the same order: one UPDATE on
-// rider_assignments, one UPDATE on order_assignment_logs. These write to different tables, neither
-// reads the other's result, and nothing downstream (the fare-breakdown RPC, the orders UPDATE)
-// depends on either -- they previously ran back-to-back awaited serially. They now run concurrently
-// via Promise.all, but both must still fully complete before the function continues, both writes
-// must remain byte-for-byte identical, and neither result was (or is now) checked -- a failure in
-// either must not block acceptance, exactly as before.
-//
-// Structural guard (reads the real source), matching the pattern used throughout this suite for
-// Deno edge functions that can't run against a live Supabase instance in a plain unit test.
+// Expiry writes now share the same database transaction as the winning claim.
 import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
-
-String _read(String path) => File(path).readAsStringSync();
-
 void main() {
-  group('accept-order -- expire-other-pending-offers writes run concurrently', () {
-    final source = _read('supabase/functions/accept-order/index.ts');
-    final blockStart = source.indexOf('await Promise.all([\n      supabase\n        .from("rider_assignments")');
-    final blockEnd = source.indexOf('// UPDATE ORDER STATUS');
-    final block = blockStart >= 0 && blockEnd > blockStart
-        ? source.substring(blockStart, blockEnd)
-        : '';
-
-    test('both expiry UPDATEs are destructured from a single Promise.all', () {
-      expect(blockStart, greaterThanOrEqualTo(0),
-          reason: 'expected a single Promise.all wrapping both expiry writes');
-      expect(block.contains('.from("rider_assignments")'), isTrue);
-      expect(block.contains('.from("order_assignment_logs")'), isTrue);
+  final edge = File('supabase/functions/accept-order/index.ts').readAsStringSync();
+  final sql = File('supabase/functions/accept-order/acceptance_sql.ts').readAsStringSync();
+  group('accept-order atomic expiry and assignment invariants', () {
+    test('both expiry writes belong to the same RPC', () {
+      expect(sql.contains("UPDATE public.rider_assignments SET assignment_status='expired'"), isTrue);
+      expect(sql.contains("UPDATE public.order_assignment_logs SET assignment_status='expired'"), isTrue);
     });
-
-    test('the rider_assignments expiry write is unchanged: same fields, same filters', () {
-      expect(block.contains('assignment_status: "expired"'), isTrue);
-      expect(block.contains('response_type: "ignored"'), isTrue);
-      expect(block.contains('last_response_at: now.toISOString()'), isTrue);
-      // Appears once for rider_assignments and once for order_assignment_logs -- both filter sets
-      // must still be present unchanged.
-      expect('.neq("rider_id", rider_id)'.allMatches(block).length, 2);
-      expect('.eq("assignment_status", "sent")'.allMatches(block).length, 2);
-      expect('.eq("order_id", order_id)'.allMatches(block).length, 2);
+    test('expiry retains order, other-rider and sent-only filters', () {
+      expect("WHERE order_id=p_order_id AND rider_id<>p_rider_id AND assignment_status='sent'".allMatches(sql).length, 2);
+      expect(sql.contains("response_type='ignored',last_response_at=v_now"), isTrue);
     });
-
-    test('the order_assignment_logs expiry write is unchanged: same fields', () {
-      final logsIdx = block.indexOf('.from("order_assignment_logs")');
-      expect(logsIdx, greaterThan(0));
-      final logsBlock = block.substring(logsIdx);
-      expect(logsBlock.contains('assignment_status: "expired"'), isTrue);
-      expect(logsBlock.contains('responded_at: now.toISOString()'), isTrue);
+    test('audit log expiry keeps the response timestamp', () {
+      expect(sql.contains("UPDATE public.order_assignment_logs SET assignment_status='expired',responded_at=v_now"), isTrue);
     });
-
-    test('neither write result is checked -- both remain fire-and-forget, exactly as before', () {
-      expect(block.contains('.error'), isFalse,
-          reason: 'a failure in either expiry write must not block acceptance, same as before '
-              'parallelization');
-      expect(block.contains('throw'), isFalse);
+    test('expiry failure cannot leave a partial acceptance', () {
+      expect(sql.contains('EXCEPTION WHEN OTHERS'), isFalse);
+      expect(edge.contains('} catch (error) {'), isTrue);
     });
-
-    test('no unrelated operation (order/fare-breakdown writes) was pulled into this parallel '
-        'block', () {
-      expect(block.contains('calculate_fare_breakdown'), isFalse);
-      expect(block.contains('.from("orders")'), isFalse);
+    test('canonical fare function is retained inside the transaction', () {
+      expect(sql.contains('v_breakdown:=public.calculate_fare_breakdown('), isTrue);
+      expect(sql.contains('v_order.current_fare-COALESCE(v_order.final_fare,v_order.current_fare)'), isTrue);
     });
-
-    test('this expiry block still runs strictly after the accepting rider\'s own assignment '
-        'insert/update, and strictly before the order UPDATE (order of operations preserved)', () {
-      final ownAssignmentIdx = source.indexOf('let finalAssignment = assignment;');
-      final orderUpdateIdx = source.indexOf('.from("orders")\n      .update({\n        order_status: "accepted"');
-      expect(ownAssignmentIdx, greaterThan(0));
-      expect(orderUpdateIdx, greaterThan(0));
-      expect(blockStart, greaterThan(ownAssignmentIdx));
-      expect(blockStart, lessThan(orderUpdateIdx));
+    test('order lock precedes claim and all assignments enforce one accepted rider', () {
+      final lock = sql.indexOf('WHERE id=p_order_id FOR NO KEY UPDATE');
+      expect(lock, greaterThan(0)); expect(sql.indexOf('UPDATE public.orders SET'), greaterThan(lock));
+      expect(sql.contains('CREATE UNIQUE INDEX'), isFalse); expect(sql.contains("assignment_status='accepted')<>1"), isTrue);
     });
   });
 }

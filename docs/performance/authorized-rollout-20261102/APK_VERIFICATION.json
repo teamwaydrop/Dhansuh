@@ -1,0 +1,27 @@
+{
+  "results": [
+    {
+      "artifact": "old",
+      "package": "com.waydrop.app",
+      "version_name": "1.0.0",
+      "version_code": "54",
+      "signature_verified": true,
+      "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+      "apk_sha256": "0ad2517f7c99765978e48feb5695c481e937a82640a0a2bf47ccc762fdd1617b"
+    },
+    {
+      "artifact": "new",
+      "package": "com.waydrop.app",
+      "version_name": "1.0.0",
+      "version_code": "55",
+      "signature_verified": true,
+      "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+      "apk_sha256": "0f9f687603a103878fb76b8ef1082b6e9bb42daa07037494cf3f02f277fb7904"
+    }
+  ],
+  "signer_matches_previous": true,
+  "output": "artifacts/waydrop-1.0.0-build55.apk",
+  "installed": false,
+  "published": false,
+  "phone_performance_measured": false
+}

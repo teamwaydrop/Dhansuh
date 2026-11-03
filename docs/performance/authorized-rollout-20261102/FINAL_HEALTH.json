@@ -1,0 +1,31 @@
+[
+  {
+    "jsonb_build_object": {
+      "at": "2026-11-02T14:52:20.61741+05:30",
+      "cron": [
+        {
+          "id": 1,
+          "active": true,
+          "schedule": "*/2 * * * *"
+        },
+        {
+          "id": 5,
+          "active": true,
+          "schedule": "*/1 * * * *"
+        },
+        {
+          "id": 7,
+          "active": true,
+          "schedule": "45 seconds"
+        }
+      ],
+      "activity": {
+        "blocked_sessions": 0,
+        "other_client_connections": 4,
+        "other_active_client_queries": 0
+      },
+      "max_connections": "60",
+      "coordinated_protocol_enabled": false
+    }
+  }
+]

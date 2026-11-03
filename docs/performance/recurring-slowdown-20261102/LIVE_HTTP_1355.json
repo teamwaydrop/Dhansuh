@@ -1,0 +1,73 @@
+{
+  "observed_utc": "2026-11-02T08:27:51.454170+00:00",
+  "method": "Six sequential read-only public HTTP GETs from Windows; no user JWT or user rows; endpoint response bodies not retained",
+  "not_phone_measurements": true,
+  "results": [
+    {
+      "endpoint": "public_configuration",
+      "sample": 1,
+      "connection": "new",
+      "status": 200,
+      "connect_ms": 217.85,
+      "headers_ms": 1169.59,
+      "total_ms": 1169.74,
+      "bytes": 49,
+      "upstream_ms": "436"
+    },
+    {
+      "endpoint": "public_configuration",
+      "sample": 2,
+      "connection": "reused",
+      "status": 200,
+      "connect_ms": 0,
+      "headers_ms": 114.58,
+      "total_ms": 114.69,
+      "bytes": 49,
+      "upstream_ms": "12"
+    },
+    {
+      "endpoint": "public_configuration",
+      "sample": 3,
+      "connection": "reused",
+      "status": 200,
+      "connect_ms": 0,
+      "headers_ms": 80.17,
+      "total_ms": 80.28,
+      "bytes": 49,
+      "upstream_ms": "6"
+    },
+    {
+      "endpoint": "auth_public_settings",
+      "sample": 1,
+      "connection": "new",
+      "status": 200,
+      "connect_ms": 151.68,
+      "headers_ms": 533.87,
+      "total_ms": 537.54,
+      "bytes": 609,
+      "upstream_ms": "80"
+    },
+    {
+      "endpoint": "auth_public_settings",
+      "sample": 2,
+      "connection": "reused",
+      "status": 200,
+      "connect_ms": 0,
+      "headers_ms": 89.03,
+      "total_ms": 89.3,
+      "bytes": 609,
+      "upstream_ms": "1"
+    },
+    {
+      "endpoint": "auth_public_settings",
+      "sample": 3,
+      "connection": "reused",
+      "status": 200,
+      "connect_ms": 0,
+      "headers_ms": 83.04,
+      "total_ms": 83.31,
+      "bytes": 609,
+      "upstream_ms": "2"
+    }
+  ]
+}

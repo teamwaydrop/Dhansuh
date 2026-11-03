@@ -1,3 +1,4 @@
+import 'package:waydrop/core/services/diagnostics/performance_trace.dart';
 /// ============================================================================
 /// File: ride_tracking_screen.dart
 ///
@@ -176,7 +177,9 @@ class _RideTrackingScreenState extends State<RideTrackingScreen> {
     );
   }
 
-  Future<void> initialize() async {
+  Future<void> initialize() => PerformanceTrace.measure('tracking', () => initializeMeasured());
+
+  Future<void> initializeMeasured() async {
     await orderController.start();
 
     final orderObj = orderController.orderNotifier.value;
@@ -1651,18 +1654,18 @@ class _RideTrackingScreenState extends State<RideTrackingScreen> {
         '_hasLeftScreen=$_hasLeftScreen epoch=${DateTime.now().millisecondsSinceEpoch}',
       );
 
-      if (mounted && !_hasLeftScreen) {
+      if (mounted && context.mounted && !_hasLeftScreen) {
         _hasLeftScreen = true;
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(this.context).showSnackBar(
           const SnackBar(content: Text('Order has been cancelled successfully')),
         );
         NavTrace.begin('RideTrackingScreen._performCancel', 'returnToLocalRideHome (API success)');
-        returnToLocalRideHome(context, isRider: false);
+        returnToLocalRideHome(this.context, isRider: false);
         NavTrace.end('RideTrackingScreen._performCancel', 'returnToLocalRideHome (API success)');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(content: Text('Failed to cancel order: $e')),
         );
       }

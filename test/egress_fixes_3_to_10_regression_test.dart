@@ -151,9 +151,12 @@ void main() {
 
     test('a single shared _fetchTodayEarnings() helper exists and both call sites use it instead '
         'of inlining their own query', () {
-      expect(homeTab.contains('Future<double> _fetchTodayEarnings(String riderId) async {'), isTrue);
+      expect(homeTab.contains('Future<double> _fetchTodayEarnings(String riderId) {'), isTrue);
+      expect(homeTab.contains('if (existing != null && _earningsFlightRiderId == riderId) return existing;'), isTrue);
+      expect(homeTab.contains('final raw = _queryTodayEarnings(riderId);'), isTrue);
+      expect(homeTab.contains('identical(_earningsInFlight, visible)'), isTrue);
       // The exact original calculation/filters must survive inside the helper.
-      final helperStart = homeTab.indexOf('Future<double> _fetchTodayEarnings(String riderId) async {');
+      final helperStart = homeTab.indexOf('Future<double> _queryTodayEarnings(String riderId) async {');
       final helperEnd = homeTab.indexOf('\n  }', helperStart);
       final helperBody = homeTab.substring(helperStart, helperEnd);
       // Phase 2 earnings-reconciliation fix (rider_today_gross_earnings_regression_test.dart):
@@ -163,10 +166,14 @@ void main() {
       expect(helperBody.contains(".inFilter('order_status', ['completed', 'delivered'])"), isTrue);
       expect(helperBody.contains(".gte('completed_at', startOfToday.toIso8601String())"), isTrue);
 
-      // Both call sites invoke the shared helper.
+      // Both load and realtime now use the canonical nonblocking refresh;
+      // only that refresh calls the shared query helper.
       final callSites = '_fetchTodayEarnings('.allMatches(homeTab).length;
-      expect(callSites, greaterThanOrEqualTo(3),
-          reason: 'the helper definition itself plus its 2 call sites (loadRider(), subscribeRider())');
+      expect(callSites, 2,
+          reason: 'helper definition plus one canonical refresh caller');
+      expect('unawaited(_refreshHomeEarnings('.allMatches(homeTab).length,
+          greaterThanOrEqualTo(3), reason: 'seed, load and realtime retain refresh');
+      expect(homeTab.contains('calculatedTodayEarnings = await _fetchTodayEarnings'), isFalse);
 
       // The old duplicated inline query body no longer appears twice.
       final inlineQueryCount = ".select('final_fare, current_fare')".allMatches(homeTab).length;
@@ -191,7 +198,8 @@ void main() {
       final start = earningsTab.indexOf('void _subscribeWithdrawals() {');
       final end = earningsTab.indexOf('\n  }', start);
       final body = earningsTab.substring(start, end);
-      expect(body.contains('RealtimeManager.instance.subscribe('), isTrue);
+      expect(body.contains('_realtime.subscribe('), isTrue);
+      expect(earningsTab.contains('widget.realtime ?? RealtimeManager.instance'), isTrue);
       expect(body.contains('supabase.channel('), isFalse);
       expect(body.contains("table: 'rider_withdrawals'"), isTrue);
       expect(body.contains("filterColumn: 'user_id'"), isTrue);
@@ -202,7 +210,7 @@ void main() {
       final disposeStart = earningsTab.indexOf('void dispose() {');
       final disposeEnd = earningsTab.indexOf('super.dispose();', disposeStart);
       final disposeBody = earningsTab.substring(disposeStart, disposeEnd);
-      expect(disposeBody.contains('RealtimeManager.instance.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!)'),
+      expect(disposeBody.contains('_realtime.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!)'),
           isTrue);
       expect(disposeBody.contains('supabase.removeChannel('), isFalse);
     });

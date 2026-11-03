@@ -1,0 +1,44 @@
+{
+  "slug": "get-live-order-status",
+  "baseline_version": 54,
+  "baseline_bundle_sha256": "87d02c011d6f81e955b79f82efb061b6a493d5a9212998d3852ab7efd2eb2942",
+  "deployed": false,
+  "scope": "Independent review candidate only; preserve captured production handler/dependencies except listed files. Existing managed/security gates apply.",
+  "files": [
+    {
+      "path": "functions/get-live-order-status/index.ts",
+      "sha256": "2e36397dda851ac049252e8ca5bd34a9cc85ed0cb37d5da293bbf7a8eb5cfb9b",
+      "modified": false
+    },
+    {
+      "path": "functions/_shared/http.ts",
+      "sha256": "7592be0f9749e0400144fac15e696e3e028f8a262b58dcddc35e5bd992d08c45",
+      "modified": false
+    },
+    {
+      "path": "functions/_shared/signed_url_cache.ts",
+      "sha256": "76484582f7c075242c966e73a5cd4f05a4661abde57e6a873deea332407a761c",
+      "modified": true
+    },
+    {
+      "path": "functions/_shared/eta_cache.ts",
+      "sha256": "3a0856d4d112f14f310b93c478a8a3b5a3af5cd2773b0afbd7a637b6bbc77c10",
+      "modified": true
+    },
+    {
+      "path": "functions/_shared/ola_client.ts",
+      "sha256": "d29f8db1a39979b86274844d75d7e18a81a2bdf0fd0ec17254e79fb45cea8181",
+      "modified": false
+    },
+    {
+      "path": "functions/_shared/http_errors.ts",
+      "sha256": "09d5ea841accf9ab4e1df9529043666866c7ab8c13e5a66b9b521d83d2a3b0ff",
+      "modified": false
+    },
+    {
+      "path": "functions/_shared/single_relation.ts",
+      "sha256": "7321dcca4e860e35f3d506e7bc4d1ec02168e2936a246bca624ea745ad15ab96",
+      "modified": false
+    }
+  ]
+}

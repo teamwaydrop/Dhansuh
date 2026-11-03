@@ -1,0 +1,49 @@
+00:00 +0: loading C:/Users/karth/Desktop/appclad/test/phase1_tracking_controller_test.dart
+00:00 +0: identical GPS heartbeats do not rebuild location listeners
+[TRACE_CANCEL] RealtimeOrderController._applyOrderData order=order-a status=accepted isCancelled=false isCompleted=false epoch=1793471400000
+[INSTR] 2026-11-01T11:38:14.485976 RealtimeManager: Creating NEW channel [realtime-rider-rider-a] for owner [RealtimeOrderController] table=riders event=PostgresChangeEvent.update filterColumn=id filterValue=rider-a
+RealtimeManager: Creating new channel [realtime-rider-rider-a] for owner [RealtimeOrderController] on table [riders]
+[INSTR] 2026-11-01T11:38:14.494554 RealtimeManager: Channel [realtime-rider-rider-a] status changed to [RealtimeSubscribeStatus.subscribed], error: null, subscriberCount=1, owners=[RealtimeOrderController]
+RealtimeManager: Channel [realtime-rider-rider-a] status is [RealtimeSubscribeStatus.subscribed], error: null
+Realtime channels: 1
+[INSTR] 2026-11-01T11:38:14.498577 RealtimeManager: Creating NEW channel [realtime-order-order-a] for owner [RealtimeOrderController] table=orders event=PostgresChangeEvent.update filterColumn=id filterValue=order-a
+RealtimeManager: Creating new channel [realtime-order-order-a] for owner [RealtimeOrderController] on table [orders]
+[INSTR] 2026-11-01T11:38:14.498577 RealtimeManager: Channel [realtime-order-order-a] status changed to [RealtimeSubscribeStatus.subscribed], error: null, subscriberCount=1, owners=[RealtimeOrderController]
+RealtimeManager: Channel [realtime-order-order-a] status is [RealtimeSubscribeStatus.subscribed], error: null
+Realtime channels: 2
+REALTIME RIDER LOCATION UPDATE RECEIVED
+REALTIME RIDER LOCATION UPDATE RECEIVED
+REALTIME RIDER LOCATION UPDATE RECEIVED
+REALTIME RIDER LOCATION UPDATE RECEIVED
+REALTIME RIDER LOCATION UPDATE RECEIVED
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <1>
+  Actual: <5>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/karth/Desktop/appclad/test/phase1_tracking_controller_test.dart:406:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/karth/Desktop/appclad/test/phase1_tracking_controller_test.dart line 406
+The test description was:
+  identical GPS heartbeats do not rebuild location listeners
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: identical GPS heartbeats do not rebuild location listeners [E]
+  Test failed. See exception logs above.
+  The test description was: identical GPS heartbeats do not rebuild location listeners
+  
+RealtimeManager: Removed listener [RealtimeOrderController_1793513294498577] owned by [RealtimeOrderController] from channel [realtime-order-order-a]. Remaining subscribers: 0
+RealtimeManager: Channel [realtime-order-order-a] has 0 subscribers. Disposing channel.
+Realtime channels: 1
+RealtimeManager: Removed listener [RealtimeOrderController_1793513294485976] owned by [RealtimeOrderController] from channel [realtime-rider-rider-a]. Remaining subscribers: 0
+RealtimeManager: Channel [realtime-rider-rider-a] has 0 subscribers. Disposing channel.
+Realtime channels: 0
+00:00 +0 -1: Some tests failed.

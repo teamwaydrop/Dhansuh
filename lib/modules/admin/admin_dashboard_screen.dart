@@ -1,17 +1,25 @@
+import 'package:waydrop/shared/widgets/account_guard.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/core/services/realtime/realtime_manager.dart';
 import 'package:waydrop/core/services/realtime/realtime_observability.dart';
 
-class AdminDashboardScreen extends StatefulWidget {
+class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
-
   @override
-  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+  Widget build(BuildContext context) => const AccountGuard(
+    adminOnly: true, child: _AdminDashboardContent());
 }
 
-class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+class _AdminDashboardContent extends StatefulWidget {
+  const _AdminDashboardContent();
+
+  @override
+  State<_AdminDashboardContent> createState() => _AdminDashboardContentState();
+}
+
+class _AdminDashboardContentState extends State<_AdminDashboardContent> {
   final supabase = Supabase.instance.client;
   Timer? _refreshTimer;
 

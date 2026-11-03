@@ -1,0 +1,31 @@
+{
+  "artifact": "artifacts/waydrop-1.0.0-build60.apk",
+  "version": "1.0.0(60)",
+  "bytes": 87819759,
+  "sha256": "6217fa6893ddf703baa084dff9a6b168ed3269e762f9383cf317653d1cbebb0c",
+  "same_verified_signer_as_59": true,
+  "plaintext_env_asset_absent": true,
+  "frozen_sources_unchanged": true,
+  "frozen_file_count": 182,
+  "aot_libraries": {
+    "lib/arm64-v8a/libapp.so": {
+      "sha256": "5d901b9865defc59dfe12e137c620cafc9675df8b4a3f684ff33cc8af5b27891",
+      "build59_sha256": "a1f4eb438c55af33a071720d89aaf56154d4fe6ea685cc321197aa7b3422b68e",
+      "changed": true
+    },
+    "lib/armeabi-v7a/libapp.so": {
+      "sha256": "4c4495d715aaaead5db40bb0cbc472e0549b4eae1ea84759132bea74dae4c0f1",
+      "build59_sha256": "366eb187d911bd6af5b9a2bb0dff3e5da28ce48b505cd7c9088f16adf6fab3b5",
+      "changed": true
+    },
+    "lib/x86_64/libapp.so": {
+      "sha256": "0d814194582c3cbc04520a3549ebf7d7ac21fac6c671a446ee0e662cef02c14c",
+      "build59_sha256": "a6994227201fdbfe2feb65f54bd2726d2b1d31055ca49047cb7771a18a6ddc93",
+      "changed": true
+    }
+  },
+  "installed": false,
+  "published": false,
+  "phone_speed_measured": false,
+  "backend_deployments": 0
+}

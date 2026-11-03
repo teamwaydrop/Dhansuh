@@ -113,7 +113,7 @@ class NotificationService {
       // Listen for foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         debugPrint('Got a message whilst in the foreground!');
-        debugPrint('Message data: ${message.data}');
+        debugPrint('Foreground push received.');
 
         RemoteNotification? notification = message.notification;
         String? title = notification?.title ?? message.data['title']?.toString();
@@ -189,14 +189,14 @@ class NotificationService {
 
       // Listen for background message click taps (app was in background but running)
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        debugPrint('Notification clicked while app in background: ${message.data}');
+        debugPrint('Background notification opened.');
         handleNotificationTap(message.data);
       });
 
       // Handle message click when app was completely terminated
       FirebaseMessaging.instance.getInitialMessage().then((message) {
         if (message != null) {
-          debugPrint('Notification clicked while app terminated: ${message.data}');
+          debugPrint('Launch notification opened.');
           Future.delayed(const Duration(milliseconds: 1000), () {
             handleNotificationTap(message.data);
           });
@@ -205,7 +205,7 @@ class NotificationService {
 
       // Listen for token refreshes
       FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-        debugPrint('FCM Token refreshed: $newToken');
+        debugPrint('FCM token refreshed.');
         registerToken(newToken);
       });
 
@@ -250,11 +250,11 @@ class NotificationService {
     try {
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null) {
-        debugPrint('Fetched FCM Token: $token');
+        debugPrint('FCM token available for registration.');
         await registerToken(token);
       }
     } catch (e) {
-      debugPrint('Error syncing FCM token: $e');
+      debugPrint('FCM token synchronization failed.');
     }
   }
 
@@ -281,9 +281,9 @@ class NotificationService {
         'updated_at': DateTime.now().toIso8601String(),
       }, onConflict: 'fcm_token').timeout(const Duration(seconds: 8));
 
-      debugPrint('FCM Token registered successfully to user: ${user.id}');
+      debugPrint('FCM token registration succeeded.');
     } catch (e) {
-      debugPrint('Error registering FCM token to database: $e');
+      debugPrint('FCM token registration failed.');
     }
   }
 
@@ -296,7 +296,7 @@ class NotificationService {
         debugPrint('FCM Token removed from database.');
       }
     } catch (e) {
-      debugPrint('Error removing FCM token from database: $e');
+      debugPrint('FCM token removal failed.');
     }
   }
 
@@ -332,7 +332,7 @@ class NotificationService {
   }
 
   Future<void> handleNotificationTap(Map<String, dynamic> data) async {
-    NavTrace.mark('NotificationService', 'handleNotificationTap ENTER payload=$data navStateNull=${navigatorKey.currentState == null}');
+    NavTrace.mark('NotificationService', 'handleNotificationTap ENTER navStateNull=${navigatorKey.currentState == null}');
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) {
@@ -347,7 +347,10 @@ class NotificationService {
         _supabase.from('notifications').update({
           'is_read': true,
           'read_at': DateTime.now().toIso8601String(),
-        }).eq('id', notificationId).timeout(const Duration(seconds: 8)).then((_) {
+        }).eq('id', notificationId)
+          .eq('user_id', user.id)
+          .or('is_read.is.null,is_read.eq.false')
+          .timeout(const Duration(seconds: 8)).then((_) {
           debugPrint('Notification $notificationId marked as read in DB.');
         }).catchError((err) {
           debugPrint('Error marking notification as read: $err');
@@ -596,7 +599,7 @@ class NotificationService {
       final prefs = await SharedPreferences.getInstance();
       final pendingStr = prefs.getString('pending_notification_payload');
       if (pendingStr != null && pendingStr.isNotEmpty) {
-        debugPrint('Processing queued pending notification payload: $pendingStr');
+        debugPrint('Processing queued notification tap.');
         final data = jsonDecode(pendingStr);
         await prefs.remove('pending_notification_payload');
         // Small delay to ensure navigator/context is fully loaded

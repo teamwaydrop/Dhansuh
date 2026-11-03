@@ -1,0 +1,373 @@
+{
+  "production": {
+    "project": "yvwpchffctiagevpqgwy",
+    "writes": 0,
+    "deployments": 0,
+    "log_queries": 0,
+    "sql_inspections": 5,
+    "project_metadata_reads": 1,
+    "paid_resources": 0
+  },
+  "sixteen_original_failures": [
+    {
+      "file": "test/incoming_order_minimize_and_intercity_accept_regression_test.dart",
+      "exact_test_name": "Issue 2 -- busy riders are never announced (sound/haptic) a new incoming order _showIncomingOrder bails out immediately when the rider already has an active order",
+      "original_error": "Expected: a value greater than <648>\n    Actual: <-1>\n     Which: is not a value greater than <648>\n  \n  package:matcher                                                              expect\n  package:flutter_test/src/widget_tester.dart 473:18                           expect\n  test\\incoming_order_minimize_and_intercity_accept_regression_test.dart 98:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/incoming_order_minimize_and_intercity_accept_regression_test.dart",
+      "exact_test_name": "Issue 2 -- busy riders are never announced (sound/haptic) a new incoming order a new incoming order plays sound/haptic and is tracked in _announcedOrders, never a dialog/sheet",
+      "original_error": "Expected: true\n    Actual: <false>\n  \n  package:matcher                                                               expect\n  package:flutter_test/src/widget_tester.dart 473:18                            expect\n  test\\incoming_order_minimize_and_intercity_accept_regression_test.dart 109:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/incoming_order_minimize_and_intercity_accept_regression_test.dart",
+      "exact_test_name": "Issue 2 -- busy riders are never announced (sound/haptic) a new incoming order reconciliation no longer caps announcing to one assignment per pass",
+      "original_error": "Expected: true\n    Actual: <false>\n  \n  package:matcher                                                               expect\n  package:flutter_test/src/widget_tester.dart 473:18                            expect\n  test\\incoming_order_minimize_and_intercity_accept_regression_test.dart 126:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/production_control_system_regression_test.dart",
+      "exact_test_name": "8. Home screen UI-level feature-flag enforcement (critical entry points only) the existing location-serviceability disabled behavior (separate reason, separate wording) is unchanged for tiles that are not feature-flag-disabled",
+      "original_error": "Expected: true\n    Actual: <false>\n  \n  package:matcher                                            expect\n  package:flutter_test/src/widget_tester.dart 473:18         expect\n  test\\production_control_system_regression_test.dart 394:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart",
+      "exact_test_name": "listenActiveOrder() -- realtime callback skips its DB call while covered, subscription itself untouched the realtime subscription is still established unconditionally",
+      "original_error": "Expected: true\n    Actual: <false>\n  \n  package:matcher                                                                             expect\n  package:flutter_test/src/widget_tester.dart 473:18                                          expect\n  test\\rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart 104:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart",
+      "exact_test_name": "listenActiveOrder() -- realtime callback skips its DB call while covered, subscription itself untouched the initial snapshot poll at setup is NOT gated (must always run once)",
+      "original_error": "Expected: a value greater than <0>\n    Actual: <-1>\n     Which: is not a value greater than <0>\n  \n  package:matcher                                                                             expect\n  package:flutter_test/src/widget_tester.dart 473:18                                          expect\n  test\\rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart 112:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart",
+      "exact_test_name": "listenActiveOrder() -- realtime callback skips its DB call while covered, subscription itself untouched the realtime callback's own poll call is gated on isOpen",
+      "original_error": "RangeError (start): Invalid value: Only valid value is 0: -1\n  dart:core                                                                                    _StringBase.substring\n  test\\rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart 120:35  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart",
+      "exact_test_name": "fetchSearchingOrders() call sites -- now gated on hasActiveOrder, matching the pre-existing startLocationTimer() invariant startLocationTimer()'s pre-existing hasActiveOrder guard is untouched (baseline invariant this fix reuses)",
+      "original_error": "RangeError (end): Invalid value: Not in inclusive range 22140..122293: -1\n  dart:core                                                                                    _StringBase.substring\n  test\\rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart 135:27  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart",
+      "exact_test_name": "fetchSearchingOrders() call sites -- now gated on hasActiveOrder, matching the pre-existing startLocationTimer() invariant the orders-update channel (_ordersUpdateSubId) now checks !hasActiveOrder before fetchSearchingOrders()",
+      "original_error": "Expected: a value greater than <54622>\n    Actual: <-1>\n     Which: is not a value greater than <54622>\n  \n  package:matcher                                                                             expect\n  package:flutter_test/src/widget_tester.dart 473:18                                          expect\n  test\\rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart 156:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart",
+      "exact_test_name": "Untouched: assignment-expiry, rider status, and dispatch-critical rematch semantics listenRiderStatus() (rider online/offline) is completely unmodified by this fix",
+      "original_error": "RangeError (end): Invalid value: Not in inclusive range 18178..122293: -1\n  dart:core                                                                                    _StringBase.substring\n  test\\rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart 193:27  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/ride_b_missed_after_ride_a_completion_regression_test.dart",
+      "exact_test_name": "2. THE FIX: the self-heal condition also fires on this instance's first poll, not only on an in-memory wasBusy->free transition the flag is captured into isFirstPollForThisInstance and flipped BEFORE the busy/free setState -- so the very first call after a fresh mount is unambiguously identified as \"first\", and every call after that is correctly \"not first\"",
+      "original_error": "Expected: true\n    Actual: <false>\n  \n  package:matcher                                                        expect\n  package:flutter_test/src/widget_tester.dart 473:18                     expect\n  test\\ride_b_missed_after_ride_a_completion_regression_test.dart 114:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/ride_b_missed_after_ride_a_completion_regression_test.dart",
+      "exact_test_name": "3. No unnecessary repeated/duplicate work introduced (egress discipline preserved) the pre-existing _pollInFlight/_pollQueued re-entrancy guard (coalesces overlapping triggers into a single follow-up poll) is untouched and still wraps this whole function",
+      "original_error": "Expected: true\n    Actual: <false>\n  \n  package:matcher                                                        expect\n  package:flutter_test/src/widget_tester.dart 473:18                     expect\n  test\\ride_b_missed_after_ride_a_completion_regression_test.dart 165:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/ride_b_missed_after_ride_a_completion_regression_test.dart",
+      "exact_test_name": "5. Every other reconciliation path this bug report asked about is untouched fetchSearchingOrders() itself -- the query that actually populates the visible list -- is completely unchanged: still rider_assignments where assignment_status='sent' joined to orders, still the same column projection (egress fix preserved)",
+      "original_error": "Expected: true\n    Actual: <false>\n  \n  package:matcher                                                        expect\n  package:flutter_test/src/widget_tester.dart 473:18                     expect\n  test\\ride_b_missed_after_ride_a_completion_regression_test.dart 243:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/subscription_trial_banner_and_vehicle_selection_regression_test.dart",
+      "exact_test_name": "0. The mirrored logic above matches the real source exactly _isSubscriptionActive itself is unchanged (still the real entitlement check)",
+      "original_error": "Expected: true\n    Actual: <false>\n  \n  package:matcher                                                                 expect\n  package:flutter_test/src/widget_tester.dart 473:18                              expect\n  test\\subscription_trial_banner_and_vehicle_selection_regression_test.dart 75:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/subscription_trial_banner_and_vehicle_selection_regression_test.dart",
+      "exact_test_name": "5/6/7. Vehicle selector: only verified vehicles are selectable, all three are visible an unverified vehicle is non-tappable (onTap is null) and shows \"Not verified\"",
+      "original_error": "Expected: true\n    Actual: <false>\n  \n  package:matcher                                                                  expect\n  package:flutter_test/src/widget_tester.dart 473:18                               expect\n  test\\subscription_trial_banner_and_vehicle_selection_regression_test.dart 200:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    },
+    {
+      "file": "test/subscription_trial_banner_and_vehicle_selection_regression_test.dart",
+      "exact_test_name": "5/6/7. Vehicle selector: only verified vehicles are selectable, all three are visible isVerified is derived from availableVehicleTypes, which is filtered to verifiedVehicleTypes -- the rider's actual verified vehicles (KYC-approved primary or approved rider_vehicles), never an arbitrary/unfiltered set",
+      "original_error": "Expected: true\n    Actual: <false>\n  \n  package:matcher                                                                  expect\n  package:flutter_test/src/widget_tester.dart 473:18                               expect\n  test\\subscription_trial_banner_and_vehicle_selection_regression_test.dart 207:7  main.<fn>.<fn>",
+      "classification": "deterministic outdated CRLF-sensitive source fixture",
+      "resolution": "Normalize CRLF to LF in the source reader; every assertion retained."
+    }
+  ],
+  "same_failure_names_as_part4": true,
+  "assertions_unchanged": true,
+  "pre_part4_baseline_limit": "Older retained 2065-pass log is not an exact source-matched pre-Part-4 baseline; Part 4 and current unmodified-reader failures match all sixteen names.",
+  "targeted_fixture_run": {
+    "before_passed": 105,
+    "before_failed": 16,
+    "after_passed": 121,
+    "after_failed": 0
+  },
+  "full_flutter": {
+    "passed": 2118,
+    "failed": 0,
+    "log": ".dart_tool/waydrop-local-runtime/part5-flutter-full-final.log"
+  },
+  "analyzer": {
+    "error": 0,
+    "warning": 73,
+    "info": 384,
+    "log": ".dart_tool/waydrop-local-runtime/part5-analyze-final.log",
+    "exit": 2
+  },
+  "suites": {
+    "push": {
+      "passed": 16,
+      "failed": 0,
+      "log": ".dart_tool/waydrop-local-runtime/part5-push.log"
+    },
+    "reject": {
+      "passed": 8,
+      "failed": 0,
+      "log": ".dart_tool/waydrop-local-runtime/part5-reject-final.log"
+    },
+    "edge_auth_flags": {
+      "passed": 8,
+      "failed": 0,
+      "log": ".dart_tool/waydrop-local-runtime/part5-edge-unit.log"
+    },
+    "acceptance_native": {
+      "passed": 16,
+      "failed": 0,
+      "log": ".dart_tool/waydrop-local-runtime/part5-acceptance-native.log"
+    },
+    "acceptance_handler": {
+      "passed": 4,
+      "failed": 0,
+      "log": ".dart_tool/waydrop-local-runtime/part5-acceptance-handler-final.log"
+    },
+    "postgres_matching_gps": {
+      "passed": 8,
+      "failed": 0
+    },
+    "postgres_dispatch": {
+      "passed": 5,
+      "failed": 0
+    }
+  },
+  "worker_audit": {
+    "passed": 5,
+    "failed": 0
+  },
+  "chat_rls": {
+    "database": "waydrop_part4_synthetic",
+    "host": "127.0.0.1:54329",
+    "managed_auth": false,
+    "provider_network": false,
+    "tests": [
+      {
+        "test": "captured INSERT policy allows participant to forge sender (rolled back)",
+        "passed": true,
+        "before_forged_inserts_allowed": 1
+      },
+      {
+        "test": "captured INSERT policy allows unsolicited other-user support message (rolled back)",
+        "passed": true
+      },
+      {
+        "test": "candidate denies unsolicited other-user support message",
+        "passed": true
+      },
+      {
+        "test": "candidate preserves own support thread",
+        "passed": true
+      },
+      {
+        "test": "candidate denies forged sender",
+        "passed": true
+      },
+      {
+        "test": "candidate denies foreign order",
+        "passed": true
+      },
+      {
+        "test": "candidate preserves passenger",
+        "passed": true
+      },
+      {
+        "test": "candidate preserves rider",
+        "passed": true
+      },
+      {
+        "test": "candidate preserves support own identity",
+        "passed": true
+      },
+      {
+        "test": "candidate preserves trusted server",
+        "passed": true
+      },
+      {
+        "test": "12 competing identical UUID INSERTs commit one message/notification/enqueue",
+        "passed": true,
+        "attempts": 12,
+        "max_parallel_clients": 8,
+        "committed": 1,
+        "rows": [
+          1,
+          1,
+          1
+        ],
+        "elapsed_ms": 472.744
+      },
+      {
+        "test": "real statement timeout cancels full chat/notification/enqueue transaction",
+        "passed": true,
+        "sqlstate": "57014",
+        "new_committed_rows": 0
+      },
+      {
+        "test": "ordinary enqueue exception preserves chat/inbox and records failure, not a chat 500",
+        "passed": true,
+        "rows": [
+          2,
+          2,
+          1,
+          1
+        ]
+      },
+      {
+        "test": "actual pre-acceptance trigger still blocks passenger chat",
+        "passed": true
+      }
+    ],
+    "chain_round_trip_ms_including_psql_startup": [
+      78.75,
+      195.727,
+      80.588,
+      76.972,
+      77.715,
+      69.929,
+      181.08,
+      76.689,
+      81.515,
+      85.431
+    ],
+    "measurement_limit": "Synthetic mechanism checks only. No before/after trigger optimization or production latency measurement."
+  },
+  "adversarial_safety": {
+    "production_requests": 0,
+    "checks": [
+      {
+        "name": "anonymous invocation of captured internal matching body is admitted",
+        "verdict": "DEFECT_REPRODUCED"
+      },
+      {
+        "name": "ACL candidate denies direct anon call",
+        "verdict": "LOCAL_FIX_PASS"
+      },
+      {
+        "name": "ACL candidate denies direct authenticated call",
+        "verdict": "LOCAL_FIX_PASS"
+      },
+      {
+        "name": "ACL candidate preserves service-role enqueue consumer",
+        "verdict": "LOCAL_FIX_PASS"
+      },
+      {
+        "name": "resumed old worker can overwrite offer and dispatch state after replacement",
+        "verdict": "UNSAFE_REPRODUCED",
+        "scope": "Native equivalents of actual unfenced write predicates; not a complete managed Edge process rehearsal",
+        "offer_status": "sent",
+        "state_overwritten": true,
+        "new_lease_retained": true,
+        "accepted_at_cleared": true
+      },
+      {
+        "name": "old worker exact-token release cannot clear replacement lease",
+        "verdict": "PASS",
+        "changed_rows": 0
+      },
+      {
+        "name": "conditional reject rechecks after a concurrent acceptance row lock",
+        "verdict": "LOCAL_FIX_PASS",
+        "changed_rows": 0,
+        "accepted_preserved": true
+      },
+      {
+        "name": "service rider-core call can offer to rider now offline",
+        "verdict": "ELIGIBILITY_PARITY_GAP_REPRODUCED",
+        "offers": 1,
+        "limit": "Caller may have selected online before a transition; not evidence of incident occurrence"
+      },
+      {
+        "name": "two completed recovery selections before a worker claims enqueue twice",
+        "verdict": "AMPLIFIER_REPRODUCED",
+        "enqueues": 2,
+        "limit": "Transaction advisory locks do not coalesce asynchronous queue lifetime"
+      },
+      {
+        "name": "unauthenticated chat INSERT denied by RLS despite fixture table grant",
+        "verdict": "PASS"
+      }
+    ],
+    "stale_worker_recovery": "BLOCKED_FOR_DEPLOYMENT"
+  },
+  "reject_baseline": {
+    "passed": 1,
+    "expected_failures": 4,
+    "log": ".dart_tool/waydrop-local-runtime/part5-reject-race-baseline.log"
+  },
+  "phase5_changed_existing_sources": [
+    "lib/core/services/diagnostics/performance_trace.dart",
+    "test/incoming_order_minimize_and_intercity_accept_regression_test.dart",
+    "test/production_control_system_regression_test.dart",
+    "test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart",
+    "test/ride_b_missed_after_ride_a_completion_regression_test.dart",
+    "test/subscription_trial_banner_and_vehicle_selection_regression_test.dart",
+    "supabase/functions/reject-order/index.ts"
+  ],
+  "source_sha256": {
+    "lib/core/services/diagnostics/performance_trace.dart": "f24c3f7f791ec319f0826ae82355ef9e84db8b6da327edead26e91101e089ea2",
+    "test/incoming_order_minimize_and_intercity_accept_regression_test.dart": "c5f6ae74367d96d66aec11a30b49472ac4543e2f397552661a1e485990f49799",
+    "test/production_control_system_regression_test.dart": "ac9e8df6b298c4d9e51206febb80f2c085258da1addd7e32c4722b734ba98982",
+    "test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart": "8d12c26fc024ddf201bbc08a7383a1bf36b7a94b0c12dca5742388a80d71e0d9",
+    "test/ride_b_missed_after_ride_a_completion_regression_test.dart": "e0c994ff2182a9e7040f6bc303d3501adc74dbaaf00f535fb342c5eeddf258e7",
+    "test/subscription_trial_banner_and_vehicle_selection_regression_test.dart": "dfa2c7722af247231592e56499840cbaee4e8e50ba93a88d2022d44479ac59e4",
+    "supabase/functions/reject-order/index.ts": "552f5ec566497acdb6d7ec5d2243e722841a82fd410446be674c5b790bc98d55",
+    "test/part5_safe_metrics_test.dart": "0bc991bffebe55730837a6c56f5d59e0a51eb845ca700436f5f4477547879a51",
+    "docs/performance/dispatch-cron-20261102/reject-handler-test.ts": "516ea441d2587209375c5fc3f52fed1e2ecf68022b9bc40efeb6cbae420e040e",
+    "docs/performance/final-verification-20261102/INTERNAL_DISPATCH_ACL.candidate.sql": "85d59af7c9eff0c034e7b127dd426b7de4b6e4df635609cede77979478bfc8fb",
+    "docs/performance/chat-notifications-20261102/CHAT_SENDER_POLICY.candidate.sql": "2cb30b7392edfaece275e9bada88db2ab09e0c0ecb75b786c04f5ddf40f4003c"
+  },
+  "android_device_available": false,
+  "initiating_root_cause": "UNPROVEN",
+  "stale_worker_recovery": "BLOCKED_FOR_DEPLOYMENT",
+  "decision": {
+    "flutter": "CONDITIONAL_GO_FOR_REVIEWED_SUBSET",
+    "sql": "NO_GO_AS_COMBINED_BUNDLE",
+    "edge": "NO_GO_AS_COMBINED_BUNDLE"
+  }
+}

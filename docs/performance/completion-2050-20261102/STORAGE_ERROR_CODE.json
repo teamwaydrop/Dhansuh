@@ -1,0 +1,16 @@
+{
+  "sql": "SELECT timestamp,log_attributes['operation'] AS operation,log_attributes['res.statusCode'] AS status,log_attributes['error.name'] AS error_name,log_attributes['error.errorCode'] AS error_code,log_attributes['error.statusCode'] AS error_status,log_attributes['executionTime'] AS execution_time,log_attributes['responseTime'] AS response_time,extract(log_attributes['error.raw'],'(57014|DatabaseTimeout|database_timeout|ETIMEDOUT|ECONNRESET)') AS safe_raw_code FROM logs WHERE source='storage_logs' AND toInt32OrZero(log_attributes['res.statusCode'])>=500 ORDER BY timestamp LIMIT 5",
+  "rows": [
+    {
+      "error_code": "DatabaseTimeout",
+      "error_name": "Error",
+      "error_status": "544",
+      "execution_time": "33200",
+      "operation": "storage.object.upload",
+      "response_time": "33200.28262300044",
+      "safe_raw_code": "57014",
+      "status": "544",
+      "timestamp": "2026-11-02T15:29:17.721000"
+    }
+  ]
+}

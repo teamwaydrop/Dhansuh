@@ -1138,6 +1138,7 @@ class _ParcelLocationScreenState
         longitude: pickupLng,
         city: pickupCity,
       );
+      if (!mounted) return;
       if (!sResult.isServiceable) {
         Navigator.popUntil(context, (route) => route.isFirst);
         return;

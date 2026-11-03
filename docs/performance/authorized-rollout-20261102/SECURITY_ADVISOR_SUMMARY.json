@@ -1,0 +1,386 @@
+[
+  {
+    "name": "rls_enabled_no_policy",
+    "level": "INFO",
+    "count": 5,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "security_definer_view",
+    "level": "ERROR",
+    "count": 7,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "function_search_path_mutable",
+    "level": "WARN",
+    "count": 33,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "extension_in_public",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "anon_security_definer_function_executable",
+    "level": "WARN",
+    "count": 69,
+    "changed_object_findings": 1
+  },
+  {
+    "name": "authenticated_security_definer_function_executable",
+    "level": "WARN",
+    "count": 90,
+    "changed_object_findings": 1
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_allow_anonymous_sign_ins",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  },
+  {
+    "name": "auth_leaked_password_protection",
+    "level": "WARN",
+    "count": 1,
+    "changed_object_findings": 0
+  }
+]

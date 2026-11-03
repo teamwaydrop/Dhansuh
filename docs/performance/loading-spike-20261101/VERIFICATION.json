@@ -1,0 +1,94 @@
+{
+  "production_changes": 0,
+  "edge_deployments": 0,
+  "new_backend_sql": 0,
+  "flutter_full": {
+    "passed": 2095,
+    "failed": 0,
+    "log": ".dart_tool/loading-spike-full-final.log",
+    "sha256": "44e43c359bebca02a9431c7cc6c86999c9aee8a9c68a5f1789608578ffd20983"
+  },
+  "new_focused": {
+    "passed": 13,
+    "failed": 0,
+    "included_in_full": true,
+    "log": ".dart_tool/loading-spike-new-final.log"
+  },
+  "pg17": {
+    "passed": 3,
+    "failed": 0,
+    "results": "PG17_RESULTS.json",
+    "scope": "Synthetic PK/AFTER-trigger transaction semantics; not managed Auth/RLS/Realtime/pg_net or FCM delivery"
+  },
+  "analyzer": {
+    "errors": 0,
+    "warnings": 73,
+    "information": 381,
+    "log": ".dart_tool/loading-spike-analyze-final.log",
+    "note": "Nonzero exit for existing diagnostics; not a clean analyzer run"
+  },
+  "wave_a_integrity": "PASS: five source files, three request hashes and commands; no production calls",
+  "android_device_available": false,
+  "source_files": [
+    {
+      "file": "lib/modules/chat/services/chat_message_delivery.dart",
+      "sha256": "2532ff42749a1fd163e3d14db0699355bd799e0d8cbe9702bd0464182d048a35"
+    },
+    {
+      "file": "lib/modules/chat/screens/order_chat_screen.dart",
+      "sha256": "2f46e2ff39a9e39984113bddfebda947db58b862dee4f18f8242f6ec4eee06da"
+    },
+    {
+      "file": "lib/features/user/home/home_tab.dart",
+      "sha256": "f84410394672d06de9ddcc69627232ecf388b4f35d1c832ff0dffa9390160d81"
+    },
+    {
+      "file": "lib/features/user/home/profile_refresh_window.dart",
+      "sha256": "8546b92d6e7bcda64688a78bc51257938967034f2a90a538a9a735a3497ee1ec"
+    },
+    {
+      "file": "lib/modules/notifications/services/notification_badge_service.dart",
+      "sha256": "f7b056e47e9be2a9bfbc0dff0c5842cb98ec16deff525c08c0bb2fc663852327"
+    },
+    {
+      "file": "lib/modules/notifications/services/notification_count_events.dart",
+      "sha256": "488aa30d10c2b3c0090b0a0c3b97cc1d1f0c69ce6ca44c9813d03964ad4c9e9f"
+    },
+    {
+      "file": "lib/core/services/diagnostics/api_metrics_client.dart",
+      "sha256": "9cb2927efed2f123d883a61418cc2bdde6105358bf506b0c1d8cf79a1ad3ba62"
+    },
+    {
+      "file": "lib/core/services/diagnostics/performance_trace.dart",
+      "sha256": "f6027f2ecf4443a29a9bf5d4124d64814a95616e1660f56a8fb0c08bb3d106a0"
+    },
+    {
+      "file": "lib/core/services/realtime/realtime_manager.dart",
+      "sha256": "e12ea62af7c8c2f8c3b3c9af26ef31b1635aa5f38bdab688850fb2690a907597"
+    },
+    {
+      "file": "lib/main.dart",
+      "sha256": "9dec7c4855cf5b8062469f6883499fa53a0b526ccba46e375517dd6a15d38758"
+    },
+    {
+      "file": "lib/app_start_screen.dart",
+      "sha256": "4f822701b57012b630b16f3b012ee49c09299505bf62adc429bc64ca6728a765"
+    },
+    {
+      "file": "lib/features/rider/home/rider_home_tab.dart",
+      "sha256": "c3ce45e458382d1eeac1b839b97cdc22a2e1fd9ae850761b1f8a8d597ed114ef"
+    },
+    {
+      "file": "lib/features/rider/orders/rider_orders_screen.dart",
+      "sha256": "1fd421849690178b1aad02851f8c37b34bd5b4f4ade0469c277bfe9646b43ad3"
+    },
+    {
+      "file": "lib/features/local_rides/tracking/screens/ride_tracking_screen.dart",
+      "sha256": "12d05a1ffca6308f8497bc20a2321bfa63c107fc3966a8192470d7bb348f3685"
+    },
+    {
+      "file": "lib/modules/notifications/screens/notifications_inbox_screen.dart",
+      "sha256": "1d114ef9aa0efc45947b2594733d507947ab2fb774b5dd5b64a2f9279bc1a2d1"
+    }
+  ]
+}

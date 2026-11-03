@@ -1,0 +1,112 @@
+diff --git "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\rider-realtime-home.before.dart" b/lib/features/rider/home/rider_home_tab.dart
+index b2af1a4..3cd9727 100644
+--- "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\rider-realtime-home.before.dart"
++++ b/lib/features/rider/home/rider_home_tab.dart
+@@ -162,12 +162,26 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
+   // though both already correctly date-filter by completed_at's local day. Payment method is
+   // deliberately not filtered on -- Cashfree/Personal QR/Cash all contribute their full gross fare.
+   Future<double>? _earningsInFlight;
++  String? _earningsFlightRiderId;
+   Future<double> _fetchTodayEarnings(String riderId) {
+     final existing = _earningsInFlight;
+-    if (existing != null) return existing;
+-    final operation = _queryTodayEarnings(riderId);
+-    _earningsInFlight = operation;
+-    return operation.whenComplete(() { _earningsInFlight = null; });
++    if (existing != null && _earningsFlightRiderId == riderId) return existing;
++    final raw = _queryTodayEarnings(riderId);
++    final visible = raw.timeout(const Duration(seconds: 8)).then((value) {
++      if (_earningsFlightRiderId == riderId) _lastEarningsFetchAt = DateTime.now();
++      return value;
++    });
++    _earningsInFlight = visible;
++    _earningsFlightRiderId = riderId;
++    void release() {
++      if (identical(_earningsInFlight, visible)) _earningsInFlight = null;
++    }
++    // A presentation deadline does not cancel HTTP. Keep sharing that owner
++    // until the raw query settles; late data never changes the timed-out result.
++    unawaited(raw.then<void>((_) => release(), onError: (Object _, StackTrace stack) {
++      release();
++    }));
++    return visible;
+   }
+ 
+   Future<double> _queryTodayEarnings(String riderId) async {
+@@ -178,14 +192,12 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
+         .select('final_fare, current_fare')
+         .eq('rider_id', riderId)
+         .inFilter('order_status', ['completed', 'delivered'])
+-        .gte('completed_at', startOfToday.toIso8601String())
+-        .timeout(const Duration(seconds: 8));
++        .gte('completed_at', startOfToday.toIso8601String());
+ 
+     double total = 0.0;
+     for (var o in ordersData) {
+       total += double.tryParse((o['final_fare'] ?? o['current_fare'])?.toString() ?? '0') ?? 0.0;
+     }
+-    _lastEarningsFetchAt = DateTime.now();
+     return total;
+   }
+ 
+@@ -614,7 +626,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
+   String? _subscribedRiderId;
+ 
+   void subscribeRider(String riderId) {
+-    if (_subscribedRiderId == riderId) return;
++    final subscriptionUserId = supabase.auth.currentUser?.id;
++    if (subscriptionUserId == null || _subscribedRiderId == riderId) return;
+     _subscribedRiderId = riderId;
+     if (riderSubId != null && riderSubChannel != null) {
+       RealtimeManager.instance.unsubscribe(riderSubChannel!, riderSubId!);
+@@ -631,7 +644,10 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
+       filterColumn: 'id',
+       filterValue: riderId,
+       callback: (payload) async {
+-        if (!mounted) return;
++        if (!mounted || supabase.auth.currentUser?.id != subscriptionUserId ||
++            _subscribedRiderId != riderId) {
++          return;
++        }
+         final data = payload.newRecord;
+ 
+         // PERF FIX (rider-location-realtime-fanout, Phase 1): during an active ride, GPS pushes a
+@@ -671,23 +687,11 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
+             .where((key) => !oldData.containsKey(key) || oldData[key] != data[key]);
+         final isEarningsRelevantUpdate = changedKeys.any(_earningsRelevantFields.contains);
+ 
+-        double calculatedTodayEarnings = todayEarnings;
+-        if (isEarningsRelevantUpdate) {
+-          final lastFetch = _lastEarningsFetchAt;
+-          if (lastFetch != null && DateTime.now().difference(lastFetch) < _earningsFetchDedupeWindow) {
+-            // loadRider() (triggered by the sibling orders-table realtime event for this same
+-            // completion) already refreshed this within the dedupe window -- reuse it.
+-            calculatedTodayEarnings = todayEarnings;
+-          } else {
+-            try {
+-              calculatedTodayEarnings = await _fetchTodayEarnings(data['id'].toString());
+-            } catch (err) {
+-              debugPrint('Error calculating today earnings in subscribeRider callback: $err');
+-              calculatedTodayEarnings = 0.0;
+-            }
+-          }
+-        }
+-
++        final lastFetch = _lastEarningsFetchAt;
++        final refreshEarnings = isEarningsRelevantUpdate &&
++            (lastFetch == null || DateTime.now().difference(lastFetch) >= _earningsFetchDedupeWindow);
++        // Publish authoritative rider fields immediately. Secondary earnings must
++        // never delay offline tracking teardown or replay an older rider payload.
+         setState(() {
+           if (rider != null) {
+             rider = {
+@@ -698,8 +702,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
+             rider = data;
+           }
+           isOnline = rider?['account_status'] == 'online';
+-          todayEarnings = calculatedTodayEarnings;
+         });
++        if (refreshEarnings) unawaited(_refreshHomeEarnings(riderId));
+         if (!isOnline) await LocationCacheService.stopRiderLiveTracking();
+       },
+     );

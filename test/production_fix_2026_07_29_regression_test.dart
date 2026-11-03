@@ -63,7 +63,9 @@ void main() {
     test('Test 1: PartnerCard in the "Available Drop Partners" list is passed yourFare (the passenger\'s own order fare)', () {
       final start = searchingScreen.indexOf('Widget _buildMatchedTravelersSection');
       expect(start, greaterThan(-1));
-      final section = searchingScreen.substring(start, start + 13000);
+      final nextWidget = RegExp(r'\n  Widget ').firstMatch(searchingScreen.substring(start + 1));
+      final end = nextWidget == null ? searchingScreen.length : start + 1 + nextWidget.start;
+      final section = searchingScreen.substring(start, end);
       expect(section.contains("final double yourFare = double.tryParse((order?['current_fare'] ?? order?['actual_fare']"), isTrue);
       expect(section.contains('yourFare: yourFare > 0 ? yourFare : null,'), isTrue);
     });

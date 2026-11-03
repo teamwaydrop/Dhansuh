@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0(61)",
+  "initial_attempt_superseded": true,
+  "source_fingerprint": "8a80f58c828b1d947bb76e2f04a4f7c5fe4db9aefeceedf88f3ad0655eca2e72",
+  "fingerprint_purpose": "Force a new compiler environment after final source freeze; app does not read this diagnostic define.",
+  "production_changes": 0
+}

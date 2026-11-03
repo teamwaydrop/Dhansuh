@@ -1,0 +1,54 @@
+00:00 +0: loading C:/Users/karth/Desktop/appclad/test/phase1_tab_lifecycle_test.dart
+00:00 +0: C:/Users/karth/Desktop/appclad/test/phase1_tab_lifecycle_test.dart: (setUpAll)
+supabase.supabase_flutter: WARNING: Error while receiving deeplink MissingPluginException(No implementation found for method getInitialAppLink on channel com.llfbandit.app_links/messages)
+supabase.supabase_flutter: INFO: ***** Supabase init completed ***** 
+00:00 +0: C:/Users/karth/Desktop/appclad/test/phase1_tab_lifecycle_test.dart: visited hidden tab retains State but stops ticking animations
+00:00 +0: C:/Users/karth/Desktop/appclad/test/phase1_gps_completion_test.dart: normal GPS stream completion releases its handle so tracking can restart
+supabase.supabase_flutter: WARNING: Error while receiving deeplink MissingPluginException(No implementation found for method getInitialAppLink on channel com.llfbandit.app_links/messages)
+supabase.supabase_flutter: INFO: ***** Supabase init completed ***** 
+Loaded 0 active pricing zones from DB with TTL stamp.
+[Serviceability Check] Coordinates: (17.0, 79.0)
+[Serviceability Check] Zone Match: "None"
+[Serviceability Check] Distance: null km
+[Serviceability Check] Serviceable: false
+[Serviceability Check] Coordinates: (17.0, 79.0)
+[Serviceability Check] Zone Match: "None"
+[Serviceability Check] Distance: null km
+[Serviceability Check] Serviceable: false
+00:01 +0 -1: C:/Users/karth/Desktop/appclad/test/phase1_tab_lifecycle_test.dart: visited hidden tab retains State but stops ticking animations
+00:01 +0 -1: C:/Users/karth/Desktop/appclad/test/phase1_gps_completion_test.dart: normal GPS stream completion releases its handle so tracking can restart [E]
+  Expected: null
+    Actual: <Instance of '_BroadcastSubscription<Position>'>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\phase1_gps_completion_test.dart 28:7           main.<fn>
+  
+00:01 +0 -1: C:/Users/karth/Desktop/appclad/test/phase1_tab_lifecycle_test.dart: visited hidden tab retains State but stops ticking animations
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <2>
+  Actual: <4>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/karth/Desktop/appclad/test/phase1_tab_lifecycle_test.dart:38:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/karth/Desktop/appclad/test/phase1_tab_lifecycle_test.dart line 38
+The test description was:
+  visited hidden tab retains State but stops ticking animations
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -2: C:/Users/karth/Desktop/appclad/test/phase1_tab_lifecycle_test.dart: visited hidden tab retains State but stops ticking animations [E]
+  Test failed. See exception logs above.
+  The test description was: visited hidden tab retains State but stops ticking animations
+  
+00:01 +0 -2: C:/Users/karth/Desktop/appclad/test/phase1_tab_lifecycle_test.dart: Activity stops hidden/background polls and catches up once on return
+00:01 +1 -2: C:/Users/karth/Desktop/appclad/test/phase1_tab_lifecycle_test.dart: (tearDownAll)
+00:01 +1 -2: Some tests failed.

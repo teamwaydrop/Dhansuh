@@ -487,7 +487,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     } catch (e) {
       if (mounted) {
         setState(() => _uploadingPhoto = false);
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(content: Text('Failed to upload photo: $e'), backgroundColor: const Color(0xFFEF4444)),
         );
       }
@@ -813,7 +813,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                           .eq('cashfree_beneficiary_status', 'active')
                           .maybeSingle();
 
-                      if (!mounted) return;
+                      if (!mounted || !context.mounted) return;
 
                       bool isBlocked = false;
                       if (kycResponse != null) {
@@ -946,7 +946,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const RiderEntryHandler()));
                       }
                     } catch (e) {
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                      if (mounted && context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
                     } finally {
                       if (mounted) setState(() => _isSwitching = false);
                     }

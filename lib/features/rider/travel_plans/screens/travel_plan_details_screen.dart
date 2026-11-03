@@ -696,7 +696,7 @@ class _TravelPlanDetailsScreenState extends State<TravelPlanDetailsScreen> with 
     await widget.deleteTravelPlan(plan['id'], reason);
     if (mounted) {
       // Close/pop the current screen or modal bottom sheet context
-      Navigator.pop(context); // Go back home after deletion
+      if (context.mounted) Navigator.pop(context); // Go back home after deletion
     }
   }
 

@@ -1,0 +1,31 @@
+{
+  "window_utc": [
+    "2026-11-03T04:24:00Z",
+    "2026-11-03T04:34:00Z"
+  ],
+  "evidence": [
+    {
+      "pricing_metadata": {
+        "at": "2026-11-03T10:14:51.779896+05:30",
+        "roles": [
+          {
+            "name": "service_role",
+            "bypass_rls": true
+          }
+        ],
+        "pricing_relations": [
+          {
+            "table": "pricing_zones",
+            "rls_enabled": true,
+            "estimated_rows": 2
+          },
+          {
+            "table": "pricing_config",
+            "rls_enabled": true,
+            "estimated_rows": 18
+          }
+        ]
+      }
+    }
+  ]
+}

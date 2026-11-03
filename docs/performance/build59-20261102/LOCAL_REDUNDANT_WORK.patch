@@ -1,0 +1,174 @@
+diff --git "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\redundant-before\\account_profile_service.dart" b/lib/core/services/session/account_profile_service.dart
+index 5f97e60..7091100 100644
+--- "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\redundant-before\\account_profile_service.dart"
++++ b/lib/core/services/session/account_profile_service.dart
+@@ -13,6 +13,15 @@ class AccountProfileSchemaException implements Exception {
+   const AccountProfileSchemaException(this.cause);
+ }
+ 
++class _AccountReadFlight<T> {
++  final String? credential;
++  _AccountReadFlight(this.credential);
++  late final Future<T> result;
++  late final void Function() release;
++  int pendingReads = 0;
++  bool resultSettled = false;
++}
++
+ /// Public profile fields are schema-checked. Account bans belong to Auth,
+ /// not to an invented users boolean or user-editable metadata.
+ class AccountProfileService {
+@@ -24,7 +33,8 @@ class AccountProfileService {
+       'onboarding_completed, preferred_mode, is_developer, role';
+   final SupabaseClient client;
+   final Future<void> Function(Duration) delay;
+-  final Map<String, Future<Map<String, dynamic>?>> _pending = {};
++  final Map<String, _AccountReadFlight<Map<String, dynamic>?>> _pending = {};
++  final Map<String, _AccountReadFlight<void>> _authPending = {};
+   final Map<String, AccountProfileSchemaException> _schemaErrors = {};
+ 
+   AccountProfileService(this.client, {Future<void> Function(Duration)? delay})
+@@ -86,6 +96,7 @@ class AccountProfileService {
+     Future<T> Function() action,
+     String userId,
+     DateTime deadline,
++    _AccountReadFlight<dynamic> owner,
+   ) async {
+     for (var attempt = 0; ; attempt++) {
+       if (client.auth.currentUser?.id != userId) {
+@@ -96,7 +107,13 @@ class AccountProfileService {
+         throw TimeoutException('Account verification timed out');
+       }
+       try {
+-        return await action().timeout(
++        owner.pendingReads++;
++        // Observe the materialized transport, not the non-cancelling UI timeout.
++        final raw = Future<T>.sync(action).whenComplete(() {
++          owner.pendingReads--;
++          owner.release();
++        });
++        return await raw.timeout(
+           remaining < const Duration(seconds: 3)
+               ? remaining
+               : const Duration(seconds: 3),
+@@ -114,12 +131,51 @@ class AccountProfileService {
+     }
+   }
+ 
+-  Future<void> verifyAuth(String userId, {DateTime? deadline}) async {
++  Future<T> _owned<T>(
++    Map<String, _AccountReadFlight<T>> owners,
++    String userId,
++    Future<T> Function(_AccountReadFlight<T>) action,
++  ) async {
++    final credential = client.auth.currentSession?.accessToken;
++    final existing = owners[userId];
++    if (existing != null && existing.credential == credential) {
++      return existing.result;
++    }
++    final owner = _AccountReadFlight<T>(credential);
++    owner.release = () {
++      if (owner.resultSettled &&
++          owner.pendingReads == 0 &&
++          identical(owners[userId], owner)) {
++        owners.remove(userId);
++      }
++    };
++    owners[userId] = owner;
++    owner.result = Future<T>.sync(() => action(owner));
++    try {
++      return await owner.result;
++    } finally {
++      owner.resultSettled = true;
++      owner.release();
++    }
++  }
++
++  Future<void> verifyAuth(String userId, {DateTime? deadline}) => _owned<void>(
++    _authPending,
++    userId,
++    (owner) => _verifyAuth(userId, deadline, owner),
++  );
++
++  Future<void> _verifyAuth(
++    String userId,
++    DateTime? deadline,
++    _AccountReadFlight<void> owner,
++  ) async {
+     try {
+       final response = await _read(
+         () => client.auth.getUser(),
+         userId,
+         deadline ?? DateTime.now().add(const Duration(seconds: 12)),
++        owner,
+       );
+       if (response.user?.id != userId ||
+           client.auth.currentUser?.id != userId) {
+@@ -134,12 +190,13 @@ class AccountProfileService {
+   Future<Map<String, dynamic>?> load(String userId) {
+     final failure = _schemaErrors[userId];
+     if (failure != null) return Future.error(failure);
+-    return _pending[userId] ??= _load(userId).whenComplete(() {
+-      _pending.remove(userId);
+-    });
++    return _owned(_pending, userId, (owner) => _load(userId, owner));
+   }
+ 
+-  Future<Map<String, dynamic>?> _load(String userId) async {
++  Future<Map<String, dynamic>?> _load(
++    String userId,
++    _AccountReadFlight<Map<String, dynamic>?> owner,
++  ) async {
+     final deadline = DateTime.now().add(const Duration(seconds: 12));
+     try {
+       // A successful server Auth check establishes ban/session status. A timeout
+@@ -153,6 +210,7 @@ class AccountProfileService {
+             .maybeSingle(),
+         userId,
+         deadline,
++        owner,
+       );
+       if (client.auth.currentUser?.id != userId) {
+         throw const AuthException('Account changed during profile loading');
+
+diff --git "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\redundant-before\\notification_service.dart" b/lib/modules/notifications/services/notification_service.dart
+index cf3283a..8666259 100644
+--- "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\redundant-before\\notification_service.dart"
++++ b/lib/modules/notifications/services/notification_service.dart
+@@ -347,7 +347,10 @@ class NotificationService {
+         _supabase.from('notifications').update({
+           'is_read': true,
+           'read_at': DateTime.now().toIso8601String(),
+-        }).eq('id', notificationId).timeout(const Duration(seconds: 8)).then((_) {
++        }).eq('id', notificationId)
++          .eq('user_id', user.id)
++          .or('is_read.is.null,is_read.eq.false')
++          .timeout(const Duration(seconds: 8)).then((_) {
+           debugPrint('Notification $notificationId marked as read in DB.');
+         }).catchError((err) {
+           debugPrint('Error marking notification as read: $err');
+
+diff --git "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\redundant-before\\rider_status_service.dart" b/lib/features/rider/services/rider_status_service.dart
+index 1dd4308..92cafbd 100644
+--- "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\redundant-before\\rider_status_service.dart"
++++ b/lib/features/rider/services/rider_status_service.dart
+@@ -126,7 +126,8 @@ class RiderStatusService {
+         .eq(
+           'id',
+           user.id,
+-        );
++        )
++        .or('preferred_mode.is.null,preferred_mode.neq.rider,last_active_mode.is.null,last_active_mode.neq.rider');
+   }
+ 
+   // =====================================================
+@@ -159,7 +160,8 @@ class RiderStatusService {
+         .eq(
+           'id',
+           user.id,
+-        );
++        )
++        .or('preferred_mode.is.null,preferred_mode.neq.user,last_active_mode.is.null,last_active_mode.neq.user');
+   }
+ 
+   // =====================================================

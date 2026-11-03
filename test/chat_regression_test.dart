@@ -64,6 +64,12 @@ void main() {
   });
 
   group('mergeSentMessage (duplicate-message prevention)', () {
+    test('appends confirmation if a delayed history response removed its temp bubble', () {
+      final result = mergeSentMessage(
+        [{'id': 'history', 'message': 'older'}], 'temp_lost',
+        {'id': 'confirmed', 'message': 'synthetic confirmed'});
+      expect(result.map((m) => m['id']), ['history', 'confirmed']);
+    });
     test('replaces the optimistic temp entry with the confirmed row on the normal path', () {
       final messages = [
         {'id': 'temp_1', 'message': 'hello', 'sender_id': 'p1'},
@@ -108,8 +114,8 @@ void main() {
     });
 
     test('realtime subscription filter is scoped to the current order id', () {
-      expect(source.contains("column: 'order_id',"), isTrue);
-      expect(source.contains('value: widget.orderId,'), isTrue);
+      expect(source.contains("filterColumn: widget.isSupport ? 'user_id' : 'order_id',"), isTrue);
+      expect(source.contains('filterValue: widget.isSupport ? _chatUserId! : widget.orderId,'), isTrue);
     });
 
     test('realtime channel name is unique per order (no cross-order channel collisions)', () {
@@ -118,8 +124,8 @@ void main() {
 
     test('dispose() removes the chat realtime channel', () {
       final disposeSection = source.substring(source.indexOf('void dispose()'), source.indexOf('void dispose()') + 600);
-      expect(disposeSection.contains('supabase.removeChannel(_chatChannel!)'), isTrue);
-      expect(disposeSection.contains('_chatChannel = null'), isTrue);
+      expect(disposeSection.contains('RealtimeManager.instance.unsubscribe(_chatChannelName!, _chatSubscriptionId!)'), isTrue);
+      expect(disposeSection.contains('_chatSubscriptionId = null'), isTrue);
     });
 
     test('offline queue key is scoped by order id + rider id, not just participant ids', () {

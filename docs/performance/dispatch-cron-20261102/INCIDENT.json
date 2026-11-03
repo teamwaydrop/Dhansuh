@@ -1,0 +1,202 @@
+{
+  "incident_utc": [
+    "2026-11-01T16:22:00Z",
+    "2026-11-01T16:34:00Z"
+  ],
+  "productionChanged": false,
+  "rpc_gateway": {
+    "result": [
+      {
+        "errors": 0,
+        "max_ms": 831,
+        "method": "GET",
+        "n": 10,
+        "path": "/rest/v1/order_assignment_logs"
+      },
+      {
+        "errors": 0,
+        "max_ms": 94,
+        "method": "PATCH",
+        "n": 23,
+        "path": "/rest/v1/order_assignment_logs"
+      },
+      {
+        "errors": 0,
+        "max_ms": 279,
+        "method": "POST",
+        "n": 2,
+        "path": "/rest/v1/order_assignment_logs"
+      },
+      {
+        "errors": 0,
+        "max_ms": 4231,
+        "method": "GET",
+        "n": 183,
+        "path": "/rest/v1/rider_assignments"
+      },
+      {
+        "errors": 0,
+        "max_ms": 519,
+        "method": "PATCH",
+        "n": 25,
+        "path": "/rest/v1/rider_assignments"
+      },
+      {
+        "errors": 0,
+        "max_ms": 1882,
+        "method": "POST",
+        "n": 2,
+        "path": "/rest/v1/rider_assignments"
+      },
+      {
+        "errors": 0,
+        "max_ms": 772,
+        "method": "POST",
+        "n": 11,
+        "path": "/rest/v1/rpc/assign_nearby_searching_orders_core"
+      },
+      {
+        "errors": 0,
+        "max_ms": 2753,
+        "method": "POST",
+        "n": 10,
+        "path": "/rest/v1/rpc/assign_new_order_to_nearby_online_riders_core"
+      },
+      {
+        "errors": 0,
+        "max_ms": 2132,
+        "method": "POST",
+        "n": 40,
+        "path": "/rest/v1/rpc/find_nearby_riders"
+      },
+      {
+        "errors": 0,
+        "max_ms": 51,
+        "method": "POST",
+        "n": 3,
+        "path": "/rest/v1/rpc/get_dispatch_round_status"
+      },
+      {
+        "errors": 0,
+        "max_ms": 1610,
+        "method": "POST",
+        "n": 18,
+        "path": "/rest/v1/rpc/rider_self_rematch"
+      }
+    ]
+  },
+  "function_gateway": {
+    "result": [
+      {
+        "errors": 0,
+        "function_id": "bf5a92dc-8537-4c28-8a45-f75ec2a341a4",
+        "max_ms": 3903,
+        "mean_ms": 1608.8,
+        "n": 10,
+        "path": "/functions/v1/create-order"
+      },
+      {
+        "errors": 0,
+        "function_id": "3d0fe0c2-0bc3-4b33-8709-6c9a5c8b54c5",
+        "max_ms": 23166,
+        "mean_ms": 7987.5,
+        "n": 10,
+        "path": "/functions/v1/start-dispatch"
+      }
+    ]
+  },
+  "new_order_core": {
+    "stats": [
+      {
+        "calls": 6142,
+        "shape": "WITH pgrst_source AS (SELECT \"pgrst_call\".* FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"p_order_id\", \"p_pickup_lat\", \"p_pickup_lng\", \"p_radius_km\", \"p_limit\" FROM json_to_record(pgrst_payload.json_data) AS _(\"p_order_id\" uuid, \"p_pickup_lat\" double precision, \"p_pickup_lng\" double precision, \"p_radius_km\" double precision, \"p_limit\" integer) LIMIT $4) pgrst_body , LATERAL \"public",
+        "max_ms": 12089.528,
+        "mean_ms": 228.459
+      },
+      {
+        "calls": 9066,
+        "shape": "WITH pgrst_source AS (SELECT \"pgrst_call\".* FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"p_order_id\", \"p_pickup_lat\", \"p_pickup_lng\", \"p_radius_km\", \"p_limit\" FROM json_to_record(pgrst_payload.json_data) AS _(\"p_order_id\" uuid, \"p_pickup_lat\" double precision, \"p_pickup_lng\" double precision, \"p_radius_km\" double precision, \"p_limit\" integer) LIMIT $4) pgrst_body , LATERAL \"public",
+        "max_ms": 7612.735,
+        "mean_ms": 59.089
+      },
+      {
+        "calls": 1264,
+        "shape": "WITH pgrst_source AS (SELECT \"pgrst_call\".* FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"p_order_id\", \"p_pickup_lat\", \"p_pickup_lng\", \"p_radius_km\", \"p_limit\" FROM json_to_record(pgrst_payload.json_data) AS _(\"p_order_id\" uuid, \"p_pickup_lat\" double precision, \"p_pickup_lng\" double precision, \"p_radius_km\" double precision, \"p_limit\" integer) LIMIT $4) pgrst_body , LATERAL \"public",
+        "max_ms": 16742.946,
+        "mean_ms": 223.678
+      },
+      {
+        "calls": 4745,
+        "shape": "WITH pgrst_source AS (SELECT \"pgrst_call\".* FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"p_order_id\", \"p_pickup_lat\", \"p_pickup_lng\", \"p_radius_km\", \"p_limit\" FROM json_to_record(pgrst_payload.json_data) AS _(\"p_order_id\" uuid, \"p_pickup_lat\" double precision, \"p_pickup_lng\" double precision, \"p_radius_km\" double precision, \"p_limit\" integer) LIMIT $4) pgrst_body , LATERAL \"public",
+        "max_ms": 6949.533,
+        "mean_ms": 46.143
+      }
+    ],
+    "config": {
+      "timeout": 120,
+      "round1_batch": 5,
+      "round2_batch": 8,
+      "round1_radius": 3,
+      "round2_radius": 5,
+      "search_duration": 420
+    },
+    "new_order_core": "CREATE OR REPLACE FUNCTION public.assign_new_order_to_nearby_online_riders_core(p_order_id uuid)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_order RECORD;\n    v_radius_km double precision;\n    v_rider RECORD;\nBEGIN\n    SELECT id, user_id, order_status, pickup_lat, pickup_lng\n    INTO v_order\n    FROM public.orders\n    WHERE id = p_order_id;\n\n    IF NOT FOUND THEN\n        RETURN;\n    END IF;\n\n    IF v_order.order_status != 'searching' THEN\n        RETURN;\n    END IF;\n\n    IF v_order.pickup_lat IS NULL OR v_order.pickup_lng IS NULL THEN\n        RETURN;\n    END IF;\n\n    SELECT COALESCE(round_2_radius_km, 5.0) INTO v_radius_km\n    FROM public.dispatch_config\n    WHERE is_active = true\n    LIMIT 1;\n    v_radius_km := COALESCE(v_radius_km, 5.0);\n\n    -- Byte-for-byte identical to the loop this replaces inside\n    -- assign_new_order_to_nearby_online_riders() (20260808000005) -- only NEW.* references became\n    -- v_order.* after the fresh SELECT above.\n    FOR v_rider IN (\n        SELECT r.id, r.user_id, r.current_lat, r.current_lng, r.service_mode\n        FROM public.riders r\n        WHERE r.account_status = 'online'\n          AND r.current_lat IS NOT NULL\n          AND r.current_lng IS NOT NULL\n          AND r.user_id != v_order.user_id\n          AND (\n              6371 * acos(\n                  LEAST(GREATEST(\n                      cos(radians(v_order.pickup_lat)) * cos(radians(r.current_lat))\n                          * cos(radians(r.current_lng) - radians(v_order.pickup_lng))\n                      + sin(radians(v_order.pickup_lat)) * sin(radians(r.current_lat))\n                  , -1.0), 1.0)\n              )\n          ) <= v_radius_km\n    ) LOOP\n        PERFORM public.assign_nearby_searching_orders_core(\n            v_rider.id,\n            v_rider.user_id,\n            v_rider.current_lat,\n            v_rider.current_lng,\n            v_rider.service_mode\n        );\n    END LOOP;\nEND;\n$function$\n"
+  },
+  "cron_durations_source": "../root-cause-20261101/PART_1_EVIDENCE.json: cron_and_logging[0].evidence.job_runs",
+  "dispatch_trace_excerpt": {
+    "method": "Selected redacted entries from bounded function_logs read (first 100 matching Dispatch messages, ends16:28:57; not complete incident chronology)",
+    "events": [
+      {
+        "utc": "16:24:59.429",
+        "event": "worker starts gap428ms"
+      },
+      {
+        "utc": "16:24:59.601",
+        "event": "find_nearby_riders 49ms returned1"
+      },
+      {
+        "utc": "16:24:59.700",
+        "event": "1 assignment committed round1"
+      },
+      {
+        "utc": "16:25:05.870",
+        "event": "status accepted; worker exits"
+      },
+      {
+        "utc": "16:25:32.994",
+        "event": "nearby 74ms returned1; all candidates already handled; nextpass2s"
+      },
+      {
+        "utc": "16:25:35.120",
+        "event": "nearby38ms returned1; all candidates already handled; nextpass2s"
+      },
+      {
+        "utc": "16:26:30.754",
+        "event": "nearby155ms returned1; all candidates already handled"
+      },
+      {
+        "utc": "16:26:33.472",
+        "event": "nearby267ms returned1; all candidates already handled"
+      },
+      {
+        "utc": "16:26:35.848",
+        "event": "nearby43ms returned1; all candidates already handled"
+      },
+      {
+        "utc": "16:26:38.044",
+        "event": "nearby117ms returned1; all candidates already handled; nextpass15s"
+      },
+      {
+        "utc": "16:26:53.261",
+        "event": "status rider_arrived; worker exits"
+      }
+    ]
+  },
+  "recovery_plan": {
+    "method": "EXPLAIN FORMAT JSON, no ANALYZE; no execution",
+    "index": "idx_orders_searching_created_at",
+    "estimatedRows": 1,
+    "totalCost": 1.75,
+    "limit": "Current estimates only; not observed runtime or incident plan"
+  }
+}

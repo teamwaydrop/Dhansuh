@@ -1,0 +1,6 @@
+{
+  "path": "supabase/migrations/20261103162805_waydrop_cache_admin_rls_checks_per_statement.sql",
+  "sha256": "cceca9d7a72647a0686a7af035c793d7c9d73d3e346d8caee153a58641fa4c1d",
+  "original_cli_draft": "20261103105157_waydrop_cache_admin_rls_checks_per_statement.sql",
+  "server_recorded_version_is_canonical": true
+}

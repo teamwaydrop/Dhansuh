@@ -1,0 +1,81 @@
+{
+  "source": "Numbers supplied by the user in the current request; no raw chart export, resolution or device labels supplied. Not independently read from a signed-in dashboard.",
+  "commit_ratio_pct": 132.14,
+  "estimated_unallocated_MB_if_disjoint_components": 36.9,
+  "estimated_unallocated_pct_if_disjoint_components": 9.03,
+  "user_plus_system_CPU_pct": 11.46,
+  "connection_fraction_of_current_max_60_pct": 38.33,
+  "gateway_requests_in_test_window": 1986,
+  "Dart_requests_in_test_window": 957,
+  "gateway_5XX_or_timeout_matches": 0,
+  "Dart_requests_over_1s": 90,
+  "Dart_requests_over_5s": 6,
+  "Dart_requests_over_20s": 1,
+  "slow_uploads": [
+    {
+      "flow": "parcel_booking_image",
+      "kind": "slow_storage",
+      "origin_ms": "19148",
+      "request_bytes": "19751",
+      "source": "edge_logs",
+      "status": "200",
+      "timestamp": "2026-11-02T10:24:39.697000"
+    },
+    {
+      "flow": "pickup_verification",
+      "kind": "slow_storage",
+      "origin_ms": "8635",
+      "request_bytes": "690122",
+      "source": "edge_logs",
+      "status": "200",
+      "timestamp": "2026-11-02T10:25:28.682000"
+    },
+    {
+      "flow": "dropoff_verification",
+      "kind": "slow_storage",
+      "origin_ms": "22676",
+      "request_bytes": "544967",
+      "source": "edge_logs",
+      "status": "200",
+      "timestamp": "2026-11-02T10:25:57.119000"
+    }
+  ],
+  "audit_409s": [
+    {
+      "flow": "order_assignment_logs",
+      "kind": "audit_http",
+      "origin_ms": "42",
+      "request_bytes": "243",
+      "source": "edge_logs",
+      "status": "409",
+      "timestamp": "2026-11-02T10:21:17.956000"
+    },
+    {
+      "flow": "order_assignment_logs",
+      "kind": "audit_http",
+      "origin_ms": "63",
+      "request_bytes": "243",
+      "source": "edge_logs",
+      "status": "409",
+      "timestamp": "2026-11-02T10:25:09.106000"
+    },
+    {
+      "flow": "order_assignment_logs",
+      "kind": "audit_http",
+      "origin_ms": "623",
+      "request_bytes": "243",
+      "source": "edge_logs",
+      "status": "409",
+      "timestamp": "2026-11-02T10:26:59.005000"
+    }
+  ],
+  "limits": [
+    "Unallocated is not MemAvailable; cache is not all guaranteed reclaimable.",
+    "Commitment and occupied swap do not measure paging rate.",
+    "Connection count/CPU/memory/throughput samples are at different times.",
+    "Project-wide gateway family is not an identified device/build.",
+    "Request size divided by origin duration is not a measured network throughput.",
+    "No HTTP start/completion semantics or cross-service request ID join inferred.",
+    "No zero latency inferred from missing origin_time on service events."
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "security": {
+    "counts": {
+      "rls_enabled_no_policy": 1,
+      "security_definer_view": 1,
+      "function_search_path_mutable": 1,
+      "extension_in_public": 1,
+      "anon_security_definer_function_executable": 1,
+      "authenticated_security_definer_function_executable": 1,
+      "auth_allow_anonymous_sign_ins": 57,
+      "auth_leaked_password_protection": 1
+    },
+    "remediation_links": [
+      "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy",
+      "https://supabase.com/docs/guides/database/database-linter?lint=0010_security_definer_view",
+      "https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable",
+      "https://supabase.com/docs/guides/database/database-linter?lint=0014_extension_in_public",
+      "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable",
+      "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable",
+      "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+    ]
+  },
+  "performance": {
+    "counts": {
+      "unindexed_foreign_keys": 1,
+      "unused_index": 1,
+      "multiple_permissive_policies": 1
+    },
+    "remediation_links": [
+      "https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys",
+      "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+      "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies"
+    ]
+  }
+}

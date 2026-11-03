@@ -5,8 +5,10 @@
 // test: it makes a live HTTP call to the deployed `calculate-order-pricing` edge function and
 // asserts on its actual response, proving the deployed fix works end-to-end -- not just that the
 // source contains an expected string. It is read-only (a pure pricing calculation, no DB write),
-// so it's safe to run repeatedly against production.
+// but it creates backend workload; run only against an explicitly approved endpoint.
 //
+// Explicitly opt in with --dart-define=WAYDROP_RUN_LIVE_PRICING_TESTS=true.
+// Default test runs make no production request from this integration file.
 // Requires a local `.env` (the same file `flutter run`/`flutter build` already need via
 // --dart-define-from-file=.env) with SUPABASE_URL and SUPABASE_ANON_KEY. If that file isn't
 // present (e.g. a bare CI checkout with secrets injected another way), the test is skipped rather
@@ -71,73 +73,123 @@ Future<Map<String, dynamic>?> _fetchPricing(
 }
 
 void main() {
-  final env = _readDotEnv();
+  const runLive = bool.fromEnvironment('WAYDROP_RUN_LIVE_PRICING_TESTS');
+  final env = runLive ? _readDotEnv() : <String, String>{};
   final baseUrl = env['SUPABASE_URL'] ?? '';
   final anonKey = env['SUPABASE_ANON_KEY'] ?? '';
   final hasEnv = baseUrl.isNotEmpty && anonKey.isNotEmpty;
+  final skipReason = runLive
+      ? '.env with SUPABASE_URL/SUPABASE_ANON_KEY is unavailable'
+      : 'Live pricing is opt-in: --dart-define=WAYDROP_RUN_LIVE_PRICING_TESTS=true against an approved endpoint';
 
   group('calculate-order-pricing (live): Intercity Parcel is ₹2.50/km, never ₹0.00', () {
-    test('1. a 100km intercity_parcel route prices at ₹250 base (100 × ₹2.50), not ₹0.00', () async {
-      if (!hasEnv) {
-        markTestSkipped('.env with SUPABASE_URL/SUPABASE_ANON_KEY not present in this environment');
-        return;
-      }
-      final pricing = await _fetchPricing(baseUrl, anonKey, distanceKm: 100);
-      expect(pricing, isNotNull, reason: 'calculate-order-pricing did not return a usable pricing object');
-      final baseFare = double.tryParse(pricing!['base_fare'].toString());
-      final finalFare = double.tryParse(pricing['final_fare'].toString());
-      final discountPercent = double.parse(pricing['discount_percentage'].toString());
-      final gstPercent = double.parse(pricing['gst_percentage'].toString());
-      expect(baseFare, isNotNull);
-      expect(finalFare, isNotNull);
-      expect(baseFare!, greaterThan(0), reason: 'This is exactly the ₹0.00 bug if it fails');
-      expect(baseFare, closeTo(250.0, 0.01));
-      // final_fare is derived from base_fare by the config's own discount then GST (boost is 0
-      // here): final = base × (1 - discount%) × (1 + gst%). Assert against the response's own
-      // percentages so this stays correct if the row's discount/GST is retuned later. (±1 for the
-      // whole-rupee rounding the pricing engine applies once, at this point.)
-      final expectedFinal = baseFare * (1 - discountPercent / 100) * (1 + gstPercent / 100);
-      expect(finalFare!, closeTo(expectedFinal, 1.0));
-    });
+    test(
+      '1. a 100km intercity_parcel route prices at ₹250 base (100 × ₹2.50), not ₹0.00',
+      () async {
+        if (!hasEnv) {
+          markTestSkipped(skipReason);
+          return;
+        }
+        final pricing = await _fetchPricing(baseUrl, anonKey, distanceKm: 100);
+        expect(
+          pricing,
+          isNotNull,
+          reason:
+              'calculate-order-pricing did not return a usable pricing object',
+        );
+        final baseFare = double.tryParse(pricing!['base_fare'].toString());
+        final finalFare = double.tryParse(pricing['final_fare'].toString());
+        final discountPercent = double.parse(
+          pricing['discount_percentage'].toString(),
+        );
+        final gstPercent = double.parse(pricing['gst_percentage'].toString());
+        expect(baseFare, isNotNull);
+        expect(finalFare, isNotNull);
+        expect(
+          baseFare!,
+          greaterThan(0),
+          reason: 'This is exactly the ₹0.00 bug if it fails',
+        );
+        expect(baseFare, closeTo(250.0, 0.01));
+        // final_fare is derived from base_fare by the config's own discount then GST (boost is 0
+        // here): final = base × (1 - discount%) × (1 + gst%). Assert against the response's own
+        // percentages so this stays correct if the row's discount/GST is retuned later. (±1 for the
+        // whole-rupee rounding the pricing engine applies once, at this point.)
+        final expectedFinal =
+            baseFare * (1 - discountPercent / 100) * (1 + gstPercent / 100);
+        expect(finalFare!, closeTo(expectedFinal, 1.0));
+      },
+    );
 
-    test('2. the fare scales linearly with distance at exactly ₹2.50/km (proves it is not a fixed/coincidental value)', () async {
-      if (!hasEnv) {
-        markTestSkipped('.env with SUPABASE_URL/SUPABASE_ANON_KEY not present in this environment');
-        return;
-      }
-      final pricing40 = await _fetchPricing(baseUrl, anonKey, distanceKm: 40);
-      final pricing80 = await _fetchPricing(baseUrl, anonKey, distanceKm: 80);
-      expect(pricing40, isNotNull);
-      expect(pricing80, isNotNull);
-      final base40 = double.parse(pricing40!['base_fare'].toString());
-      final base80 = double.parse(pricing80!['base_fare'].toString());
-      expect(base40, closeTo(100.0, 0.01)); // 40 * 2.5
-      expect(base80, closeTo(200.0, 0.01)); // 80 * 2.5
-      expect(base80 - base40, closeTo(base40, 0.01)); // doubling distance doubles the base fare
-    });
+    test(
+      '2. the fare scales linearly with distance at exactly ₹2.50/km (proves it is not a fixed/coincidental value)',
+      () async {
+        if (!hasEnv) {
+          markTestSkipped(skipReason);
+          return;
+        }
+        final pricing40 = await _fetchPricing(baseUrl, anonKey, distanceKm: 40);
+        final pricing80 = await _fetchPricing(baseUrl, anonKey, distanceKm: 80);
+        expect(pricing40, isNotNull);
+        expect(pricing80, isNotNull);
+        final base40 = double.parse(pricing40!['base_fare'].toString());
+        final base80 = double.parse(pricing80!['base_fare'].toString());
+        expect(base40, closeTo(100.0, 0.01)); // 40 * 2.5
+        expect(base80, closeTo(200.0, 0.01)); // 80 * 2.5
+        expect(
+          base80 - base40,
+          closeTo(base40, 0.01),
+        ); // doubling distance doubles the base fare
+      },
+    );
 
-    test('3. auto (a second vehicle type sharing the same rate) also prices correctly, not ₹0.00', () async {
-      if (!hasEnv) {
-        markTestSkipped('.env with SUPABASE_URL/SUPABASE_ANON_KEY not present in this environment');
-        return;
-      }
-      final pricing60 = await _fetchPricing(baseUrl, anonKey, distanceKm: 60, vehicleType: 'auto');
-      final pricing100 = await _fetchPricing(baseUrl, anonKey, distanceKm: 100, vehicleType: 'auto');
-      expect(pricing60, isNotNull);
-      expect(pricing100, isNotNull);
-      expect(double.parse(pricing60!['base_fare'].toString()), closeTo(150.0, 0.01)); // 60 * 2.5
-      expect(double.parse(pricing100!['base_fare'].toString()), closeTo(250.0, 0.01)); // 100 * 2.5
-    });
+    test(
+      '3. auto (a second vehicle type sharing the same rate) also prices correctly, not ₹0.00',
+      () async {
+        if (!hasEnv) {
+          markTestSkipped(skipReason);
+          return;
+        }
+        final pricing60 = await _fetchPricing(
+          baseUrl,
+          anonKey,
+          distanceKm: 60,
+          vehicleType: 'auto',
+        );
+        final pricing100 = await _fetchPricing(
+          baseUrl,
+          anonKey,
+          distanceKm: 100,
+          vehicleType: 'auto',
+        );
+        expect(pricing60, isNotNull);
+        expect(pricing100, isNotNull);
+        expect(
+          double.parse(pricing60!['base_fare'].toString()),
+          closeTo(150.0, 0.01),
+        ); // 60 * 2.5
+        expect(
+          double.parse(pricing100!['base_fare'].toString()),
+          closeTo(250.0, 0.01),
+        ); // 100 * 2.5
+      },
+    );
 
-    test('4. a non-integer-rupee distance keeps the exact ₹2.50/km rate (guards against the rate being rounded to a whole number)', () async {
-      if (!hasEnv) {
-        markTestSkipped('.env with SUPABASE_URL/SUPABASE_ANON_KEY not present in this environment');
-        return;
-      }
-      // 33 * 2.50 = 82.50 exactly. A rate silently coerced to ₹2 or ₹3 would give 66 or 99.
-      final pricing = await _fetchPricing(baseUrl, anonKey, distanceKm: 33);
-      expect(pricing, isNotNull);
-      expect(double.parse(pricing!['base_fare'].toString()), closeTo(82.50, 0.01));
-    });
+    test(
+      '4. a non-integer-rupee distance keeps the exact ₹2.50/km rate (guards against the rate being rounded to a whole number)',
+      () async {
+        if (!hasEnv) {
+          markTestSkipped(skipReason);
+          return;
+        }
+        // 33 * 2.50 = 82.50 exactly. A rate silently coerced to ₹2 or ₹3 would give 66 or 99.
+        final pricing = await _fetchPricing(baseUrl, anonKey, distanceKm: 33);
+        expect(pricing, isNotNull);
+        expect(
+          double.parse(pricing!['base_fare'].toString()),
+          closeTo(82.50, 0.01),
+        );
+      },
+    );
   });
 }

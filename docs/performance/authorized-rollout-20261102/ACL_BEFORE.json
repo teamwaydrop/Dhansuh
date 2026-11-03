@@ -1,0 +1,29 @@
+[
+  {
+    "signature": "assign_new_order_to_nearby_online_riders_core(uuid)",
+    "owner": "postgres",
+    "acl": null,
+    "md5": "2d934518592e53a06c25a2adbc91259c",
+    "anon_execute": true,
+    "authenticated_execute": true,
+    "service_execute": true
+  },
+  {
+    "signature": "redispatch_freed_riders()",
+    "owner": "postgres",
+    "acl": null,
+    "md5": "74afe7767f445453e4fbff3dbae87c9a",
+    "anon_execute": true,
+    "authenticated_execute": true,
+    "service_execute": true
+  },
+  {
+    "signature": "redispatch_stalled_searching_orders()",
+    "owner": "postgres",
+    "acl": null,
+    "md5": "b486cd2e7650778ba2a41fe3eac5ea0a",
+    "anon_execute": true,
+    "authenticated_execute": true,
+    "service_execute": true
+  }
+]

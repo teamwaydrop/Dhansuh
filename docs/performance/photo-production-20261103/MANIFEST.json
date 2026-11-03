@@ -1,0 +1,19 @@
+{
+  "baseline_version": 18,
+  "baseline_bundle_sha256": "b5ae5253ffc57de6c3db41ce9e212fc673f299e75ea4ea8d0dfa48efd66ce50f",
+  "scope": "legacy protocol; early current-order/rider ownership guard plus full-body download deadline; type-only legacy timer/catch compatibility",
+  "files": [
+    {
+      "path": "functions/process-verification-photo/index.ts",
+      "sha256": "a0331c2848300653be2a802348ef68448d71d5ce290c7c761f21bf6e36c44493"
+    },
+    {
+      "path": "functions/_shared/http.ts",
+      "sha256": "7592be0f9749e0400144fac15e696e3e028f8a262b58dcddc35e5bd992d08c45"
+    },
+    {
+      "path": "functions/_shared/photo_download.ts",
+      "sha256": "9138854c1ac3d5ace943c85fc055d7a3fcddab10361b0682d5397421c37e35bc"
+    }
+  ]
+}

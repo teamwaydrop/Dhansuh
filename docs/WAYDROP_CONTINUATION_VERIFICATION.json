@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-31",
+  "productionModified": false,
+  "releaseReady": false,
+  "releaseVerdict": "HOLD: backend production authorization proposals unapplied; full staging, provider and physical-device regressions outstanding.",
+  "flutter": {
+    "passed": 2038,
+    "failed": 0,
+    "skipsIntroduced": 0,
+    "scope": "Complete offline test selection",
+    "liveFilesNotRun": [
+      "test/pricing_dedup_regression_test.dart",
+      "test/intercity_parcel_pricing_regression_test.dart"
+    ],
+    "log": "docs/verification-continuation/continuation_final_flutter_tests.txt"
+  },
+  "node": {
+    "passed": 58,
+    "failed": 0,
+    "skipped": 0,
+    "authorizationScenarios": 52,
+    "businessContractTests": 5,
+    "parentTestCounted": 1,
+    "engine": "PostgreSQL 18.6 / PGlite 0.5.13",
+    "productionCatalogEngine": "PostgreSQL 17",
+    "syntheticSchema": true,
+    "internalRpcBodiesAreAclFixtures": true,
+    "log": "docs/verification-continuation/continuation_node_tests3.txt"
+  },
+  "analyzer": {
+    "before": {
+      "errors": 0,
+      "warnings": 75,
+      "infos": 433
+    },
+    "after": {
+      "errors": 0,
+      "warnings": 73,
+      "infos": 382
+    },
+    "newDiagnosticFingerprints": 0,
+    "log": "docs/verification-continuation/continuation_flutter_analyze_verified.txt"
+  },
+  "originalFailuresResolved": 20,
+  "changedImplementationTestProposalToolDependencyFiles": 51,
+  "device": {
+    "androidPhysicalDevices": 0,
+    "coldStartup": null,
+    "warmStartup": null,
+    "firstUsableScreen": null,
+    "apiRequestsPerMinute": null,
+    "gpsWritesPerMinute": null,
+    "framePerformance": null,
+    "reason": "No attached Android device; exact procedures supplied."
+  },
+  "securityProposalState": "Rollback-default SQL reviewed and tested only on disposable local PostgreSQL synthetic schema. Not applied to connected staging or production.",
+  "dependency": "path_provider 2.1.5 declared direct; no version or checksum change",
+  "diff": "docs/WAYDROP_CONTINUATION_DIFF.patch",
+  "triage": "docs/WAYDROP_FAILURE_TRIAGE_CONTINUATION.json"
+}

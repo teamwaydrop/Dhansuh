@@ -1,0 +1,220 @@
+{
+  "health": [
+    {
+      "jsonb_build_object": {
+        "tables": [
+          {
+            "table": "riders",
+            "updates": 32352,
+            "hot_updates": 2972,
+            "dead_estimate": 27,
+            "live_estimate": 25,
+            "last_autovacuum": "2026-11-01T22:25:31.768645+05:30",
+            "autovacuum_count": 553,
+            "last_autoanalyze": "2026-11-02T08:30:40.703712+05:30",
+            "autoanalyze_count": 590
+          },
+          {
+            "table": "orders",
+            "updates": 10007,
+            "hot_updates": 3314,
+            "dead_estimate": 258,
+            "live_estimate": 1205,
+            "last_autovacuum": "2026-09-28T10:18:35.434218+05:30",
+            "autovacuum_count": 55,
+            "last_autoanalyze": "2026-11-01T22:00:33.076201+05:30",
+            "autoanalyze_count": 115
+          },
+          {
+            "table": "rider_assignments",
+            "updates": 3300,
+            "hot_updates": 40,
+            "dead_estimate": 205,
+            "live_estimate": 1013,
+            "last_autovacuum": "2026-09-08T16:53:22.111185+05:30",
+            "autovacuum_count": 52,
+            "last_autoanalyze": "2026-10-26T01:08:53.856421+05:30",
+            "autoanalyze_count": 39
+          },
+          {
+            "table": "order_chat_messages",
+            "updates": 0,
+            "hot_updates": 0,
+            "dead_estimate": 16,
+            "live_estimate": 480,
+            "last_autovacuum": "2026-07-25T20:18:00.000436+05:30",
+            "autovacuum_count": 2,
+            "last_autoanalyze": "2026-08-14T19:06:39.667603+05:30",
+            "autoanalyze_count": 11
+          },
+          {
+            "table": "notifications",
+            "updates": 8169,
+            "hot_updates": 6785,
+            "dead_estimate": 257,
+            "live_estimate": 5690,
+            "last_autovacuum": "2026-09-28T10:18:35.579095+05:30",
+            "autovacuum_count": 21,
+            "last_autoanalyze": "2026-10-25T13:37:38.426758+05:30",
+            "autoanalyze_count": 87
+          },
+          {
+            "table": "rider_locations",
+            "updates": 395,
+            "hot_updates": 395,
+            "dead_estimate": 13,
+            "live_estimate": 23,
+            "last_autovacuum": "2026-11-01T22:18:31.62909+05:30",
+            "autovacuum_count": 6,
+            "last_autoanalyze": "2026-10-27T00:06:34.264295+05:30",
+            "autoanalyze_count": 7
+          }
+        ],
+        "observed_at": "2026-11-02T09:14:16.698469+05:30",
+        "database_stats": {
+          "deadlocks": 0,
+          "temp_bytes": 1528766901753,
+          "temp_files": 373285,
+          "numbackends": 8,
+          "stats_reset": "2026-05-01T02:50:03.043679+05:30",
+          "blk_read_time": 0,
+          "blk_write_time": 0
+        },
+        "statements_view": "extensions",
+        "postmaster_start": "2026-05-07T11:51:39.205612+05:30",
+        "current_wait_groups": [
+          {
+            "state": "active",
+            "sessions": 1,
+            "wait_event_type": null
+          },
+          {
+            "state": "idle",
+            "sessions": 5,
+            "wait_event_type": "Client"
+          },
+          {
+            "state": null,
+            "sessions": 2,
+            "wait_event_type": "Extension"
+          }
+        ]
+      }
+    }
+  ],
+  "spills": [
+    {
+      "calls": 553,
+      "mean_ms": "370.187",
+      "max_ms": "1150.405",
+      "temp_blks_read": 70784,
+      "temp_blks_written": 629314,
+      "normalized_query": "with f as (\n      \n\n\n\nwith functions as (\n  select\n    *,\n    \n    coalesce(\n      p.proargmodes,\n      array_fill($1::text, array[cardinality(coalesce(p.proallargtypes, p.proargtypes))])\n    ) as arg_modes,\n    \n    coalesce(\n      p.proargnames,\n      array_fill($2::text, array[cardinality(coalesce(p.proallargtypes, p.proargtypes))])\n    ) as arg_names,\n    \n    coalesce(p.proallargtypes, p.proargtypes) as arg_types,\n    array_cat(\n      array_fill($3, array[pronargs - pronargdefaults]),\n      array_fill($4, array[pronargdefaults])) as arg_has_defaults\n  from\n    pg_proc as p\n  where\n    p.prokind = $5\n)\nselect\n  f.oid as id,\n  n.nspname as schema,\n  f.proname as name,\n  l.lanname as language,\n  case\n    when l.lanname = $6 then $7\n    else f.prosrc\n  end as definition,\n  case\n    when l.lanname = $8 then f.prosrc\n    else pg_get_functiondef(f.oid)\n  end as complete_statement,\n  coalesce(f_args.args, $9) as args,\n  pg_get_function_arguments(f.oid) as argument_types,\n  pg_get_function_identity_arguments(f.oid) as identity_argument_types,\n  f.prorettype as return_type_id,\n  pg_get_function_result(f.oid) as return_type,\n  nullif(rt.typrelid, $10) as return_type_relation_id,\n  f.proretset as is_set_returning_function,\n  case\n    when f.provolatile = $11 then $12\n    when f.provolatile = $13 then $14\n    when f.provolatile = $15 then $16\n  end as behavior,\n  f.prosecdef as security_definer,\n  f_config.config_params as config_params\nfrom\n  functions f\n  left join pg_namespace "
+    },
+    {
+      "calls": 151,
+      "mean_ms": "687.070",
+      "max_ms": "13989.386",
+      "temp_blks_read": 36610,
+      "temp_blks_written": 181125,
+      "normalized_query": "with f as (\n      \n\n\n\nwith functions as (\n  select\n    *,\n    \n    coalesce(\n      p.proargmodes,\n      array_fill($1::text, array[cardinality(coalesce(p.proallargtypes, p.proargtypes))])\n    ) as arg_modes,\n    \n    coalesce(\n      p.proargnames,\n      array_fill($2::text, array[cardinality(coalesce(p.proallargtypes, p.proargtypes))])\n    ) as arg_names,\n    \n    coalesce(p.proallargtypes, p.proargtypes) as arg_types,\n    array_cat(\n      array_fill($3, array[pronargs - pronargdefaults]),\n      array_fill($4, array[pronargdefaults])) as arg_has_defaults\n  from\n    pg_proc as p\n  where\n    p.prokind in ($5, $6)\n)\nselect\n  f.oid as id,\n  n.nspname as schema,\n  f.proname as name,\n  l.lanname as language,\n  case f.prokind\n    when $7 then $8\n    when $9 then $10\n    when $11 then $12\n    when $13 then $14\n    else $15\n  end as type,\n  case\n    when l.lanname = $16 then $17\n    else f.prosrc\n  end as definition,\n  case\n    when l.lanname = $18 then f.prosrc\n    else pg_get_functiondef(f.oid)\n  end as complete_statement,\n  coalesce(f_args.args, $19) as args,\n  pg_get_function_arguments(f.oid) as argument_types,\n  pg_get_function_identity_arguments(f.oid) as identity_argument_types,\n  f.prorettype as return_type_id,\n  pg_get_function_result(f.oid) as return_type,\n  nullif(rt.typrelid, $20) as return_type_relation_id,\n  f.proretset as is_set_returning_function,\n  case\n    when f.provolatile = $21 then $22\n    when f.provolatile = $23 then $24\n    when f.provolatile = $25 then $26"
+    },
+    {
+      "calls": 118,
+      "mean_ms": "610.091",
+      "max_ms": "17946.779",
+      "temp_blks_read": 80433,
+      "temp_blks_written": 80433,
+      "normalized_query": "SELECT\n          COALESCE(ROUND(AVG(statements.rows::numeric / NULLIF(statements.calls, $1)), $2), $3) as avg_rows_per_call,\n          COUNT(*) FILTER (WHERE statements.total_exec_time + statements.total_plan_time > $4) as slow_queries,\n          COALESCE(\n            ROUND(\n              SUM(statements.shared_blks_hit) * $5 /\n              NULLIF(SUM(statements.shared_blks_hit + statements.shared_blks_read), $6),\n              $7\n            ), $8\n          ) || $9 as cache_hit_rate\n        FROM pg_stat_statements as statements\n        \n        WHERE statements.calls > $10 \n        \n\n\n\n"
+    },
+    {
+      "calls": 217,
+      "mean_ms": "848.219",
+      "max_ms": "7741.089",
+      "temp_blks_read": 17557,
+      "temp_blks_written": 17557,
+      "normalized_query": "select\n      m->>$1 as version,\n      m->>$2 as name,\n      case\n        when pg_catalog.jsonb_typeof(m->$3) = $4\n        then array(select pg_catalog.jsonb_array_elements_text(m->$5))\n        else $6\n      end as statements\n    from pg_catalog.jsonb_array_elements(\n      coalesce(\n        nullif(pg_catalog.current_setting($7, $8), $9)::pg_catalog.jsonb,\n        $10::pg_catalog.jsonb\n      )\n    ) as m\n    order by m->>'version' desc\n  \n\n\n\n"
+    },
+    {
+      "calls": 18,
+      "mean_ms": "500.766",
+      "max_ms": "4423.782",
+      "temp_blks_read": 6585,
+      "temp_blks_written": 13148,
+      "normalized_query": "WITH pgrst_source AS ( SELECT \"public\".\"intercity_requests\".\"status\", \"public\".\"intercity_requests\".\"proposed_fare\", \"public\".\"intercity_requests\".\"booking_type\", \"public\".\"intercity_requests\".\"parcel_id\", \"public\".\"intercity_requests\".\"route_id\", \"public\".\"intercity_requests\".\"expiry_reason\", row_to_json(\"intercity_requests_orders_1\".*)::jsonb AS \"orders\", row_to_json(\"intercity_requests_rider_travel_plans_1\".*)::jsonb AS \"rider_travel_plans\" FROM \"public\".\"intercity_requests\" LEFT JOIN LATERAL ( SELECT \"orders_1\".\"final_fare\", \"orders_1\".\"current_fare\", \"orders_1\".\"order_status\", \"orders_1\".\"pickup_city\", \"orders_1\".\"destination_city\", row_to_json(\"orders_users_2\".*)::jsonb AS \"users\" FROM \"public\".\"orders\" AS \"orders_1\" LEFT JOIN LATERAL ( SELECT \"users_2\".\"full_name\", \"users_2\".\"phone\" FROM \"public\".\"users\" AS \"users_2\" WHERE \"users_2\".\"id\" = \"orders_1\".\"user_id\"   LIMIT $1 OFFSET $2 ) AS \"orders_users_2\" ON $10 WHERE \"orders_1\".\"id\" = \"public\".\"intercity_requests\".\"parcel_id\"   LIMIT $3 OFFSET $4 ) AS \"intercity_requests_orders_1\" ON $11  LEFT JOIN LATERAL ( SELECT \"rider_travel_plans_1\".* FROM \"public\".\"rider_travel_plans\" AS \"rider_travel_plans_1\" WHERE \"rider_travel_plans_1\".\"id\" = \"public\".\"intercity_requests\".\"route_id\"   LIMIT $5 OFFSET $6 ) AS \"intercity_requests_rider_travel_plans_1\" ON $12 WHERE  \"public\".\"intercity_requests\".\"traveller_id\" = $7  ORDER BY \"public\".\"intercity_requests\".\"created_at\" DESC NULLS LAST LIMIT $8 OFFSET $9 )  SELECT $13::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $14) AS body, nullif(current_setting($15, $16), $17) AS response_headers, nullif(current_setting($18, $19), $20) AS response_status, $21 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "calls": 20,
+      "mean_ms": "229.153",
+      "max_ms": "1832.793",
+      "temp_blks_read": 12446,
+      "temp_blks_written": 12446,
+      "normalized_query": "SELECT\n      CASE\n        WHEN EXISTS (\n          SELECT $1 FROM pg_extension WHERE extname = $2\n        )\n        THEN (\n          SELECT count(*)::int\n          FROM pg_stat_statements\n          WHERE total_exec_time + total_plan_time > $3\n        )\n        ELSE $4\n      END AS slow_queries_count"
+    },
+    {
+      "calls": 9,
+      "mean_ms": "360.211",
+      "max_ms": "705.575",
+      "temp_blks_read": 1152,
+      "temp_blks_written": 10242,
+      "normalized_query": "with f as (\n      \n\n\n\nwith functions as (\n  select\n    *,\n    \n    coalesce(\n      p.proargmodes,\n      array_fill($1::text, array[cardinality(coalesce(p.proallargtypes, p.proargtypes))])\n    ) as arg_modes,\n    \n    coalesce(\n      p.proargnames,\n      array_fill($2::text, array[cardinality(coalesce(p.proallargtypes, p.proargtypes))])\n    ) as arg_names,\n    \n    coalesce(p.proallargtypes, p.proargtypes) as arg_types,\n    array_cat(\n      array_fill($3, array[pronargs - pronargdefaults]),\n      array_fill($4, array[pronargdefaults])) as arg_has_defaults\n  from\n    pg_proc as p\n  where\n    p.prokind in ($5, $6)\n)\nselect\n  f.oid as id,\n  n.nspname as schema,\n  f.proname as name,\n  l.lanname as language,\n  case f.prokind\n    when $7 then $8\n    when $9 then $10\n    when $11 then $12\n    when $13 then $14\n    else $15\n  end as type,\n  case\n    when l.lanname = $16 then $17\n    else f.prosrc\n  end as definition,\n  case\n    when l.lanname = $18 then f.prosrc\n    else pg_get_functiondef(f.oid)\n  end as complete_statement,\n  coalesce(f_args.args, $19) as args,\n  pg_get_function_arguments(f.oid) as argument_types,\n  pg_get_function_identity_arguments(f.oid) as identity_argument_types,\n  f.prorettype as return_type_id,\n  pg_get_function_result(f.oid) as return_type,\n  nullif(rt.typrelid, $20) as return_type_relation_id,\n  f.proretset as is_set_returning_function,\n  case\n    when f.provolatile = $21 then $22\n    when f.provolatile = $23 then $24\n    when f.provolatile = $25 then $26"
+    },
+    {
+      "calls": 8,
+      "mean_ms": "63.503",
+      "max_ms": "72.337",
+      "temp_blks_read": 10168,
+      "temp_blks_written": 8478,
+      "normalized_query": "SELECT\n  (interval $1 * total_exec_time)::text AS total_exec_time,\n  to_char((total_exec_time/sum(total_exec_time) OVER()) * $2, $3) || $4  AS prop_exec_time,\n  to_char(calls, $5) AS ncalls,\n  /*\n    Handle column names for 15 and 17\n  */\n  (\n    interval $6 * (\n      COALESCE(\n        (to_jsonb(s) ->> $7)::double precision,\n        (to_jsonb(s) ->> $8)::double precision,\n        $9\n      )\n      +\n      COALESCE(\n        (to_jsonb(s) ->> $10)::double precision,\n        (to_jsonb(s) ->> $11)::double precision,\n        $12\n      )\n    )\n  )::text AS sync_io_time,\n  query\nFROM extensions.pg_stat_statements s WHERE userid = (SELECT usesysid FROM pg_user WHERE usename = current_user LIMIT $13)\nORDER BY total_exec_time DESC\nLIMIT $14"
+    }
+  ],
+  "acl": [
+    {
+      "function": "assign_nearby_searching_orders_core(uuid,uuid,double precision,double precision,partner_service_mode_enum)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true
+    },
+    {
+      "function": "assign_new_order_to_nearby_online_riders_core(uuid)",
+      "security_definer": true,
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_execute": true
+    },
+    {
+      "function": "deliver_push_notification_http_fnc(uuid,text,text,jsonb)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true
+    },
+    {
+      "function": "rider_self_rematch()",
+      "security_definer": true,
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_execute": true
+    },
+    {
+      "function": "send_push_notification_fnc(uuid,text,text,jsonb)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true
+    }
+  ],
+  "project": {
+    "ref": "yvwpchffctiagevpqgwy",
+    "region": "ap-south-1",
+    "status": "ACTIVE_HEALTHY",
+    "database_version": "17.6.1.113"
+  },
+  "new_log_queries": 0,
+  "historical_host_metrics_obtained": false,
+  "dashboard_inventory": {
+    "apps": 0,
+    "browsers": 0
+  }
+}

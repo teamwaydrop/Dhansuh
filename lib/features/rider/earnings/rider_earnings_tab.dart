@@ -23,14 +23,19 @@ class RiderEarningsTab extends StatefulWidget {
   // this tab is off-screen; everything else is untouched.
   final bool isActive;
 
-  const RiderEarningsTab({super.key, this.isActive = true});
+  const RiderEarningsTab({super.key, this.isActive = true, this.client, this.realtime});
+
+  // Optional dependencies permit offline verification of the real refresh pipeline.
+  final SupabaseClient? client;
+  final RealtimeManager? realtime;
 
   @override
   State<RiderEarningsTab> createState() => _RiderEarningsTabState();
 }
 
 class _RiderEarningsTabState extends State<RiderEarningsTab> {
-  final supabase = Supabase.instance.client;
+  late final SupabaseClient supabase = widget.client ?? Supabase.instance.client;
+  late final RealtimeManager _realtime = widget.realtime ?? RealtimeManager.instance;
   Map<String, dynamic>? rider;
   double todayEarnings = 0.0;
   // Distinguishes "today's gross earnings is genuinely ₹0 (no completed rides today)" from "the
@@ -62,6 +67,8 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
   String? _riderSubId;
   bool isPayoutActive = false;
   bool loading = true;
+  Future<void>? _dataRequest;
+  bool _dataQueued = false;
   Map<String, dynamic>? activeOrder;
 
   // R1 FIX #5: distinguishes a true cold-start mount (initialRiderDataProvider's snapshot is
@@ -141,7 +148,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
         // so the displayed data may be stale) then let _subscribeRider() re-attach as normal.
         fetchData();
       } else if (_riderSubChannel != null && _riderSubId != null) {
-        RealtimeManager.instance.unsubscribe(_riderSubChannel!, _riderSubId!);
+        _realtime.unsubscribe(_riderSubChannel!, _riderSubId!);
         _riderSubChannel = null;
         _riderSubId = null;
         _subscribedRiderId = null;
@@ -152,12 +159,12 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
   @override
   void dispose() {
     if (_withdrawalsSubChannel != null && _withdrawalsSubId != null) {
-      RealtimeManager.instance.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!);
+      _realtime.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!);
       _withdrawalsSubChannel = null;
       _withdrawalsSubId = null;
     }
     if (_riderSubChannel != null && _riderSubId != null) {
-      RealtimeManager.instance.unsubscribe(_riderSubChannel!, _riderSubId!);
+      _realtime.unsubscribe(_riderSubChannel!, _riderSubId!);
       _riderSubChannel = null;
       _riderSubId = null;
     }
@@ -177,12 +184,12 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
     if (user == null) return;
 
     if (_withdrawalsSubChannel != null && _withdrawalsSubId != null) {
-      RealtimeManager.instance.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!);
+      _realtime.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!);
       _withdrawalsSubChannel = null;
       _withdrawalsSubId = null;
     }
     _withdrawalsSubChannel = 'rider-withdrawals-${user.id}';
-    _withdrawalsSubId = RealtimeManager.instance.subscribe(
+    _withdrawalsSubId = _realtime.subscribe(
       channelName: _withdrawalsSubChannel!,
       table: 'rider_withdrawals',
       owner: 'RiderEarningsTab_Withdrawals',
@@ -191,7 +198,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
       filterColumn: 'user_id',
       filterValue: user.id,
       callback: (payload) {
-        fetchData();
+        if (mounted && widget.isActive) fetchData();
       },
     );
   }
@@ -199,10 +206,11 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
   String? _subscribedRiderId;
 
   void _subscribeRider(String riderId) {
+    if (!mounted || !widget.isActive) return;
     if (_subscribedRiderId == riderId) return;
     _subscribedRiderId = riderId;
     if (_riderSubChannel != null && _riderSubId != null) {
-      RealtimeManager.instance.unsubscribe(_riderSubChannel!, _riderSubId!);
+      _realtime.unsubscribe(_riderSubChannel!, _riderSubId!);
       _riderSubChannel = null;
       _riderSubId = null;
     }
@@ -215,7 +223,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
     // independently of every other listener on the same channel, so this is purely additive --
     // it changes nothing about what RiderHomeTab/RiderOrdersScreen receive or do.
     _riderSubChannel = 'rider-home-$riderId';
-    _riderSubId = RealtimeManager.instance.subscribe(
+    _riderSubId = _realtime.subscribe(
       channelName: _riderSubChannel!,
       table: 'riders',
       owner: 'RiderEarningsTab',
@@ -251,7 +259,26 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
     }
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchData() {
+    _dataQueued = true;
+    final existing = _dataRequest;
+    if (existing != null) return existing;
+    late final Future<void> request;
+    request = _drainDataRequests().whenComplete(() {
+      if (identical(_dataRequest, request)) _dataRequest = null;
+    });
+    _dataRequest = request;
+    return request;
+  }
+
+  Future<void> _drainDataRequests() async {
+    do {
+      _dataQueued = false;
+      await _fetchDataOnce();
+    } while (_dataQueued && mounted && widget.isActive);
+  }
+
+  Future<void> _fetchDataOnce() async {
     try {
       final user = supabase.auth.currentUser;
       if (user == null) return;
@@ -280,11 +307,11 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
 
       // R1 FIX #5: a true cold start reuses AppStartScreen's already-fetched riders row instead
       // of re-querying an identical row a moment later -- safe because nothing can have changed
-      // server-side between that fetch and this mount. The seed is a `select('*', ...)` fetch of
+      // server-side between that fetch and this mount. The seed projects the required fields from
       // the same table/row, so it covers every field this tab reads.
       final seedRider = providerContainer.read(initialRiderDataProvider)?.rider;
       final Map<String, dynamic> riderData;
-      if (seedRider != null && seedRider['id'] != null && !_hasConsumedColdStartSeed) {
+      if (seedRider != null && seedRider['id'] != null && providerContainer.read(initialRiderDataProvider)!.isUsableFor(user.id) && !_hasConsumedColdStartSeed) {
         _hasConsumedColdStartSeed = true;
         riderData = seedRider;
       } else {
@@ -299,6 +326,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
             .single();
       }
 
+      if (!mounted || supabase.auth.currentUser?.id != user.id) return;
       _subscribeRider(riderData['id']);
 
       final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30)).toUtc();
@@ -1195,7 +1223,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
                                   if (!mounted) return;
 
                                   if (response.status == 200 && response.data?['success'] == true) {
-                                    Navigator.pop(ctx);
+                                    if (ctx.mounted) Navigator.pop(ctx);
                                     showAppSnackBar(
                                       context,
                                       response.data?['message'] ?? 'Withdrawal processed successfully',

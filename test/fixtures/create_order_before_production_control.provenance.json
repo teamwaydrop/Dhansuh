@@ -1,0 +1,6 @@
+{
+  "commit": "ed24dee3da2d724bf1e109a4ff8ee895e4170556",
+  "source": "supabase/functions/create-order/index.ts",
+  "sha256": "6bbeb4fce044d31f4bbcfcc262273e77714739c2082839d2a11644e213108f3f",
+  "purpose": "Immutable tracked pre-production-control implementation, not the unavailable deployed v76 artifact"
+}

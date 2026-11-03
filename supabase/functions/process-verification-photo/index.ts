@@ -2,7 +2,8 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { fetchWithTimeout, isTimeoutError } from "../_shared/http.ts";
+import { isTimeoutError } from "../_shared/http.ts";
+import { downloadPhotoBytes } from "../_shared/photo_download.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -83,45 +84,61 @@ serve(async (req) => {
       );
     }
 
+    if (!["pickup", "dropoff"].includes(photo_type)) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Invalid photo_type" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+
     // =====================================================
     // SSRF GUARD
     // Only allow fetching from this project's own public storage bucket
     // for parcel verification photos — never an arbitrary caller-supplied URL.
     // =====================================================
     const allowedPhotoUrlPrefix = `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/parcel_images/`;
-    if (!photo_url.startsWith(allowedPhotoUrlPrefix)) {
+    if (typeof photo_url !== "string" || !photo_url.startsWith(allowedPhotoUrlPrefix)) {
       return new Response(
         JSON.stringify({ success: false, error: "Invalid photo_url" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
 
-    console.log(`[ProcessPhoto] Downloading image bytes from URL: ${photo_url}`);
+    // Check order scope before paying for a Storage download/hash or service-role writes.
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .select("user_id, created_device_ref, rider_id")
+      .eq("id", order_id)
+      .single();
+    if (orderError && orderError.code !== "PGRST116") {
+      return new Response(
+        JSON.stringify({ success: false, error: "Unable to verify order. Please retry." }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
+      );
+    }
+    if (!order) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Order not found" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
+      );
+    }
+    if (order.rider_id !== rider_id) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Forbidden: rider is not assigned to this order" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+      );
+    }
+
+    console.log("[ProcessPhoto] Downloading verification photo");
 
     // 1. Download image bytes
-    const imgRes = await fetchWithTimeout(photo_url, {}, 20000);
-    if (!imgRes.ok) {
-      throw new Error(`Failed to download image from storage (HTTP ${imgRes.status})`);
-    }
-    const arrayBuffer = await imgRes.arrayBuffer();
+    const arrayBuffer = await downloadPhotoBytes(photo_url);
 
     // 2. Compute SHA-256 checksum
     console.log("[ProcessPhoto] Computing SHA-256 checksum server-side");
     const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    console.log(`[ProcessPhoto] SHA-256 hash computed: ${hashHex}`);
-
-    // 3. Fetch order details to get sender user_id
-    const { data: order, error: orderError } = await supabase
-      .from("orders")
-      .select("user_id, created_device_ref")
-      .eq("id", order_id)
-      .single();
-
-    if (orderError || !order) {
-      throw new Error("Order not found");
-    }
 
     // 4. Log photo in order_parcel_photos
     const { data: photoLog, error: photoError } = await supabase

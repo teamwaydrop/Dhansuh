@@ -1,0 +1,1644 @@
+diff --git a/lib/core/services/location/location_cache_service.dart b/lib/core/services/location/location_cache_service.dart
+index 24b6caf..687d500 100644
+--- a/lib/core/services/location/location_cache_service.dart
++++ b/lib/core/services/location/location_cache_service.dart
+@@ -483,7 +483,15 @@ class LocationCacheService {
+           locationSettings: locationSettings,
+         ).listen(
+           _handlePositionUpdate,
++          onDone: () {
++            if (generation == _trackingGeneration) {
++              riderLocationStream = null;
++            }
++          },
+           onError: (error) {
++            if (generation != _trackingGeneration) {
++              return;
++            }
+             debugPrint('LOCATION STREAM ERROR => $error');
+             // BUG FIX: this used to only log -- riderLocationStream was never nulled out on a
+             // stream error (permission revoked mid-session, GPS disabled), so
+@@ -506,7 +514,15 @@ class LocationCacheService {
+             locationSettings: fallbackSettings,
+           ).listen(
+             _handlePositionUpdate,
++            onDone: () {
++              if (generation == _trackingGeneration) {
++              riderLocationStream = null;
++            }
++            },
+             onError: (error) {
++              if (generation != _trackingGeneration) {
++              return;
++            }
+               debugPrint('LOCATION STREAM FALLBACK ERROR => $error');
+               unawaited(riderLocationStream?.cancel());
+             riderLocationStream = null;
+diff --git a/lib/core/services/realtime/realtime_order_controller.dart b/lib/core/services/realtime/realtime_order_controller.dart
+index 39013be..6d971d3 100644
+--- a/lib/core/services/realtime/realtime_order_controller.dart
++++ b/lib/core/services/realtime/realtime_order_controller.dart
+@@ -1,6 +1,6 @@
+ import 'dart:async';
+ import 'dart:convert';
+-import 'package:flutter/foundation.dart';
++import 'package:flutter/widgets.dart';
+ import 'package:supabase_flutter/supabase_flutter.dart';
+ import 'package:waydrop/models/transport_order.dart';
+ import 'package:waydrop/core/services/realtime/realtime_manager.dart';
+@@ -8,9 +8,21 @@ import 'package:waydrop/core/services/network/poll_backoff.dart';
+ 
+ /// Clean state controller to isolate real-time database feeds (orders and riders)
+ /// from the UI layer. Exposes updates via ValueNotifier.
+-class RealtimeOrderController {
++class RealtimeOrderController with WidgetsBindingObserver {
+   final String orderId;
+-  final supabase = Supabase.instance.client;
++  final SupabaseClient supabase;
++  final RealtimeManager _realtime;
++  final DateTime Function() _now;
++  Future<void>? _startFuture;
++  final Map<String, Future<void>> _riderFetches = {};
++  final Set<String> _riderRefreshQueued = {};
++  Future<void>? _userNameFetch;
++  String? _userNameUserId;
++  bool _userNameLoaded = false;
++  int _orderRevision = 0;
++  Future<void>? _orderRequest;
++  bool _orderReadQueued = false;
++  bool _appResumed = true;
+ 
+   final ValueNotifier<TransportOrder?> orderNotifier = ValueNotifier<TransportOrder?>(null);
+   final ValueNotifier<Map<String, double>?> riderLocationNotifier = ValueNotifier<Map<String, double>?>(null);
+@@ -38,6 +50,7 @@ class RealtimeOrderController {
+   // problem in rider_orders_screen.dart's fetchSearchingOrders().
+   bool _refreshInFlight = false;
+   bool _refreshQueued = false;
++  bool _queuedOrderFetch = false;
+ 
+   // Egress fix: fetchOrder()/fetchLiveOrderState() both swallow their own errors
+   // internally (existing try/catch/debugPrint pattern, never rethrows), so failure is
+@@ -46,10 +59,21 @@ class RealtimeOrderController {
+   // _refreshOrderAndLiveState() -- see the polling timer below.
+   final PollBackoff _pollBackoff = PollBackoff();
+ 
+-  RealtimeOrderController({required this.orderId});
++  RealtimeOrderController({required this.orderId, SupabaseClient? client, RealtimeManager? realtime, DateTime Function()? now})
++      : supabase = client ?? Supabase.instance.client,
++        _realtime = realtime ?? RealtimeManager.instance,
++        _now = now ?? DateTime.now;
+ 
+   /// Starts the state merging and real-time subscription lifecycle
+-  Future<void> start() async {
++  Future<void> start() {
++    if (_isDisposed) return Future<void>.value();
++    return _startFuture ??= _start();
++  }
++
++  Future<void> _start() async {
++    WidgetsBinding.instance.addObserver(this);
++    _appResumed = WidgetsBinding.instance.lifecycleState == null ||
++        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+     await fetchOrder();
+     if (_isDisposed) return;
+     // Fetch live state in background asynchronously to prevent screen loading delays. Skipped for
+@@ -57,11 +81,11 @@ class RealtimeOrderController {
+     // _refreshOrderAndLiveState below) -- there is no live rider ETA to show for a finished ride.
+     final loadedOrder = orderNotifier.value;
+     if (loadedOrder == null || !(loadedOrder.isCompleted || loadedOrder.isCancelled)) {
+-      fetchLiveOrderState();
++      unawaited(_refreshOrderAndLiveState(includeOrderFetch: false));
+     }
+     // The two fetches above already cover the initial poll -- mark it done so the timer below
+     // waits its own full interval before firing again, instead of re-fetching immediately.
+-    _lastPollFetchAt = DateTime.now();
++    _lastPollFetchAt = _now();
+     _subscribeOrder();
+ 
+     // Polling timer: queries live order status and details as a safety backup
+@@ -74,18 +98,20 @@ class RealtimeOrderController {
+         return;
+       }
+ 
++      if (!_appResumed) return;
++
+       // Realtime-health gate: while the WebSocket has delivered an update
+       // recently, the poll is a pure duplicate -- skip it entirely (zero
+       // polling while realtime is healthy). It stays as the safety fallback
+       // the moment realtime goes stale (WS drop/backoff).
+       final lastDelivery = _lastRealtimeDeliveryAt;
+       if (lastDelivery != null &&
+-          DateTime.now().difference(lastDelivery) <
++          _now().difference(lastDelivery) <
+               const Duration(seconds: 15)) {
+         return;
+       }
+ 
+-      final now = DateTime.now();
++      final now = _now();
+       final interval = _refreshInterval(
+         staleness: lastDelivery == null ? Duration.zero : now.difference(lastDelivery),
+         status: orderNotifier.value?.orderStatus,
+@@ -103,7 +129,7 @@ class RealtimeOrderController {
+       debugPrint(
+         '[TRACE_CANCEL] RealtimeOrderController pollingTimer tick=${timer.tick} '
+         'order=$orderId (fallback fetch, realtime may be stale, interval=${interval.inSeconds}s) '
+-        'epoch=${DateTime.now().millisecondsSinceEpoch}',
++        'epoch=${_now().millisecondsSinceEpoch}',
+       );
+       await _refreshOrderAndLiveState();
+     });
+@@ -148,8 +174,8 @@ class RealtimeOrderController {
+   /// single queued follow-up instead of running a second concurrent fetch (Performance Roadmap
+   /// Task 3) -- both callers share this SAME guard, so a realtime-triggered fetchLiveOrderState()
+   /// and a timer-triggered full pair can never run concurrently against each other either. A queued
+-  /// follow-up always re-runs the full pair (the safer default) regardless of what the coalesced
+-  /// trigger actually needed.
++  /// follow-up reads orders only if at least one queued caller needed that read; payload-only
++  /// realtime events retain their live-enrichment-only refresh.
+   Future<void> _refreshOrderAndLiveState({bool includeOrderFetch = true}) async {
+     if (_isDisposed) return;
+     // WayDrop Ola egress reduction (2026-08-22): once the order has reached a terminal state,
+@@ -165,6 +191,7 @@ class RealtimeOrderController {
+     }
+     if (_refreshInFlight) {
+       _refreshQueued = true;
++      _queuedOrderFetch = _queuedOrderFetch || includeOrderFetch;
+       return;
+     }
+     _refreshInFlight = true;
+@@ -176,8 +203,10 @@ class RealtimeOrderController {
+       _refreshInFlight = false;
+       if (_refreshQueued) {
+         _refreshQueued = false;
++        final includeQueuedOrder = _queuedOrderFetch;
++        _queuedOrderFetch = false;
+         if (!_isDisposed) {
+-          unawaited(_refreshOrderAndLiveState());
++          unawaited(_refreshOrderAndLiveState(includeOrderFetch: includeQueuedOrder));
+         }
+       }
+     }
+@@ -194,7 +223,7 @@ class RealtimeOrderController {
+     debugPrint(
+       '[TRACE_CANCEL] RealtimeOrderController._applyOrderData order=$orderId '
+       'status=${transportOrder.orderStatus} isCancelled=${transportOrder.isCancelled} '
+-      'isCompleted=${transportOrder.isCompleted} epoch=${DateTime.now().millisecondsSinceEpoch}',
++      'isCompleted=${transportOrder.isCompleted} epoch=${_now().millisecondsSinceEpoch}',
+     );
+     orderNotifier.value = transportOrder;
+ 
+@@ -220,6 +249,28 @@ class RealtimeOrderController {
+   // every realtime UPDATE this same order later receives already ships the complete row
+   // regardless of what this one-time initial fetch selects.
+   Future<void> fetchOrder() async {
++    if (_isDisposed) return;
++    _orderReadQueued = true;
++    final existing = _orderRequest;
++    if (existing != null) return existing;
++    final request = _drainOrderReads();
++    _orderRequest = request;
++    try {
++      await request;
++    } finally {
++      if (identical(_orderRequest, request)) _orderRequest = null;
++    }
++  }
++
++  Future<void> _drainOrderReads() async {
++    do {
++      _orderReadQueued = false;
++      await _queryOrder();
++    } while (_orderReadQueued && !_isDisposed);
++  }
++
++  Future<void> _queryOrder() async {
++    final revision = _orderRevision;
+     try {
+       final response = await supabase
+           .from('orders')
+@@ -227,7 +278,7 @@ class RealtimeOrderController {
+           .eq('id', orderId)
+           .maybeSingle();
+ 
+-      if (_isDisposed) return;
++      if (_isDisposed || revision != _orderRevision) return;
+       if (response == null) {
+         orderNotifier.value = null;
+         _pollBackoff.recordSuccess();
+@@ -243,7 +294,23 @@ class RealtimeOrderController {
+     }
+   }
+ 
+-  Future<void> _fetchUserName(String userId) async {
++  Future<void> _fetchUserName(String userId) {
++    if (_userNameUserId == userId) {
++      if (_userNameLoaded) return Future<void>.value();
++      final existing = _userNameFetch;
++      if (existing != null) return existing;
++    }
++    _userNameUserId = userId;
++    _userNameLoaded = false;
++    late final Future<void> request;
++    request = _queryUserName(userId).whenComplete(() {
++      if (identical(_userNameFetch, request)) _userNameFetch = null;
++    });
++    _userNameFetch = request;
++    return request;
++  }
++
++  Future<void> _queryUserName(String userId) async {
+     try {
+       final res = await supabase
+           .from('users')
+@@ -251,6 +318,8 @@ class RealtimeOrderController {
+           .eq('id', userId)
+           .single();
+       if (_isDisposed) return;
++      if (_userNameUserId != userId) return;
++      _userNameLoaded = true;
+       userNameNotifier.value = res['full_name']?.toString() ?? '';
+     } catch (e) {
+       debugPrint('Error fetching user name in RealtimeOrderController: $e');
+@@ -317,7 +386,7 @@ class RealtimeOrderController {
+               final lng = double.tryParse(location['longitude']?.toString() ?? '');
+               final heading = double.tryParse(location['heading']?.toString() ?? '') ?? 0.0;
+               if (lat != null && lng != null && !_isDisposed) {
+-                riderLocationNotifier.value = {'lat': lat, 'lng': lng, 'heading': heading};
++                _setRiderLocation(lat, lng, heading);
+               }
+             }
+           }
+@@ -333,13 +402,35 @@ class RealtimeOrderController {
+   }
+ 
+   /// Fetches rider's profile and initial position — joins riders + rider_kyc + users
+-  Future<void> _fetchRider(String riderId) async {
++  Future<void> _fetchRider(String riderId, {bool refresh = false}) {
++    final existing = _riderFetches[riderId];
++    if (existing != null) {
++      if (refresh) _riderRefreshQueued.add(riderId);
++      return existing;
++    }
++    final request = () async {
++      try {
++        do {
++          _riderRefreshQueued.remove(riderId);
++          await _queryRider(riderId);
++        } while (_riderRefreshQueued.contains(riderId) && !_isDisposed && _currentRiderId == riderId);
++      } finally {
++        _riderFetches.remove(riderId);
++        _riderRefreshQueued.remove(riderId);
++      }
++    }();
++    _riderFetches[riderId] = request;
++    return request;
++  }
++
++  Future<void> _queryRider(String riderId) async {
+     try {
+       final response = await supabase
+           .from('riders')
+           .select('''
+             id,
+             user_id,
++            kyc_id,
+             rating,
+             total_orders,
+             total_completed_orders,
+@@ -383,6 +474,8 @@ class RealtimeOrderController {
+         debugPrint('Error fetching rider reliability view in controller: $e');
+       }
+ 
++      if (_isDisposed || (_currentRiderId != null && _currentRiderId != riderId)) return;
++
+       // Flatten nested joins into the top-level map so the UI
+       // can use simple keys: 'name', 'vehicle_number', 'rating', 'phone' etc.
+       final Map<String, dynamic> flat = Map<String, dynamic>.from(response);
+@@ -451,7 +544,8 @@ class RealtimeOrderController {
+ 
+       flat['id'] = riderId;
+       if (_isDisposed) return;
+-      // Database profile is the absolute source of truth. Always set it.
++      // A reassigned rider must not be replaced by an old in-flight lookup.
++      if (_currentRiderId != null && _currentRiderId != riderId) return;
+       riderNotifier.value = flat;
+       _updateRiderLocation(flat);
+     } catch (e) {
+@@ -468,17 +562,20 @@ class RealtimeOrderController {
+     final lng = double.tryParse(riderData['current_lng']?.toString() ?? '');
+     final heading = double.tryParse(riderData['current_heading']?.toString() ?? '') ?? 0.0;
+     if (lat != null && lng != null) {
+-      riderLocationNotifier.value = {
+-        'lat': lat,
+-        'lng': lng,
+-        'heading': heading,
+-      };
++      _setRiderLocation(lat, lng, heading);
+     }
+   }
+ 
++  void _setRiderLocation(double lat, double lng, double heading) {
++    if (_isDisposed) return;
++    final previous = riderLocationNotifier.value;
++    if (previous?['lat'] == lat && previous?['lng'] == lng && previous?['heading'] == heading) return;
++    riderLocationNotifier.value = {'lat': lat, 'lng': lng, 'heading': heading};
++  }
++
+   /// Registers order database listeners
+   void _subscribeOrder() {
+-    _orderSubId = RealtimeManager.instance.subscribe(
++    _orderSubId = _realtime.subscribe(
+       channelName: 'realtime-order-$orderId',
+       table: 'orders',
+       owner: 'RealtimeOrderController',
+@@ -487,18 +584,20 @@ class RealtimeOrderController {
+       filterValue: orderId,
+       callback: (payload) async {
+         if (_isDisposed) return;
+-        _lastRealtimeDeliveryAt = DateTime.now();
++        _lastRealtimeDeliveryAt = _now();
+         debugPrint(
+           '[TRACE_CANCEL] RealtimeOrderController._subscribeOrder postgres_changes fired '
+           'order=$orderId newStatus=${payload.newRecord['order_status']} '
+-          'epoch=${DateTime.now().millisecondsSinceEpoch}',
++          'epoch=${_now().millisecondsSinceEpoch}',
+         );
+         // P2 fix: payload.newRecord IS the fresh order row -- apply it directly instead of
+         // re-fetching the identical data via fetchOrder(). This happens synchronously (no network
+         // wait), so order-status changes are reflected immediately regardless of the coalescing
+         // below. Only fetchLiveOrderState() (rider/ETA/signed-URL enrichment) still needs a network
+         // round trip here.
++        ++_orderRevision;
+         _applyOrderData(payload.newRecord);
++        if (!_appResumed) return;
+         await _refreshOrderAndLiveState(includeOrderFetch: false);
+       },
+     );
+@@ -509,7 +608,7 @@ class RealtimeOrderController {
+     if (_isDisposed) return;
+     if (_currentRiderId == riderId && _riderSubId != null) return;
+     if (_riderSubId != null) {
+-      RealtimeManager.instance.unsubscribe('realtime-rider-$_currentRiderId', _riderSubId!);
++      _realtime.unsubscribe('realtime-rider-$_currentRiderId', _riderSubId!);
+       _riderSubId = null;
+     }
+ 
+@@ -522,7 +621,7 @@ class RealtimeOrderController {
+       }
+     }
+ 
+-    _riderSubId = RealtimeManager.instance.subscribe(
++    _riderSubId = _realtime.subscribe(
+       channelName: 'realtime-rider-$riderId',
+       table: 'riders',
+       owner: 'RealtimeOrderController',
+@@ -531,38 +630,49 @@ class RealtimeOrderController {
+       filterValue: riderId,
+       callback: (payload) async {
+         if (_isDisposed) return;
+-        _lastRealtimeDeliveryAt = DateTime.now();
++        _lastRealtimeDeliveryAt = _now();
+         debugPrint('REALTIME RIDER LOCATION UPDATE RECEIVED');
+         final newRecord = payload.newRecord;
+         final lat = double.tryParse(newRecord['current_lat']?.toString() ?? '');
+         final lng = double.tryParse(newRecord['current_lng']?.toString() ?? '');
+         final heading = double.tryParse(newRecord['current_heading']?.toString() ?? '') ?? 0.0;
+         if (lat != null && lng != null && !_isDisposed) {
+-          riderLocationNotifier.value = {'lat': lat, 'lng': lng, 'heading': heading};
++          _setRiderLocation(lat, lng, heading);
+         }
+ 
+         if (riderNotifier.value != null && !_isDisposed) {
+           final oldVal = riderNotifier.value!;
+           final ratingChanged = newRecord['rating']?.toString() != oldVal['rating']?.toString();
+-          final kycChanged = newRecord['rider_kyc_id']?.toString() != oldVal['rider_kyc_id']?.toString();
++          final kycChanged = newRecord['kyc_id']?.toString() != oldVal['kyc_id']?.toString();
+           if (ratingChanged || kycChanged) {
+-            await _fetchRider(riderId);
++            await _fetchRider(riderId, refresh: true);
+           }
+         }
+       },
+     );
+   }
+ 
++  @override
++  void didChangeAppLifecycleState(AppLifecycleState state) {
++    final wasResumed = _appResumed;
++    _appResumed = state == AppLifecycleState.resumed;
++    if (_appResumed && !wasResumed && !_isDisposed) {
++      unawaited(_refreshOrderAndLiveState());
++    }
++  }
++
+   /// Clean teardown of Supabase streams to avoid leaks
+   void dispose() {
++    if (_isDisposed) return;
+     _isDisposed = true;
++    WidgetsBinding.instance.removeObserver(this);
+     _pollingTimer?.cancel();
+     if (_orderSubId != null) {
+-      RealtimeManager.instance.unsubscribe('realtime-order-$orderId', _orderSubId!);
++      _realtime.unsubscribe('realtime-order-$orderId', _orderSubId!);
+       _orderSubId = null;
+     }
+     if (_riderSubId != null && _currentRiderId != null) {
+-      RealtimeManager.instance.unsubscribe('realtime-rider-$_currentRiderId', _riderSubId!);
++      _realtime.unsubscribe('realtime-rider-$_currentRiderId', _riderSubId!);
+       _riderSubId = null;
+     }
+     orderNotifier.dispose();
+diff --git a/lib/features/rider/earnings/rider_earnings_tab.dart b/lib/features/rider/earnings/rider_earnings_tab.dart
+index 0c969b2..1ddea06 100644
+--- a/lib/features/rider/earnings/rider_earnings_tab.dart
++++ b/lib/features/rider/earnings/rider_earnings_tab.dart
+@@ -23,14 +23,19 @@ class RiderEarningsTab extends StatefulWidget {
+   // this tab is off-screen; everything else is untouched.
+   final bool isActive;
+ 
+-  const RiderEarningsTab({super.key, this.isActive = true});
++  const RiderEarningsTab({super.key, this.isActive = true, this.client, this.realtime});
++
++  // Optional dependencies permit offline verification of the real refresh pipeline.
++  final SupabaseClient? client;
++  final RealtimeManager? realtime;
+ 
+   @override
+   State<RiderEarningsTab> createState() => _RiderEarningsTabState();
+ }
+ 
+ class _RiderEarningsTabState extends State<RiderEarningsTab> {
+-  final supabase = Supabase.instance.client;
++  late final SupabaseClient supabase = widget.client ?? Supabase.instance.client;
++  late final RealtimeManager _realtime = widget.realtime ?? RealtimeManager.instance;
+   Map<String, dynamic>? rider;
+   double todayEarnings = 0.0;
+   // Distinguishes "today's gross earnings is genuinely ₹0 (no completed rides today)" from "the
+@@ -62,6 +67,8 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
+   String? _riderSubId;
+   bool isPayoutActive = false;
+   bool loading = true;
++  Future<void>? _dataRequest;
++  bool _dataQueued = false;
+   Map<String, dynamic>? activeOrder;
+ 
+   // R1 FIX #5: distinguishes a true cold-start mount (initialRiderDataProvider's snapshot is
+@@ -141,7 +148,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
+         // so the displayed data may be stale) then let _subscribeRider() re-attach as normal.
+         fetchData();
+       } else if (_riderSubChannel != null && _riderSubId != null) {
+-        RealtimeManager.instance.unsubscribe(_riderSubChannel!, _riderSubId!);
++        _realtime.unsubscribe(_riderSubChannel!, _riderSubId!);
+         _riderSubChannel = null;
+         _riderSubId = null;
+         _subscribedRiderId = null;
+@@ -152,12 +159,12 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
+   @override
+   void dispose() {
+     if (_withdrawalsSubChannel != null && _withdrawalsSubId != null) {
+-      RealtimeManager.instance.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!);
++      _realtime.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!);
+       _withdrawalsSubChannel = null;
+       _withdrawalsSubId = null;
+     }
+     if (_riderSubChannel != null && _riderSubId != null) {
+-      RealtimeManager.instance.unsubscribe(_riderSubChannel!, _riderSubId!);
++      _realtime.unsubscribe(_riderSubChannel!, _riderSubId!);
+       _riderSubChannel = null;
+       _riderSubId = null;
+     }
+@@ -177,12 +184,12 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
+     if (user == null) return;
+ 
+     if (_withdrawalsSubChannel != null && _withdrawalsSubId != null) {
+-      RealtimeManager.instance.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!);
++      _realtime.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!);
+       _withdrawalsSubChannel = null;
+       _withdrawalsSubId = null;
+     }
+     _withdrawalsSubChannel = 'rider-withdrawals-${user.id}';
+-    _withdrawalsSubId = RealtimeManager.instance.subscribe(
++    _withdrawalsSubId = _realtime.subscribe(
+       channelName: _withdrawalsSubChannel!,
+       table: 'rider_withdrawals',
+       owner: 'RiderEarningsTab_Withdrawals',
+@@ -191,7 +198,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
+       filterColumn: 'user_id',
+       filterValue: user.id,
+       callback: (payload) {
+-        fetchData();
++        if (mounted && widget.isActive) fetchData();
+       },
+     );
+   }
+@@ -199,10 +206,11 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
+   String? _subscribedRiderId;
+ 
+   void _subscribeRider(String riderId) {
++    if (!mounted || !widget.isActive) return;
+     if (_subscribedRiderId == riderId) return;
+     _subscribedRiderId = riderId;
+     if (_riderSubChannel != null && _riderSubId != null) {
+-      RealtimeManager.instance.unsubscribe(_riderSubChannel!, _riderSubId!);
++      _realtime.unsubscribe(_riderSubChannel!, _riderSubId!);
+       _riderSubChannel = null;
+       _riderSubId = null;
+     }
+@@ -215,7 +223,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
+     // independently of every other listener on the same channel, so this is purely additive --
+     // it changes nothing about what RiderHomeTab/RiderOrdersScreen receive or do.
+     _riderSubChannel = 'rider-home-$riderId';
+-    _riderSubId = RealtimeManager.instance.subscribe(
++    _riderSubId = _realtime.subscribe(
+       channelName: _riderSubChannel!,
+       table: 'riders',
+       owner: 'RiderEarningsTab',
+@@ -251,7 +259,26 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
+     }
+   }
+ 
+-  Future<void> fetchData() async {
++  Future<void> fetchData() {
++    _dataQueued = true;
++    final existing = _dataRequest;
++    if (existing != null) return existing;
++    late final Future<void> request;
++    request = _drainDataRequests().whenComplete(() {
++      if (identical(_dataRequest, request)) _dataRequest = null;
++    });
++    _dataRequest = request;
++    return request;
++  }
++
++  Future<void> _drainDataRequests() async {
++    do {
++      _dataQueued = false;
++      await _fetchDataOnce();
++    } while (_dataQueued && mounted && widget.isActive);
++  }
++
++  Future<void> _fetchDataOnce() async {
+     try {
+       final user = supabase.auth.currentUser;
+       if (user == null) return;
+@@ -299,6 +326,7 @@ class _RiderEarningsTabState extends State<RiderEarningsTab> {
+             .single();
+       }
+ 
++      if (!mounted || supabase.auth.currentUser?.id != user.id) return;
+       _subscribeRider(riderData['id']);
+ 
+       final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30)).toUtc();
+diff --git a/lib/features/rider/home/rider_home_tab.dart b/lib/features/rider/home/rider_home_tab.dart
+index ca72c37..3d7cbff 100644
+--- a/lib/features/rider/home/rider_home_tab.dart
++++ b/lib/features/rider/home/rider_home_tab.dart
+@@ -148,6 +148,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
+   // anything else here treats as "fresh enough" (_startSilentRefreshTimer's own gate).
+   static const Duration _earningsFetchDedupeWindow = Duration(seconds: 3);
+   DateTime? _lastEarningsFetchAt;
++  bool _appResumed = true;
+ 
+   // "Today's Gross Earnings" (Phase 2 reconciliation): must use the SAME authoritative
+   // gross-fare definition as rider_earnings_tab.dart's todayE -- final_fare ?? current_fare,
+@@ -254,7 +255,9 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
+     // while off-screen. Realtime subscriptions and location tracking are set up elsewhere and are
+     // never touched by this.
+     if (!widget.isActive) return;
++    if (!_appResumed) return;
+     _riderSilentRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
++      if (!_appResumed) return;
+       // Perf fix (WayDrop Phase H): same "purely a UI freshness nicety" reasoning as the
+       // widget.isActive gate above -- also skip while RiderActiveOrderScreen is open and covering
+       // this tab, since nothing here is visible in that window either. Not cancelling/restarting
+@@ -303,8 +306,12 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
+ 
+   @override
+   void didChangeAppLifecycleState(AppLifecycleState state) {
+-    if (state == AppLifecycleState.resumed) {
++    _appResumed = state == AppLifecycleState.resumed;
++    if (!_appResumed) _riderSilentRefreshTimer?.cancel();
++    if (_appResumed) {
++      // Reconcile assignments even if Home is off-tab; only its UI timer pauses.
+       loadRider();
++      _startSilentRefreshTimer();
+     }
+   }
+ 
+diff --git a/lib/features/user/activity/activity_tab.dart b/lib/features/user/activity/activity_tab.dart
+index 8ee56f3..65beb46 100644
+--- a/lib/features/user/activity/activity_tab.dart
++++ b/lib/features/user/activity/activity_tab.dart
+@@ -22,7 +22,9 @@ import 'package:waydrop/shared/helpers/insets.dart';
+ 
+ 
+ class ActivityTab extends StatefulWidget {
+-  const ActivityTab({super.key});
++  const ActivityTab({super.key, this.isActive = true});
++
++  final bool isActive;
+ 
+   @override
+   State<ActivityTab> createState() => ActivityTabState();
+@@ -85,6 +87,7 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
+   final PollBackoff _refreshBackoff = PollBackoff();
+   bool _loadInFlight = false;
+   bool _reloadQueued = false;
++  bool _appResumed = true;
+ 
+   @override
+   // Lifecycle method called once when the stateful widget initialized for the first time
+@@ -116,9 +119,10 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
+ 
+   void _startSilentRefreshTimer() {
+     _activitySilentRefreshTimer?.cancel();
++    if (!widget.isActive || !_appResumed) return;
+     // Setup a timer instance for delayed execution or polling intervals
+     _activitySilentRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+-      if (!mounted) return;
++      if (!mounted || !widget.isActive || !_appResumed) return;
+       // Realtime-health gate: realtime already refreshed orders within the
+       // last period, so the heavy loadOrders() would be a duplicate. Falls
+       // back to the full refresh when realtime is quiet or stale.
+@@ -136,9 +140,29 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
+     });
+   }
+ 
++  @override
++  void didUpdateWidget(covariant ActivityTab oldWidget) {
++    super.didUpdateWidget(oldWidget);
++    if (widget.isActive == oldWidget.isActive) return;
++    if (widget.isActive && _appResumed) {
++      loadOrders(showLoading: false);
++      _startSilentRefreshTimer();
++    } else {
++      _activitySilentRefreshTimer?.cancel();
++      _debounceTimer?.cancel();
++    }
++  }
++
+   @override
+   void didChangeAppLifecycleState(AppLifecycleState state) {
+-    if (state == AppLifecycleState.resumed) {
++    _appResumed = state == AppLifecycleState.resumed;
++    if (!_appResumed) {
++      _lastRealtimeEventAt = null;
++      _activitySilentRefreshTimer?.cancel();
++      _debounceTimer?.cancel();
++    }
++    if (_appResumed && widget.isActive) {
++      _startSilentRefreshTimer();
+       // R16 perf fix: same realtime-health gate _startSilentRefreshTimer() already uses (see its
+       // comment above) -- if realtime delivered an order update within the last 30s, that event's
+       // own debounced loadOrders() call already refreshed this exact data, so a resume-triggered
+@@ -449,12 +473,14 @@ class ActivityTabState extends State<ActivityTab> with WidgetsBindingObserver {
+       filterColumn: 'user_id',
+       filterValue: user.id,
+       callback: (payload) {
++        // Hidden changes are reconciled once on tab activation/resume.
++        if (!widget.isActive || !_appResumed) return;
+         _lastRealtimeEventAt = DateTime.now();
+         debugPrint('REALTIME ORDER EVENT RECEIVED => DEBOUNCING SYNC');
+         _debounceTimer?.cancel();
+         // Setup a timer instance for delayed execution or polling intervals
+         _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+-          if (mounted) loadOrders(showLoading: false);
++          if (mounted && widget.isActive && _appResumed) loadOrders(showLoading: false);
+         });
+       },
+     );
+diff --git a/lib/main_navigation_screen.dart b/lib/main_navigation_screen.dart
+index 0d4e39e..021669b 100644
+--- a/lib/main_navigation_screen.dart
++++ b/lib/main_navigation_screen.dart
+@@ -74,7 +74,9 @@ class MainNavigationScreenState
+             index: currentIndex,
+             children: [
+               HomeTab(key: const ValueKey('home'), isActive: currentIndex == 0),
+-              ...screens.skip(1),
++              screens[1],
++              ActivityTab(key: activityTabKey, isActive: currentIndex == 2),
++              screens[3],
+             ],
+           ),
+           Positioned(
+diff --git a/lib/shared/widgets/lazy_indexed_stack.dart b/lib/shared/widgets/lazy_indexed_stack.dart
+index 6e4147d..5d03709 100644
+--- a/lib/shared/widgets/lazy_indexed_stack.dart
++++ b/lib/shared/widgets/lazy_indexed_stack.dart
+@@ -30,11 +30,15 @@ class _LazyIndexedStackState extends State<LazyIndexedStack> {
+     return IndexedStack(
+       index: widget.index,
+       children: [
+-        for (final child in widget.children)
+-          if (_visited.contains(child.key))
+-            child
++        for (var i = 0; i < widget.children.length; i++)
++          if (_visited.contains(widget.children[i].key))
++            TickerMode(
++              key: ValueKey(widget.children[i].key),
++              enabled: i == widget.index,
++              child: widget.children[i],
++            )
+           else
+-            SizedBox.shrink(key: child.key),
++            SizedBox.shrink(key: widget.children[i].key),
+       ],
+     );
+   }
+diff --git a/test/egress_fixes_3_to_10_regression_test.dart b/test/egress_fixes_3_to_10_regression_test.dart
+index 55be571..d76b8fc 100644
+--- a/test/egress_fixes_3_to_10_regression_test.dart
++++ b/test/egress_fixes_3_to_10_regression_test.dart
+@@ -193,7 +193,8 @@ void main() {
+       final start = earningsTab.indexOf('void _subscribeWithdrawals() {');
+       final end = earningsTab.indexOf('\n  }', start);
+       final body = earningsTab.substring(start, end);
+-      expect(body.contains('RealtimeManager.instance.subscribe('), isTrue);
++      expect(body.contains('_realtime.subscribe('), isTrue);
++      expect(earningsTab.contains('widget.realtime ?? RealtimeManager.instance'), isTrue);
+       expect(body.contains('supabase.channel('), isFalse);
+       expect(body.contains("table: 'rider_withdrawals'"), isTrue);
+       expect(body.contains("filterColumn: 'user_id'"), isTrue);
+@@ -204,7 +205,7 @@ void main() {
+       final disposeStart = earningsTab.indexOf('void dispose() {');
+       final disposeEnd = earningsTab.indexOf('super.dispose();', disposeStart);
+       final disposeBody = earningsTab.substring(disposeStart, disposeEnd);
+-      expect(disposeBody.contains('RealtimeManager.instance.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!)'),
++      expect(disposeBody.contains('_realtime.unsubscribe(_withdrawalsSubChannel!, _withdrawalsSubId!)'),
+           isTrue);
+       expect(disposeBody.contains('supabase.removeChannel('), isFalse);
+     });
+diff --git a/test/intercity_traveller_cancellation_and_vehicle_regression_test.dart b/test/intercity_traveller_cancellation_and_vehicle_regression_test.dart
+index 0c19a98..624d181 100644
+--- a/test/intercity_traveller_cancellation_and_vehicle_regression_test.dart
++++ b/test/intercity_traveller_cancellation_and_vehicle_regression_test.dart
+@@ -309,9 +309,9 @@ void main() {
+       );
+       // Must run inside _fetchRider (called from realtime subscription callbacks), not only
+       // fetchLiveOrderState (the periodic-poll-only path).
+-      final fetchRiderStart = realtimeOrderController.indexOf('Future<void> _fetchRider(');
++      final fetchRiderStart = realtimeOrderController.indexOf('Future<void> _queryRider(');
+       final fetchRiderBody =
+-          realtimeOrderController.substring(fetchRiderStart, fetchRiderStart + 3000);
++          realtimeOrderController.substring(fetchRiderStart, realtimeOrderController.indexOf('/// Resolves lat', fetchRiderStart));
+       expect(fetchRiderBody.contains('intercity_requests'), isTrue);
+     });
+ 
+diff --git a/test/ola_search_geocode_eta_egress_regression_test.dart b/test/ola_search_geocode_eta_egress_regression_test.dart
+index bc576ec..ba56f83 100644
+--- a/test/ola_search_geocode_eta_egress_regression_test.dart
++++ b/test/ola_search_geocode_eta_egress_regression_test.dart
+@@ -118,7 +118,7 @@ void main() {
+ 
+     test('start()\'s initial fetch also skips an order that is already terminal when the screen opens', () {
+       expect(
+-        RegExp(r'loadedOrder\.isCompleted \|\| loadedOrder\.isCancelled\)\) \{\s*\n\s*fetchLiveOrderState\(\);')
++        RegExp(r'loadedOrder\.isCompleted \|\| loadedOrder\.isCancelled\)\) \{\s*\n\s*unawaited\(_refreshOrderAndLiveState\(includeOrderFetch: false\)\);')
+             .hasMatch(realtimeOrderController),
+         isTrue,
+       );
+diff --git a/test/phase1_earnings_requests_test.dart b/test/phase1_earnings_requests_test.dart
+new file mode 100644
+index 0000000..6bdce18 100644
+--- /dev/null
++++ b/test/phase1_earnings_requests_test.dart
+@@ -0,0 +1,164 @@
++import 'dart:async';
++import 'dart:convert';
++import 'package:flutter/material.dart';
++import 'package:flutter_test/flutter_test.dart';
++import 'package:http/http.dart' as http;
++import 'package:http/testing.dart';
++import 'package:supabase_flutter/supabase_flutter.dart';
++import 'package:waydrop/core/services/realtime/realtime_manager.dart';
++import 'package:waydrop/features/rider/earnings/rider_earnings_tab.dart';
++
++class _QuietChannel extends RealtimeChannel {
++  _QuietChannel(String name)
++    : super(name, RealtimeClient('wss://example.invalid/realtime/v1'));
++  @override
++  RealtimeChannel subscribe([
++    void Function(RealtimeSubscribeStatus, Object?)? callback,
++    Duration? timeout,
++  ]) {
++    callback?.call(RealtimeSubscribeStatus.subscribed, null);
++    return this;
++  }
++}
++
++class _Client extends SupabaseClient {
++  _Client(http.Client client)
++    : super(
++        'https://example.invalid',
++        'test-public-key',
++        httpClient: client,
++        authOptions: const AuthClientOptions(autoRefreshToken: false),
++      );
++  @override
++  RealtimeChannel channel(
++    String name, {
++    RealtimeChannelConfig opts = const RealtimeChannelConfig(),
++  }) => _QuietChannel(name);
++  @override
++  Future<String> removeChannel(RealtimeChannel channel) async => 'ok';
++}
++
++void main() {
++  TestWidgetsFlutterBinding.ensureInitialized();
++  _Client? allocatedClient;
++  tearDown(() async {
++    await allocatedClient?.dispose();
++  });
++  testWidgets(
++    'Earnings shares an in-flight batch and stops new queries after disposal',
++    (tester) async {
++      final requests = <http.Request>[];
++      final riderGate = Completer<http.Response>();
++      String encode(Object v) =>
++          base64Url.encode(utf8.encode(jsonEncode(v))).replaceAll('=', '');
++      const uid = '00000000-0000-4000-8000-000000000021';
++      final token = [
++        encode({'alg': 'HS256', 'typ': 'JWT'}),
++        encode({
++          'sub': uid,
++          'role': 'authenticated',
++          'exp':
++              DateTime.now()
++                  .add(const Duration(hours: 1))
++                  .millisecondsSinceEpoch ~/
++              1000,
++        }),
++        'test',
++      ].join('.');
++      final client = (await tester.runAsync(
++        () async => _Client(
++          MockClient((request) async {
++            requests.add(request);
++            Object? body;
++            if (request.url.path.contains('/auth/')) {
++              body = {
++                'access_token': token,
++                'refresh_token': 'test',
++                'expires_in': 3600,
++                'token_type': 'bearer',
++                'user': {
++                  'id': uid,
++                  'aud': 'authenticated',
++                  'created_at': '2026-01-01T00:00:00Z',
++                  'app_metadata': <String, dynamic>{},
++                  'user_metadata': <String, dynamic>{},
++                },
++              };
++            } else if (request.url.path.endsWith('/riders')) {
++              final result = await riderGate.future;
++              return http.Response(
++                result.body,
++                result.statusCode,
++                request: request,
++                headers: {'content-type': 'application/json'},
++              );
++            } else if (request.url.path.endsWith('/government_tax_config')) {
++              body = null;
++            } else if (request.url.path.endsWith('/create-rider-withdrawal')) {
++              body = {'success': true};
++            } else {
++              throw StateError(
++                'Unexpected request after disposal: ${request.url.path}',
++              );
++            }
++            return http.Response(
++              jsonEncode(body),
++              200,
++              request: request,
++              headers: {'content-type': 'application/json'},
++            );
++          }),
++        ),
++      ))!;
++      allocatedClient = client;
++      final manager = RealtimeManager.forClient(client);
++      try {
++        await tester.runAsync(() => client.auth.setSession('test-refresh'));
++        await tester.pumpWidget(
++          MaterialApp(
++            home: RiderEarningsTab(client: client, realtime: manager),
++          ),
++        );
++        await tester.runAsync(
++          () => Future<void>.delayed(const Duration(milliseconds: 30)),
++        );
++        final dynamic state = tester.state(find.byType(RiderEarningsTab));
++        final Future<void> second = state.fetchData();
++        final Future<void> third = state.fetchData();
++        await tester.runAsync(
++          () => Future<void>.delayed(const Duration(milliseconds: 30)),
++        );
++        expect(requests.where((r) => r.url.path.endsWith('/riders')).length, 1);
++        expect(
++          requests
++              .where((r) => r.url.path.endsWith('/government_tax_config'))
++              .length,
++          1,
++        );
++
++        await tester.pumpWidget(const SizedBox());
++
++        riderGate.complete(http.Response(jsonEncode({'id': 'rider-a'}), 200));
++
++        var secondDone = false;
++        var thirdDone = false;
++        second.then((_) => secondDone = true);
++        third.then((_) => thirdDone = true);
++        for (var i = 0; i < 4; i++) {
++          await tester.runAsync(
++            () => Future<void>.delayed(const Duration(milliseconds: 30)),
++          );
++          await tester.pump();
++        }
++
++        expect(secondDone, isTrue);
++        expect(thirdDone, isTrue);
++        expect(requests.where((r) => r.url.path.endsWith('/orders')).length, 0);
++        expect(manager.activeChannelCount, 0);
++        expect(tester.takeException(), isNull);
++      } finally {
++        manager.dispose();
++      }
++    },
++  );
++}
+diff --git a/test/phase1_gps_completion_test.dart b/test/phase1_gps_completion_test.dart
+new file mode 100644
+index 0000000..2de644f 100644
+--- /dev/null
++++ b/test/phase1_gps_completion_test.dart
+@@ -0,0 +1,85 @@
++import 'dart:async';
++import 'package:http/http.dart' as http;
++import 'package:http/testing.dart';
++import 'package:flutter_test/flutter_test.dart';
++import 'package:geolocator/geolocator.dart';
++import 'package:shared_preferences/shared_preferences.dart';
++import 'package:supabase_flutter/supabase_flutter.dart';
++import 'package:waydrop/core/services/location/location_cache_service.dart';
++
++class _ClosingGps extends GeolocatorPlatform {
++  var positions = StreamController<Position>.broadcast();
++  final status = StreamController<ServiceStatus>.broadcast();
++  int starts = 0;
++  @override
++  Future<bool> isLocationServiceEnabled() async => true;
++  @override
++  Future<LocationPermission> checkPermission() async =>
++      LocationPermission.whileInUse;
++  @override
++  Future<Position?> getLastKnownPosition({
++    bool forceLocationManager = false,
++  }) async => Position(
++    latitude: 17,
++    longitude: 79,
++    timestamp: DateTime.now(),
++    accuracy: 2,
++    altitude: 0,
++    altitudeAccuracy: 0,
++    heading: 0,
++    headingAccuracy: 0,
++    speed: 0,
++    speedAccuracy: 0,
++  );
++  @override
++  Stream<Position> getPositionStream({LocationSettings? locationSettings}) {
++    starts++;
++    return positions.stream;
++  }
++
++  @override
++  Stream<ServiceStatus> getServiceStatusStream() => status.stream;
++}
++
++void main() {
++  TestWidgetsFlutterBinding.ensureInitialized();
++  test(
++    'normal GPS stream completion releases its handle so tracking can restart',
++    () async {
++      SharedPreferences.setMockInitialValues({});
++      final original = GeolocatorPlatform.instance;
++      final gps = _ClosingGps();
++      GeolocatorPlatform.instance = gps;
++      await Supabase.initialize(
++        url: 'https://example.invalid',
++        anonKey: 'test-public-key',
++        httpClient: MockClient(
++          (request) async => http.Response(
++            '[]',
++            200,
++            request: request,
++            headers: {'content-type': 'application/json'},
++          ),
++        ),
++        authOptions: const FlutterAuthClientOptions(autoRefreshToken: false),
++      );
++      try {
++        await LocationCacheService.startRiderLiveTracking();
++        expect(gps.starts, 1);
++        await gps.positions.close();
++        await Future<void>.delayed(Duration.zero);
++        expect(LocationCacheService.riderLocationStream, isNull);
++        gps.positions = StreamController<Position>.broadcast();
++        await LocationCacheService.startRiderLiveTracking();
++        expect(gps.starts, 2);
++        expect(LocationCacheService.riderLocationStream, isNotNull);
++      } finally {
++        await LocationCacheService.stopRiderLiveTracking();
++        GeolocatorPlatform.instance = original;
++        await gps.positions.close();
++        await gps.status.close();
++        await Supabase.instance.dispose();
++      }
++    },
++  );
++}
+diff --git a/test/phase1_tab_lifecycle_test.dart b/test/phase1_tab_lifecycle_test.dart
+new file mode 100644
+index 0000000..edaddfd 100644
+--- /dev/null
++++ b/test/phase1_tab_lifecycle_test.dart
+@@ -0,0 +1,155 @@
++import 'package:flutter/material.dart';
++import 'package:flutter/scheduler.dart';
++import 'package:flutter_test/flutter_test.dart';
++import 'package:shared_preferences/shared_preferences.dart';
++import 'package:supabase_flutter/supabase_flutter.dart';
++import 'package:waydrop/shared/widgets/lazy_indexed_stack.dart';
++import 'package:waydrop/features/user/activity/activity_tab.dart';
++
++class _TickerProbe extends StatefulWidget {
++  final VoidCallback onTick;
++  const _TickerProbe({super.key, required this.onTick});
++  @override
++  State<_TickerProbe> createState() => _TickerProbeState();
++}
++
++class _TickerProbeState extends State<_TickerProbe>
++    with SingleTickerProviderStateMixin {
++  late Ticker ticker;
++  @override
++  void initState() {
++    super.initState();
++    ticker = createTicker((_) => widget.onTick())..start();
++  }
++
++  @override
++  void dispose() {
++    ticker.dispose();
++    super.dispose();
++  }
++
++  @override
++  Widget build(BuildContext context) => const SizedBox();
++}
++
++class _ActivityProbe extends ActivityTab {
++  final VoidCallback onLoad;
++  const _ActivityProbe({
++    super.key,
++    required super.isActive,
++    required this.onLoad,
++  });
++  @override
++  ActivityTabState createState() => _ActivityProbeState();
++}
++
++class _ActivityProbeState extends ActivityTabState {
++  @override
++  Future<void> loadOrders({bool showLoading = false}) async {
++    (widget as _ActivityProbe).onLoad();
++  }
++}
++
++void main() {
++  TestWidgetsFlutterBinding.ensureInitialized();
++  setUpAll(() async {
++    SharedPreferences.setMockInitialValues({});
++    await Supabase.initialize(
++      url: 'https://example.invalid',
++      anonKey: 'test-public-key',
++      authOptions: const FlutterAuthClientOptions(autoRefreshToken: false),
++    );
++  });
++  tearDownAll(() async {
++    await Supabase.instance.dispose();
++  });
++  testWidgets('visited hidden tab retains State but stops ticking animations', (
++    tester,
++  ) async {
++    final ticks = [0, 0];
++    final children = [
++      _TickerProbe(key: const ValueKey('a'), onTick: () => ticks[0]++),
++      _TickerProbe(key: const ValueKey('b'), onTick: () => ticks[1]++),
++    ];
++    Future<void> select(int index) => tester.pumpWidget(
++      MaterialApp(
++        home: LazyIndexedStack(
++          index: index,
++          eagerIndices: const {0},
++          children: children,
++        ),
++      ),
++    );
++    await select(0);
++    await tester.pump(const Duration(milliseconds: 16));
++    final first = find.byType(_TickerProbe).evaluate().first as StatefulElement;
++    final firstState = first.state;
++    await select(1);
++    final hiddenTicks = ticks[0];
++    await tester.pump(const Duration(milliseconds: 32));
++    await tester.pump(const Duration(milliseconds: 32));
++    expect(ticks[0], hiddenTicks);
++    expect(ticks[1], greaterThan(0));
++    await select(0);
++    expect(
++      (find.byType(_TickerProbe).evaluate().first as StatefulElement).state,
++      same(firstState),
++    );
++    await tester.pumpWidget(const SizedBox());
++  });
++  testWidgets(
++    'Activity stops hidden/background polls and catches up once on return',
++    (tester) async {
++      var loads = 0;
++      const key = ValueKey('activity');
++      Future<void> show(bool active) => tester.pumpWidget(
++        MaterialApp(
++          home: _ActivityProbe(
++            key: key,
++            isActive: active,
++            onLoad: () => loads++,
++          ),
++        ),
++      );
++      await show(true);
++      expect(loads, 1);
++      await tester.pump(const Duration(seconds: 31));
++      expect(loads, 2);
++      await show(false);
++      await tester.pump(const Duration(seconds: 61));
++      expect(loads, 2);
++      await show(true);
++      expect(loads, 3);
++      final state = tester.state<ActivityTabState>(find.byType(_ActivityProbe));
++      state.didChangeAppLifecycleState(AppLifecycleState.paused);
++      await tester.pump(const Duration(seconds: 61));
++      expect(loads, 3);
++      state.didChangeAppLifecycleState(AppLifecycleState.resumed);
++      expect(loads, 4);
++      await tester.pumpWidget(const SizedBox());
++    },
++  );
++  testWidgets(
++    'ticker wrappers preserve a GlobalKey child without duplicating its key',
++    (tester) async {
++      final childKey = GlobalKey<_TickerProbeState>();
++      final children = [
++        const SizedBox(key: ValueKey('home')),
++        _TickerProbe(key: childKey, onTick: () {}),
++      ];
++      Future<void> select(int index) => tester.pumpWidget(
++        MaterialApp(
++          home: LazyIndexedStack(index: index, children: children),
++        ),
++      );
++      await select(1);
++      final originalState = childKey.currentState;
++      expect(originalState, isNotNull);
++      await select(0);
++      await select(1);
++      expect(childKey.currentState, same(originalState));
++      expect(tester.takeException(), isNull);
++      await tester.pumpWidget(const SizedBox());
++    },
++  );
++}
+diff --git a/test/phase1_tracking_controller_test.dart b/test/phase1_tracking_controller_test.dart
+new file mode 100644
+index 0000000..178cc58 100644
+--- /dev/null
++++ b/test/phase1_tracking_controller_test.dart
+@@ -0,0 +1,415 @@
++import 'dart:async';
++import 'dart:convert';
++import 'package:flutter/widgets.dart';
++import 'package:flutter_test/flutter_test.dart';
++import 'package:http/http.dart' as http;
++import 'package:http/testing.dart';
++import 'package:supabase_flutter/supabase_flutter.dart';
++import 'package:waydrop/core/services/realtime/realtime_manager.dart';
++import 'package:waydrop/core/services/realtime/realtime_order_controller.dart';
++
++class _Channel extends RealtimeChannel {
++  _Channel(this.requestedName)
++    : super(requestedName, RealtimeClient('wss://example.invalid/realtime/v1'));
++  final String requestedName;
++  late void Function(PostgresChangePayload) deliver;
++  @override
++  RealtimeChannel onPostgresChanges({
++    required PostgresChangeEvent event,
++    String? schema,
++    String? table,
++    PostgresChangeFilter? filter,
++    required void Function(PostgresChangePayload) callback,
++  }) {
++    deliver = callback;
++    return this;
++  }
++
++  @override
++  RealtimeChannel subscribe([
++    void Function(RealtimeSubscribeStatus, Object?)? callback,
++    Duration? timeout,
++  ]) {
++    callback?.call(RealtimeSubscribeStatus.subscribed, null);
++    return this;
++  }
++}
++
++class _Client extends SupabaseClient {
++  _Client(http.Client httpClient)
++    : super(
++        'https://example.invalid',
++        'offline-public-key',
++        httpClient: httpClient,
++      );
++  final channels = <_Channel>[];
++  @override
++  RealtimeChannel channel(
++    String name, {
++    RealtimeChannelConfig opts = const RealtimeChannelConfig(),
++  }) {
++    final c = _Channel(name);
++    channels.add(c);
++    return c;
++  }
++
++  @override
++  Future<String> removeChannel(RealtimeChannel channel) async => 'ok';
++  void emit(String name, Map<String, dynamic> row) => channels
++      .lastWhere((c) => c.requestedName == name)
++      .deliver(
++        PostgresChangePayload(
++          schema: 'public',
++          table: name.contains('rider') ? 'riders' : 'orders',
++          commitTimestamp: DateTime(2026),
++          eventType: PostgresChangeEvent.update,
++          newRecord: row,
++          oldRecord: {},
++          errors: null,
++        ),
++      );
++}
++
++void main() {
++  TestWidgetsFlutterBinding.ensureInitialized();
++  late _Client client;
++  late RealtimeManager manager;
++  late RealtimeOrderController controller;
++  late DateTime now;
++  final requests = <http.Request>[];
++  Completer<http.Response>? orderGate, liveGate, nameGate, oldRiderGate;
++  String? assignedRider;
++  var initialStatus = 'accepted';
++  var metadataKyc = 'kyc-a';
++  Map<String, dynamic> order([String status = 'accepted', String? rider]) => {
++    'id': 'order-a',
++    'user_id': 'user-a',
++    'order_status': status,
++    'order_type': 'ride',
++    'rider_id': rider,
++  };
++  http.Response response(Object? row) => http.Response(
++    jsonEncode(row),
++    200,
++    headers: {'content-type': 'application/json'},
++  );
++  int count(String suffix) =>
++      requests.where((r) => r.url.path.endsWith(suffix)).length;
++  Future<void> flush(WidgetTester tester) async {
++    for (var pass = 0; pass < 2; pass++) {
++      await tester.runAsync(
++        () => Future<void>.delayed(const Duration(milliseconds: 30)),
++      );
++      for (var i = 0; i < 5; i++) {
++        await tester.pump();
++      }
++    }
++  }
++
++  setUp(() {
++    WidgetsBinding.instance.handleAppLifecycleStateChanged(
++      AppLifecycleState.resumed,
++    );
++    requests.clear();
++    orderGate = null;
++    liveGate = null;
++    nameGate = null;
++    oldRiderGate = null;
++    assignedRider = null;
++    initialStatus = 'accepted';
++    metadataKyc = 'kyc-a';
++    now = DateTime(2026, 11, 1);
++    client = _Client(
++      MockClient((request) async {
++        requests.add(request);
++        Future<http.Response> route() async {
++          if (request.url.path.endsWith('/orders')) {
++            return orderGate?.future ??
++                response(order(initialStatus, assignedRider));
++          }
++          if (request.url.path.endsWith('/users')) {
++            return nameGate?.future ?? response({'full_name': ''});
++          }
++          if (request.url.path.endsWith('/get-live-order-status')) {
++            return liveGate?.future ?? response({'success': false});
++          }
++          if (request.url.path.endsWith('/riders')) {
++            final id = request.url.queryParameters['id']!.substring(3);
++            if (id == 'rider-a' && oldRiderGate != null) {
++              final gate = oldRiderGate!;
++              oldRiderGate = null;
++              return gate.future;
++            }
++            return response({
++              'id': id,
++              'user_id': 'rider-user',
++              'kyc_id': metadataKyc,
++              'rating': 4.8,
++              'users': {'full_name': id},
++            });
++          }
++          if (request.url.path.endsWith('/rider_reliability_view')) {
++            return response(null);
++          }
++          throw StateError('Unexpected mocked request: ${request.url.path}');
++        }
++
++        final result = await route();
++        return http.Response(
++          result.body,
++          result.statusCode,
++          headers: result.headers,
++          request: request,
++        );
++      }),
++    );
++    manager = RealtimeManager.forClient(client);
++    controller = RealtimeOrderController(
++      orderId: 'order-a',
++      client: client,
++      realtime: manager,
++      now: () => now,
++    );
++  });
++  tearDown(() async {
++    controller.dispose();
++    manager.dispose();
++    await client.dispose();
++  });
++  testWidgets(
++    'concurrent and repeated starts share one order request, channel and live fetch',
++    (tester) async {
++      orderGate = Completer();
++      final first = controller.start();
++      final second = controller.start();
++      await flush(tester);
++      expect(count('/orders'), 1);
++      orderGate!.complete(response(order()));
++      await first;
++      await second;
++      await controller.start();
++      await flush(tester);
++      expect(count('/orders'), 1);
++      expect(count('/get-live-order-status'), 1);
++      expect(manager.activeChannelCount, 1);
++      controller.dispose();
++      await flush(tester);
++    },
++  );
++  testWidgets(
++    'event burst shares pending username and live requests without extra order reads',
++    (tester) async {
++      nameGate = Completer();
++      liveGate = Completer();
++      await controller.start();
++      await flush(tester);
++      for (var i = 0; i < 8; i++) {
++        client.emit('realtime-order-order-a', order());
++      }
++      await flush(tester);
++      expect(count('/users'), 1);
++      expect(count('/get-live-order-status'), 1);
++      liveGate!.complete(response({'success': false}));
++      nameGate!.complete(response({'full_name': ''}));
++      await flush(tester);
++      expect(count('/orders'), 1);
++      expect(count('/get-live-order-status'), 2);
++      expect(count('/users'), 1);
++      client.emit('realtime-order-order-a', order());
++      await flush(tester);
++      expect(count('/users'), 1);
++      controller.dispose();
++      await flush(tester);
++    },
++  );
++  testWidgets('late REST order response cannot undo a realtime cancellation', (
++    tester,
++  ) async {
++    await controller.start();
++    await flush(tester);
++    orderGate = Completer();
++    final pending = controller.fetchOrder();
++    await flush(tester);
++    client.emit('realtime-order-order-a', order('cancelled'));
++    expect(controller.orderNotifier.value!.isCancelled, isTrue);
++    orderGate!.complete(response(order()));
++    await pending;
++    expect(controller.orderNotifier.value!.isCancelled, isTrue);
++    controller.dispose();
++    await flush(tester);
++  });
++  testWidgets(
++    'disposal during initial fetch never registers channels or timers',
++    (tester) async {
++      orderGate = Completer();
++      final pending = controller.start();
++      await flush(tester);
++      controller.dispose();
++      orderGate!.complete(response(order()));
++      await pending;
++      expect(manager.activeChannelCount, 0);
++      expect(count('/get-live-order-status'), 0);
++    },
++  );
++  testWidgets(
++    'background skips fallback and ETA enrichment; resume reconciles once',
++    (tester) async {
++      await controller.start();
++      await flush(tester);
++      controller.didChangeAppLifecycleState(AppLifecycleState.paused);
++      now = now.add(const Duration(seconds: 30));
++      await tester.pump(const Duration(seconds: 30));
++      await flush(tester);
++      client.emit('realtime-order-order-a', order('ongoing'));
++      await flush(tester);
++      expect(controller.orderNotifier.value!.orderStatus, 'ongoing');
++      expect(count('/orders'), 1);
++      expect(count('/get-live-order-status'), 1);
++      controller.didChangeAppLifecycleState(AppLifecycleState.resumed);
++      await flush(tester);
++      expect(count('/orders'), 2);
++      expect(count('/get-live-order-status'), 2);
++      controller.dispose();
++      await flush(tester);
++    },
++  );
++  testWidgets(
++    'GPS rider events avoid metadata reload; changed KYC refreshes it',
++    (tester) async {
++      assignedRider = 'rider-a';
++      await controller.start();
++      await flush(tester);
++      expect(count('/riders'), 1);
++      for (var i = 0; i < 5; i++) {
++        client.emit('realtime-rider-rider-a', {
++          'id': 'rider-a',
++          'rating': 4.8,
++          'kyc_id': 'kyc-a',
++          'current_lat': 17.0 + i / 1000,
++          'current_lng': 79.0,
++        });
++      }
++      await flush(tester);
++      expect(count('/riders'), 1);
++      expect(controller.riderLocationNotifier.value!['lat'], 17.004);
++      client.emit('realtime-rider-rider-a', {
++        'id': 'rider-a',
++        'rating': 4.8,
++        'kyc_id': 'kyc-b',
++      });
++      await flush(tester);
++      expect(count('/riders'), 2);
++      controller.dispose();
++      await flush(tester);
++    },
++  );
++  testWidgets(
++    'late metadata for replaced rider cannot overwrite the new rider',
++    (tester) async {
++      assignedRider = 'rider-a';
++      final replacedRiderGate = Completer<http.Response>();
++      oldRiderGate = replacedRiderGate;
++      await controller.start();
++      await flush(tester);
++      client.emit('realtime-order-order-a', order('accepted', 'rider-b'));
++      await flush(tester);
++      expect(controller.riderNotifier.value!['id'], 'rider-b');
++      replacedRiderGate.complete(
++        response({'id': 'rider-a', 'kyc_id': 'kyc-a', 'rating': 4.8}),
++      );
++      await flush(tester);
++      expect(controller.riderNotifier.value!['id'], 'rider-b');
++      controller.dispose();
++      await flush(tester);
++    },
++  );
++  testWidgets('terminal startup order does not request live ETA', (
++    tester,
++  ) async {
++    initialStatus = 'cancelled';
++    await controller.start();
++    await flush(tester);
++    expect(controller.orderNotifier.value!.isCancelled, isTrue);
++    expect(count('/get-live-order-status'), 0);
++    controller.dispose();
++    await flush(tester);
++  });
++  testWidgets('KYC change during a rider lookup gets one fresh follow-up', (
++    tester,
++  ) async {
++    assignedRider = 'rider-a';
++    await controller.start();
++    await flush(tester);
++    final gate = Completer<http.Response>();
++    oldRiderGate = gate;
++    client.emit('realtime-rider-rider-a', {
++      'id': 'rider-a',
++      'rating': 4.8,
++      'kyc_id': 'kyc-b',
++    });
++    await flush(tester);
++    expect(count('/riders'), 2);
++    metadataKyc = 'kyc-c';
++    client.emit('realtime-rider-rider-a', {
++      'id': 'rider-a',
++      'rating': 4.8,
++      'kyc_id': 'kyc-c',
++    });
++    gate.complete(
++      response({'id': 'rider-a', 'rating': 4.8, 'kyc_id': 'kyc-b'}),
++    );
++    await flush(tester);
++    expect(count('/riders'), 3);
++    expect(controller.riderNotifier.value!['kyc_id'], 'kyc-c');
++    controller.dispose();
++    await flush(tester);
++  });
++  testWidgets('manual order refreshes serialize with one fresh queued read', (
++    tester,
++  ) async {
++    await controller.start();
++    await flush(tester);
++    final gate = Completer<http.Response>();
++    orderGate = gate;
++    final first = controller.fetchOrder();
++    final second = controller.fetchOrder();
++    await flush(tester);
++    expect(count('/orders'), 2);
++    orderGate = null;
++    gate.complete(response(order()));
++    await flush(tester);
++    await first;
++    await second;
++    expect(count('/orders'), 3);
++    controller.dispose();
++    await flush(tester);
++  });
++  testWidgets('identical GPS heartbeats do not rebuild location listeners', (
++    tester,
++  ) async {
++    assignedRider = 'rider-a';
++    await controller.start();
++    await flush(tester);
++    var updates = 0;
++    controller.riderLocationNotifier.addListener(() => updates++);
++    final row = <String, dynamic>{
++      'id': 'rider-a',
++      'rating': 4.8,
++      'kyc_id': 'kyc-a',
++      'current_lat': 17.0,
++      'current_lng': 79.0,
++      'current_heading': 0.0,
++    };
++    for (var i = 0; i < 5; i++) {
++      client.emit('realtime-rider-rider-a', row);
++    }
++    expect(updates, 1);
++    client.emit('realtime-rider-rider-a', {...row, 'current_heading': 10.0});
++    expect(updates, 2);
++    client.emit('realtime-rider-rider-a', {...row, 'current_lat': 17.001});
++    expect(updates, 3);
++    expect(count('/riders'), 1);
++    controller.dispose();
++    await flush(tester);
++  });
++}

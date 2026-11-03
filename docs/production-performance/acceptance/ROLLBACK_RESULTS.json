@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "productionConnected": false,
+  "checks": [
+    "Traffic-drain acknowledgement required",
+    "Dry-run rollback restores objects",
+    "Actual local removal and reinstallation",
+    "Business row/event fingerprints unchanged",
+    "Fail-closed RPC disable retains unique index",
+    "Private service-role-only ACL restored"
+  ],
+  "limits": "Local object rollback only. Does not prove managed Edge bundle or production backup restore."
+}

@@ -2022,18 +2022,18 @@ class _IntercityTrackingScreenState extends State<IntercityTrackingScreen> {
         '_hasLeftScreen=$_hasLeftScreen epoch=${DateTime.now().millisecondsSinceEpoch}',
       );
 
-      if (mounted && !_hasLeftScreen) {
+      if (mounted && context.mounted && !_hasLeftScreen) {
         _hasLeftScreen = true;
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(this.context).showSnackBar(
           const SnackBar(content: Text('Order has been cancelled successfully')),
         );
         NavTrace.begin('IntercityTrackingScreen._performCancel', 'returnToIntercityHome (API success)');
-        returnToIntercityHome(context, isTraveller: false);
+        returnToIntercityHome(this.context, isTraveller: false);
         NavTrace.end('IntercityTrackingScreen._performCancel', 'returnToIntercityHome (API success)');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(content: Text('Failed to cancel order: $e')),
         );
       }
@@ -2749,14 +2749,13 @@ class _AssignedRiderProfileSheetState extends State<AssignedRiderProfileSheet> {
           } else {
             final ordersRes = await supabase
                 .from('orders')
-                .select('seats_requested, capacity')
+                .select('seats_requested')
                 .eq('rider_id', riderId)
                 .inFilter('order_status', ['accepted', 'rider_arrived', 'ongoing', 'picked_up', 'rider_at_drop']);
 
             int bookedSeats = 0;
             for (var o in ordersRes) {
-              final int seats = int.tryParse(o['seats_requested']?.toString() ?? '') ??
-                                int.tryParse(o['capacity']?.toString() ?? '') ?? 1;
+              final int seats = int.tryParse(o['seats_requested']?.toString() ?? '') ?? 1;
               bookedSeats += seats;
             }
             if (mounted) {

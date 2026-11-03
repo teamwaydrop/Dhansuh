@@ -1,0 +1,21 @@
+{
+  "productionConnected": false,
+  "tests": [
+    {
+      "name": "untrusted TLS certificate is rejected with certificate verification enabled",
+      "status": "PASS"
+    },
+    {
+      "name": "trusted local CA negotiates encrypted PG and existing service role",
+      "status": "PASS"
+    },
+    {
+      "name": "trusted CA still rejects mismatched TLS server identity",
+      "status": "PASS"
+    }
+  ],
+  "limitations": [
+    "Tests pinned postgres.js TLS using synthetic CA and loopback, not the managed Supabase certificate chain or production endpoint/factory branch.",
+    "Explicit test CA is supplied to test driver only. Release TLS settings and secrets are unchanged."
+  ]
+}

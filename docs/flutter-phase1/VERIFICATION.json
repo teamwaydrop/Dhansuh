@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-01",
+  "scope": "Flutter Phase 1 only",
+  "flutterTests": {
+    "passed": 2054,
+    "failed": 0,
+    "newBehaviorTests": 16,
+    "skipsIntroduced": 0,
+    "excludedLiveFiles": [
+      "test/pricing_dedup_regression_test.dart",
+      "test/intercity_parcel_pricing_regression_test.dart"
+    ],
+    "fullLog": "evidence/flutter_phase1_full_tests_final.txt"
+  },
+  "dependencies": {
+    "command": "flutter pub get",
+    "exitCode": 0,
+    "packageVersionChanges": false
+  },
+  "analyzer": {
+    "error": 0,
+    "warning": 73,
+    "info": 382,
+    "newDiagnosticCount": 0,
+    "exitCode": 1,
+    "reason": "Existing warnings and infos remain; no errors."
+  },
+  "boundary": {
+    "backendFilesChanged": [],
+    "backendCallsPerformed": false,
+    "provisionedResources": 0,
+    "backendConfigurationChanges": false,
+    "paymentCalculationChanges": false
+  },
+  "device": {
+    "attachedAndroidDevices": 0,
+    "physicalProfileMeasurementsAvailable": false
+  },
+  "changes": [
+    "lib/core/services/location/location_cache_service.dart",
+    "lib/core/services/realtime/realtime_order_controller.dart",
+    "lib/features/rider/earnings/rider_earnings_tab.dart",
+    "lib/features/rider/home/rider_home_tab.dart",
+    "lib/features/user/activity/activity_tab.dart",
+    "lib/main_navigation_screen.dart",
+    "lib/shared/widgets/lazy_indexed_stack.dart",
+    "test/egress_fixes_3_to_10_regression_test.dart",
+    "test/intercity_traveller_cancellation_and_vehicle_regression_test.dart",
+    "test/ola_search_geocode_eta_egress_regression_test.dart",
+    "test/phase1_earnings_requests_test.dart",
+    "test/phase1_gps_completion_test.dart",
+    "test/phase1_tab_lifecycle_test.dart",
+    "test/phase1_tracking_controller_test.dart"
+  ],
+  "measurements": "MEASUREMENTS.json"
+}

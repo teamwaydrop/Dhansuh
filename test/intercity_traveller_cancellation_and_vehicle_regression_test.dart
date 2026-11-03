@@ -309,9 +309,9 @@ void main() {
       );
       // Must run inside _fetchRider (called from realtime subscription callbacks), not only
       // fetchLiveOrderState (the periodic-poll-only path).
-      final fetchRiderStart = realtimeOrderController.indexOf('Future<void> _fetchRider(');
+      final fetchRiderStart = realtimeOrderController.indexOf('Future<void> _queryRider(');
       final fetchRiderBody =
-          realtimeOrderController.substring(fetchRiderStart, fetchRiderStart + 3000);
+          realtimeOrderController.substring(fetchRiderStart, realtimeOrderController.indexOf('/// Resolves lat', fetchRiderStart));
       expect(fetchRiderBody.contains('intercity_requests'), isTrue);
     });
 

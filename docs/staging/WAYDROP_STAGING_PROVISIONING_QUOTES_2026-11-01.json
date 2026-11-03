@@ -1,0 +1,44 @@
+{
+  "checkedOn": "2026-11-01",
+  "timeZone": "Asia/Calcutta",
+  "organization": {
+    "id": "aiibffciimrqcnyqtmko",
+    "name": "teamwaydrop's Org",
+    "plan": "free",
+    "userSelected": true
+  },
+  "quotes": {
+    "project": {
+      "type": "project",
+      "recurrence": "monthly",
+      "amount": 0
+    },
+    "branch": {
+      "type": "branch",
+      "recurrence": "hourly",
+      "amount": 0.01344
+    }
+  },
+  "recommended": {
+    "kind": "separate_project",
+    "name": "waydrop-security-staging",
+    "region": "ap-south-1",
+    "plan": "free",
+    "expectedMonthlyPlatformUSD": 0,
+    "additionalChargesApproved": false,
+    "creationApproved": false
+  },
+  "createdResources": [],
+  "productionChanges": [],
+  "constraints": [
+    "No creation until explicit approval of this proposal.",
+    "No paid plan upgrade, paid fallback, provider charges or secret/data copy.",
+    "Project quote is not a guarantee of Free-slot eligibility or outside-provider pricing."
+  ],
+  "sources": [
+    "https://supabase.com/pricing",
+    "https://supabase.com/docs/guides/platform/billing-on-supabase",
+    "https://supabase.com/docs/guides/platform/manage-your-usage/branching",
+    "https://supabase.com/docs/guides/deployment/branching"
+  ]
+}

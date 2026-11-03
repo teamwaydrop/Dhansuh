@@ -1,0 +1,682 @@
+{
+  "query": "BEGIN READ ONLY;\nSET LOCAL statement_timeout='2000ms';\nSET LOCAL lock_timeout='500ms';\nSET LOCAL ROLE authenticated;\nSET LOCAL request.jwt.claims='{\"role\":\"authenticated\",\"sub\":\"00000000-0000-4000-8000-000000000099\",\"email\":\"synthetic-plan@example.invalid\"}';\nEXPLAIN (FORMAT JSON, COSTS TRUE)\nSELECT r.id,r.current_lat,r.current_lng,r.current_heading,\n(SELECT json_build_object('vehicle_type',k.vehicle_type) FROM public.rider_kyc k WHERE k.id=r.kyc_id LIMIT 1) AS rider_kyc\nFROM public.riders r\nWHERE r.account_status='online' AND r.current_lat IS NOT NULL AND r.current_lat BETWEEN 16.45 AND 16.55 AND r.current_lng IS NOT NULL AND r.current_lng BETWEEN 80.55 AND 80.65\nLIMIT 50;\nROLLBACK;",
+  "rows": [
+    {
+      "QUERY PLAN": [
+        {
+          "Plan": {
+            "Node Type": "Limit",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Startup Cost": 0.23,
+            "Total Cost": 399.69,
+            "Plan Rows": 1,
+            "Plan Width": 72,
+            "Plans": [
+              {
+                "Node Type": "Result",
+                "Parent Relationship": "InitPlan",
+                "Subplan Name": "InitPlan 130",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Startup Cost": 0,
+                "Total Cost": 0.03,
+                "Plan Rows": 1,
+                "Plan Width": 16
+              },
+              {
+                "Node Type": "Result",
+                "Parent Relationship": "InitPlan",
+                "Subplan Name": "InitPlan 131",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Startup Cost": 0,
+                "Total Cost": 0.03,
+                "Plan Rows": 1,
+                "Plan Width": 16
+              },
+              {
+                "Node Type": "Result",
+                "Parent Relationship": "InitPlan",
+                "Subplan Name": "InitPlan 132",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Startup Cost": 0,
+                "Total Cost": 0.03,
+                "Plan Rows": 1,
+                "Plan Width": 16
+              },
+              {
+                "Node Type": "Index Scan",
+                "Parent Relationship": "Outer",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Scan Direction": "Forward",
+                "Index Name": "idx_riders_online_coords",
+                "Relation Name": "riders",
+                "Alias": "r",
+                "Startup Cost": 0.13,
+                "Total Cost": 399.59,
+                "Plan Rows": 1,
+                "Plan Width": 72,
+                "Index Cond": "((current_lat IS NOT NULL) AND (current_lat >= '16.45'::double precision) AND (current_lat <= '16.55'::double precision) AND (current_lng IS NOT NULL) AND (current_lng >= '80.55'::double precision) AND (current_lng <= '80.65'::double precision))",
+                "Filter": "(is_admin() OR ((InitPlan 130).col1 = user_id) OR ((InitPlan 131).col1 = user_id) OR (account_status = 'online'::rider_account_status_enum) OR ((InitPlan 132).col1 = user_id))",
+                "Plans": [
+                  {
+                    "Node Type": "Limit",
+                    "Parent Relationship": "SubPlan",
+                    "Subplan Name": "SubPlan 129",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Startup Cost": 394.5,
+                    "Total Cost": 396.97,
+                    "Plan Rows": 1,
+                    "Plan Width": 32,
+                    "Plans": [
+                      {
+                        "Node Type": "Result",
+                        "Parent Relationship": "InitPlan",
+                        "Subplan Name": "InitPlan 1",
+                        "Parallel Aware": false,
+                        "Async Capable": false,
+                        "Startup Cost": 0,
+                        "Total Cost": 0.03,
+                        "Plan Rows": 1,
+                        "Plan Width": 16
+                      },
+                      {
+                        "Node Type": "Result",
+                        "Parent Relationship": "InitPlan",
+                        "Subplan Name": "InitPlan 2",
+                        "Parallel Aware": false,
+                        "Async Capable": false,
+                        "Startup Cost": 0,
+                        "Total Cost": 0.03,
+                        "Plan Rows": 1,
+                        "Plan Width": 16
+                      },
+                      {
+                        "Node Type": "Index Scan",
+                        "Parent Relationship": "InitPlan",
+                        "Subplan Name": "InitPlan 127",
+                        "Parallel Aware": false,
+                        "Async Capable": false,
+                        "Scan Direction": "Forward",
+                        "Index Name": "users_pkey",
+                        "Relation Name": "users",
+                        "Alias": "u",
+                        "Startup Cost": 0.21,
+                        "Total Cost": 394.26,
+                        "Plan Rows": 1,
+                        "Plan Width": 0,
+                        "Index Cond": "(id = (InitPlan 3).col1)",
+                        "Filter": "(((role = 'admin'::text) OR (role = 'support'::text)) AND (is_admin() OR ((InitPlan 4).col1 = id) OR EXISTS(SubPlan 20) OR EXISTS(SubPlan 81)))",
+                        "Plans": [
+                          {
+                            "Node Type": "Result",
+                            "Parent Relationship": "InitPlan",
+                            "Subplan Name": "InitPlan 3",
+                            "Parallel Aware": false,
+                            "Async Capable": false,
+                            "Startup Cost": 0,
+                            "Total Cost": 0.03,
+                            "Plan Rows": 1,
+                            "Plan Width": 16
+                          },
+                          {
+                            "Node Type": "Result",
+                            "Parent Relationship": "InitPlan",
+                            "Subplan Name": "InitPlan 4",
+                            "Parallel Aware": false,
+                            "Async Capable": false,
+                            "Startup Cost": 0,
+                            "Total Cost": 0.03,
+                            "Plan Rows": 1,
+                            "Plan Width": 16
+                          },
+                          {
+                            "Node Type": "Nested Loop",
+                            "Parent Relationship": "SubPlan",
+                            "Subplan Name": "SubPlan 20",
+                            "Parallel Aware": false,
+                            "Async Capable": false,
+                            "Join Type": "Inner",
+                            "Startup Cost": 3.28,
+                            "Total Cost": 9.88,
+                            "Plan Rows": 1,
+                            "Plan Width": 0,
+                            "Inner Unique": false,
+                            "Plans": [
+                              {
+                                "Node Type": "Result",
+                                "Parent Relationship": "InitPlan",
+                                "Subplan Name": "InitPlan 5",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Startup Cost": 0,
+                                "Total Cost": 0.03,
+                                "Plan Rows": 1,
+                                "Plan Width": 16
+                              },
+                              {
+                                "Node Type": "Result",
+                                "Parent Relationship": "InitPlan",
+                                "Subplan Name": "InitPlan 6",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Startup Cost": 0,
+                                "Total Cost": 0.03,
+                                "Plan Rows": 1,
+                                "Plan Width": 16
+                              },
+                              {
+                                "Node Type": "Result",
+                                "Parent Relationship": "InitPlan",
+                                "Subplan Name": "InitPlan 17",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Startup Cost": 0,
+                                "Total Cost": 0.03,
+                                "Plan Rows": 1,
+                                "Plan Width": 16
+                              },
+                              {
+                                "Node Type": "Result",
+                                "Parent Relationship": "InitPlan",
+                                "Subplan Name": "InitPlan 18",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Startup Cost": 0,
+                                "Total Cost": 0.03,
+                                "Plan Rows": 1,
+                                "Plan Width": 16
+                              },
+                              {
+                                "Node Type": "Result",
+                                "Parent Relationship": "InitPlan",
+                                "Subplan Name": "InitPlan 19",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Startup Cost": 0,
+                                "Total Cost": 0.03,
+                                "Plan Rows": 1,
+                                "Plan Width": 16
+                              },
+                              {
+                                "Node Type": "Index Scan",
+                                "Parent Relationship": "Outer",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Scan Direction": "Forward",
+                                "Index Name": "idx_riders_user_id",
+                                "Relation Name": "riders",
+                                "Alias": "r_2",
+                                "Startup Cost": 0.14,
+                                "Total Cost": 2.62,
+                                "Plan Rows": 1,
+                                "Plan Width": 16,
+                                "Index Cond": "(user_id = (InitPlan 5).col1)",
+                                "Filter": "(is_admin() OR ((InitPlan 17).col1 = user_id) OR ((InitPlan 18).col1 = user_id) OR (account_status = 'online'::rider_account_status_enum) OR ((InitPlan 19).col1 = user_id))"
+                              },
+                              {
+                                "Node Type": "Bitmap Heap Scan",
+                                "Parent Relationship": "Inner",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Relation Name": "intercity_requests",
+                                "Alias": "ir",
+                                "Startup Cost": 2.98,
+                                "Total Cost": 7.1,
+                                "Plan Rows": 1,
+                                "Plan Width": 16,
+                                "Recheck Cond": "((sender_id = u.id) AND (r_2.id = traveller_id))",
+                                "Filter": "((status <> ALL ('{cancelled,rejected,expired}'::text[])) AND (is_admin() OR (sender_id = (InitPlan 6).col1) OR (ANY (traveller_id = (hashed SubPlan 16).col1))))",
+                                "Plans": [
+                                  {
+                                    "Node Type": "BitmapAnd",
+                                    "Parent Relationship": "Outer",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Startup Cost": 2.98,
+                                    "Total Cost": 2.98,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 0,
+                                    "Plans": [
+                                      {
+                                        "Node Type": "Bitmap Index Scan",
+                                        "Parent Relationship": "Member",
+                                        "Parallel Aware": false,
+                                        "Async Capable": false,
+                                        "Index Name": "idx_intercity_requests_sender_id",
+                                        "Startup Cost": 0,
+                                        "Total Cost": 1.34,
+                                        "Plan Rows": 12,
+                                        "Plan Width": 0,
+                                        "Index Cond": "(sender_id = u.id)"
+                                      },
+                                      {
+                                        "Node Type": "Bitmap Index Scan",
+                                        "Parent Relationship": "Member",
+                                        "Parallel Aware": false,
+                                        "Async Capable": false,
+                                        "Index Name": "idx_intercity_requests_traveller_id",
+                                        "Startup Cost": 0,
+                                        "Total Cost": 1.39,
+                                        "Plan Rows": 19,
+                                        "Plan Width": 0,
+                                        "Index Cond": "(traveller_id = r_2.id)"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "Node Type": "Index Scan",
+                                    "Parent Relationship": "SubPlan",
+                                    "Subplan Name": "SubPlan 16",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Scan Direction": "Forward",
+                                    "Index Name": "idx_riders_user_id",
+                                    "Relation Name": "riders",
+                                    "Alias": "r_1",
+                                    "Startup Cost": 0.27,
+                                    "Total Cost": 2.75,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 16,
+                                    "Index Cond": "(user_id = (InitPlan 12).col1)",
+                                    "Filter": "(is_admin() OR ((InitPlan 13).col1 = user_id) OR ((InitPlan 14).col1 = user_id) OR (account_status = 'online'::rider_account_status_enum) OR ((InitPlan 15).col1 = user_id))",
+                                    "Plans": [
+                                      {
+                                        "Node Type": "Result",
+                                        "Parent Relationship": "InitPlan",
+                                        "Subplan Name": "InitPlan 12",
+                                        "Parallel Aware": false,
+                                        "Async Capable": false,
+                                        "Startup Cost": 0,
+                                        "Total Cost": 0.03,
+                                        "Plan Rows": 1,
+                                        "Plan Width": 16
+                                      },
+                                      {
+                                        "Node Type": "Result",
+                                        "Parent Relationship": "InitPlan",
+                                        "Subplan Name": "InitPlan 13",
+                                        "Parallel Aware": false,
+                                        "Async Capable": false,
+                                        "Startup Cost": 0,
+                                        "Total Cost": 0.03,
+                                        "Plan Rows": 1,
+                                        "Plan Width": 16
+                                      },
+                                      {
+                                        "Node Type": "Result",
+                                        "Parent Relationship": "InitPlan",
+                                        "Subplan Name": "InitPlan 14",
+                                        "Parallel Aware": false,
+                                        "Async Capable": false,
+                                        "Startup Cost": 0,
+                                        "Total Cost": 0.03,
+                                        "Plan Rows": 1,
+                                        "Plan Width": 16
+                                      },
+                                      {
+                                        "Node Type": "Result",
+                                        "Parent Relationship": "InitPlan",
+                                        "Subplan Name": "InitPlan 15",
+                                        "Parallel Aware": false,
+                                        "Async Capable": false,
+                                        "Startup Cost": 0,
+                                        "Total Cost": 0.03,
+                                        "Plan Rows": 1,
+                                        "Plan Width": 16
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "Node Type": "Bitmap Heap Scan",
+                            "Parent Relationship": "SubPlan",
+                            "Subplan Name": "SubPlan 81",
+                            "Parallel Aware": false,
+                            "Async Capable": false,
+                            "Relation Name": "orders",
+                            "Alias": "o",
+                            "Startup Cost": 4.55,
+                            "Total Cost": 381.69,
+                            "Plan Rows": 1,
+                            "Plan Width": 0,
+                            "Recheck Cond": "((user_id = u.id) AND (order_status = 'searching'::order_status_enum))",
+                            "Filter": "((is_admin() OR ((InitPlan 37).col1 = user_id) OR (ANY (rider_id = (hashed SubPlan 47).col1)) OR check_is_order_candidate_rider(id, (InitPlan 48).col1) OR (ANY (id = (hashed SubPlan 80).col1)) OR ((order_status = 'searching'::order_status_enum) AND ((order_type)::text ~~ 'intercity%'::text))) AND ((order_type)::text ~~ 'intercity%'::text))",
+                            "Plans": [
+                              {
+                                "Node Type": "Result",
+                                "Parent Relationship": "InitPlan",
+                                "Subplan Name": "InitPlan 37",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Startup Cost": 0,
+                                "Total Cost": 0.03,
+                                "Plan Rows": 1,
+                                "Plan Width": 16
+                              },
+                              {
+                                "Node Type": "Result",
+                                "Parent Relationship": "InitPlan",
+                                "Subplan Name": "InitPlan 48",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Startup Cost": 0,
+                                "Total Cost": 0.03,
+                                "Plan Rows": 1,
+                                "Plan Width": 16
+                              },
+                              {
+                                "Node Type": "BitmapAnd",
+                                "Parent Relationship": "Outer",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Startup Cost": 4.48,
+                                "Total Cost": 4.48,
+                                "Plan Rows": 5,
+                                "Plan Width": 0,
+                                "Plans": [
+                                  {
+                                    "Node Type": "Bitmap Index Scan",
+                                    "Parent Relationship": "Member",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Index Name": "idx_orders_user_created_id",
+                                    "Startup Cost": 0,
+                                    "Total Cost": 1.6,
+                                    "Plan Rows": 29,
+                                    "Plan Width": 0,
+                                    "Index Cond": "(user_id = u.id)"
+                                  },
+                                  {
+                                    "Node Type": "Bitmap Index Scan",
+                                    "Parent Relationship": "Member",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Index Name": "idx_orders_searching_created_at",
+                                    "Startup Cost": 0,
+                                    "Total Cost": 2.64,
+                                    "Plan Rows": 209,
+                                    "Plan Width": 0
+                                  }
+                                ]
+                              },
+                              {
+                                "Node Type": "Index Scan",
+                                "Parent Relationship": "SubPlan",
+                                "Subplan Name": "SubPlan 47",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Scan Direction": "Forward",
+                                "Index Name": "idx_riders_user_id",
+                                "Relation Name": "riders",
+                                "Alias": "r_3",
+                                "Startup Cost": 0.27,
+                                "Total Cost": 2.75,
+                                "Plan Rows": 1,
+                                "Plan Width": 16,
+                                "Index Cond": "(user_id = (InitPlan 43).col1)",
+                                "Filter": "(is_admin() OR ((InitPlan 44).col1 = user_id) OR ((InitPlan 45).col1 = user_id) OR (account_status = 'online'::rider_account_status_enum) OR ((InitPlan 46).col1 = user_id))",
+                                "Plans": [
+                                  {
+                                    "Node Type": "Result",
+                                    "Parent Relationship": "InitPlan",
+                                    "Subplan Name": "InitPlan 43",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Startup Cost": 0,
+                                    "Total Cost": 0.03,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 16
+                                  },
+                                  {
+                                    "Node Type": "Result",
+                                    "Parent Relationship": "InitPlan",
+                                    "Subplan Name": "InitPlan 44",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Startup Cost": 0,
+                                    "Total Cost": 0.03,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 16
+                                  },
+                                  {
+                                    "Node Type": "Result",
+                                    "Parent Relationship": "InitPlan",
+                                    "Subplan Name": "InitPlan 45",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Startup Cost": 0,
+                                    "Total Cost": 0.03,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 16
+                                  },
+                                  {
+                                    "Node Type": "Result",
+                                    "Parent Relationship": "InitPlan",
+                                    "Subplan Name": "InitPlan 46",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Startup Cost": 0,
+                                    "Total Cost": 0.03,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 16
+                                  }
+                                ]
+                              },
+                              {
+                                "Node Type": "Nested Loop",
+                                "Parent Relationship": "SubPlan",
+                                "Subplan Name": "SubPlan 80",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Join Type": "Inner",
+                                "Startup Cost": 0.45,
+                                "Total Cost": 71.06,
+                                "Plan Rows": 3,
+                                "Plan Width": 16,
+                                "Inner Unique": false,
+                                "Plans": [
+                                  {
+                                    "Node Type": "Result",
+                                    "Parent Relationship": "InitPlan",
+                                    "Subplan Name": "InitPlan 65",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Startup Cost": 0,
+                                    "Total Cost": 0.03,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 16
+                                  },
+                                  {
+                                    "Node Type": "Result",
+                                    "Parent Relationship": "InitPlan",
+                                    "Subplan Name": "InitPlan 66",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Startup Cost": 0,
+                                    "Total Cost": 0.03,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 16
+                                  },
+                                  {
+                                    "Node Type": "Result",
+                                    "Parent Relationship": "InitPlan",
+                                    "Subplan Name": "InitPlan 77",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Startup Cost": 0,
+                                    "Total Cost": 0.03,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 16
+                                  },
+                                  {
+                                    "Node Type": "Result",
+                                    "Parent Relationship": "InitPlan",
+                                    "Subplan Name": "InitPlan 78",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Startup Cost": 0,
+                                    "Total Cost": 0.03,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 16
+                                  },
+                                  {
+                                    "Node Type": "Result",
+                                    "Parent Relationship": "InitPlan",
+                                    "Subplan Name": "InitPlan 79",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Startup Cost": 0,
+                                    "Total Cost": 0.03,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 16
+                                  },
+                                  {
+                                    "Node Type": "Index Scan",
+                                    "Parent Relationship": "Outer",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Scan Direction": "Forward",
+                                    "Index Name": "idx_riders_user_id",
+                                    "Relation Name": "riders",
+                                    "Alias": "r_5",
+                                    "Startup Cost": 0.14,
+                                    "Total Cost": 2.62,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 16,
+                                    "Index Cond": "(user_id = (InitPlan 65).col1)",
+                                    "Filter": "(is_admin() OR ((InitPlan 77).col1 = user_id) OR ((InitPlan 78).col1 = user_id) OR (account_status = 'online'::rider_account_status_enum) OR ((InitPlan 79).col1 = user_id))"
+                                  },
+                                  {
+                                    "Node Type": "Index Scan",
+                                    "Parent Relationship": "Inner",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Scan Direction": "Forward",
+                                    "Index Name": "idx_intercity_requests_traveller_id",
+                                    "Relation Name": "intercity_requests",
+                                    "Alias": "ir_1",
+                                    "Startup Cost": 0.15,
+                                    "Total Cost": 68.23,
+                                    "Plan Rows": 5,
+                                    "Plan Width": 32,
+                                    "Index Cond": "(traveller_id = r_5.id)",
+                                    "Filter": "((status <> ALL ('{cancelled,rejected,expired}'::text[])) AND (is_admin() OR (sender_id = (InitPlan 66).col1) OR (ANY (traveller_id = (hashed SubPlan 76).col1))))",
+                                    "Plans": [
+                                      {
+                                        "Node Type": "Index Scan",
+                                        "Parent Relationship": "SubPlan",
+                                        "Subplan Name": "SubPlan 76",
+                                        "Parallel Aware": false,
+                                        "Async Capable": false,
+                                        "Scan Direction": "Forward",
+                                        "Index Name": "idx_riders_user_id",
+                                        "Relation Name": "riders",
+                                        "Alias": "r_4",
+                                        "Startup Cost": 0.27,
+                                        "Total Cost": 2.75,
+                                        "Plan Rows": 1,
+                                        "Plan Width": 16,
+                                        "Index Cond": "(user_id = (InitPlan 72).col1)",
+                                        "Filter": "(is_admin() OR ((InitPlan 73).col1 = user_id) OR ((InitPlan 74).col1 = user_id) OR (account_status = 'online'::rider_account_status_enum) OR ((InitPlan 75).col1 = user_id))",
+                                        "Plans": [
+                                          {
+                                            "Node Type": "Result",
+                                            "Parent Relationship": "InitPlan",
+                                            "Subplan Name": "InitPlan 72",
+                                            "Parallel Aware": false,
+                                            "Async Capable": false,
+                                            "Startup Cost": 0,
+                                            "Total Cost": 0.03,
+                                            "Plan Rows": 1,
+                                            "Plan Width": 16
+                                          },
+                                          {
+                                            "Node Type": "Result",
+                                            "Parent Relationship": "InitPlan",
+                                            "Subplan Name": "InitPlan 73",
+                                            "Parallel Aware": false,
+                                            "Async Capable": false,
+                                            "Startup Cost": 0,
+                                            "Total Cost": 0.03,
+                                            "Plan Rows": 1,
+                                            "Plan Width": 16
+                                          },
+                                          {
+                                            "Node Type": "Result",
+                                            "Parent Relationship": "InitPlan",
+                                            "Subplan Name": "InitPlan 74",
+                                            "Parallel Aware": false,
+                                            "Async Capable": false,
+                                            "Startup Cost": 0,
+                                            "Total Cost": 0.03,
+                                            "Plan Rows": 1,
+                                            "Plan Width": 16
+                                          },
+                                          {
+                                            "Node Type": "Result",
+                                            "Parent Relationship": "InitPlan",
+                                            "Subplan Name": "InitPlan 75",
+                                            "Parallel Aware": false,
+                                            "Async Capable": false,
+                                            "Startup Cost": 0,
+                                            "Total Cost": 0.03,
+                                            "Plan Rows": 1,
+                                            "Plan Width": 16
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "Node Type": "Result",
+                        "Parent Relationship": "InitPlan",
+                        "Subplan Name": "InitPlan 128",
+                        "Parallel Aware": false,
+                        "Async Capable": false,
+                        "Startup Cost": 0,
+                        "Total Cost": 0.03,
+                        "Plan Rows": 1,
+                        "Plan Width": 16
+                      },
+                      {
+                        "Node Type": "Index Scan",
+                        "Parent Relationship": "Outer",
+                        "Parallel Aware": false,
+                        "Async Capable": false,
+                        "Scan Direction": "Forward",
+                        "Index Name": "rider_kyc_pkey",
+                        "Relation Name": "rider_kyc",
+                        "Alias": "k",
+                        "Startup Cost": 0.14,
+                        "Total Cost": 2.62,
+                        "Plan Rows": 1,
+                        "Plan Width": 32,
+                        "Index Cond": "(id = r.kyc_id)",
+                        "Filter": "(is_admin() OR ((InitPlan 1).col1 = user_id) OR ((InitPlan 2).col1 = user_id) OR (InitPlan 127).col1 OR ((InitPlan 128).col1 = user_id))"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "scope": "EXPLAIN only, synthetic authenticated identity and public illustrative coordinates, no execution of target SELECT; read-only transaction rolled back."
+}

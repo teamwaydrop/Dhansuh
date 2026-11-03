@@ -1,0 +1,27 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {spawnSync} from 'node:child_process';
+import assert from 'node:assert/strict';
+const here=path.dirname(fileURLToPath(import.meta.url)),root=path.resolve(here,'../../..');
+const exe=path.join(root,'.dart_tool/waydrop-local-runtime/postgresql-17.11-core/pgsql/bin/psql.exe');
+function sql(input){const r=spawnSync(exe,['-X','-q','-A','-t','-v','ON_ERROR_STOP=1','-h','127.0.0.1','-p','54329','-U','waydrop_local','-d','waydrop_perf_test'],{input,encoding:'utf8',windowsHide:true});if(r.status)throw Error(r.stderr);return r.stdout.trim();}
+const rollback=await fs.readFile(path.join(here,'02_rollback_atomic_acceptance.sql'),'utf8');
+const install=await fs.readFile(path.join(here,'01_atomic_acceptance.sql'),'utf8');
+const disable=await fs.readFile(path.join(here,'03_disable_atomic_rpc.sql'),'utf8');
+const fingerprint=()=>sql("SELECT jsonb_build_object('orders',(SELECT md5(string_agg(to_jsonb(o)::text,'' ORDER BY id)) FROM orders o),'assignments',(SELECT md5(string_agg(to_jsonb(a)::text,'' ORDER BY id)) FROM rider_assignments a),'logs',(SELECT md5(string_agg(to_jsonb(l)::text,'' ORDER BY id)) FROM order_assignment_logs l),'events',(SELECT md5(string_agg(to_jsonb(e)::text,'' ORDER BY id)) FROM local_push_capture e));");
+const before=fingerprint();
+assert.throws(()=>sql(rollback),/Pause and drain/);
+sql("SET app.acceptance_rollback_traffic_drained='approved';"+rollback);
+assert.equal(sql("SELECT to_regprocedure('public.claim_order_assignment_atomic(uuid,uuid,uuid)') IS NOT NULL;"),'t');
+sql("SET app.acceptance_rollback_traffic_drained='approved';"+rollback.replace(/ROLLBACK;\s*$/,'COMMIT;'));
+assert.equal(sql("SELECT to_regprocedure('public.claim_order_assignment_atomic(uuid,uuid,uuid)') IS NULL AND to_regclass('public.rider_assignments_one_accepted_per_order') IS NULL;"),'t');assert.equal(fingerprint(),before);
+sql(install.replace(/ROLLBACK;\s*$/,'COMMIT;'));
+assert.equal(fingerprint(),before);
+sql(disable.replace(/ROLLBACK;\s*$/,'COMMIT;'));
+assert.equal(sql("SELECT has_function_privilege('service_role','public.claim_order_assignment_atomic(uuid,uuid,uuid)','execute');"),'f');
+assert.equal(sql("SELECT to_regclass('public.rider_assignments_one_accepted_per_order') IS NOT NULL;"),'t');
+sql('GRANT EXECUTE ON FUNCTION public.claim_order_assignment_atomic(uuid,uuid,uuid) TO service_role;');
+assert.equal(sql("SELECT has_function_privilege('service_role','public.claim_order_assignment_atomic(uuid,uuid,uuid)','execute') AND NOT has_function_privilege('authenticated','public.claim_order_assignment_atomic(uuid,uuid,uuid)','execute') AND NOT has_function_privilege('anon','public.claim_order_assignment_atomic(uuid,uuid,uuid)','execute');"),'t');
+const report={status:'PASS',productionConnected:false,checks:['Traffic-drain acknowledgement required','Dry-run rollback restores objects','Actual local removal and reinstallation','Business row/event fingerprints unchanged','Fail-closed RPC disable retains unique index','Private service-role-only ACL restored'],limits:'Local object rollback only. Does not prove managed Edge bundle or production backup restore.'};
+await fs.writeFile(path.join(here,'ROLLBACK_RESULTS.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));

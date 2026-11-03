@@ -1,0 +1,189 @@
+{
+  "status": "LOCAL_PASS_MANAGED_VALIDATION_PENDING_NO_GO",
+  "latestExecutionGate": "EDGE_ONLY_LOCAL_PASS_MANAGED_RUNTIME_AND_INTEGRATION_PENDING",
+  "latestEvidence": "../../docs/performance/VERIFICATION.json; edge-only/RELEASE_MANIFEST.json",
+  "project": "yvwpchffctiagevpqgwy",
+  "productionMutations": 0,
+  "productionAfterMeasurements": null,
+  "artifactHashesVerified": 13,
+  "recoverySnapshotHashesVerified": 8,
+  "existingAuditTestGroupsPassed": 6,
+  "additionalIndexAndSafetyTestGroupsPassed": 4,
+  "pushNodeSyntaxChecksPassed": 3,
+  "splitPushMatchesAuditedProposal": false,
+  "blockingGates": [
+    "Managed valid-session Auth/Realtime/transactional notification integration",
+    "Managed direct DB endpoint/TLS/role/connection capacity and Deno runtime compatibility",
+    "Hosted recovery deployment/propagation and v60 drain",
+    "Protection against unrelated non-cooperating assignment writers",
+    "Fresh pre-release drift/baseline and artifact-specific final GO"
+  ],
+  "excluded": [
+    "Admin RLS changes",
+    "Optional proximity index",
+    "GPS trigger changes",
+    "Config database changes",
+    "Any paid resource or plan upgrade",
+    "GPS duplicate-index removals deferred: no demonstrated heartbeat latency/WAL benefit"
+  ],
+  "approvalRequest": "Not requested until managed validation and recovery rehearsal pass",
+  "pushDifferencesFromAudit": [
+    "BufferSource compatibility copy into ArrayBuffer",
+    "ReturnType<typeof setTimeout> timer annotation"
+  ],
+  "nativePg17GroupsPassed": 8,
+  "mockedDenoPushTests": {
+    "passed": 17,
+    "failed": 0,
+    "realDeviceDelivery": false
+  },
+  "lockedDependencyTests": {
+    "passed": 1,
+    "failed": 0,
+    "resolvedSupabaseJs": "2.118.0"
+  },
+  "acceptanceTests": {
+    "passed": 4,
+    "failed": 0,
+    "implementation": "Edge-bundled direct transaction; no new RPC/index"
+  },
+  "offlineNodeRegressions": {
+    "passed": 58,
+    "failed": 0,
+    "skipped": 0
+  },
+  "nativeSyntheticRestore": "PASS including atomic acceptance RPC/index, 10 table content hashes, function/owner/ACL/policy/index/trigger definitions",
+  "realPushDestination": "User confirmed unavailable",
+  "productionRecovery": "v60 TypeScript reconstruction passes frozen check and JS equivalence; emergency no-write 503 recovery passes local runtime test; hosted rehearsal pending",
+  "localClusterStatus": "Stopped cleanly after current completion regressions",
+  "preparedPushStagesFrozenDenoCheck": {
+    "passed": 4,
+    "failed": 0,
+    "config": "local-tests/deno-runtime.json",
+    "packageJsonDiscoveryDisabled": true
+  },
+  "localRuntimeSetup": {
+    "postgres": "17.11",
+    "deno": "2.9.8",
+    "location": ".dart_tool/waydrop-local-runtime",
+    "systemWideInstallation": false,
+    "docker": false,
+    "wsl": false,
+    "charges": 0
+  },
+  "atomicAcceptanceNativeTests": {
+    "passed": 15,
+    "failed": 0
+  },
+  "atomicAcceptanceEdgeTests": {
+    "passed": 8,
+    "failed": 0
+  },
+  "realLocalRestIntegrationTests": {
+    "passed": 6,
+    "failed": 0
+  },
+  "fullFlutterTests": {
+    "passed": 2064,
+    "failed": 0
+  },
+  "relatedFlutterTests": {
+    "passed": 214,
+    "failed": 0
+  },
+  "changedDartAnalyzer": {
+    "files": 7,
+    "issues": 0
+  },
+  "acceptanceReleaseHashesVerified": 5,
+  "currentProductionAcceptanceEdge": {
+    "version": 60,
+    "verify_jwt": false,
+    "bundleIdentifier": "9e6101aa857a902aefaa82d64d066f845e506e18e60f34441f85a4dc08af9f01",
+    "sourceMatchesCapturedV60": true,
+    "sourceSha256": "521fd8533d8a6d0fde15ccf9ceb211a8c631e3822f82c7f324b9e629736c9dfc"
+  },
+  "finalChecklist": "PRODUCTION_DEPLOYMENT_CHECKLIST.md",
+  "latestConcurrencyRerun": {
+    "nativeGroupsPassed": 15,
+    "handlerTestsPassed": 2,
+    "failed": 0
+  },
+  "latestAcceptanceDenoCheck": "PASS frozen cached dependencies",
+  "regressionReuse": "Existing full Flutter 2064, related Flutter 214, Node 58, Edge 8, local REST 6, push 17 results retained because release artifact hashes are unchanged.",
+  "managedReadOnlyChecks": {
+    "authEndpointChecksPassed": 3,
+    "authEndpointChecksFailed": 0,
+    "realtimePublishedTablesVerified": 5,
+    "notificationWiringVerified": true,
+    "recordedNotificationFailuresLast24Hours": 0,
+    "validUserSessionFlowVerified": false,
+    "liveRealtimeDeliveryVerified": false,
+    "liveNotificationDeliveryVerified": false
+  },
+  "minimalProductionWave": {
+    "scope": "Acceptance correctness only",
+    "checklist": "MINIMAL_PRODUCTION_WAVE.md",
+    "exactRequests": "acceptance/WAVE_A_REQUESTS.json",
+    "requestSha256": "408e3cb249bf32777880d0559a16f225257e06d5453d7ce5f15d130581113538",
+    "verdict": "NO_GO",
+    "executed": false
+  },
+  "remainingGateVerification": "REMAINING_GATE_VERIFICATION.md",
+  "resourceEvidence": {
+    "visibleManagedProjects": [
+      "yvwpchffctiagevpqgwy"
+    ],
+    "developmentBranches": 0,
+    "visibleBrowsers": 0,
+    "visibleApps": 0
+  },
+  "previousEdgeRecovery": {
+    "sourceReconstruction": "PASS exact captured bytes and relative helper, four files read-back/hash verified",
+    "localFrozenTypecheck": "FAIL TS2353 at legacy entrypoint line 483",
+    "originalRuntimeDependencyGraph": "UNVERIFIED",
+    "hostedRollback": "PENDING",
+    "evidence": "acceptance/recovery-v60/RECOVERY_MANIFEST.json",
+    "atomicCandidateFrozenTypecheck": "PASS; candidate artifact hashes unchanged"
+  },
+  "waveA": {
+    "scope": "accept-order Edge only",
+    "schemaChanges": 0,
+    "productionChanges": 0,
+    "tests": {
+      "nativePg17": {
+        "passed": 16,
+        "failed": 0
+      },
+      "handlerConcurrencyAndRecovery": {
+        "passed": 4,
+        "failed": 0
+      },
+      "edgeAuthFlagsAndErrors": {
+        "passed": 8,
+        "failed": 0
+      },
+      "flutterFull": {
+        "passed": 2065,
+        "failed": 0
+      },
+      "flutterRelated": {
+        "passed": 176,
+        "failed": 0
+      },
+      "analyzerChangedTestFiles": {
+        "files": 7,
+        "issues": 0
+      },
+      "denoBuilds": {
+        "passed": 3,
+        "failed": 0
+      },
+      "v60TypeOnlyErasedJavaScriptEquivalence": "PASS"
+    }
+  },
+  "acceptedRisk": {
+    "unverifiedDatabaseBackup": "Explicitly accepted by user; not a mandatory gate"
+  },
+  "latestSourceChange": "Observed ECONNRESET -> retryable 503; atomic core unchanged"
+}

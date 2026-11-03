@@ -1,0 +1,391 @@
+{
+  "passed_groups": 12,
+  "failed": 0,
+  "hashes": {
+    "before": "b486cd2e7650778ba2a41fe3eac5ea0a",
+    "after": "d70d703c15e3ee72834dc627af1fee80"
+  },
+  "cases": {
+    "empty": {
+      "before": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 0,
+        "rows": []
+      },
+      "after": {
+        "vault": 0,
+        "config": 0,
+        "enqueues": 0,
+        "rows": []
+      },
+      "passed": true
+    },
+    "intercity_only": {
+      "before": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-10-24T19:36:07.616815+05:30",
+            "order_type": "intercity_ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      },
+      "after": {
+        "vault": 0,
+        "config": 0,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-10-24T19:36:12.442483+05:30",
+            "order_type": "intercity_ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      },
+      "passed": true
+    },
+    "local_ready": {
+      "before": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 1,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:26.835713+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      },
+      "after": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 1,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:31.618842+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      },
+      "passed": true
+    },
+    "local_throttled": {
+      "before": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:27.114404+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": "2026-11-03T01:49:18.114404+05:30"
+          }
+        ]
+      },
+      "after": {
+        "vault": 0,
+        "config": 0,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:31.795921+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": "2026-11-03T01:49:22.795921+05:30"
+          }
+        ]
+      },
+      "passed": true
+    },
+    "local_retry_ready": {
+      "before": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 1,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:27.274066+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": "2026-11-03T01:49:07.274066+05:30"
+          }
+        ]
+      },
+      "after": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 1,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:31.962104+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": "2026-11-03T01:49:11.962104+05:30"
+          }
+        ]
+      },
+      "passed": true
+    },
+    "local_outside_config_window": {
+      "before": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:32:48.441532+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      },
+      "after": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:32:53.140651+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      },
+      "passed": true
+    },
+    "terminal_cleanup": {
+      "before": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:27.64702+05:30",
+            "order_type": "ride",
+            "order_status": "completed",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": "2026-11-03T01:47:27.64702+05:30"
+          }
+        ]
+      },
+      "after": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:32.403851+05:30",
+            "order_type": "ride",
+            "order_status": "completed",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": "2026-11-03T01:47:32.403851+05:30"
+          }
+        ]
+      },
+      "passed": true
+    },
+    "stale_active_search_worker_not_recovered": {
+      "before": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:27.828891+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": true,
+            "dispatch_worker_started_at": "2026-11-03T01:39:28.828891+05:30"
+          }
+        ]
+      },
+      "after": {
+        "vault": 0,
+        "config": 0,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:32.647157+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": true,
+            "dispatch_worker_started_at": "2026-11-03T01:39:33.647157+05:30"
+          }
+        ]
+      },
+      "passed": true
+    },
+    "missing_secret_ready": {
+      "before": {
+        "vault": 1,
+        "config": 0,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:27.965666+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      },
+      "after": {
+        "vault": 1,
+        "config": 0,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:32.804198+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      },
+      "passed": true
+    },
+    "missing_secret_cleanup_preserved": {
+      "before": {
+        "vault": 1,
+        "config": 0,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:28.110735+05:30",
+            "order_type": "ride",
+            "order_status": "completed",
+            "dispatch_worker_running": true,
+            "dispatch_worker_started_at": "2026-11-03T01:47:28.110735+05:30"
+          }
+        ]
+      },
+      "after": {
+        "vault": 1,
+        "config": 0,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:32.995042+05:30",
+            "order_type": "ride",
+            "order_status": "completed",
+            "dispatch_worker_running": true,
+            "dispatch_worker_started_at": "2026-11-03T01:47:32.995042+05:30"
+          }
+        ]
+      },
+      "passed": true
+    },
+    "arrival_after_idle_tick": {
+      "before": {
+        "vault": 2,
+        "config": 2,
+        "enqueues": 1,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:28.493114+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      },
+      "after": {
+        "vault": 1,
+        "config": 1,
+        "enqueues": 1,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:33.360376+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      }
+    },
+    "actual_advisory_lock_contention": {
+      "before": {
+        "vault": 0,
+        "config": 0,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:28.622001+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      },
+      "after": {
+        "vault": 0,
+        "config": 0,
+        "enqueues": 0,
+        "rows": [
+          {
+            "id": "00000000-0000-4000-8000-000000000611",
+            "created_at": "2026-11-03T01:49:33.55688+05:30",
+            "order_type": "ride",
+            "order_status": "searching",
+            "dispatch_worker_running": false,
+            "dispatch_worker_started_at": null
+          }
+        ]
+      }
+    }
+  },
+  "actual_postgres": true,
+  "synthetic_loopback_only": true,
+  "managed_http_vault_integration": false,
+  "fixture": "127.0.0.1:54329/waydrop_idle_dispatch_test",
+  "engine": "PostgreSQL 17.11 on x86_64-windows, compiled by msvc-19.44.35229, 64-bit"
+}

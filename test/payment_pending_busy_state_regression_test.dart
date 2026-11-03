@@ -64,11 +64,10 @@ void main() {
       // Format-tolerant: the PERF pass (parallelizing this RPC alongside the tax-due/COD-limit
       // checks via Promise.all) reformatted this call onto a single line, but it must still be the
       // exact same canonical RPC + param, not a reintroduced drifted copy.
-      final callShape = RegExp(
-        r'supabase\.rpc\(\s*"rider_is_on_active_trip",\s*\{\s*p_rider_id:\s*rider_id\s*\}\s*,?\s*\)',
-      );
+      final atomic = _read('supabase/functions/accept-order/acceptance_sql.ts');
       expect(
-        callShape.hasMatch(acceptOrder),
+        acceptOrder.contains('acceptOrderAtomically') &&
+            atomic.contains('public.rider_is_on_active_trip(p_rider_id)'),
         isTrue,
         reason: 'accept-order must defer to the single canonical busy predicate instead of '
             'maintaining its own drifted copy',

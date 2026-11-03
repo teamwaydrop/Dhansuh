@@ -1,0 +1,164 @@
+{
+  "database": "waydrop_blocker_test",
+  "production": false,
+  "results": [
+    {
+      "name": "disabled additive schema then explicit local cutover",
+      "status": "PASS",
+      "details": {
+        "database": "waydrop_blocker_test",
+        "production": false
+      }
+    },
+    {
+      "name": "12 overlapping requests enqueue once and one generation has one owner",
+      "status": "PASS",
+      "details": {
+        "events": 13,
+        "enqueues": 1,
+        "claim_winners": 1
+      }
+    },
+    {
+      "name": "pause old owner, expire, replace, resume old owner: no writes/release",
+      "status": "PASS",
+      "details": {
+        "stale_state_writes": 0,
+        "stale_releases": 0,
+        "replacement_applied": true,
+        "offers": 3
+      }
+    },
+    {
+      "name": "crash/rollback during step rolls back offer, audit, notification and state",
+      "status": "PASS",
+      "details": {
+        "rollback_offers": 0,
+        "committed_offers": 3,
+        "replay_extra_offers": 0
+      }
+    },
+    {
+      "name": "shared offer/accept eligibility denies each inconsistent rider state",
+      "status": "PASS",
+      "details": {
+        "parity_rows": 10,
+        "entry_points": 5,
+        "public_matcher": true,
+        "phases": [
+          "offer",
+          "accept"
+        ]
+      }
+    },
+    {
+      "name": "concurrent push handlers claim each registration exactly once",
+      "status": "PASS",
+      "details": {
+        "concurrent_handlers": 12,
+        "device_claims": 2,
+        "replay_claims": 0
+      }
+    },
+    {
+      "name": "crashes before/after send intent cannot create a second provider attempt",
+      "status": "PASS",
+      "details": {
+        "pre_intent_crash": "reclaimed",
+        "post_intent_crash": "uncertain/no automatic resend",
+        "late_ack": "sent"
+      }
+    },
+    {
+      "name": "partial success retained; only transient sibling retries with bounded budget",
+      "status": "PASS",
+      "details": {
+        "successful_device_retries": 0,
+        "max_attempts": 5,
+        "terminal_state": "partial_failed"
+      }
+    },
+    {
+      "name": "unregistered cleanup cannot delete a refreshed registration",
+      "status": "PASS",
+      "details": {
+        "refreshed_registration_deleted": false
+      }
+    },
+    {
+      "name": "enqueue failure preserves inbox and durable intent; recovery kicks once",
+      "status": "PASS",
+      "details": {
+        "durable_intent_retained": true,
+        "recovered_kicks": 1
+      }
+    },
+    {
+      "name": "claims cannot target a foreign recipient or run as an untrusted role",
+      "status": "PASS",
+      "details": {
+        "foreign_actor_denied": true,
+        "untrusted_rpc_roles_denied": true,
+        "additional_privilege_assertions": 18
+      }
+    },
+    {
+      "name": "atomic acceptance with new guards: one rider wins, financial retry unchanged",
+      "status": "PASS",
+      "details": {
+        "winners": 1,
+        "idempotent_retry": true,
+        "fare_preserved": true,
+        "old_writer_rejected": true
+      }
+    },
+    {
+      "name": "new-order, rider rematch, self-rematch and both cron paths coalesce",
+      "status": "PASS",
+      "details": {
+        "entry_paths": 5,
+        "job_rows": 1,
+        "http_kicks": 1,
+        "direct_offer_writes": 0
+      }
+    },
+    {
+      "name": "repeated pre-intent crashes have a bounded terminal retry budget",
+      "status": "PASS",
+      "details": {
+        "abandoned_claims": 5,
+        "automatic_retry_after_budget": false
+      }
+    },
+    {
+      "name": "crash before each delivery commit leaves no partial durable transition",
+      "status": "PASS",
+      "details": {
+        "rolled_back_transitions": [
+          "inbox/intent",
+          "snapshot/claim",
+          "send intent",
+          "acknowledgement"
+        ],
+        "ack_replay": true
+      }
+    },
+    {
+      "name": "KYC revocation serializes with the rider ownership lock",
+      "status": "PASS",
+      "details": {
+        "concurrent_kyc_revocation_waited_for_rider_lock": true,
+        "subsequent_offer_denied": true
+      }
+    },
+    {
+      "name": "bounded recovery skips already queued jobs without starving due work",
+      "status": "PASS",
+      "details": {
+        "batch_limit": 1,
+        "already_queued_oldest_skipped": true,
+        "other_due_job_kicked": true
+      }
+    }
+  ]
+}

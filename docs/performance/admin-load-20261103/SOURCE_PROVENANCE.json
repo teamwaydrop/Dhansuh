@@ -1,0 +1,14 @@
+{
+  "read_only_review": true,
+  "local_admin_root": "C:\\Users\\karth\\Desktop\\waydrop-admin (7)\\waydrop-admin",
+  "live_deployment_version_verified": false,
+  "configured_project_matches": true,
+  "source_sha256": {
+    "src/pages/LiveTracking.jsx": "7171f00bb623719322ffdf7cdf9beebb2e2429980738a1e5910b4c4cd2bf902b",
+    "src/pages/Dashboard.jsx": "9e2c5c068530d2527dd76d77589892df1a72d2a7a11306e3922801041d115e06",
+    "src/pages/Revenue.jsx": "7b43bac09a4228883d98b4b57f45cf5abe78ef64d9f2c3c9963b84ce72a0b01d",
+    "src/pages/Ongoing.jsx": "d7cf5bed5ef03ef226f2fe594c901d5b8357a99c66d8111667359ddadc993d69",
+    "src/lib/queryCache.js": "440d8b2e509750e36b43a4812818f84a458f9af64b95bb75c391e98264d374f6",
+    "src/App.jsx": "4557dd31b4cde218212258ffd1653c22e0b7c72c2836494a724919365377cb11"
+  }
+}

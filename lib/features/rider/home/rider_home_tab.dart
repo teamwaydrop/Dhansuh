@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/realtime/rider_update_filter.dart';
+import 'package:waydrop/core/services/diagnostics/performance_trace.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -54,6 +56,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   final supabase = Supabase.instance.client;
   Map<String, dynamic>? rider;
   double todayEarnings = 0.0;
+  bool _earningsLoading = false;
+  bool _earningsUnavailable = false;
   // Item 4: a traveller can have several concurrently active intercity passengers under one
   // travel plan (each their own `orders` row, same rider_id) -- this must be a list, not a single
   // nullable order, or every entry past the first silently disappears from Rider Home.
@@ -148,6 +152,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   // anything else here treats as "fresh enough" (_startSilentRefreshTimer's own gate).
   static const Duration _earningsFetchDedupeWindow = Duration(seconds: 3);
   DateTime? _lastEarningsFetchAt;
+  bool _appResumed = true;
 
   // "Today's Gross Earnings" (Phase 2 reconciliation): must use the SAME authoritative
   // gross-fare definition as rider_earnings_tab.dart's todayE -- final_fare ?? current_fare,
@@ -156,7 +161,30 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   // orders.rider_earning (a NET figure), which is why Home and Earnings could disagree even
   // though both already correctly date-filter by completed_at's local day. Payment method is
   // deliberately not filtered on -- Cashfree/Personal QR/Cash all contribute their full gross fare.
-  Future<double> _fetchTodayEarnings(String riderId) async {
+  Future<double>? _earningsInFlight;
+  String? _earningsFlightRiderId;
+  Future<double> _fetchTodayEarnings(String riderId) {
+    final existing = _earningsInFlight;
+    if (existing != null && _earningsFlightRiderId == riderId) return existing;
+    final raw = _queryTodayEarnings(riderId);
+    final visible = raw.timeout(const Duration(seconds: 8)).then((value) {
+      if (_earningsFlightRiderId == riderId) _lastEarningsFetchAt = DateTime.now();
+      return value;
+    });
+    _earningsInFlight = visible;
+    _earningsFlightRiderId = riderId;
+    void release() {
+      if (identical(_earningsInFlight, visible)) _earningsInFlight = null;
+    }
+    // A presentation deadline does not cancel HTTP. Keep sharing that owner
+    // until the raw query settles; late data never changes the timed-out result.
+    unawaited(raw.then<void>((_) => release(), onError: (Object _, StackTrace stack) {
+      release();
+    }));
+    return visible;
+  }
+
+  Future<double> _queryTodayEarnings(String riderId) async {
     final nowLocal = DateTime.now();
     final startOfToday = DateTime(nowLocal.year, nowLocal.month, nowLocal.day).toUtc();
     final ordersData = await supabase
@@ -170,22 +198,36 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
     for (var o in ordersData) {
       total += double.tryParse((o['final_fare'] ?? o['current_fare'])?.toString() ?? '0') ?? 0.0;
     }
-    _lastEarningsFetchAt = DateTime.now();
     return total;
   }
 
-  // R1 FIX #3 (consistency pass): initialRiderDataProvider is a StateProvider written exactly
-  // once, at true app cold start, and never cleared -- so `initialData != null` alone stays true
-  // forever, including on every mid-session RiderHomeTab recreation (returnToLocalRideHome()'s
-  // pushAndRemoveUntil rebuilds RiderMainNavigationScreen and, with it, a brand-new
-  // _RiderHomeTabState). Without this flag, every recreation would keep reusing the original
-  // cold-start snapshot indefinitely instead of re-fetching. `static` survives individual State
-  // disposal but not a process restart, so this is false exactly once per app launch and true for
-  // every subsequent _RiderHomeTabState construction within that same process. Scoped to this
-  // class only -- intentionally independent of RiderMainNavigationScreen's, RiderOrdersScreen's,
-  // RiderEarningsTab's, and RiderProfileTab's own identically-shaped flags.
-  static bool _hasConsumedColdStartSeed = false;
+  // Earnings is display-only. Never hold the Home loader, assignment setup or
+  // location reconciliation behind this secondary query. Keep the existing
+  // single-flight query and ignore responses after disposal/account changes.
+  Future<void> _refreshHomeEarnings(String riderId) async {
+    final userId = supabase.auth.currentUser?.id;
+    bool ownsView() =>
+        mounted &&
+        supabase.auth.currentUser?.id == userId &&
+        rider?['id']?.toString() == riderId;
+    if (!ownsView()) return;
+    setState(() {
+      _earningsLoading = true;
+      _earningsUnavailable = false;
+    });
+    try {
+      final value = await _fetchTodayEarnings(riderId);
+      if (ownsView()) setState(() => todayEarnings = value);
+    } catch (_) {
+      if (ownsView()) setState(() => _earningsUnavailable = true);
+      debugPrint('Home earnings unavailable; core Home remains usable.');
+    } finally {
+      if (ownsView()) setState(() => _earningsLoading = false);
+    }
+  }
 
+  // Fresh entry checks publish a new seed on every guarded navigation. Its
+  // per-consumer marker distinguishes that response from an already-used seed.
   @override
   void initState() {
     super.initState();
@@ -207,16 +249,13 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
       ),
     ));
     final initialData = ref.read(initialRiderDataProvider);
-    // R1 FIX #3 (consistency pass): the seed is only trusted on a true cold start -- present AND
-    // not yet consumed this process. A mid-session recreation finds _hasConsumedColdStartSeed
-    // already true and falls through to the unconditional live fetch below, exactly like every
-    // other loadRider() caller.
-    final seedUsable = initialData != null && !_hasConsumedColdStartSeed;
+    // Consume the newly validated response once. Recreating Home without a new
+    // response must still fetch live data; an old process flag cannot tell these apart.
+    final seedUsable = initialData != null && initialData.consumeFor('RiderHomeTab', supabase.auth.currentUser?.id);
     if (seedUsable) {
-      _hasConsumedColdStartSeed = true;
       rider = initialData.rider;
       isOnline = rider?['account_status'] == 'online';
-      todayEarnings = initialData.todayEarnings;
+      todayEarnings = initialData.todayEarnings ?? 0;
       loading = false;
     }
     // R1 FIX #3 (rider cold-start duplicate riders query): initialData was just applied above
@@ -226,6 +265,9 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
     // tab-visibility change, go-online, subscription purchase, etc.) is untouched and keeps
     // doing a full live fetch exactly as before.
     loadRider(skipQuery: seedUsable);
+    if (seedUsable && initialData.todayEarnings == null && rider != null) {
+      unawaited(_refreshHomeEarnings(rider!['id'].toString()));
+    }
     WidgetsBinding.instance.addObserver(this);
     _startSilentRefreshTimer();
     // Perf fix (WayDrop Phase H): see _onActiveOrderScreenVisibilityChanged() below.
@@ -239,7 +281,9 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
     // while off-screen. Realtime subscriptions and location tracking are set up elsewhere and are
     // never touched by this.
     if (!widget.isActive) return;
+    if (!_appResumed) return;
     _riderSilentRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (!_appResumed) return;
       // Perf fix (WayDrop Phase H): same "purely a UI freshness nicety" reasoning as the
       // widget.isActive gate above -- also skip while RiderActiveOrderScreen is open and covering
       // this tab, since nothing here is visible in that window either. Not cancelling/restarting
@@ -288,8 +332,12 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
+    _appResumed = state == AppLifecycleState.resumed;
+    if (!_appResumed) _riderSilentRefreshTimer?.cancel();
+    if (_appResumed) {
+      // Reconcile assignments even if Home is off-tab; only its UI timer pauses.
       loadRider();
+      _startSilentRefreshTimer();
     }
   }
 
@@ -328,7 +376,32 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   // loadActiveOrder(), travel-plan handling, assignment reconciliation, and live-tracking startup
   // all still run unconditionally below -- only the `riders`/`orders` fetch and its `setState` are
   // skipped, since the seed already populated `rider`/isOnline/todayEarnings/loading.
+  Completer<void>? _riderLoadCompletion;
+  bool _riderReloadQueued = false;
   Future<void> loadRider({bool skipActiveOrderReload = false, bool skipQuery = false}) async {
+    final existing = _riderLoadCompletion;
+    if (existing != null) {
+      _riderReloadQueued = true;
+      return existing.future;
+    }
+    final completion = Completer<void>();
+    _riderLoadCompletion = completion;
+    try {
+      await _loadRiderOnce(skipActiveOrderReload: skipActiveOrderReload, skipQuery: skipQuery);
+      while (_riderReloadQueued && mounted) {
+        _riderReloadQueued = false;
+        await _loadRiderOnce();
+      }
+    } finally {
+      _riderLoadCompletion = null;
+      completion.complete();
+    }
+  }
+
+  Future<void> _loadRiderOnce({bool skipActiveOrderReload = false, bool skipQuery = false}) => PerformanceTrace.measure('rider_home', () => _loadRiderOnceMeasured(skipActiveOrderReload: skipActiveOrderReload, skipQuery: skipQuery));
+
+  Future<void> _loadRiderOnceMeasured({bool skipActiveOrderReload = false, bool skipQuery = false}) async {
+    if (!mounted) return;
     try {
       final user = supabase.auth.currentUser;
       if (user == null) return;
@@ -358,28 +431,14 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
               )
             ''')
             .eq('user_id', user.id)
-            .maybeSingle();
+            .maybeSingle().timeout(const Duration(seconds: 8));
         if (!mounted) return;
 
-        double calculatedTodayEarnings = 0.0;
         if (data != null) {
           final kyc = data['rider_kyc!riders_kyc_id_fkey'] ?? data['rider_kyc'];
           if (kyc is Map) {
             data['full_name'] = kyc['full_name'];
             data['rider_image'] = kyc['rider_image'];
-          }
-
-          final lastFetch = _lastEarningsFetchAt;
-          if (lastFetch != null && DateTime.now().difference(lastFetch) < _earningsFetchDedupeWindow) {
-            // subscribeRider's own riders-row realtime callback already refreshed this within the
-            // dedupe window (same underlying completion event) -- reuse it instead of re-querying.
-            calculatedTodayEarnings = todayEarnings;
-          } else {
-            try {
-              calculatedTodayEarnings = await _fetchTodayEarnings(data['id'].toString());
-            } catch (err) {
-              debugPrint('Error calculating today earnings in loadRider: $err');
-            }
           }
         }
 
@@ -387,9 +446,15 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
         setState(() {
           rider = data;
           isOnline = rider?['account_status'] == 'online';
-          todayEarnings = calculatedTodayEarnings;
+          if (data == null) todayEarnings = 0.0;
           loading = false;
         });
+        final lastFetch = _lastEarningsFetchAt;
+        if (data != null &&
+            (lastFetch == null ||
+                DateTime.now().difference(lastFetch) >= _earningsFetchDedupeWindow)) {
+          unawaited(_refreshHomeEarnings(data['id'].toString()));
+        }
       }
       if (rider != null) {
         subscribeRider(rider!['id']);
@@ -427,6 +492,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
         _reconcilePendingAssignments(rider!['id']);
         if (isOnline) {
           LocationCacheService.startRiderLiveTracking();
+        } else {
+          LocationCacheService.stopRiderLiveTracking();
         }
       }
       _refreshBackoff.recordSuccess();
@@ -559,7 +626,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
   String? _subscribedRiderId;
 
   void subscribeRider(String riderId) {
-    if (_subscribedRiderId == riderId) return;
+    final subscriptionUserId = supabase.auth.currentUser?.id;
+    if (subscriptionUserId == null || _subscribedRiderId == riderId) return;
     _subscribedRiderId = riderId;
     if (riderSubId != null && riderSubChannel != null) {
       RealtimeManager.instance.unsubscribe(riderSubChannel!, riderSubId!);
@@ -576,7 +644,10 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
       filterColumn: 'id',
       filterValue: riderId,
       callback: (payload) async {
-        if (!mounted) return;
+        if (!mounted || supabase.auth.currentUser?.id != subscriptionUserId ||
+            _subscribedRiderId != riderId) {
+          return;
+        }
         final data = payload.newRecord;
 
         // PERF FIX (rider-location-realtime-fanout, Phase 1): during an active ride, GPS pushes a
@@ -585,16 +656,13 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
         // Re-running the full "sum today's completed orders" query and rebuilding this whole tab
         // on every one of those writes was pure waste -- nothing here (isOnline, todayEarnings,
         // subscription badges, profile info) can change as a result of a pure location write.
-        // `oldRecord` is populated because `riders` has REPLICA IDENTITY FULL (confirmed live), so
-        // the actual changed columns are diffed directly instead of guessed. Any column outside
+        // FULL identity permits previous-value comparisons, but partial old rows must
+        // fall through to refresh rather than treating missing business fields as unchanged.
+        // Any column outside
         // the known-safe set -- account_status, total_earnings, subscription_*, cod_*, etc. --
         // falls through to the exact original behavior below, unchanged.
         final oldData = payload.oldRecord;
-        final isLocationOnlyUpdate = oldData.isNotEmpty &&
-            data.keys.every((key) =>
-                !oldData.containsKey(key) ||
-                oldData[key] == data[key] ||
-                _locationHeartbeatFields.contains(key));
+        final isLocationOnlyUpdate = isLocationOnlyRiderUpdate(oldData, data, _locationHeartbeatFields);
 
         if (isLocationOnlyUpdate) {
           // Keep the cached rider map's fields current for anything that reads them later, without
@@ -619,23 +687,11 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
             .where((key) => !oldData.containsKey(key) || oldData[key] != data[key]);
         final isEarningsRelevantUpdate = changedKeys.any(_earningsRelevantFields.contains);
 
-        double calculatedTodayEarnings = todayEarnings;
-        if (isEarningsRelevantUpdate) {
-          final lastFetch = _lastEarningsFetchAt;
-          if (lastFetch != null && DateTime.now().difference(lastFetch) < _earningsFetchDedupeWindow) {
-            // loadRider() (triggered by the sibling orders-table realtime event for this same
-            // completion) already refreshed this within the dedupe window -- reuse it.
-            calculatedTodayEarnings = todayEarnings;
-          } else {
-            try {
-              calculatedTodayEarnings = await _fetchTodayEarnings(data['id'].toString());
-            } catch (err) {
-              debugPrint('Error calculating today earnings in subscribeRider callback: $err');
-              calculatedTodayEarnings = 0.0;
-            }
-          }
-        }
-
+        final lastFetch = _lastEarningsFetchAt;
+        final refreshEarnings = isEarningsRelevantUpdate &&
+            (lastFetch == null || DateTime.now().difference(lastFetch) >= _earningsFetchDedupeWindow);
+        // Publish authoritative rider fields immediately. Secondary earnings must
+        // never delay offline tracking teardown or replay an older rider payload.
         setState(() {
           if (rider != null) {
             rider = {
@@ -646,8 +702,9 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
             rider = data;
           }
           isOnline = rider?['account_status'] == 'online';
-          todayEarnings = calculatedTodayEarnings;
         });
+        if (refreshEarnings) unawaited(_refreshHomeEarnings(riderId));
+        if (!isOnline) await LocationCacheService.stopRiderLiveTracking();
       },
     );
   }
@@ -1583,7 +1640,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
                                 if (!mounted) return;
 
                                 if (trialActivated) {
-                                  Navigator.pop(sheetCtx);
+                                  if (sheetCtx.mounted) Navigator.pop(sheetCtx);
                                   // Trial is already granted server-side at this point (irreversible --
                                   // free_trial_used is permanent), so a GPS/location failure here must
                                   // never be reported as success: _bringRiderOnline()'s result is the
@@ -1601,7 +1658,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
                                       // Trial is safely banked -- free_trial_used=true persists, so the
                                       // rider's next "Go Online" tap goes straight to _bringRiderOnline()
                                       // (isSubscribed is now true) without re-showing this sheet.
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(this.context).showSnackBar(
                                         const SnackBar(
                                           content: Text(
                                             'Your 30-day free trial is activated. Tap Go Online again once location is available.',
@@ -1619,7 +1676,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
                                 // route to whichever flow now actually applies.
                                 await loadRider();
                                 if (!mounted) return;
-                                Navigator.pop(sheetCtx);
+                                if (sheetCtx.mounted) Navigator.pop(sheetCtx);
 
                                 if (reason == 'already_subscribed') {
                                   // Rider already has an active paid subscription (e.g. bought
@@ -1637,8 +1694,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
                                 // online) so they can simply retry.
                                 debugPrint('activate_rider_free_trial failed: $e');
                                 if (mounted) {
-                                  setSheetState(() => sheetProcessing = false);
-                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  if (sheetCtx.mounted) setSheetState(() => sheetProcessing = false);
+                                  ScaffoldMessenger.of(this.context).showSnackBar(
                                     const SnackBar(
                                       content: Text("Couldn't activate your free trial. Please check your connection and try again."),
                                       backgroundColor: Colors.redAccent,
@@ -2212,7 +2269,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
 
                                 // Actually start payment via PaymentService
                                 final paymentResult = await PaymentService.startPayment(
-                                  context: context,
+                                  context: this.context,
                                   paymentFor: PaymentFor.subscription,
                                   amount: amount, // local display only -- server derives the real charge from planId
                                   paymentMethod: 'cashfree',
@@ -2238,7 +2295,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
                                   PaymentTrace.abnormalExit('subscription onPressed', 'subscription', 'widget unmounted after success');
                                   return;
                                 }
-                                Navigator.pop(sheetCtx);
+                                if (sheetCtx.mounted) Navigator.pop(sheetCtx);
 
                                 _showSubscriptionSuccessDialog(selectedDays);
                                 loadRider();
@@ -2246,8 +2303,8 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
                               } catch (e, st) {
                                 PaymentTrace.exceptionAt('subscription purchase onPressed', 'subscription', e, st);
                                 if (mounted) {
-                                  setSheetState(() => sheetProcessing = false);
-                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  if (sheetCtx.mounted) setSheetState(() => sheetProcessing = false);
+                                  ScaffoldMessenger.of(this.context).showSnackBar(
                                     SnackBar(content: Text('Purchase failed: $e')),
                                   );
                                 }
@@ -2289,7 +2346,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
                         onPressed: sheetProcessing
                             ? null
                             : () async {
-                                Navigator.pop(sheetCtx);
+                                if (sheetCtx.mounted) Navigator.pop(sheetCtx);
                                 // Unified safe go-online flow (see _bringRiderOnline doc
                                 // comment) -- never writes account_status='online' without a
                                 // validated, atomically-written location. Handles its own
@@ -3170,7 +3227,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
     final riderId = rider!['id'];
 
     if (!isOnline) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(this.context).showSnackBar(
         const SnackBar(
           content: Text('Please go online to accept orders.'),
           backgroundColor: Colors.orange,
@@ -3184,7 +3241,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
     if (assignmentStatus == 'accepted_by_user') {
       // Step 2: Passenger accepted rider -> Rider does final confirmation to start!
       if (activeOrders.isNotEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(this.context).showSnackBar(
           const SnackBar(
             content: Text('You cannot accept another order while having an active order in progress.'),
             backgroundColor: Colors.orange,
@@ -3206,7 +3263,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
           throw Exception(response.data?['message'] ?? 'Failed to accept order');
         }
 
-        if (!mounted) return;
+        if (!mounted || !context.mounted) return;
         Navigator.pop(context); // Close details sheet
 
         await loadActiveOrder(riderId);
@@ -3216,7 +3273,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
         // rider/todayEarnings snapshot (kept live via subscribeRider's realtime callback) -- hand
         // it to the active-order screen instead of letting it re-fetch the same data on open.
         Navigator.push(
-          context,
+          this.context,
           MaterialPageRoute(
             builder: (_) => RiderActiveOrderScreen(
               orderId: order['id'],
@@ -3227,7 +3284,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
         );
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(this.context).showSnackBar(
             SnackBar(
               content: Text('Error accepting order: ${e.toString().replaceAll('Exception:', '').trim()}'),
               backgroundColor: Colors.redAccent,
@@ -3271,7 +3328,7 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
         }
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(this.context).showSnackBar(
             const SnackBar(
               content: Text('Delivery offer sent to user!'),
               backgroundColor: Colors.green,
@@ -3280,10 +3337,10 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
         }
 
         // Re-fetch/rebuild the sheet
-        setSheetState(() {});
+        if (context.mounted) setSheetState(() {});
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(this.context).showSnackBar(
             SnackBar(
               content: Text('Error sending offer: $e'),
               backgroundColor: Colors.redAccent,
@@ -3797,7 +3854,11 @@ class _RiderHomeTabState extends ConsumerState<RiderHomeTab> with WidgetsBinding
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '₹${_fmt(today)}',
+                        _earningsLoading
+                            ? 'Loading…'
+                            : _earningsUnavailable
+                                ? 'Unavailable'
+                                : '₹${_fmt(today)}',
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,

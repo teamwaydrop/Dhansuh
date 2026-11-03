@@ -1,0 +1,8 @@
+{
+  "provenance": "Numbers supplied by the user in the current request; no raw chart export, resolution or device labels supplied. Not independently read from a signed-in dashboard.",
+  "date": "2026-11-02",
+  "timezone": "Asia/Calcutta",
+  "12:18": {"database_connections": 23, "disk_throughput_KB_per_s_approx": 961.7},
+  "12:22": {"committed_GB": 1.85, "commit_capacity_GB": 1.40, "warning": "SEVERE", "physical_RAM_MB": 408.51, "used_RAM_MB": 249.51, "cache_buffers_MB": 122.1, "swap_occupied_MB": 677.26},
+  "12:24": {"IOWait_pct": 32.81, "user_CPU_pct": 5.25, "system_CPU_pct": 6.21, "idle_CPU_pct": 53.62, "reported_total_CPU_usage_pct": 44.28}
+}

@@ -58,10 +58,11 @@ void main() {
       expect(source.contains('"Authorization": `Bearer \${accessToken}`'), isTrue);
     });
 
-    test('FCM payload construction and notification DB flow are unchanged', () {
+    test('FCM payload uses durable begin/finish RPCs rather than unscoped status writes', () {
       expect(source.contains('fcm.googleapis.com/v1/projects'), isTrue);
-      expect(source.contains("await updateStatus(\"sent\", true);"), isTrue);
-      expect(source.contains("await updateStatus(\"failed\", false,"), isTrue);
+      expect(source.contains('"begin_notification_device"'), isTrue);
+      expect(source.contains('"finish_notification_device"'), isTrue);
+      expect(source.contains('.update({'), isFalse);
     });
   });
 }

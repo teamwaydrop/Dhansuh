@@ -1,0 +1,19 @@
+{
+  "environment": "local PostgreSQL 17 loopback; PK/AFTER trigger semantics only, not managed RLS/pg_net integration",
+  "results": [
+    {
+      "name": "16 concurrent retries share UUID: one commit and one AFTER INSERT effect",
+      "status": "PASS",
+      "successful_inserts": 1,
+      "duplicate_rejections": 15
+    },
+    {
+      "name": "replay after committed response loss produces no additional notification effect",
+      "status": "PASS"
+    },
+    {
+      "name": "rolled-back INSERT also rolls back notification side effect",
+      "status": "PASS"
+    }
+  ]
+}

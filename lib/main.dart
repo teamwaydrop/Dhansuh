@@ -1,5 +1,8 @@
+import 'package:waydrop/core/services/diagnostics/performance_trace.dart';
 import 'dart:async';
 import 'dart:ui';
+import 'package:http/http.dart' as http;
+import 'package:waydrop/core/services/diagnostics/api_metrics_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,6 +26,8 @@ import 'package:waydrop/core/navigation/nav_trace_observer.dart';
 
 final providerContainer = ProviderContainer();
 final navigatorKey = GlobalKey<NavigatorState>();
+// Inspect in DevTools during the requested cold/warm and per-tab measurements.
+final apiMetricsClient = kReleaseMode ? null : ApiMetricsClient(http.Client());
 
 /// [TRACE] TEMPORARY instrumentation — delete after root-cause capture.
 /// Logs every AppLifecycleState transition (resumed/inactive/paused/detached/
@@ -41,6 +46,8 @@ Future<void> main() async {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      PerformanceTrace.startFrames();
+      debugPrint('[PERF_PROCESS] main begin epoch=${DateTime.now().millisecondsSinceEpoch}');
       WidgetsBinding.instance.addObserver(_traceLifecycleObserver);
       debugPrint('[TRACE_LIFECYCLE] observer attached epoch=${DateTime.now().millisecondsSinceEpoch}');
 
@@ -84,6 +91,7 @@ Future<void> main() async {
         Supabase.initialize(
           url: supabaseUrl,
           anonKey: supabaseAnonKey,
+          httpClient: apiMetricsClient,
         ),
         CacheService.instance.init(),
       ]);

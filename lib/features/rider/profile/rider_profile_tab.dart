@@ -150,13 +150,13 @@ class _RiderProfileTabState extends ConsumerState<RiderProfileTab> {
       // 2. Fetch Rider details
       // R1 FIX #6: a true cold start reuses AppStartScreen's already-fetched riders row instead
       // of re-querying an identical row a moment later -- safe because nothing can have changed
-      // server-side between that fetch and this mount. The seed is a `select('*', ...)` fetch of
+      // server-side between that fetch and this mount. The seed projects the required fields from
       // the same table/row, so it covers every field this tab reads. The rider_kyc fetch below is
       // untouched -- the seed's own rider_kyc embed doesn't carry vehicle_number/vehicle_type,
       // so it can never replace this screen's own kyc query.
       final seedRider = providerContainer.read(initialRiderDataProvider)?.rider;
       final Map<String, dynamic>? riderData;
-      if (seedRider != null && seedRider['id'] != null && !_hasConsumedColdStartSeed) {
+      if (seedRider != null && seedRider['id'] != null && providerContainer.read(initialRiderDataProvider)!.isUsableFor(user.id) && !_hasConsumedColdStartSeed) {
         _hasConsumedColdStartSeed = true;
         riderData = seedRider;
       } else {

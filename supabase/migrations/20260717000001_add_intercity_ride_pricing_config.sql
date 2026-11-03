@@ -62,11 +62,4 @@ WHERE z.is_active = true
       WHERE pc.service_type = 'intercity_ride'
         AND pc.vehicle_type = v.vehicle_type
         AND pc.pricing_zone_id = z.id
-  )
-  -- Guard added post-hoc: created_by_admin_id is NOT NULL and this migration
-  -- resolves it via "first active admin". Every real (prod/staging)
-  -- environment already has an admin row by this point, so this is a no-op
-  -- there; it only changes behavior on a brand-new database with zero admins
-  -- (e.g. a fresh local `supabase db reset`), where the insert is skipped
-  -- instead of violating the NOT NULL constraint and aborting the migration.
-  AND EXISTS (SELECT 1 FROM public.admins WHERE is_active = true);
+  );

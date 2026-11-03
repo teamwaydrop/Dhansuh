@@ -1,0 +1,771 @@
+{
+  "scope": "Production read-only; current catalog is not historical incident metrics",
+  "catalog": {
+    "gps_indexes": [
+      {
+        "indexdef": "CREATE UNIQUE INDEX rider_locations_pkey ON public.rider_locations USING btree (rider_id)",
+        "indexname": "rider_locations_pkey",
+        "tablename": "rider_locations"
+      },
+      {
+        "indexdef": "CREATE INDEX idx_riders_account_status_service_mode ON public.riders USING btree (account_status, service_mode) INCLUDE (current_lat, current_lng, user_id, last_location_updated_at)",
+        "indexname": "idx_riders_account_status_service_mode",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE UNIQUE INDEX riders_pkey ON public.riders USING btree (id)",
+        "indexname": "riders_pkey",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE UNIQUE INDEX riders_kyc_id_key ON public.riders USING btree (kyc_id)",
+        "indexname": "riders_kyc_id_key",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE UNIQUE INDEX riders_user_id_key ON public.riders USING btree (user_id)",
+        "indexname": "riders_user_id_key",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE INDEX idx_riders_user_id ON public.riders USING btree (user_id)",
+        "indexname": "idx_riders_user_id",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE INDEX idx_riders_kyc_id ON public.riders USING btree (kyc_id)",
+        "indexname": "idx_riders_kyc_id",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE INDEX idx_riders_subscription_active ON public.riders USING btree (subscription_active)",
+        "indexname": "idx_riders_subscription_active",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE INDEX idx_riders_account_status ON public.riders USING btree (account_status)",
+        "indexname": "idx_riders_account_status",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE INDEX idx_riders_government_tax_due_balance ON public.riders USING btree (government_tax_due_balance)",
+        "indexname": "idx_riders_government_tax_due_balance",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE INDEX idx_riders_service_mode ON public.riders USING btree (service_mode) WHERE (account_status = 'online'::rider_account_status_enum)",
+        "indexname": "idx_riders_service_mode",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE INDEX idx_riders_location_updated ON public.riders USING btree (last_location_updated_at DESC)",
+        "indexname": "idx_riders_location_updated",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE INDEX idx_riders_created_at ON public.riders USING btree (created_at DESC)",
+        "indexname": "idx_riders_created_at",
+        "tablename": "riders"
+      },
+      {
+        "indexdef": "CREATE INDEX idx_riders_online_coords ON public.riders USING btree (current_lat, current_lng) WHERE (account_status = 'online'::rider_account_status_enum)",
+        "indexname": "idx_riders_online_coords",
+        "tablename": "riders"
+      }
+    ],
+    "observed_at": "2026-11-02T00:02:54.203941+05:30",
+    "publication": [
+      {
+        "table": "users",
+        "schema": "public",
+        "identity": "d",
+        "primary_key": "id"
+      },
+      {
+        "table": "rider_kyc",
+        "schema": "public",
+        "identity": "f",
+        "primary_key": "id"
+      },
+      {
+        "table": "riders",
+        "schema": "public",
+        "identity": "f",
+        "primary_key": "id"
+      },
+      {
+        "table": "payments",
+        "schema": "public",
+        "identity": "f",
+        "primary_key": "id"
+      },
+      {
+        "table": "orders",
+        "schema": "public",
+        "identity": "f",
+        "primary_key": "id"
+      },
+      {
+        "table": "rider_assignments",
+        "schema": "public",
+        "identity": "d",
+        "primary_key": "id"
+      },
+      {
+        "table": "rider_withdrawals",
+        "schema": "public",
+        "identity": "f",
+        "primary_key": "id"
+      },
+      {
+        "table": "rider_travel_plans",
+        "schema": "public",
+        "identity": "f",
+        "primary_key": "id"
+      },
+      {
+        "table": "order_chat_messages",
+        "schema": "public",
+        "identity": "d",
+        "primary_key": "id"
+      },
+      {
+        "table": "intercity_requests",
+        "schema": "public",
+        "identity": "f",
+        "primary_key": "id"
+      },
+      {
+        "table": "notifications",
+        "schema": "public",
+        "identity": "d",
+        "primary_key": "id"
+      },
+      {
+        "table": "order_verifications",
+        "schema": "public",
+        "identity": "d",
+        "primary_key": "id"
+      },
+      {
+        "table": "rider_locations",
+        "schema": "public",
+        "identity": "d",
+        "primary_key": "rider_id"
+      }
+    ],
+    "gps_triggers": [
+      {
+        "body": "CREATE OR REPLACE FUNCTION public.check_rider_near_destination_from_rider_locations()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_order RECORD;\n    v_dist_km double precision;\nBEGIN\n    IF NEW.current_lat IS NULL OR NEW.current_lng IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    SELECT id, user_id, destination_lat, destination_lng\n    INTO v_order\n    FROM public.orders\n    WHERE rider_id = NEW.rider_id\n      AND order_status = 'ongoing'\n      AND near_destination_notified = false\n      AND order_type::text LIKE 'intercity%'\n      AND destination_lat IS NOT NULL\n      AND destination_lng IS NOT NULL\n    LIMIT 1;\n\n    IF v_order.id IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    v_dist_km := 6371 * acos(\n        LEAST(GREATEST(\n            cos(radians(v_order.destination_lat))\n            * cos(radians(NEW.current_lat))\n            * cos(radians(NEW.current_lng) - radians(v_order.destination_lng))\n            + sin(radians(v_order.destination_lat))\n            * sin(radians(NEW.current_lat))\n        , -1.0), 1.0)\n    );\n\n    IF v_dist_km <= 3.0 THEN\n        UPDATE public.orders\n        SET near_destination_notified = true\n        WHERE id = v_order.id;\n\n        PERFORM public.send_push_notification_fnc(\n            v_order.user_id,\n            'Almost There',\n            'You are about 10 minutes away from your destination.',\n            jsonb_build_object('type', 'trip_near_destination', 'order_id', v_order.id)\n        );\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n",
+        "table": "rider_locations",
+        "trigger": "trg_rider_locations_near_destination_check",
+        "function": "check_rider_near_destination_from_rider_locations",
+        "definition": "CREATE TRIGGER trg_rider_locations_near_destination_check AFTER UPDATE OF current_lat, current_lng ON public.rider_locations FOR EACH ROW EXECUTE FUNCTION check_rider_near_destination_from_rider_locations()"
+      },
+      {
+        "body": "CREATE OR REPLACE FUNCTION public.handle_rider_status_change()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\nBEGIN\n  -- If account_status is toggled\n  IF NEW.account_status IS DISTINCT FROM OLD.account_status THEN\n    -- Going online\n    IF NEW.account_status = 'online' THEN\n      INSERT INTO public.rider_daily_activity (rider_id, date, last_online_toggle_at)\n      VALUES (NEW.id, (now() AT TIME ZONE 'Asia/Kolkata')::date, now())\n      ON CONFLICT (rider_id, date) DO UPDATE\n      SET last_online_toggle_at = now(),\n          updated_at = now();\n    -- Going offline\n    ELSIF NEW.account_status = 'offline' AND OLD.account_status = 'online' THEN\n      UPDATE public.rider_daily_activity\n      SET online_seconds = online_seconds + EXTRACT(EPOCH FROM (now() - last_online_toggle_at))::integer,\n          last_online_toggle_at = NULL,\n          updated_at = now()\n      WHERE rider_id = NEW.id AND last_online_toggle_at IS NOT NULL;\n    END IF;\n  END IF;\n  RETURN NEW;\nEND;\n$function$\n",
+        "table": "riders",
+        "trigger": "on_rider_status_change",
+        "function": "handle_rider_status_change",
+        "definition": "CREATE TRIGGER on_rider_status_change AFTER UPDATE OF account_status ON public.riders FOR EACH ROW EXECUTE FUNCTION handle_rider_status_change()"
+      },
+      {
+        "body": "CREATE OR REPLACE FUNCTION public.protect_rider_financial_columns()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    IF auth.role() <> 'service_role'\n       AND current_setting('app.bypass_rider_financial_guard', true) IS DISTINCT FROM 'true'\n    THEN\n        IF NEW.wallet_balance IS DISTINCT FROM OLD.wallet_balance\n           OR NEW.cod_pending_amount IS DISTINCT FROM OLD.cod_pending_amount\n           OR NEW.cod_limit IS DISTINCT FROM OLD.cod_limit\n           OR NEW.subscription_active IS DISTINCT FROM OLD.subscription_active\n           OR NEW.subscription_expires_at IS DISTINCT FROM OLD.subscription_expires_at\n           OR NEW.commission_waiver_active IS DISTINCT FROM OLD.commission_waiver_active\n           OR NEW.government_tax_due_balance IS DISTINCT FROM OLD.government_tax_due_balance\n           OR NEW.is_verified IS DISTINCT FROM OLD.is_verified\n           OR NEW.free_trial_started_at IS DISTINCT FROM OLD.free_trial_started_at\n           OR NEW.free_trial_expires_at IS DISTINCT FROM OLD.free_trial_expires_at\n           OR NEW.free_trial_used IS DISTINCT FROM OLD.free_trial_used\n        THEN\n            RAISE EXCEPTION 'Direct modification of rider financial/subscription columns is not permitted. Use the appropriate server-side function.';\n        END IF;\n    END IF;\n    RETURN NEW;\nEND;\n$function$\n",
+        "table": "riders",
+        "trigger": "protect_rider_financial_columns_trigger",
+        "function": "protect_rider_financial_columns",
+        "definition": "CREATE TRIGGER protect_rider_financial_columns_trigger BEFORE UPDATE ON public.riders FOR EACH ROW EXECUTE FUNCTION protect_rider_financial_columns()"
+      },
+      {
+        "body": "CREATE OR REPLACE FUNCTION public.sync_riders_gps_to_rider_locations()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    INSERT INTO public.rider_locations AS rl\n        (rider_id, current_lat, current_lng, current_heading,\n         last_location_updated_at, last_active_at, updated_at)\n    VALUES\n        (NEW.id, NEW.current_lat, NEW.current_lng, NEW.current_heading,\n         NEW.last_location_updated_at, NEW.last_active_at, now())\n    ON CONFLICT (rider_id) DO UPDATE SET\n        current_lat              = EXCLUDED.current_lat,\n        current_lng              = EXCLUDED.current_lng,\n        current_heading          = EXCLUDED.current_heading,\n        last_location_updated_at = EXCLUDED.last_location_updated_at,\n        last_active_at           = EXCLUDED.last_active_at,\n        updated_at               = now();\n\n    RETURN NULL;  -- AFTER trigger; return value is ignored\nEND;\n$function$\n",
+        "table": "riders",
+        "trigger": "trg_riders_gps_bridge_to_rider_locations",
+        "function": "sync_riders_gps_to_rider_locations",
+        "definition": "CREATE TRIGGER trg_riders_gps_bridge_to_rider_locations AFTER UPDATE OF current_lat, current_lng ON public.riders FOR EACH ROW WHEN (((old.current_lat IS DISTINCT FROM new.current_lat) OR (old.current_lng IS DISTINCT FROM new.current_lng) OR (old.current_heading IS DISTINCT FROM new.current_heading) OR (old.last_location_updated_at IS DISTINCT FROM new.last_location_updated_at) OR (old.last_active_at IS DISTINCT FROM new.last_active_at))) EXECUTE FUNCTION sync_riders_gps_to_rider_locations()"
+      },
+      {
+        "body": "CREATE OR REPLACE FUNCTION public.assign_nearby_searching_orders_to_rider()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    IF NEW.current_lat IS NULL OR NEW.current_lng IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    PERFORM public.assign_nearby_searching_orders_core(\n        NEW.id,\n        NEW.user_id,\n        NEW.current_lat,\n        NEW.current_lng,\n        NEW.service_mode\n    );\n\n    RETURN NEW;\nEND;\n$function$\n",
+        "table": "riders",
+        "trigger": "trigger_assign_nearby_orders",
+        "function": "assign_nearby_searching_orders_to_rider",
+        "definition": "CREATE TRIGGER trigger_assign_nearby_orders AFTER UPDATE OF account_status ON public.riders FOR EACH ROW WHEN (((new.account_status = 'online'::rider_account_status_enum) AND (old.account_status IS DISTINCT FROM 'online'::rider_account_status_enum))) EXECUTE FUNCTION assign_nearby_searching_orders_to_rider()"
+      },
+      {
+        "body": "CREATE OR REPLACE FUNCTION public.prevent_service_mode_switch_during_active_order()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    IF NEW.service_mode IS NOT DISTINCT FROM OLD.service_mode THEN\n        RETURN NEW;\n    END IF;\n\n    IF public.rider_is_on_active_trip(NEW.id) THEN\n        RAISE EXCEPTION 'Cannot switch Service Mode while a trip is active. Complete or cancel your current trip first.'\n            USING ERRCODE = 'check_violation';\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n",
+        "table": "riders",
+        "trigger": "trigger_prevent_service_mode_switch_during_active_order",
+        "function": "prevent_service_mode_switch_during_active_order",
+        "definition": "CREATE TRIGGER trigger_prevent_service_mode_switch_during_active_order BEFORE UPDATE OF service_mode ON public.riders FOR EACH ROW EXECUTE FUNCTION prevent_service_mode_switch_during_active_order()"
+      },
+      {
+        "body": "CREATE OR REPLACE FUNCTION public.on_rider_wallet_balance_update()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    -- If wallet balance drops below -500 (meaning they owe more than 500 rupees cash collected)\n    -- And it was not below -500 before (to avoid spamming on subsequent updates)\n    IF NEW.wallet_balance < -500 AND (OLD.wallet_balance IS NULL OR OLD.wallet_balance >= -500) THEN\n        PERFORM public.send_push_notification_fnc(\n            NEW.user_id,\n            'COD Settlement Required \ud83d\udcb3',\n            'Your cash collections exceed the allowed limit. Please pay your COD settlement of \u20b9' || ABS(NEW.wallet_balance)::text || ' to continue receiving ride requests.',\n            jsonb_build_object(\n                'type', 'cod_settlement',\n                'balance', NEW.wallet_balance\n            )\n        );\n    END IF;\n    RETURN NEW;\nEND;\n$function$\n",
+        "table": "riders",
+        "trigger": "trigger_rider_wallet_balance_update",
+        "function": "on_rider_wallet_balance_update",
+        "definition": "CREATE TRIGGER trigger_rider_wallet_balance_update AFTER UPDATE OF wallet_balance ON public.riders FOR EACH ROW EXECUTE FUNCTION on_rider_wallet_balance_update()"
+      }
+    ],
+    "gps_update_stats": [
+      {
+        "relname": "riders",
+        "n_tup_upd": 32331,
+        "n_dead_tup": 6,
+        "n_live_tup": 25,
+        "n_tup_hot_upd": 2951,
+        "last_autovacuum": "2026-11-01T22:25:31.768645+05:30"
+      },
+      {
+        "relname": "rider_locations",
+        "n_tup_upd": 395,
+        "n_dead_tup": 13,
+        "n_live_tup": 23,
+        "n_tup_hot_upd": 395,
+        "last_autovacuum": "2026-11-01T22:18:31.62909+05:30"
+      }
+    ]
+  },
+  "context": {
+    "rls": [
+      {
+        "table": "rider_locations",
+        "enabled": true
+      },
+      {
+        "table": "riders",
+        "enabled": true
+      }
+    ],
+    "observed_at": "2026-11-02T00:04:07.272802+05:30",
+    "query_stats": [
+      {
+        "calls": 2605255,
+        "query": "SELECT wal->>$5 as type,\n       wal->>$6 as schema,\n       wal->>$7 as table,\n       COALESCE(wal->>$8, $9) as columns,\n       COALESCE(wal->>$10, $11) as record,\n       COALESCE(wal->>$12, $13) as old_record,\n       wal->>$14 as commit_timestamp,\n       subscription_ids,\n       errors,\n       slot_changes_count\nFROM realtime.list_changes($1, $2, $3, $4)",
+        "mean_ms": 11.571,
+        "queryid": -7357843485416638000,
+        "total_ms": 30144326.573
+      },
+      {
+        "calls": 479595,
+        "query": "SELECT wal->>$5 as type,\n       wal->>$6 as schema,\n       wal->>$7 as table,\n       COALESCE(wal->>$8, $9) as columns,\n       COALESCE(wal->>$10, $11) as record,\n       COALESCE(wal->>$12, $13) as old_record,\n       wal->>$14 as commit_timestamp,\n       subscription_ids,\n       errors,\n       slot_changes_count\nFROM realtime.list_changes($1, $2, $3, $4)",
+        "mean_ms": 6.376,
+        "queryid": -5100739616020158000,
+        "total_ms": 3058068.756
+      },
+      {
+        "calls": 25957,
+        "query": "WITH pgrst_source AS (UPDATE \"public\".\"riders\" SET \"current_heading\" = \"pgrst_body\".\"current_heading\", \"current_lat\" = \"pgrst_body\".\"current_lat\", \"current_lng\" = \"pgrst_body\".\"current_lng\", \"last_active_at\" = \"pgrst_body\".\"last_active_at\", \"last_location_updated_at\" = \"pgrst_body\".\"last_location_updated_at\", \"updated_at\" = \"pgrst_body\".\"updated_at\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"current_heading\", \"current_lat\", \"current_lng\", \"last_active_at\", \"last_location_updated_at\", \"updated_at\" FROM json_to_record(pgrst_payload.json_data) AS _(\"current_heading\" double precision, \"current_lat\" double precision, \"current_lng\" double precision, \"last_active_at\" timestamp with time zone, \"last_location_updated_at\" timestamp with time zone, \"updated_at\" timestamp with time zone) ) pgrst_body  WHERE  \"public\".\"riders\".\"user_id\" = $2 AND  \"public\".\"riders\".\"account_status\" = $3 RETURNING $4) SELECT $5 AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, $6::text AS body, nullif(current_setting($7, $8), $9) AS response_headers, nullif(current_setting($10, $11), $12) AS response_status, $13 AS response_inserted FROM (SELECT * FRO",
+        "mean_ms": 79.535,
+        "queryid": 5508167732040856000,
+        "total_ms": 2064482.307
+      },
+      {
+        "calls": 6432,
+        "query": "WITH pgrst_source AS ( SELECT \"public\".\"riders\".\"id\", \"public\".\"riders\".\"rating\", \"public\".\"riders\".\"current_lat\", \"public\".\"riders\".\"current_lng\", \"public\".\"riders\".\"current_heading\", \"public\".\"riders\".\"last_location_updated_at\", \"public\".\"riders\".\"user_id\", row_to_json(\"riders_rider_kyc_1\".*)::jsonb AS \"rider_kyc\" FROM \"public\".\"riders\" LEFT JOIN LATERAL ( SELECT \"rider_kyc_1\".\"vehicle_number\", \"rider_kyc_1\".\"rider_image\", \"rider_kyc_1\".\"vehicle_type\" FROM \"public\".\"rider_kyc\" AS \"rider_kyc_1\" WHERE \"rider_kyc_1\".\"id\" = \"public\".\"riders\".\"kyc_id\"   LIMIT $1 OFFSET $2 ) AS \"riders_rider_kyc_1\" ON $6 WHERE  \"public\".\"riders\".\"id\" = $3   LIMIT $4 OFFSET $5 )  SELECT $7::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t)->$8, $9) AS body, nullif(current_setting($10, $11), $12) AS response_headers, nullif(current_setting($13, $14), $15) AS response_status, $16 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t",
+        "mean_ms": 2.448,
+        "queryid": 7066126440907478000,
+        "total_ms": 15747.02
+      },
+      {
+        "calls": 5534,
+        "query": "WITH pgrst_source AS ( SELECT \"public\".\"orders\".\"id\", \"public\".\"orders\".\"order_code\", \"public\".\"orders\".\"order_status\", \"public\".\"orders\".\"order_type\", \"public\".\"orders\".\"pickup_address\", \"public\".\"orders\".\"pickup_lat\", \"public\".\"orders\".\"pickup_lng\", \"public\".\"orders\".\"destination_address\", \"public\".\"orders\".\"destination_lat\", \"public\".\"orders\".\"destination_lng\", \"public\".\"orders\".\"rider_id\", \"public\".\"orders\".\"user_id\", \"public\".\"orders\".\"vehicle_type\", \"public\".\"orders\".\"pickup_otp\", \"public\".\"orders\".\"delivery_otp\", \"public\".\"orders\".\"created_at\", row_to_json(\"orders_riders_1\".*)::jsonb AS \"riders\" FROM \"public\".\"orders\" LEFT JOIN LATERAL ( SELECT \"riders_1\".\"id\", \"riders_1\".\"rating\", \"riders_1\".\"current_lat\", \"riders_1\".\"current_lng\", \"riders_1\".\"current_heading\", \"riders_1\".\"last_location_updated_at\", \"riders_1\".\"user_id\", row_to_json(\"riders_rider_kyc_2\".*)::jsonb AS \"rider_kyc\", row_to_json(\"riders_users_2\".*)::jsonb AS \"users\" FROM \"public\".\"riders\" AS \"riders_1\" LEFT JOIN LATERAL ( SELECT \"rider_kyc_2\".\"vehicle_number\", \"rider_kyc_2\".\"rider_image\", \"rider_kyc_2\".\"vehicle_type\" FROM \"public\".\"rider_kyc\" AS \"rider_kyc_2\" WHERE \"rider_kyc_2\".\"id\" = \"riders_1\".\"kyc_id\"   LIMI",
+        "mean_ms": 8.446,
+        "queryid": 5453268216625624000,
+        "total_ms": 46739.917
+      },
+      {
+        "calls": 3677,
+        "query": "WITH pgrst_source AS ( SELECT \"public\".\"orders\".\"id\", \"public\".\"orders\".\"order_code\", \"public\".\"orders\".\"order_status\", \"public\".\"orders\".\"pickup_address\", \"public\".\"orders\".\"pickup_lat\", \"public\".\"orders\".\"pickup_lng\", \"public\".\"orders\".\"destination_address\", \"public\".\"orders\".\"destination_lat\", \"public\".\"orders\".\"destination_lng\", \"public\".\"orders\".\"rider_id\", \"public\".\"orders\".\"user_id\", \"public\".\"orders\".\"vehicle_type\", \"public\".\"orders\".\"pickup_otp\", \"public\".\"orders\".\"delivery_otp\", \"public\".\"orders\".\"created_at\", row_to_json(\"orders_riders_1\".*)::jsonb AS \"riders\" FROM \"public\".\"orders\" LEFT JOIN LATERAL ( SELECT \"riders_1\".\"id\", \"riders_1\".\"rating\", \"riders_1\".\"current_lat\", \"riders_1\".\"current_lng\", \"riders_1\".\"current_heading\", \"riders_1\".\"last_location_updated_at\", \"riders_1\".\"user_id\", row_to_json(\"riders_rider_kyc_2\".*)::jsonb AS \"rider_kyc\", row_to_json(\"riders_users_2\".*)::jsonb AS \"users\" FROM \"public\".\"riders\" AS \"riders_1\" LEFT JOIN LATERAL ( SELECT \"rider_kyc_2\".\"vehicle_number\", \"rider_kyc_2\".\"rider_image\", \"rider_kyc_2\".\"vehicle_type\" FROM \"public\".\"rider_kyc\" AS \"rider_kyc_2\" WHERE \"rider_kyc_2\".\"id\" = \"riders_1\".\"kyc_id\"   LIMIT $1 OFFSET $2 ) AS \"riders_ride",
+        "mean_ms": 7.218,
+        "queryid": -3604495240971816400,
+        "total_ms": 26541.586
+      },
+      {
+        "calls": 1847,
+        "query": "WITH pgrst_source AS (UPDATE \"public\".\"riders\" SET \"current_heading\" = \"pgrst_body\".\"current_heading\", \"current_lat\" = \"pgrst_body\".\"current_lat\", \"current_lng\" = \"pgrst_body\".\"current_lng\", \"last_active_at\" = \"pgrst_body\".\"last_active_at\", \"last_location_updated_at\" = \"pgrst_body\".\"last_location_updated_at\", \"updated_at\" = \"pgrst_body\".\"updated_at\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"current_heading\", \"current_lat\", \"current_lng\", \"last_active_at\", \"last_location_updated_at\", \"updated_at\" FROM json_to_record(pgrst_payload.json_data) AS _(\"current_heading\" double precision, \"current_lat\" double precision, \"current_lng\" double precision, \"last_active_at\" timestamp without time zone, \"last_location_updated_at\" timestamp without time zone, \"updated_at\" timestamp without time zone) ) pgrst_body  WHERE  \"public\".\"riders\".\"user_id\" = $2 RETURNING $3) SELECT $4 AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, $5::text AS body, nullif(current_setting($6, $7), $8) AS response_headers, nullif(current_setting($9, $10), $11) AS response_status, $12 AS response_inserted FROM (SELECT * FROM pgrst_source) _postgrest_t",
+        "mean_ms": 3.219,
+        "queryid": -8202588469020711000,
+        "total_ms": 5945.544
+      },
+      {
+        "calls": 867,
+        "query": "WITH pgrst_source AS ( SELECT \"public\".\"riders\".\"id\", \"public\".\"riders\".\"account_status\", \"public\".\"riders\".\"current_lat\", \"public\".\"riders\".\"current_lng\", \"public\".\"riders\".\"last_location_updated_at\", \"public\".\"riders\".\"rating\", \"public\".\"riders\".\"kyc_id\", \"public\".\"riders\".\"user_id\" FROM \"public\".\"riders\" WHERE NOT \"public\".\"riders\".\"current_lat\" IS NULL AND NOT \"public\".\"riders\".\"current_lng\" IS NULL   LIMIT $1 OFFSET $2 )  SELECT $3::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $4) AS body, nullif(current_setting($5, $6), $7) AS response_headers, nullif(current_setting($8, $9), $10) AS response_status, $11 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t",
+        "mean_ms": 0.437,
+        "queryid": 2005731338179986200,
+        "total_ms": 378.8
+      }
+    ],
+    "stats_reset": {
+      "dealloc": 21,
+      "stats_reset": "2026-05-07T11:50:14.71209+05:30"
+    },
+    "order_indexes": [
+      {
+        "name": "idx_orders_rider_id",
+        "definition": "CREATE INDEX idx_orders_rider_id ON public.orders USING btree (rider_id)"
+      }
+    ],
+    "subscriptions": null
+  },
+  "incident_utc": [
+    "2026-11-01T16:22:00Z",
+    "2026-11-01T16:34:00Z"
+  ],
+  "traffic": [
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 303,
+      "mean_origin_ms": 122.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:22:00",
+      "n": 4,
+      "path": "/realtime/v1/websocket"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 36,
+      "mean_origin_ms": 22.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:22:00",
+      "n": 5,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 15,
+      "mean_origin_ms": 15,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 1,
+      "path": "/realtime/v1/websocket"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 71,
+      "mean_origin_ms": 40.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 6,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 21,
+      "mean_origin_ms": 18,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 4,
+      "path": "/realtime/v1/websocket"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 491,
+      "mean_origin_ms": 103.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 8,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 80,
+      "mean_origin_ms": 49.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:24:00",
+      "n": 2,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 46,
+      "mean_origin_ms": 23.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 12,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)",
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 383,
+      "mean_origin_ms": 66.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 48,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 87,
+      "mean_origin_ms": 73,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 33,
+      "mean_origin_ms": 24,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/realtime/v1/websocket"
+    },
+    {
+      "clients": [
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 180,
+      "mean_origin_ms": 98,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 4,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)",
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 4093,
+      "mean_origin_ms": 730.9,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 22,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 153,
+      "mean_origin_ms": 105,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 142,
+      "mean_origin_ms": 142,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/realtime/v1/websocket"
+    },
+    {
+      "clients": [
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 237,
+      "mean_origin_ms": 70.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 12,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)",
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 1984,
+      "mean_origin_ms": 218,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 41,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 107,
+      "mean_origin_ms": 107,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 3679,
+      "mean_origin_ms": 657.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 6,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)",
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 3733,
+      "mean_origin_ms": 592.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 50,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 36,
+      "mean_origin_ms": 36,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:28:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 372,
+      "mean_origin_ms": 91.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 8,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)",
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 2204,
+      "mean_origin_ms": 376.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 36,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 81,
+      "mean_origin_ms": 81,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:29:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 147,
+      "mean_origin_ms": 71,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 4,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)",
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 5966,
+      "mean_origin_ms": 796.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 28,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 5091,
+      "mean_origin_ms": 5091,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 1110,
+      "mean_origin_ms": 212.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 8,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)",
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 2911,
+      "mean_origin_ms": 461,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 29,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 8845,
+      "mean_origin_ms": 8845,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 63,
+      "mean_origin_ms": 63,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 1,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 41046,
+      "mean_origin_ms": 36734.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 3,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 775,
+      "mean_origin_ms": 775,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:32:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 412,
+      "mean_origin_ms": 198.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 3,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 16450,
+      "mean_origin_ms": 1560.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 13,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "clients": [
+        "Dart/3.11 (dart:io)"
+      ],
+      "errors": 0,
+      "max_origin_ms": 100,
+      "mean_origin_ms": 100,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:33:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    }
+  ],
+  "apply_rls_update_delete_definition": "CREATE OR REPLACE FUNCTION realtime.apply_rls(wal jsonb, max_record_bytes integer DEFAULT (1024 * 1024))\n RETURNS SETOF realtime.wal_rls\n LANGUAGE plpgsql\nAS $function$\ndeclare\n    -- Regclass of the table e.g. public.notes\n    entity_ regclass = (quote_ident(wal ->> 'schema') || '.' || quote_ident(wal ->> 'table'))::regclass;\n\n    -- I, U, D, T: insert, update ...\n    action realtime.action = (\n        case wal ->> 'action'\n            when 'I' then 'INSERT'\n            when 'U' then 'UPDATE'\n            when 'D' then 'DELETE'\n            else 'ERROR'\n        end\n    );\n\n    -- Is row level security enabled for the table\n    is_rls_enabled bool = relrowsecurity from pg_class where oid = entity_;\n\n    subscriptions realtime.subscription[] = array_agg(subs)\n        from\n            realtime.subscription subs\n        where\n            subs.entity = entity_\n            -- Filter by action early - only get subscriptions interested in this action\n            -- action_filter column can be: '*' (all), 'INSERT', 'UPDATE', or 'DELETE'\n            and (subs.action_filter = '*' or subs.action_filter = action::text);\n\n    -- Subscription vars\n    working_role regrole;\n    working_selected_columns text[];\n    claimed_role regrole;\n    claims jsonb;\n\n    subscription_id uuid;\n    subscription_has_access bool;\n    visible_to_subscription_ids uuid[] = '{}';\n\n    -- structured info for wal's columns\n    columns realtime.wal_column[];\n    -- previous identity values for update/delete\n    old_columns realtime.wal_column[];\n\n    error_record_exceeds_max_size boolean = octet_length(wal::text) > max_record_bytes;\n\n    -- Primary jsonb output for record\n    output jsonb;\n\n    -- Loop record for iterating unique roles (outer loop)\n    role_record record;\n    -- Loop record for iterating unique selected_columns within a role (inner loop)\n    cols_record record;\n    -- Subscription ids visible at the role level (before fanning out by selected_columns)\n    visible_role_sub_ids uuid[] = '{}';\n\nbegin\n    perform set_config('role', null, true);\n\n    columns =\n        array_agg(\n            (\n                x->>'name',\n                x->>'type',\n                x->>'typeoid',\n                realtime.cast(\n                    (x->'value') #>> '{}',\n                    coalesce(\n                        (x->>'typeoid')::regtype, -- null when wal2json version <= 2.4\n                        (x->>'type')::regtype\n                    )\n                ),\n                (pks ->> 'name') is not null,\n                true\n            )::realtime.wal_column\n        )\n        from\n            jsonb_array_elements(wal -> 'columns') x\n            left join jsonb_array_elements(wal -> 'pk') pks\n                on (x ->> 'name') = (pks ->> 'name');\n\n    old_columns =\n        array_agg(\n            (\n                x->>'name',\n                x->>'type',\n                x->>'typeoid',\n                realtime.cast(\n                    (x->'value') #>> '{}',\n                    coalesce(\n                        (x->>'typeoid')::regtype, -- null when wal2json version <= 2.4\n                        (x->>'type')::regtype\n                    )\n                ),\n                (pks ->> 'name') is not null,\n                true\n            )::realtime.wal_column\n        )\n        from\n            jsonb_array_elements(wal -> 'identity') x\n            left join jsonb_array_elements(wal -> 'pk') pks\n                on (x ->> 'name') = (pks ->> 'name');\n\n    for role_record in\n        select claims_role\n        from (select distinct claims_role from unnest(subscriptions)) t\n        order by claims_role::text\n    loop\n        working_role := role_record.claims_role;\n\n        -- Update `is_selectable` for columns and old_columns (once per role)\n        columns =\n            array_agg(\n                (\n                    c.name,\n                    c.type_name,\n                    c.type_oid,\n                    c.value,\n                    c.is_pkey,\n                    pg_catalog.has_column_privilege(working_role, entity_, c.name, 'SELECT')\n                )::realtime.wal_column\n            )\n            from\n                unnest(columns) c;\n\n        old_columns =\n                array_agg(\n                    (\n                        c.name,\n                        c.type_name,\n                        c.type_oid,\n                        c.value,\n                        c.is_pkey,\n                        pg_catalog.has_column_privilege(working_role, entity_, c.name, 'SELECT')\n                    )::realtime.wal_column\n                )\n                from\n                    unnest(old_columns) c;\n\n        if action <> 'DELETE' and count(1) = 0 from unnest(columns) c where c.is_pkey then\n            -- Fan out 400 error per distinct selected_columns for this role\n            for cols_record in\n                select selected_columns\n                from (select distinct selected_columns from unnest(subscriptions) s where s.claims_role = working_role) t\n                order by coalesce(array_to_string(selected_columns, ','), '')\n            loop\n                working_selected_columns := cols_record.selected_columns;\n                return next (\n                    jsonb_build_object(\n                        'schema', wal ->> 'schema',\n                        'table', wal ->> 'table',\n                        'type', action\n                    ),\n                    is_rls_enabled,\n                    (select array_agg(s.subscription_id) from unnest(subscriptions) as s where s.claims_role = working_role and (s.selected_columns is not distinct from working_selected_columns)),\n                    array['Error 400: Bad Request, no primary key']\n                )::realtime.wal_rls;\n            end loop;\n\n        -- The claims role does not have SELECT permission to the primary key of entity\n        elsif action <> 'DELETE' and sum(c.is_selectable::int) <> count(1) from unnest(columns) c where c.is_pkey then\n            -- Fan out 401 error per distinct selected_columns for this role\n            for cols_record in\n                select selected_columns\n                from (select distinct selected_columns from unnest(subscriptions) s where s.claims_role = working_role) t\n                order by coalesce(array_to_string(selected_columns, ','), '')\n            loop\n                working_selected_columns := cols_record.selected_columns;\n                return next (\n                    jsonb_build_object(\n                        'schema', wal ->> 'schema',\n                        'table', wal ->> 'table',\n                        'type', action\n                    ),\n                    is_rls_enabled,\n                    (select array_agg(s.subscription_id) from unnest(subscriptions) as s where s.claims_role = working_role and (s.selected_columns is not distinct from working_selected_columns)),\n                    array['Error 401: Unauthorized']\n                )::realtime.wal_rls;\n            end loop;\n\n        else\n            -- Create the prepared statement (once per role)\n            if is_rls_enabled and action <> 'DELETE' then\n                if (select 1 from pg_prepared_statements where name = 'walrus_rls_stmt' limit 1) > 0 then\n                    deallocate walrus_rls_stmt;\n                end if;\n                execute realtime.build_prepared_statement_sql('walrus_rls_stmt', entity_, columns);\n            end if;\n\n            -- Collect all visible subscription IDs for this role (filter check + RLS check)\n            visible_role_sub_ids = '{}';\n\n            for subscription_id, claims in (\n                    select\n                        subs.subscription_id,\n                        subs.claims\n                    from\n                        unnest(subscriptions) subs\n                    where\n                        subs.entity = entity_\n                        and subs.claims_role = working_role\n                        and (\n                            realtime.is_visible_through_filters(columns, subs.filters)\n                            or (\n                              action = 'DELETE'\n                              and realtime.is_visible_through_filters(old_columns, subs.filters)\n                            )\n                        )\n            ) loop\n\n                if not is_rls_enabled or action = 'DELETE' then\n                    visible_role_sub_ids = visible_role_sub_ids || subscription_id;\n                else\n                    -- Check if RLS allows the role to see the record\n                    perform\n                        -- Trim leading and trailing quotes from working_role because set_config\n                        -- doesn't recognize the role as valid if they are included\n                        set_config('role', trim(both '\"' from working_role::text), true),\n                        set_config('request.jwt.claims', claims::text, true);\n\n                    execute 'execute walrus_rls_stmt' into subscription_has_access;\n\n                    -- Reset the role on every FOR..LOOP batch execution.\n                    -- The first batch of 10 rows is pre-fetched using the current connection role (PG internal behaviour)\n                    -- then we have to reset it again otherwise it would use the role defined in the `set_config` above\n                    -- to fetch the remaining rows when rows>10, which could be a user-defined role that lacks execution grants.\n                    -- The flow is:\n                    --   1. run batch with conn role\n                    --   2. set_config working_role\n                    --   3. execute walrus\n                    --   4. reset role (revert)\n                    --   5. repeat\n                    perform set_config('role', null, true);\n\n                    if subscription_has_access then\n                        visible_role_sub_ids = visible_role_sub_ids || subscription_id;\n                    end if;\n                end if;\n            end loop;\n\n            perform set_config('role', null, true);\n\n            -- Inner loop: per distinct selected_columns for this role\n            for cols_record in\n                select selected_columns\n                from (select distinct selected_columns from unnest(subscriptions) s where s.claims_role = working_role) t\n                order by coalesce(array_to_string(selected_columns, ','), '')\n            loop\n                working_selected_columns := cols_record.selected_columns;\n\n                output = jsonb_build_object(\n                    'schema', wal ->> 'schema',\n                    'table', wal ->> 'table',\n                    'type', action,\n                    'commit_timestamp', to_char(\n                        ((wal ->> 'timestamp')::timestamptz at time zone 'utc'),\n                        'YYYY-MM-DD\"T\"HH24:MI:SS.MS\"Z\"'\n                    ),\n                    'columns', (\n                        select\n                            jsonb_agg(\n                                jsonb_build_object(\n                                    'name', pa.attname,\n                                    'type', pt.typname\n                                )\n                                order by pa.attnum asc\n                            )\n                        from\n                            pg_attribute pa\n                            join pg_type pt\n                                on pa.atttypid = pt.oid\n                            left join (\n                                select unnest(conkey) as pkey_attnum\n                                from pg_constraint\n                                where conrelid = entity_ and contype = 'p'\n                            ) pk on pk.pkey_attnum = pa.attnum\n                        where\n                            attrelid = entity_\n                            and attnum > 0\n                            and pg_catalog.has_column_privilege(working_role, entity_, pa.attname, 'SELECT')\n                            and (working_selected_columns is null or pa.attname = any(working_selected_columns) or pk.pkey_attnum is not null)\n                    )\n                )\n                -- Add \"record\" key for insert and update\n                || case\n                    when action in ('INSERT', 'UPDATE') then\n                        jsonb_build_object(\n                            'record',\n                            (\n                                select\n                                    jsonb_object_agg(\n                                        -- if unchanged toast, get column name and value from old record\n                                        coalesce((c).name, (oc).name),\n                                        case\n                                            when (c).name is null then (oc).value\n                                            else (c).value\n                                        end\n                                    )\n                                from\n                                    unnest(columns) c\n                                    full outer join unnest(old_columns) oc\n                                        on (c).name = (oc).name\n                                where\n                                    coalesce((c).is_selectable, (oc).is_selectable)\n                                    and (working_selected_columns is null or coalesce((c).name, (oc).name) = any(working_selected_columns) or coalesce((c).is_pkey, (oc).is_pkey))\n                                    and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))\n                            )\n                        )\n                    else '{}'::jsonb\n                end\n                -- Add \"old_record\" key for update and delete\n                || case\n                    when action = 'UPDATE' then\n                        jsonb_build_object(\n                                'old_record',\n                                (\n                                    select jsonb_object_agg((c).name, (c).value)\n                                    from unnest(old_columns) c\n                                    where\n                                        (c).is_selectable\n                                        and (working_selected_columns is null or (c).name = any(working_selected_columns) or (c).is_pkey)\n                                        and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))\n                                )\n                            )\n                    when action = 'DELETE' then\n                        jsonb_build_object(\n                            'old_record',\n                            (\n                                select jsonb_object_agg((c).name, (c).value)\n                                from unnest(old_columns) c\n                                where\n                                    (c).is_selectable\n                                    and (working_selected_columns is null or (c).name = any(working_selected_columns) or (c).is_pkey)\n                                    and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))\n                                    and ( not is_rls_enabled or (c).is_pkey ) -- if RLS enabled, we can't secure deletes so filter to pkey\n                            )\n                        )\n                    else '{}'::jsonb\n                end;\n\n                -- Filter visible_role_sub_ids to those matching the current selected_columns group\n                visible_to_subscription_ids = coalesce(\n                    (\n                        select array_agg(s.subscription_id)\n                        from unnest(subscriptions) s\n                        where s.claims_role = working_role\n                          and (s.selected_columns is not distinct from working_selected_columns)\n                          and s.subscription_id = any(visible_role_sub_ids)\n                    ),\n                    '{}'::uuid[]\n                );\n\n                return next (\n                    output,\n                    is_rls_enabled,\n                    visible_to_subscription_ids,\n                    case\n                        when error_record_exceeds_max_size then array['Error 413: Payload Too Large']\n                        else '{}'\n                    end\n                )::realtime.wal_rls;\n            end loop;\n\n        end if;\n    end loop;\n\n    perform set_config('role', null, true);\nend;\n$function$\n",
+  "additional_catalog_inspection": {
+    "production_read_only": true,
+    "track_functions": "none",
+    "rider_locations_function_references": [
+      "sync_riders_gps_to_rider_locations",
+      "delete_own_account",
+      "lawful_disclosure_report"
+    ],
+    "publication_operations": [
+      "INSERT",
+      "UPDATE",
+      "DELETE",
+      "TRUNCATE"
+    ],
+    "scope": "Later catalog inspection only, not incident state"
+  }
+}

@@ -19,7 +19,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waydrop/core/services/config/production_config_service.dart';
 
-String _read(String path) => File(path).readAsStringSync();
+// Source contracts are independent of the checkout's LF/CRLF line endings.
+String _read(String path) => File(path).readAsStringSync().replaceAll('\r\n', '\n');
 
 void main() {
   final migration = _read('supabase/migrations/20260901000034_production_config.sql');
@@ -211,7 +212,10 @@ void main() {
 
     test('MaintenanceScreen is shown with the config-provided message, and offers a retry that '
         're-runs checkUserFlow (so maintenance ending is picked up without reinstalling)', () {
-      expect(appStart.contains('MaintenanceScreen(message: config.maintenanceMessage, onRetry: () => checkUserFlow())'), isTrue);
+      expect(appStart.contains('MaintenanceScreen(message: config.maintenanceMessage, onRetry: () async {'), isTrue);
+      final retry = appStart.indexOf('await config.refresh();');
+      expect(retry, greaterThan(-1));
+      expect(appStart.indexOf('await checkUserFlow();', retry), greaterThan(retry));
     });
 
     test('MaintenanceScreen renders the message with no truncation and a "Check Again" retry '
@@ -239,7 +243,8 @@ void main() {
         isTrue,
       );
       final blockIdx = appStart.indexOf('if (blockedByVersion) {');
-      final profileQueryIdx = appStart.indexOf("from('users')");
+        // Independent reads may start early; the gate must precede using the profile.
+        final profileQueryIdx = appStart.indexOf('final profileResult =');
       expect(blockIdx, greaterThan(-1));
       expect(profileQueryIdx, greaterThan(-1));
       expect(blockIdx, lessThan(profileQueryIdx));
@@ -443,29 +448,27 @@ void main() {
     test('send-push-notification returns 200 (not an error status) when skipped -- the caller '
         '(deliver_push_notification_http_fnc) is fire-and-forget pg_net and never inspects the '
         'body, so a skip must not be logged as a delivery failure', () {
-      final anchor = sendPush.indexOf('if (!isFeatureEnabled(productionConfig, "notifications_enabled")) {');
-      final end = sendPush.indexOf('\n    }', anchor);
-      expect(anchor, greaterThan(-1));
-      expect(end, greaterThan(anchor));
-      final block = sendPush.substring(anchor, end);
-      expect(block.contains('{ status: 200, headers: corsHeaders }'), isTrue);
-      expect(block.contains('skipped: true'), isTrue);
+      expect(sendPush.contains('if (!allowed) { await finish(d,"SKIPPED");'), isTrue);
+      expect(sendPush.contains('skipped:true'), isTrue);
+      expect(sendPush.contains('Response.json({success:results.some'), isTrue);
+
     });
 
     test('notifications_enabled=false does NOT stop the notifications row insert/in-app inbox '
         '-- documented as push-delivery-only, since the row is written before this Edge '
         'Function is ever called', () {
-      expect(
-        sendPush.contains('It does NOT, and cannot,\n    // retroactively stop the public.notifications row itself'),
-        isTrue,
-      );
+      final cutover = _read('docs/performance/blocker-resolution/CUTOVER.candidate.sql');
+      expect(cutover.contains('INSERT INTO public.notifications'), isTrue);
+      expect(cutover.contains('INSERT INTO waydrop_internal.notification_jobs'), isTrue);
+      expect(sendPush.contains('.delete()'), isFalse);
+
     });
 
     test('the flag check runs AFTER the AUTH block completes, not before -- consistent with '
         'every other business-logic check in this function; an unauthenticated caller must '
         'never get a substantive response before being authorized', () {
-      final authIdx = sendPush.indexOf('const isTrustedServerCaller');
-      final flagCheckIdx = sendPush.indexOf('if (!isFeatureEnabled(productionConfig, "notifications_enabled")) {');
+      final authIdx = sendPush.indexOf('await supabase.auth.getUser(token)');
+      final flagCheckIdx = sendPush.indexOf('isFeatureEnabled(productionConfig, "notifications_enabled")');
       expect(authIdx, greaterThan(-1));
       expect(flagCheckIdx, greaterThan(authIdx));
     });
@@ -521,9 +524,9 @@ void main() {
     test('accept-order returns 503 (not silent/500) when blocked, and never touches an order '
         'that is not still "searching" -- the gate sits strictly between the idempotency check '
         'and ORDER STATUS VALIDATION', () {
-      final idempotencyIdx = acceptOrder.indexOf('idempotent: true,');
-      final flagCheckIdx = acceptOrder.indexOf('PHASE 3 PRODUCTION CONTROL');
-      final statusValidationIdx = acceptOrder.indexOf('ORDER STATUS VALIDATION');
+      final idempotencyIdx = acceptOrder.indexOf('if (!(order.rider_id === rider_id && order.order_status === "accepted"))');
+      final flagCheckIdx = acceptOrder.indexOf('const productionConfig = await getProductionConfig(supabase);');
+      final statusValidationIdx = acceptOrder.indexOf('acceptance = await acceptOrderAtomically');
       expect(idempotencyIdx, greaterThan(-1));
       expect(flagCheckIdx, greaterThan(idempotencyIdx));
       expect(statusValidationIdx, greaterThan(flagCheckIdx));

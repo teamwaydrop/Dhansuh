@@ -1,0 +1,308 @@
+[
+  {
+    "path": "lib/app_start_screen.dart",
+    "status": "modified",
+    "sha256": "525e166951ad6124b1ab880281e7ea52b79d70c6e630e1f05fc84ea6a8d3332f",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/core/services/location/location_cache_service.dart",
+    "status": "modified",
+    "sha256": "ec60727420db56b820593024b16859cac6a6716832fb3f765a88e1bad63f93bb",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/core/services/realtime/realtime_manager.dart",
+    "status": "modified",
+    "sha256": "eae15246e94eedc7808ea9336ffffd46425d3763cb8f046cb0d6938ef44e2933",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/core/services/session/auth_routing_policy.dart",
+    "status": "added",
+    "sha256": "3f74c0676d4d5b01ef327d94fdacf980a12a42fe4ae64a16784fd986936212fc",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "lib/core/services/session/rider_access_service.dart",
+    "status": "modified",
+    "sha256": "112e14853890275dd3385ac1d80598d91ca4bd66d3d8dcb84e0b0e98691d8c15",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/core/services/session/user_session_service.dart",
+    "status": "modified",
+    "sha256": "51b37c8b926c914b6510d0829d28fd51163e4efad022f746828104d88e7d6c58",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/intercity/shared/screens/intercity_tracking_screen.dart",
+    "status": "modified",
+    "sha256": "a1626be59b4cce16bc1dd92d368631754b854f2983c389b04271181690ac4576",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/local_parcels/booking/screens/parcel_location_screen.dart",
+    "status": "modified",
+    "sha256": "b2af0ab307d378c9334f5ae408b47e37cbfd2cdcebdd04e7e189ac9731ccfbc2",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/local_parcels/tracking/screens/parcel_tracking_screen.dart",
+    "status": "modified",
+    "sha256": "01d3d31cf7d7068c882c600f6b4c8151954fb7e859f61fb7691725bc04cfc67f",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/local_rides/booking/screens/ride_location_screen.dart",
+    "status": "modified",
+    "sha256": "d5597bf81421f914bda9a68b861b73e0d77c925ee2063dd80f0188fdf3f43696",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/local_rides/tracking/screens/ride_tracking_screen.dart",
+    "status": "modified",
+    "sha256": "fdae6eb8d7c9791c7d41b87d5a609511172b02c6347553ab554275fac7c46147",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/rider/earnings/rider_earnings_tab.dart",
+    "status": "modified",
+    "sha256": "35daa38b4e5b2a52882f4f5223de07a5598537374a0b7183c472a82220b273a0",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/rider/home/rider_home_tab.dart",
+    "status": "modified",
+    "sha256": "738231e3ca00ff361e89f80354363236fbbd427171e3be7c52101e14d2e44ffd",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/rider/navigation/rider_main_navigation_screen.dart",
+    "status": "modified",
+    "sha256": "b0d557c21b8eaec7894155c3c098b6a1698c43ae389a9bd5741361bf4b3007d7",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/rider/onboarding/screens/rider_entry_handler.dart",
+    "status": "modified",
+    "sha256": "9e2cb592b5d23a5fac5804a33e949f61df45e2afd0d68f57daf1b64010346669",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/rider/orders/screens/rider_active_order_screen.dart",
+    "status": "modified",
+    "sha256": "6e50c0e3ce937b24a6a21fc2a8574322f5a3bd2376f9276c387d1c7addae15d3",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/rider/travel_plans/screens/travel_plan_details_screen.dart",
+    "status": "modified",
+    "sha256": "f9b8235bfd67ff05c9e31cdc4392837e31ee9e905ce34766e534201b90b98a47",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/features/user/profile/profile_tab.dart",
+    "status": "modified",
+    "sha256": "3862d3cd15f997877b83d536e8d87a21176d61a63e87e24b8950af1d9be09251",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/modules/admin/admin_dashboard_screen.dart",
+    "status": "modified",
+    "sha256": "c9c2b14744491e73758e3316b9dde8b6b807918bc67f871d00020bb78a41e898",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "lib/shared/widgets/account_guard.dart",
+    "status": "modified",
+    "sha256": "2f6024472436190991d4e4db2fb35fc3f9dcc6c74e658b8a07d660e109e9ed0b",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/chat_regression_test.dart",
+    "status": "modified",
+    "sha256": "0e954a773f6049b42ffbd5182a772151b80d981646f9f92d76aafd0c6f81a181",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/create_order_surgical_phase1_regression_test.dart",
+    "status": "modified",
+    "sha256": "26b73febc38b2b3598483900d23ebba72cb9d64f3c347cab68908b9799009396",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/fixtures/create_order_before_production_control.provenance.json",
+    "status": "added",
+    "sha256": "ad30ec2b254c157263c0761792f52e25d4e0f03b02a7ad54aab3fd23dd9db0d1",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "test/fixtures/create_order_before_production_control.ts",
+    "status": "added",
+    "sha256": "6bbeb4fce044d31f4bbcfcc262273e77714739c2082839d2a11644e213108f3f",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "test/intercity_parcel_fixes_regression_test.dart",
+    "status": "modified",
+    "sha256": "1e018fca9e0fec24032b7ccc01706215af38d267bb19f8104676bc19d62b19bb",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/local_order_delivery_regression_test.dart",
+    "status": "modified",
+    "sha256": "2e68eda9bafaaa92e629fadb143d512a430f0b485e0981c5f2c64b6937e536a7",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/logout_login_otp_navigation_regression_test.dart",
+    "status": "modified",
+    "sha256": "fc0440d716b97fac425bcff739d60585712d74c0d508ecfe0f9eefac58a5e0d8",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/nearby_partner_count_regression_test.dart",
+    "status": "modified",
+    "sha256": "bc9b2bed8a934e184c98c6e9663ba41d8bddf8410fb081e8d9e72ad791dc076f",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/production_fix_2026_07_29_regression_test.dart",
+    "status": "modified",
+    "sha256": "7f9726f23d09bad20faab8e6f7b21d92a1bd5c4078a7b26207d6a4bedd16104e",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/rider_home_active_order_duplicate_work_suppressed_regression_test.dart",
+    "status": "modified",
+    "sha256": "5911feef1d6d948c9aab68bc92ecfc099d3eb572bbbdf13f50ed9eb1ba7ee1ca",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/rider_kyc_submission_reliability_regression_test.dart",
+    "status": "modified",
+    "sha256": "197bc353b8240faf5d05a80b1989a4bea3f44531e4e57eeac042bdcb2192f0e0",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/rider_orders_busy_to_free_refetch_regression_test.dart",
+    "status": "modified",
+    "sha256": "6fe8fffaa95263a30750982abbd7c2406cc278c4f625dbd98d417cbaf1565142",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart",
+    "status": "modified",
+    "sha256": "5cdf2b841eedb89e23793ea067a930cda95c30ef0b7187422b741de277e9e8c8",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/rider_pending_ride_after_completion_regression_test.dart",
+    "status": "modified",
+    "sha256": "d6671ad259895c94c63e8b541799c7aa2e96a304d65d2b00fba07d35feea4e13",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/rider_self_rematch_regression_test.dart",
+    "status": "modified",
+    "sha256": "22bfa0c372038ca6a4dc7c51ec512bb1212393fbb8503c55fc1c9cf3f055f442",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/subscription_stale_pending_payment_regression_test.dart",
+    "status": "modified",
+    "sha256": "b67d8145b6f4d4c33bd98b4f030c3471f89e2d94fe35087048f4990267894956",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/waydrop_gps_and_badge_test.dart",
+    "status": "modified",
+    "sha256": "431236743220d4327a8c31cb58c61879a2bfd7e8ce3112953bedd1fa9fa987b9",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "test/waydrop_realtime_lifecycle_test.dart",
+    "status": "added",
+    "sha256": "a34cd577efef4c4c6504f8f58f2f8813316cf00aee9f2ca403745f9b1607b7ab",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "test/waydrop_session_transition_test.dart",
+    "status": "added",
+    "sha256": "c2c7f8b981f83de7f050e1518dfbac0382d485c3be344f0fbae9c6c5215ff28b",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "test/waydrop_startup_parallel_test.dart",
+    "status": "added",
+    "sha256": "424916653e58425cab5798331502a8f10f6316993b443e90af254947c252f063",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "docs/proposals/WAYDROP_BACKEND_PROPOSAL.md",
+    "status": "modified",
+    "sha256": "0c4d7518495baa6596ef49b528c8f3553f9b8a01f71c6d2ab0787ab214f4cdbd",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "docs/proposals/waydrop_promo_ownership_review.sql",
+    "status": "modified",
+    "sha256": "49d931aefe94d90e20901bb7ce33b171683901996ea01f059e28c9212383c600",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "docs/proposals/waydrop_security_review.sql",
+    "status": "modified",
+    "sha256": "4f42a4e84054fd75d73bc51151f1a47621ffbf654c4549a56231a07cf46265a7",
+    "baseline": "continuation-start snapshot"
+  },
+  {
+    "path": "tools/waydrop-verification/.gitignore",
+    "status": "added",
+    "sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "tools/waydrop-verification/business-contracts.test.mjs",
+    "status": "added",
+    "sha256": "6fa2fa0491d7ce9a8b17269f543ce595b5e47029f4daf307be179ae41dbce3e5",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "tools/waydrop-verification/package-lock.json",
+    "status": "added",
+    "sha256": "a1fef45d73622241085891cac25df152a4bd3a59c70db059bbf73470712157ff",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "tools/waydrop-verification/package.json",
+    "status": "added",
+    "sha256": "109e0986f49cec94a69cef5140a89f43139ac582844ad3e18c0f477d0c6bd84d",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "tools/waydrop-verification/security-fixture.sql",
+    "status": "added",
+    "sha256": "59b7405e28f90c6945ea660397d1b2b0afa68e202dfd252fbae92598941f88fd",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "tools/waydrop-verification/security.test.mjs",
+    "status": "added",
+    "sha256": "10ff3cb1e1bffcb041ef445e0c04c4ae93ea5ed4d6589e8ef5f45ab483bc0d46",
+    "baseline": "new in continuation"
+  },
+  {
+    "path": "pubspec.yaml",
+    "status": "modified",
+    "baseline": "clean tracked HEAD at continuation start",
+    "sha256": "3578050803e49de206b6d9a0bb8b09270ceda6349be1e853c67349b553fe7856"
+  },
+  {
+    "path": "pubspec.lock",
+    "status": "modified",
+    "baseline": "clean tracked HEAD at continuation start",
+    "sha256": "0e68ad3677c5d36d5115a2b53f2238214c9ba5fec67f591473c719a1dd9a9b1a"
+  }
+]

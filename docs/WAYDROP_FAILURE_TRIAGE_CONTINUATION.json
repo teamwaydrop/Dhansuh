@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "originalFailure": "00:08 +259 -1: C:/Users/karth/Desktop/appclad/test/subscription_stale_pending_payment_regression_test.dart: H. The exact current dueBalance/plan amount becomes the new Cashfree order amount customer_phone mapping is untouched by this fix [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Old literal customer_phone expression expected an invented fallback; shipped code delegates to resolveCashfreeCustomerPhone.",
+    "test": "test/subscription_stale_pending_payment_regression_test.dart",
+    "fix": "Existing financial amount assertions retained; require actual customer-phone helper call and execute helper contract in Node.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 2,
+    "originalFailure": "00:10 +343 -2: C:/Users/karth/Desktop/appclad/test/rider_self_rematch_regression_test.dart: Issue 1 follow-up -- rider_self_rematch() immediate busy->free rematch RiderOrdersScreen calls rider_self_rematch() on its own busy->free transition, before re-fetching, without adding a new polling timer [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Exact old busy-to-free condition omitted intentional first-poll recovery for an already-free rider.",
+    "test": "test/rider_self_rematch_regression_test.dart",
+    "fix": "Accept first-poll-or-wasBusy gate; retain awaited rematch before refetch and no extra timer.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 3,
+    "originalFailure": "00:10 +343 -3: C:/Users/karth/Desktop/appclad/test/rider_self_rematch_regression_test.dart: Issue 1 follow-up -- rider_self_rematch() immediate busy->free rematch a failed self-rematch RPC call is non-fatal -- async trigger and cron backstop remain as fallback [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Expected empty catch(e); implementation now records Crashlytics with stackTrace without making rematch fatal.",
+    "test": "test/rider_self_rematch_regression_test.dart",
+    "fix": "Assert caught diagnostic branch and subsequent fetch rather than empty catch spelling.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 4,
+    "originalFailure": "00:11 +352 -4: C:/Users/karth/Desktop/appclad/test/rider_pending_ride_after_completion_regression_test.dart: rider_orders_screen.dart -- busy->free forced refetch still intact _pollActiveOrderFallback() still snapshots wasBusy and forces a refetch on the busy->free transition [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Same obsolete busy-to-free source expression; wasBusy snapshot and forced fetch remain.",
+    "test": "test/rider_pending_ride_after_completion_regression_test.dart",
+    "fix": "Recognize first-poll recovery as well as busy-to-free transition.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 5,
+    "originalFailure": "00:12 +372 -5: C:/Users/karth/Desktop/appclad/test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart: Untouched: assignment-expiry, rider status, and dispatch-critical rematch semantics rider_self_rematch() is still called synchronously on the busy->free transition, inside _pollActiveOrderFallback() itself -- untouched by this fix [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Same obsolete busy-to-free source expression; synchronous awaited self-rematch remains inside fallback.",
+    "test": "test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart",
+    "fix": "Keep rematch-before-fetch ordering assertion using current guarded branch.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 6,
+    "originalFailure": "00:13 +382 -6: C:/Users/karth/Desktop/appclad/test/rider_orders_busy_to_free_refetch_regression_test.dart: RiderOrdersScreen -- busy->free transition forces a pending-orders refetch _pollActiveOrderFallback() branches on the busy->free transition, mirroring listenRiderStatus()'s wasOffline->online forced refetch [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Same obsolete busy-to-free branch literal.",
+    "test": "test/rider_orders_busy_to_free_refetch_regression_test.dart",
+    "fix": "Assert current first-poll-or-busy gate with no active order.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 7,
+    "originalFailure": "00:13 +382 -7: C:/Users/karth/Desktop/appclad/test/rider_orders_busy_to_free_refetch_regression_test.dart: RiderOrdersScreen -- busy->free transition forces a pending-orders refetch the busy->free branch calls fetchSearchingOrders() [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Branch extraction failed because its start marker was obsolete; fetchSearchingOrders was present.",
+    "test": "test/rider_orders_busy_to_free_refetch_regression_test.dart",
+    "fix": "Extract current guarded branch and retain forced-fetch assertion.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 8,
+    "originalFailure": "00:13 +382 -8: C:/Users/karth/Desktop/appclad/test/rider_orders_busy_to_free_refetch_regression_test.dart: RiderOrdersScreen -- busy->free transition forces a pending-orders refetch the forced refetch is scoped to the busy->free transition only, not fired unconditionally elsewhere in this method (would reintroduce excessive polling) [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Test forbade intentional initial free-rider recovery by requiring transition-only behavior.",
+    "test": "test/rider_orders_busy_to_free_refetch_regression_test.dart",
+    "fix": "Require bounded first-poll-or-busy gate, never unconditional polling.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 9,
+    "originalFailure": "00:13 +409 -9: C:/Users/karth/Desktop/appclad/test/rider_kyc_submission_reliability_regression_test.dart: create-rider-kyc and validate-rider-kyc never trust body.user_id on its own create-rider-kyc rejects a body.user_id that does not match the authenticated user [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Expected exact old English rejection text; create-rider-kyc already compared authenticated identity and returned 403.",
+    "test": "test/rider_kyc_submission_reliability_regression_test.dart",
+    "fix": "Assert identity comparison plus 403 response without coupling to error-message prose.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 10,
+    "originalFailure": "00:13 +412 -10: C:/Users/karth/Desktop/appclad/test/rider_kyc_submission_reliability_regression_test.dart: create-rider-kyc and validate-rider-kyc never trust body.user_id on its own validate-rider-kyc rejects a body.user_id that does not match the authenticated user [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Expected exact old English rejection text; validate-rider-kyc already compared authenticated identity and returned 403.",
+    "test": "test/rider_kyc_submission_reliability_regression_test.dart",
+    "fix": "Assert identity comparison and 403 response for the validate endpoint.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 11,
+    "originalFailure": "00:14 +429 -11: C:/Users/karth/Desktop/appclad/test/rider_home_active_order_duplicate_work_suppressed_regression_test.dart: RiderActiveOrderScreen -- sets the flag around its own lifecycle dispose() sets isOpen = false, alongside the existing PipService.setPipEnabled(false) [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Arbitrary 600-character dispose slice ended before existing PiP cleanup.",
+    "test": "test/rider_home_active_order_duplicate_work_suppressed_regression_test.dart",
+    "fix": "Inspect complete dispose block; keep isOpen and PiP cleanup checks.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 12,
+    "originalFailure": "00:14 +432 -12: C:/Users/karth/Desktop/appclad/test/rider_home_active_order_duplicate_work_suppressed_regression_test.dart: RiderHomeTab -- reconciliation when the covering screen closes _onActiveOrderScreenVisibilityChanged exists and refreshes exactly what subscribeActiveOrder's callback would have [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Expected loadRider() with default duplicate active-order read; implementation correctly uses loadActiveOrder plus loadRider(skipActiveOrderReload:true).",
+    "test": "test/rider_home_active_order_duplicate_work_suppressed_regression_test.dart",
+    "fix": "Assert explicit reconciliation and deduplicated load contract.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 13,
+    "originalFailure": "00:14 +433 -13: C:/Users/karth/Desktop/appclad/test/rider_home_active_order_duplicate_work_suppressed_regression_test.dart: RiderHomeTab -- 30s silent refresh timer skips its DB call while covered _startSilentRefreshTimer's periodic callback now also checks isOpen, without changing the timer's own start/stop lifecycle [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Exact timer condition omitted existing backoff conjunction; visibility gate and timer lifecycle remained.",
+    "test": "test/rider_home_active_order_duplicate_work_suppressed_regression_test.dart",
+    "fix": "Recognize existing backoff while preserving isOpen and periodic lifecycle assertions.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 14,
+    "originalFailure": "00:20 +712 -14: C:/Users/karth/Desktop/appclad/test/production_fix_2026_07_29_regression_test.dart: Issue 1 -- one authoritative passenger fare on the Travel Together searching screen Test 1: PartnerCard in the \"Available Drop Partners\" list is passed yourFare (the passenger's own order fare) [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Arbitrary 13,000-character slice truncated before real PartnerCard yourFare wiring.",
+    "test": "test/production_fix_2026_07_29_regression_test.dart",
+    "fix": "Inspect relevant complete card scope and preserve authoritative passenger fare assertion.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 15,
+    "originalFailure": "00:29 +1161 -15: C:/Users/karth/Desktop/appclad/test/intercity_parcel_fixes_regression_test.dart: Issue 1: calculate-order-pricing reads the actual pricing_config key shape 1. per_km_rate is a recognized alias for the per-km charge (root cause of the ₹0.00 bug) [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Alias moved into shared pricing-calculations.ts; endpoint already imports and executes it.",
+    "test": "test/intercity_parcel_fixes_regression_test.dart",
+    "fix": "Inspect the real shared calculator and its endpoint call; execute actual TypeScript calculation contracts.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 16,
+    "originalFailure": "00:36 +1494 -16: C:/Users/karth/Desktop/appclad/test/create_order_surgical_phase1_regression_test.dart: (setUpAll) [E]",
+    "classification": "missing historical fixture / test infrastructure",
+    "origin": "Missing in original workspace too; untracked artifact dependency predates this continuation.",
+    "rootCause": "Untracked .audit_backup production-v76 fixture was absent; suite setup could not run.",
+    "test": "test/create_order_surgical_phase1_regression_test.dart",
+    "fix": "Track a genuine pre-control source baseline from commit ed24dee3da2d724bf1e109a4ff8ee895e4170556 with SHA256 provenance; assert remainder equality after removal of only the feature gate/import. Historical deployed v76 comparison remains unverified.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 17,
+    "originalFailure": "00:37 +1505 -17: C:/Users/karth/Desktop/appclad/test/chat_regression_test.dart: order_chat_screen.dart structural guards (Bug 2: ride isolation) realtime subscription filter is scoped to the current order id [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Pre-existing dirty chat implementation; assertion mismatch introduced relative to tracked HEAD, not a new runtime regression in the prior task.",
+    "rootCause": "Test expected direct raw-channel API; existing dirty chat source uses pooled RealtimeManager with the same order_id filter.",
+    "test": "test/chat_regression_test.dart",
+    "fix": "Assert pooled subscription table/filter/current order id and add real manager isolation tests.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 18,
+    "originalFailure": "00:37 +1506 -18: C:/Users/karth/Desktop/appclad/test/chat_regression_test.dart: order_chat_screen.dart structural guards (Bug 2: ride isolation) dispose() removes the chat realtime channel [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Pre-existing dirty chat implementation; assertion mismatch introduced relative to tracked HEAD, not a new runtime regression in the prior task.",
+    "rootCause": "Test expected raw channel removal; existing dirty chat source releases its pooled subscription ID.",
+    "test": "test/chat_regression_test.dart",
+    "fix": "Assert unsubscribe with channel/subscription ownership; manager behavior test proves final owner closes channel.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 19,
+    "originalFailure": "00:39 +1635 -19: C:/Users/karth/Desktop/appclad/test/local_order_delivery_regression_test.dart: Foreground resume reconciles pending requests instead of waiting for the next poll loadRider() calls _reconcilePendingAssignments, not just the realtime subscribe calls [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Test searched old no-argument loadRider signature; current optional-argument wrapper still reconciles pending assignments.",
+    "test": "test/local_order_delivery_regression_test.dart",
+    "fix": "Recognize named parameters while retaining reconciliation in function body.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  },
+  {
+    "id": 20,
+    "originalFailure": "00:44 +1821 -20: C:/Users/karth/Desktop/appclad/test/nearby_partner_count_regression_test.dart: Test 18: passenger availability and dispatch use consistent eligibility (documented, intentional differences noted) the pre-booking map marker queries (home_tab.dart) are a DIFFERENT feature (map pins, not the nearby count) with a stricter, documented, intentionally different filter [E]",
+    "classification": "outdated structural assertion",
+    "origin": "Reproduced in tracked HEAD during prior report; predates prior implementation changes. Baseline is tracked HEAD, not exact initial dirty tree.",
+    "rootCause": "Test referenced a removed Home map-marker query; Home now reads current rider identity, availability uses canonical find_nearby_riders in search screens.",
+    "test": "test/nearby_partner_count_regression_test.dart",
+    "fix": "Assert current scoped Home query and canonical nearby RPC at its real callers; allow whitespace in RPC syntax.",
+    "status": "Passed in complete offline suite; final count recorded in continuation verification JSON."
+  }
+]

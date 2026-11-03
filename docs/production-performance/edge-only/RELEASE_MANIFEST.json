@@ -1,0 +1,43 @@
+{
+  "status": "LOCAL_PASS_MANAGED_VALIDATION_PENDING_NO_GO",
+  "notExecuted": true,
+  "project": "yvwpchffctiagevpqgwy",
+  "scope": "accept-order Edge only; no migrations, schema, RLS, repair data or other functions",
+  "files": [
+    {
+      "file": "functions/accept-order/index.ts",
+      "sha256": "2f80cc2ded9c0b1c939baa8858b372d0bc52c411c0a071f7e29267b37dba62d1"
+    },
+    {
+      "file": "functions/accept-order/atomic_acceptance.ts",
+      "sha256": "f48d37c3daa08f65254a70e2501444d409bf7f47eb145015e172b2326fe4bce1"
+    },
+    {
+      "file": "functions/accept-order/acceptance_sql.ts",
+      "sha256": "3e57cea794bc43ca20f536689415332fdda569fbacbdfdfe6b377ea8d9d5a01b"
+    },
+    {
+      "file": "functions/accept-order/deno.json",
+      "sha256": "c2c31e1095f24de9c5d085611f9302d2aa12f48efaf2ea995bb1271e3de80e9d"
+    },
+    {
+      "file": "functions/_shared/production_config_cache.ts",
+      "sha256": "9994144024984b6a40a0abdc66fb98991bc008322b28fee552e0e54f9f87f40a"
+    }
+  ],
+  "requests": [
+    {
+      "file": "DEPLOY_REQUEST.json",
+      "sha256": "7aa827c559b1f7a1cc6058aebd175c8b35c9bfa1f71e264d7c9c8faccf4fe09f"
+    },
+    {
+      "file": "RECOVER_FAIL_CLOSED_REQUEST.json",
+      "sha256": "65eb1ed6c401ed2877866f698fcc2c4475e6fb6f1bce31802ccd95d3b34c4254"
+    },
+    {
+      "file": "RECOVER_LEGACY_PAUSED_ONLY_REQUEST.json",
+      "sha256": "359b8a5f37d179be6ebe7ae0797a10ae34ae32960a5a178b609fccb206cf1177"
+    }
+  ],
+  "dependencyLockSha256": "107979eb09b0162c885f1b4d584397fed1c3c1c0849e95ae3220cfdc8124f3b3"
+}

@@ -1,0 +1,55 @@
+# Deep Rider-flow follow-up — November 3, 2026
+
+Supabase and Postgres performance skills applied. Scope: remaining startup/Home/order/proof critical paths, existing backend evidence and safe production metadata inspection. **No production writes, Edge deployments, SQL migrations, cron/config changes, synthetic customer activity, paid resources or new projects.** The user confirmed Build60 has **not yet been installed**; existing handset complaints therefore cannot be classified as failures of the latest local changes.
+
+## New verified causes of avoidable delay
+
+| Finding | Evidence | Local correction |
+| --- | --- | --- |
+| **Successful proof still shows Uploading** | Actual RiderActiveOrderScreen/widget + pinned SDK, real temporary image bytes and controlled responses: proof POST returns success, but holding the subsequent order_verifications GET leaves UPLOADING PHOTO visible. Initial behavioral assertion fails on the original code. The awaited best-effort intercity OTP helper can also keep this caller waiting. | `rider_active_order_screen.dart:477`: apply the confirmed proof result immediately; start display refresh/OTP helper without awaiting them in the upload UI. Keep server proof validation and OTP business rules. Late pre-commit reads cannot undo confirmation: generation fencing at230/407; account/mounted checks before publication. |
+| **Passenger display lookup blocks an already-known order** | Accepted-order seed already contains the order, but loadOrder awaited users(full_name, phone, user_code, gender, profile_photo_url) before required proof/intercity reads and loading=false. Held-user response prevents the order action UI appearing. | Same file, around1105: one background enrichment request, scoped to the passenger as before. Existing seeded order and required verification reads proceed independently. Apply display data only while the same account, screen and seeded-order object remain current. Missing phone/name uses the existing fallback behavior; no Auth/KYC/assignment check is removed. |
+| **Completed API failure leaves a permanent loader** | Actual unseeded order request returns503. Existing catch logs the error but never resets loading. Expected error view is absent in the baseline. | Same file99/1185/3261: clear loading, show generic backend-error/retry UI. Retry queries the server again. Two immediate retry callbacks start only one fresh request because loading ownership is set synchronously. No automatic retry loop or fabricated order state. |
+| **Local order waits on an unnecessary intercity query** | loadOrder awaited _loadIntercityRequestMeta for every assigned order. Four-case original widget parity test: local_parcel and short ride each execute one intercity_requests lookup despite having no travel-plan UI; those two expected-zero cases fail. Explicit intercity and existing >20km ride cases pass. A held metadata response blocks the local loader. | Same file1199: skip the query only when the existing _isIntercityOrder business predicate is false. Preserve explicit intercity and ride distance_meters>20000 behavior. Rider/order scoping and authoritative travel-plan vehicle lookup remain; late account/order responses are ignored. |
+
+These are verified **client critical-path defects / unnecessary request work**, not proof that Flutter initiated a database-wide CPU/I/O event. The metadata change reduces that query **1→0 per tested local order open**; intercity and long-ride fixtures remain **1→1**. Other required queries, route calculations and Storage writes still execute. No monthly traffic percentage or handset millisecond saving is inferred.
+
+## What was traced and retained
+
+- Startup: public config/profile overlap and background zone warmup remain; no new artificial loading floor was found in changeScreen. AccountProfileService intentionally verifies server Auth before resolving protected account state. Rider KYC/payout access waits remain; removing them would weaken access checks.
+- Rider Home: previously corrected nonblocking Realtime/earnings updates, raw-request ownership and foreground/visible-tab timer gates remain. No critical Realtime/GPS subscription was removed.
+- Rider active order: initial primary order/proof reads remain backend-dependent. The initial proof read is not silently treated as verified. A never-settling required request can still delay initial entry; this follow-up does not add a UI deadline that would release an unfinished request and start duplicates.
+- Proof: the prior immutable uploader and owned verification transport remain. Successful proof is authoritative for UI state; a failed/unconfirmed response still does not mark proof complete or bypass it. The gated intercity OTP RPC still runs and still relies on server proof checks; existing resend/recovery remains available if asynchronous generation fails.
+- Financial/eligibility behavior: no fare, tax, wallet, COD, KYC, matching, acceptance, payment or OTP-validation formula/predicate changed. This is not clearance of the separate production acceptance/dispatch/push safety concerns.
+
+Actual camera capture is simulated through its plugin channel; navigation/map uses the existing desktop test path. The SDK HTTP flow and real screen/state are exercised. Provider/Auth/network transports and data are synthetic; these are not managed end-to-end phone tests.
+
+## Regression evidence
+
+New `test/rider_proof_completion_wait_test.dart` covers twelve actual-screen cases: success while refresh is held; refresh failure preserving confirmed proof; held passenger lookup; enrichment after disposal/account change; pending proof read after sign-out; primary order failure/retry coalescing; four local/intercity/long-ride metadata cases; and a pre-commit empty read arriving after successful confirmation.
+
+Focused screen/OTP/verification/uploader run: **56 passed / 0 failed**. Existing camera OTP source guard now checks the preserved asynchronous helper invocation; bypass remains awaited as before. No test or financial/security invariant was removed.
+
+The first broad run exposed an older test-fixture problem: all verification-owner tests used a30ms visible deadline, including success cases, and one success test timed out under suite load. Success fixtures now use5s; the dedicated pending-transport timeout case explicitly retains30ms and request-start gating. **Production timeout settings are unchanged.** Initial widget fixture issues (missing Response.request, fake-async IO progress, SDK/reconnect timer teardown) were corrected before final results; they are not counted as production defects. A scoped dart fix process stalled and was stopped; only the requested test style braces were then corrected manually.
+
+Final full suite: **2,216 passed / 10 existing live opt-in skips / 0 failed** (Build60 suite2,204 plus12 actual-screen cases). Changed-four-file analyzer: **0 errors / 0 warnings / 6 existing infos**, exit1 for those legacy screen infos. [Verification](proof-wait-20261103/VERIFICATION.json). Logs: [focused56](../../.dart_tool/waydrop-local-runtime/deep61-safety-final.log), [full final](../../.dart_tool/waydrop-local-runtime/deep61-full-verified.log), [analyzer final](../../.dart_tool/waydrop-local-runtime/deep61-analyze-verified.log). Before-source capture: [original screen](proof-wait-20261103/rider_active_order_screen.dart.before). The earlier2,215-pass run excluded the final additional race case; it is superseded by this complete2,216-pass run. Skips are never counted as passes.
+
+## Supabase/resource findings and limits
+
+Two lightweight read-only DB snapshots, not broad logs or business-table scans:
+
+- **03:01:28 IST:** four client backends including inspection, zero blocked sessions, zero other active client queries. Other clients waited on ClientRead; background process wait labels alone are not resource saturation. [Initial snapshot](proof-wait-20261103/HEALTH_INITIAL.json).
+- **09:28:09 IST:** four clients, zero blocked sessions, zero other active clients. [Later snapshot](proof-wait-20261103/HEALTH_FINAL.json).
+
+These are quiet-time observations, not peak-load clearance. The connected Supabase tool inventory has no host metrics/Prometheus endpoint tool. Browser inventory returned **zero available browsers/apps**, so the signed-in dashboard charts could not be inspected. No claim is made that historical charts exist.
+
+**Still missing:** incident-correlated CPU user/system/steal utilization; available RAM, swap activity/major faults; data/system disk latency, queue depth, IOPS/throughput and any applicable burst limits; database active/waiting connections and PostgREST/Storage admission/pool/transaction spans at onset; compute size applicable at each incident. Exact chart labels/export availability require the dashboard/operator. Required comparison windows remain Nov1 **16:22–16:34 UTC** and Nov2 **06:44–07:00 UTC**, plus any newly measured handset window after installing the current build.
+
+Previously established SQL57014/Storage DatabaseTimeout and pool timeouts remain backend failure evidence. They are not explained away by these UI fixes, nor does compression or a larger UI timeout fix their initiating constraint. The original CPU/RAM/I/O/lock initiating cause remains **unproven**. Cumulative historical workload is not substituted for incident timing. No blind index, pool, compute or timeout change was selected.
+
+## Artifact and release scope
+
+Build61 is prepared from [final frozen source hashes](proof-wait-20261103/BUILD61_FINAL_SOURCE_SHA256.json), incorporating Build60 fixes plus this follow-up. An earlier Build61 attempt overlapped the final source refinement and is **superseded, not release evidence**. The final build uses an unused diagnostic source-fingerprint define to force a new compiler environment after the final freeze; it changes no application feature setting. [Build request](proof-wait-20261103/BUILD61_REQUEST.json).
+
+[Final test APK: waydrop-1.0.0-build61.apk](../../artifacts/waydrop-1.0.0-build61.apk). Version1.0.0(61), package com.waydrop.app, same verified signer as60. SHA256 `9ada783fd3eef7659e30a3c951a99c2239a1417bf500cedadc25581378781581`. All182 frozen final source files remained unchanged; all three AOT libraries differ from60; plaintext .env asset absent. [Artifact verification](proof-wait-20261103/APK_VERIFICATION.json). **Not installed or published; actual-device speed unmeasured.** Build60 remains retained; the user had not installed it at the time of this review. The final verified61 supersedes the unverified earlier61 build attempt.
+
+The coordinated SQL/Edge bundles, restrictive Chat policy, atomic photo and scoped cache candidates retain their prior managed Auth/full-trigger/provider/writer-drain requirements. None was deployed here. An isolated environment was not created; the earlier declined-project decision remains respected. Do not blanket-deploy the dirty workspace or describe these frontend corrections as closing the production concurrency/security gates.

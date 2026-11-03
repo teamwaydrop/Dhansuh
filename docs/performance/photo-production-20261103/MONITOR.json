@@ -1,0 +1,14 @@
+{
+  "start_utc": "2026-11-03T11:05:53.531Z",
+  "end_utc": "2026-11-03T11:08:22Z",
+  "aggregate": {
+    "result": [
+      {
+        "calls": 3,
+        "http_200": 1,
+        "http_5xx": 0,
+        "unauthorized": 2
+      }
+    ]
+  }
+}

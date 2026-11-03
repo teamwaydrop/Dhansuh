@@ -50,14 +50,17 @@ void main() {
       expect(appStartScreen.contains('supabase.auth.onAuthStateChange.listen('), isTrue);
     });
 
-    test('reacts to signedOut (and every event except initialSession/tokenRefreshed) by calling '
+    test('uses the identity-aware auth policy before calling '
         'checkUserFlow()', () {
       final start = appStartScreen.indexOf('void listenAuthChanges()');
       final end = appStartScreen.indexOf('Future<void> checkUserFlow()');
       expect(start, greaterThan(-1));
       final body = appStartScreen.substring(start, end);
-      expect(body.contains('AuthChangeEvent.initialSession'), isTrue);
-      expect(body.contains('AuthChangeEvent.tokenRefreshed'), isTrue);
+      expect(body.contains('if (!_authRoutingPolicy.shouldRecheck(data))'), isTrue);
+      final policy = _read('lib/core/services/session/auth_routing_policy.dart');
+      expect(policy.contains('AuthChangeEvent.initialSession'), isTrue);
+      expect(policy.contains('AuthChangeEvent.tokenRefreshed'), isTrue);
+      expect(policy.contains('return changed;'), isTrue);
       expect(body.contains('checkUserFlow()'), isTrue);
     });
 
@@ -67,7 +70,8 @@ void main() {
       expect(start, greaterThan(-1));
       final body = appStartScreen.substring(start, start + 2500);
       expect(body.contains('final wasLoginScreen = currentScreen is LoginScreen;'), isTrue);
-      expect(body.contains('if (wasLoginScreen)'), isTrue);
+      // Logout/session expiry must also reveal Login above any pushed protected route.
+      expect(body.contains('if (wasLoginScreen || screen is LoginScreen)'), isTrue);
       expect(body.contains("navigatorKey.currentState?.popUntil((route) => route.isFirst);"), isTrue);
     });
   });
@@ -130,16 +134,17 @@ void main() {
     });
   });
 
-  group('AppStartScreen\'s own programmatic-logout path (suspended user) is the correct existing '
-      'reference pattern and is unchanged', () {
+  group('AppStartScreen routes authoritative account restrictions through shared cleanup', () {
     test('it calls changeScreen(const LoginScreen(), ...) directly, never a raw Navigator call, '
         'because it runs inside AppStartScreen itself and does not need to pop anything', () {
-      final suspendedIdx = appStartScreen.indexOf('final isSuspended = profile[');
+      final suspendedIdx = appStartScreen.indexOf('on AccountRestrictedException catch');
       expect(suspendedIdx, greaterThan(-1));
-      final block = appStartScreen.substring(suspendedIdx, suspendedIdx + 600);
-      expect(block.contains('await supabase.auth.signOut();'), isTrue);
-      expect(block.contains('DeveloperModeService.instance.clear();'), isTrue);
-      expect(block.contains('UserSessionService().stopListening();'), isTrue);
+      final block = appStartScreen.substring(suspendedIdx, appStartScreen.indexOf('on TimeoutException', suspendedIdx));
+      expect(block.contains('UserSessionService().handleAccountRestriction'), isTrue);
+      final cleanup = _read('lib/core/services/session/user_session_service.dart');
+      expect(cleanup.contains('_supabase.auth.signOut()'), isTrue);
+      expect(cleanup.contains('DeveloperModeService.instance.clear();'), isTrue);
+      expect(cleanup.contains('stopListening();'), isTrue);
       expect(block.contains('await changeScreen(const LoginScreen(), startTime);'), isTrue);
       expect(block.contains('Navigator.pushAndRemoveUntil'), isFalse);
     });

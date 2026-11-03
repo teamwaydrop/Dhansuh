@@ -1,0 +1,30 @@
+{
+  "scope": "Production readiness read only; no deployment executed",
+  "project": "yvwpchffctiagevpqgwy",
+  "functions": [
+    {
+      "slug": "calculate-order-pricing",
+      "version": 75,
+      "sha256": "bb41c4a87d9a7e702bfb4b02b059464a9e0f114ded485e198bdb464ce34cdae3",
+      "files": 3
+    },
+    {
+      "slug": "get-live-order-status",
+      "version": 54,
+      "sha256": "87d02c011d6f81e955b79f82efb061b6a493d5a9212998d3852ab7efd2eb2942",
+      "files": 7
+    },
+    {
+      "slug": "accept-order",
+      "version": 60,
+      "sha256": "9e6101aa857a902aefaa82d64d066f845e506e18e60f34441f85a4dc08af9f01",
+      "files": 2
+    },
+    {
+      "slug": "send-push-notification",
+      "version": 24,
+      "sha256": "a4b2486c789d2df0a7422b486745604078c229bb56a00ef51507acba2d3adbd8",
+      "files": 3
+    }
+  ]
+}

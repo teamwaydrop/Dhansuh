@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-01",
+  "productionReadOnly": true,
+  "method": "Three endpoint GET checks using public publishable key; negative check repeated once to verify the 403 Auth error reason. No valid user session or secrets used",
+  "results": [
+    {
+      "name": "auth_health",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "public_jwks",
+      "status": 200,
+      "passed": true,
+      "public_key_count": 1,
+      "algorithms": [
+        "ES256"
+      ]
+    },
+    {
+      "name": "invalid_session_rejected",
+      "status": 403,
+      "passed": true,
+      "auth_error_code": 403,
+      "invalid_jwt_reason": true
+    }
+  ],
+  "limits": [
+    "Health, public key availability and invalid-session rejection do not prove valid sign-in, refresh, logout or user-scoped RLS behavior.",
+    "No production write, subscription, order or notification was created."
+  ]
+}

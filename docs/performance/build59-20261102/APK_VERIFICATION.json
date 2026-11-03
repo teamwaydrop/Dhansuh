@@ -1,0 +1,57 @@
+{
+  "build": {
+    "exit_code": 0,
+    "elapsed_seconds": 570.44,
+    "version": "1.0.0+59",
+    "command": [
+      "flutter",
+      "build",
+      "apk",
+      "--release",
+      "--build-name=1.0.0",
+      "--build-number=59",
+      "--dart-define-from-file=.env"
+    ],
+    "production_changes": 0
+  },
+  "new_apk": {
+    "package": "com.waydrop.app",
+    "version_code": "59",
+    "version_name": "1.0.0",
+    "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+    "apk_sha256": "3135eb0e436df82b424f1d1aede201a7d72b4f4d2c1d16809a59f078196cbf1c",
+    "bytes": 87819759
+  },
+  "reference_build58": {
+    "package": "com.waydrop.app",
+    "version_code": "58",
+    "version_name": "1.0.0",
+    "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+    "apk_sha256": "32e66375512d83c64cd06358c5dfea92e277ec940b14c1a57ed8addbdd3eb3a5",
+    "bytes": 87819759
+  },
+  "same_signer": true,
+  "plaintext_env_asset_absent": true,
+  "artifact": "artifacts/waydrop-1.0.0-build59.apk",
+  "installed": false,
+  "published": false,
+  "phone_performance_measured": false,
+  "aot": {
+    "lib/arm64-v8a/libapp.so": {
+      "new_sha256": "a1f4eb438c55af33a071720d89aaf56154d4fe6ea685cc321197aa7b3422b68e",
+      "previous_sha256": "0f6b40b0edc59cc2fa1805ffbd01852ae5a626fc3389888501f6668e8d94a5d9",
+      "changed": true
+    },
+    "lib/armeabi-v7a/libapp.so": {
+      "new_sha256": "366eb187d911bd6af5b9a2bb0dff3e5da28ce48b505cd7c9088f16adf6fab3b5",
+      "previous_sha256": "03d8340042947f832721472a16665ccbd7a18ae5c95a2cd912b40b008d1be1bf",
+      "changed": true
+    },
+    "lib/x86_64/libapp.so": {
+      "new_sha256": "a6994227201fdbfe2feb65f54bd2726d2b1d31055ca49047cb7771a18a6ddc93",
+      "previous_sha256": "c05e7745c39594343bb300e57e4439cbe86bd8d2f9e4377bd5cafbb07a1a989d",
+      "changed": true
+    }
+  },
+  "frozen_source_unchanged": true
+}

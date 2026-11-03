@@ -282,8 +282,10 @@ void main() {
       expect(functionsMigration.contains("'code', 'TAX_DUE_THRESHOLD_BLOCKED',"), isTrue);
     });
     test('accept-order.ts (the direct local/parcel/intercity-ride acceptance path) also calls the gate', () {
-      expect(acceptOrder.contains('is_rider_blocked_by_tax_due'), isTrue);
-      expect(acceptOrder.contains('TAX_DUE_THRESHOLD_BLOCKED'), isTrue);
+      final atomic = _read('supabase/functions/accept-order/acceptance_sql.ts');
+      expect(acceptOrder.contains('acceptOrderAtomically'), isTrue);
+      expect(atomic.contains('is_rider_blocked_by_tax_due'), isTrue);
+      expect(atomic.contains('TAX_DUE_THRESHOLD_BLOCKED'), isTrue);
     });
   });
 

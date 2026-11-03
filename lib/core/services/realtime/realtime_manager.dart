@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:waydrop/core/services/diagnostics/performance_trace.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -9,11 +10,13 @@ class ChannelSubscription {
   final String id;
   final String owner; // E.g., 'RiderOrdersScreen', 'NavigationBadgeProvider'
   final Function(PostgresChangePayload) callback;
+  final VoidCallback? onSubscribed;
 
   ChannelSubscription({
     required this.id,
     required this.owner,
     required this.callback,
+    this.onSubscribed,
   });
 }
 
@@ -55,11 +58,16 @@ class ManagedChannel {
 
 class RealtimeManager {
   static final RealtimeManager instance = RealtimeManager._internal();
-  RealtimeManager._internal() {
+  RealtimeManager._internal([SupabaseClient? client, Future<bool> Function()? connectivityCheck]) : supabase = client ?? Supabase.instance.client,
+      _connectivityCheck = connectivityCheck {
     _startHeartbeatChecker();
   }
 
-  final supabase = Supabase.instance.client;
+  @visibleForTesting
+  factory RealtimeManager.forClient(SupabaseClient client, {Future<bool> Function()? connectivityCheck}) => RealtimeManager._internal(client, connectivityCheck);
+
+  final SupabaseClient supabase;
+  final Future<bool> Function()? _connectivityCheck;
   final Map<String, ManagedChannel> _activeChannels = {};
   // Maps a subscriptionId to the ACTUAL channel key it lives under in [_activeChannels] -- almost
   // always identical to the channelName the caller passed to subscribe(), except for a
@@ -74,6 +82,17 @@ class RealtimeManager {
   static const heartbeatInterval = Duration(seconds: 30);
   static const staleThreshold = Duration(seconds: 90);
 
+  bool _isCurrentChannel(String channelName, ManagedChannel managed) =>
+      !managed.isDisposed && identical(_activeChannels[channelName], managed);
+
+  Future<void> _removeChannelSafely(RealtimeChannel channel, String context) async {
+    try {
+      await supabase.removeChannel(channel);
+    } catch (error) {
+      debugPrint('Error removing channel [$context]: $error');
+    }
+  }
+
   /// Subscribes a listener to a specific database stream channel.
   /// Returns a subscriptionId that can be used to unsubscribe later.
   String subscribe({
@@ -85,6 +104,7 @@ class RealtimeManager {
     String? filterColumn,
     String? filterValue,
     required Function(PostgresChangePayload) callback,
+    VoidCallback? onSubscribed,
   }) {
     RealtimeObservability.instance.recordSubscriptionCreate();
     final subscriptionId = '${owner}_${DateTime.now().microsecondsSinceEpoch}';
@@ -92,6 +112,7 @@ class RealtimeManager {
       id: subscriptionId,
       owner: owner,
       callback: callback,
+      onSubscribed: onSubscribed,
     );
 
     // RELEASE-SAFE COLLISION GUARD: pooling is keyed by channelName, but two callers requesting
@@ -128,6 +149,9 @@ class RealtimeManager {
       // Channel already exists (with a matching config, by construction of effectiveChannelName
       // above), append the listener and return
       managed.listeners[subscriptionId] = newSubscription;
+      if (managed.currentStatus == RealtimeSubscribeStatus.subscribed) {
+        _notifySubscribed(effectiveChannelName, managed, newSubscription);
+      }
       RealtimeObservability.instance.updateActiveChannelCount(_activeChannels.length);
       debugPrint('[INSTR] ${DateTime.now().toIso8601String()} RealtimeManager: Appended listener [$subscriptionId] owned by [$owner] to EXISTING channel [$effectiveChannelName] (existing channel was created for table=${managed.table}, event=${managed.event}, filterColumn=${managed.filterColumn}, filterValue=${managed.filterValue}; this new subscribe() requested table=$table, event=$event, filterColumn=$filterColumn, filterValue=$filterValue, currentStatus=${managed.currentStatus}). Subscriber count: ${managed.subscriberCount}');
       debugPrint('RealtimeManager: Appended listener [$subscriptionId] owned by [$owner] to existing channel [$effectiveChannelName]. Subscriber count: ${managed.subscriberCount}');
@@ -171,7 +195,7 @@ class RealtimeManager {
     _subscribeToChannel(effectiveChannelName, managedChannel, null);
 
     assert(() {
-      debugPrint('Realtime channels: ${RealtimeManager.instance.activeChannelCount}');
+      debugPrint('Realtime channels: $activeChannelCount');
       return true;
     }());
 
@@ -223,16 +247,12 @@ class RealtimeManager {
     if (managed.subscriberCount == 0) {
       debugPrint('RealtimeManager: Channel [$effectiveChannelName] has 0 subscribers. Disposing channel.');
       managed.isDisposed = true;
-      try {
-        supabase.removeChannel(managed.channel);
-      } catch (e) {
-        debugPrint('Error removing channel: $e');
-      }
       _activeChannels.remove(effectiveChannelName);
       RealtimeObservability.instance.updateActiveChannelCount(_activeChannels.length);
+      unawaited(_removeChannelSafely(managed.channel, effectiveChannelName));
 
       assert(() {
-        debugPrint('Realtime channels: ${RealtimeManager.instance.activeChannelCount}');
+        debugPrint('Realtime channels: $activeChannelCount');
         return true;
       }());
     }
@@ -259,7 +279,14 @@ class RealtimeManager {
       table: managedChannel.table,
       filter: filter,
       callback: (payload) {
+        if (!_isCurrentChannel(channelName, managedChannel) ||
+            !identical(managedChannel.channel, channel)) {
+          return;
+        }
         managedChannel.lastMessageReceived = DateTime.now();
+        // Approximate transport age only: client/server clock skew is included.
+        PerformanceTrace.record({'kind': 'realtime_age', 'table': managedChannel.table,
+          'ms': DateTime.now().toUtc().difference(payload.commitTimestamp.toUtc()).inMilliseconds});
         
         // Safe iteration over copies
         final subs = List<ChannelSubscription>.from(managedChannel.listeners.values);
@@ -277,9 +304,14 @@ class RealtimeManager {
   }
 
   void _subscribeToChannel(String channelName, ManagedChannel managed, int? reconnectStartTime) {
-    managed.channel.subscribe((status, [error]) {
-      if (managed.isDisposed) return;
+    final subscribedChannel = managed.channel;
+    subscribedChannel.subscribe((status, [error]) {
+      if (!_isCurrentChannel(channelName, managed) ||
+          !identical(managed.channel, subscribedChannel)) {
+        return;
+      }
       
+      final previousStatus = managed.currentStatus;
       managed.currentStatus = status;
       debugPrint('[INSTR] ${DateTime.now().toIso8601String()} RealtimeManager: Channel [$channelName] status changed to [$status], error: $error, subscriberCount=${managed.subscriberCount}, owners=${managed.listeners.values.map((l) => l.owner).toList()}');
       debugPrint('RealtimeManager: Channel [$channelName] status is [$status], error: $error');
@@ -287,6 +319,11 @@ class RealtimeManager {
       if (status == RealtimeSubscribeStatus.subscribed) {
         managed.lastStatusConfirmed = DateTime.now();
         managed.reconnectAttempts = 0;
+        if (previousStatus != RealtimeSubscribeStatus.subscribed) {
+          for (final listener in managed.listeners.values.toList()) {
+            _notifySubscribed(channelName, managed, listener);
+          }
+        }
         
         if (reconnectStartTime != null) {
           final duration = DateTime.now().millisecondsSinceEpoch - reconnectStartTime;
@@ -297,6 +334,23 @@ class RealtimeManager {
                  (status == RealtimeSubscribeStatus.closed && managed.subscriberCount > 0)) {
         RealtimeObservability.instance.recordChannelError();
         _reconnectChannel(channelName);
+      }
+    });
+  }
+
+  void _notifySubscribed(String name, ManagedChannel managed, ChannelSubscription listener) {
+    if (listener.onSubscribed == null) return;
+    // Defer synchronous SDK joins until subscribe() has returned its owner ID.
+    scheduleMicrotask(() {
+      if (!_isCurrentChannel(name, managed) ||
+          managed.currentStatus != RealtimeSubscribeStatus.subscribed ||
+          !identical(managed.listeners[listener.id], listener)) {
+        return;
+      }
+      try {
+        listener.onSubscribed!();
+      } catch (_) {
+        debugPrint('Realtime subscriber reconciliation callback failed');
       }
     });
   }
@@ -313,7 +367,7 @@ class RealtimeManager {
 
     try {
       while (true) {
-        if (managed.isDisposed || !_activeChannels.containsKey(channelName)) return;
+        if (!_isCurrentChannel(channelName, managed)) return;
 
         // Exponential backoff with jitter
         final backoffSecs = [2, 5, 10, 30];
@@ -327,10 +381,15 @@ class RealtimeManager {
         debugPrint('RealtimeManager: Reconnecting [$channelName] in ${backoff.inMilliseconds}ms (attempt ${managed.reconnectAttempts})...');
 
         await Future.delayed(backoff);
-        if (managed.isDisposed || !_activeChannels.containsKey(channelName)) return;
+        if (!_isCurrentChannel(channelName, managed)) return;
+        // The SDK has its own rejoin timer. Do not tear down a channel that
+        // recovered while our delayed fallback was waiting.
+        if (managed.currentStatus == RealtimeSubscribeStatus.subscribed) return;
 
         // Ping check internet/Supabase connectivity
         final isOnline = await _checkConnectivity();
+        if (!_isCurrentChannel(channelName, managed)) return;
+        if (managed.currentStatus == RealtimeSubscribeStatus.subscribed) return;
         if (!isOnline) {
           debugPrint('RealtimeManager: Supabase connectivity check failed. Will retry after delay.');
           continue; // Loop again, increasing backoff
@@ -341,8 +400,9 @@ class RealtimeManager {
         try {
           await supabase.removeChannel(managed.channel);
         } catch (e) {
-          // Ignore
+          debugPrint('RealtimeManager: Failed to remove old channel [$channelName] before reconnect: $e');
         }
+        if (!_isCurrentChannel(channelName, managed)) return;
 
         final newChannel = _createSupabaseChannel(
           channelName: channelName,
@@ -357,14 +417,12 @@ class RealtimeManager {
         break; // Successfully reconnected, exit loop
       }
     } finally {
-      final currentManaged = _activeChannels[channelName];
-      if (currentManaged != null) {
-        currentManaged.isReconnecting = false;
-      }
+      managed.isReconnecting = false;
     }
   }
 
   Future<bool> _checkConnectivity() async {
+    if (_connectivityCheck != null) return _connectivityCheck();
     try {
       final baseUrl = Env.supabaseUrl.isNotEmpty
           ? Env.supabaseUrl
@@ -413,9 +471,7 @@ class RealtimeManager {
     _heartbeatTimer?.cancel();
     _activeChannels.forEach((name, managed) {
       managed.isDisposed = true;
-      try {
-        supabase.removeChannel(managed.channel);
-      } catch (_) {}
+      unawaited(_removeChannelSafely(managed.channel, '$name during manager disposal'));
     });
     _activeChannels.clear();
     _subscriptionChannelKey.clear();

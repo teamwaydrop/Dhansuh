@@ -1,0 +1,164 @@
+{
+  "date": "2026-11-01",
+  "productionReadOnly": true,
+  "productionMutations": 0,
+  "realtime": {
+    "publication": [
+      {
+        "name": "supabase_realtime",
+        "delete": true,
+        "insert": true,
+        "update": true
+      }
+    ],
+    "tables": [
+      {
+        "rls": true,
+        "table": "riders",
+        "replica_identity": "f"
+      },
+      {
+        "rls": true,
+        "table": "orders",
+        "replica_identity": "f"
+      },
+      {
+        "rls": true,
+        "table": "rider_assignments",
+        "replica_identity": "d"
+      },
+      {
+        "rls": true,
+        "table": "notifications",
+        "replica_identity": "d"
+      },
+      {
+        "rls": true,
+        "table": "rider_locations",
+        "replica_identity": "d"
+      }
+    ],
+    "status": "CONFIGURATION_VERIFIED_EVENT_DELIVERY_PENDING"
+  },
+  "notifications": {
+    "triggers": [
+      {
+        "name": "protect_order_financial_columns_trigger",
+        "table": "orders",
+        "enabled": "O",
+        "function": "protect_order_financial_columns"
+      },
+      {
+        "name": "protect_order_state_columns_trigger",
+        "table": "orders",
+        "enabled": "O",
+        "function": "protect_order_state_columns"
+      },
+      {
+        "name": "trg_order_completion_side_effects",
+        "table": "orders",
+        "enabled": "O",
+        "function": "enqueue_order_completion_side_effects"
+      },
+      {
+        "name": "trg_orders_compliance_retention",
+        "table": "orders",
+        "enabled": "O",
+        "function": "set_compliance_retention"
+      },
+      {
+        "name": "trg_populate_order_code",
+        "table": "orders",
+        "enabled": "O",
+        "function": "trg_orders_order_code"
+      },
+      {
+        "name": "trigger_assign_nearby_orders_on_rider_freed",
+        "table": "orders",
+        "enabled": "O",
+        "function": "assign_nearby_searching_orders_on_rider_freed"
+      },
+      {
+        "name": "trigger_assign_new_order_to_nearby_riders",
+        "table": "orders",
+        "enabled": "O",
+        "function": "assign_new_order_to_nearby_online_riders"
+      },
+      {
+        "name": "trigger_enforce_order_rider_service_mode",
+        "table": "orders",
+        "enabled": "O",
+        "function": "enforce_order_rider_service_mode"
+      },
+      {
+        "name": "trigger_order_status_update",
+        "table": "orders",
+        "enabled": "O",
+        "function": "on_order_status_update"
+      },
+      {
+        "name": "trigger_enforce_rider_assignment_service_mode",
+        "table": "rider_assignments",
+        "enabled": "O",
+        "function": "enforce_rider_assignment_service_mode"
+      },
+      {
+        "name": "trigger_prevent_local_ride_assignment_to_busy_rider",
+        "table": "rider_assignments",
+        "enabled": "O",
+        "function": "prevent_local_ride_assignment_to_busy_rider"
+      },
+      {
+        "name": "trigger_rider_assignment_change",
+        "table": "rider_assignments",
+        "enabled": "O",
+        "function": "on_rider_assignment_change"
+      },
+      {
+        "name": "trigger_notification_insert",
+        "table": "notifications",
+        "enabled": "O",
+        "function": "on_notification_insert"
+      }
+    ],
+    "pg_net_version": "0.20.0",
+    "wrapper": [
+      {
+        "http_post": true,
+        "signature": "deliver_push_notification_http_fnc(uuid,text,text,jsonb)",
+        "has_timeout": true,
+        "vault_reference": true
+      }
+    ],
+    "ownershipPolicies": [
+      {
+        "name": "Users can update their own notifications",
+        "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+        "roles": [
+          "public"
+        ],
+        "command": "UPDATE"
+      },
+      {
+        "name": "Users can view their own notifications",
+        "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT"
+      }
+    ],
+    "recordedFailuresLast24Hours": [],
+    "status": "WIRING_VERIFIED_END_TO_END_PENDING"
+  },
+  "sharedDependency": {
+    "name": "supabase/functions/_shared/production_config_cache.ts",
+    "matchesCapturedProduction": true,
+    "sha256": "9994144024984b6a40a0abdc66fb98991bc008322b28fee552e0e54f9f87f40a"
+  },
+  "limits": [
+    "No valid managed-user sign-in, refresh, logout or user-scoped subscription tested.",
+    "No notifications, pg_net HTTP requests or database changes generated. No production user data retrieved.",
+    "No recorded notification failures does not prove push delivery."
+  ]
+}

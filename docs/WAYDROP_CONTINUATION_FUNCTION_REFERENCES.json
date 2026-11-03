@@ -1,0 +1,102 @@
+[
+  {
+    "file": "lib/app_start_screen.dart",
+    "marker": "void listenAuthChanges",
+    "line": 62
+  },
+  {
+    "file": "lib/app_start_screen.dart",
+    "marker": "Future<void> checkUserFlow",
+    "line": 88
+  },
+  {
+    "file": "lib/core/services/session/auth_routing_policy.dart",
+    "marker": "class AuthRoutingPolicy",
+    "line": 5
+  },
+  {
+    "file": "lib/core/services/session/auth_routing_policy.dart",
+    "marker": "bool shouldRecheck",
+    "line": 9
+  },
+  {
+    "file": "lib/core/services/session/user_session_service.dart",
+    "marker": "void listenUserSuspension",
+    "line": 27
+  },
+  {
+    "file": "lib/core/services/session/user_session_service.dart",
+    "marker": "Future<void> handleAccountRestriction",
+    "line": 56
+  },
+  {
+    "file": "lib/core/services/realtime/realtime_manager.dart",
+    "marker": "RealtimeManager._internal",
+    "line": 57
+  },
+  {
+    "file": "lib/core/services/realtime/realtime_manager.dart",
+    "marker": "factory RealtimeManager.forClient",
+    "line": 63
+  },
+  {
+    "file": "lib/core/services/realtime/realtime_manager.dart",
+    "marker": "RealtimeChannel _createSupabaseChannel",
+    "line": 251
+  },
+  {
+    "file": "lib/core/services/realtime/realtime_manager.dart",
+    "marker": "void _subscribeToChannel",
+    "line": 293
+  },
+  {
+    "file": "lib/features/rider/onboarding/screens/rider_entry_handler.dart",
+    "marker": "_authRoutingPolicy",
+    "line": 34
+  },
+  {
+    "file": "lib/features/rider/onboarding/screens/rider_entry_handler.dart",
+    "marker": "_authSubscription",
+    "line": 32
+  },
+  {
+    "file": "lib/shared/widgets/account_guard.dart",
+    "marker": "_authRoutingPolicy",
+    "line": 21
+  },
+  {
+    "file": "lib/features/rider/home/rider_home_tab.dart",
+    "marker": "void _showFreeTrialBottomSheet",
+    "line": 1501
+  },
+  {
+    "file": "lib/features/rider/home/rider_home_tab.dart",
+    "marker": "Future<void> _showSubscriptionBottomSheet",
+    "line": 1863
+  },
+  {
+    "file": "lib/features/rider/home/rider_home_tab.dart",
+    "marker": "Future<void> _handleOrderAction",
+    "line": 3209
+  },
+  {
+    "file": "lib/features/intercity/shared/screens/intercity_tracking_screen.dart",
+    "marker": "Future<void> _performCancel",
+    "line": 1995
+  },
+  {
+    "file": "lib/features/local_parcels/tracking/screens/parcel_tracking_screen.dart",
+    "marker": "Future<void> _performCancel",
+    "line": 1509
+  },
+  {
+    "file": "lib/features/local_rides/tracking/screens/ride_tracking_screen.dart",
+    "marker": "Future<void> _performCancel",
+    "line": 1623
+  },
+  {
+    "file": "lib/features/rider/orders/screens/rider_active_order_screen.dart",
+    "marker": "Future<void> confirmCancellation",
+    "line": 2060
+  }
+]

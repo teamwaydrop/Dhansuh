@@ -1,0 +1,73 @@
+[
+  {
+    "library": "lib/arm64-v8a/libapp.so",
+    "load_segment_alignments": [
+      65536,
+      65536,
+      65536
+    ],
+    "supports_16k_alignment": true
+  },
+  {
+    "library": "lib/arm64-v8a/libdartjni.so",
+    "load_segment_alignments": [
+      16384,
+      16384,
+      16384
+    ],
+    "supports_16k_alignment": true
+  },
+  {
+    "library": "lib/arm64-v8a/libdatastore_shared_counter.so",
+    "load_segment_alignments": [
+      16384,
+      16384,
+      16384
+    ],
+    "supports_16k_alignment": true
+  },
+  {
+    "library": "lib/arm64-v8a/libflutter.so",
+    "load_segment_alignments": [
+      65536,
+      65536,
+      65536
+    ],
+    "supports_16k_alignment": true
+  },
+  {
+    "library": "lib/x86_64/libapp.so",
+    "load_segment_alignments": [
+      65536,
+      65536,
+      65536
+    ],
+    "supports_16k_alignment": true
+  },
+  {
+    "library": "lib/x86_64/libdartjni.so",
+    "load_segment_alignments": [
+      16384,
+      16384,
+      16384
+    ],
+    "supports_16k_alignment": true
+  },
+  {
+    "library": "lib/x86_64/libdatastore_shared_counter.so",
+    "load_segment_alignments": [
+      16384,
+      16384
+    ],
+    "supports_16k_alignment": true
+  },
+  {
+    "library": "lib/x86_64/libflutter.so",
+    "load_segment_alignments": [
+      65536,
+      65536,
+      65536
+    ],
+    "supports_16k_alignment": true
+  }
+]

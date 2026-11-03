@@ -1,0 +1,29 @@
+{
+  "slug": "calculate-order-pricing",
+  "baseline_version": 75,
+  "baseline_bundle_sha256": "bb41c4a87d9a7e702bfb4b02b059464a9e0f114ded485e198bdb464ce34cdae3",
+  "deployed": false,
+  "scope": "Normal zone read only; original LIMIT 1 fallback and independent config prefetch preserved. Do not deploy the older local index.ts.",
+  "files": [
+    {
+      "path": "functions/calculate-order-pricing/index.ts",
+      "sha256": "c91e539bd80df9224bb24c1140eb7e0e3db2833bdb286cb7c41fd98ef4f8b17d",
+      "modified_or_added": true
+    },
+    {
+      "path": "functions/calculate-order-pricing/pricing-calculations.ts",
+      "sha256": "918dcb0506b668e293de642891041d1a650040cbf0856ee27b77e1311b02d8f3",
+      "modified_or_added": false
+    },
+    {
+      "path": "functions/_shared/pricing_config_cache.ts",
+      "sha256": "cd3df8b99dcaf4528a98b5d4110dec221fbb2d963c2f399c6d13c945cba660d1",
+      "modified_or_added": false
+    },
+    {
+      "path": "functions/_shared/pricing_zones_cache.ts",
+      "sha256": "dc41da6feedbc49c468f7fc2d7525b70b2f195c68637509b09820478b0224157",
+      "modified_or_added": true
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-02",
+  "scope": "local client optimization after Build 58",
+  "production_reads": 0,
+  "production_writes": 0,
+  "new_apk_built": false,
+  "baseline": {
+    "tests": 5,
+    "passed": 2,
+    "expected_failures": 3
+  },
+  "focused": {
+    "passed": 6,
+    "failed": 0
+  },
+  "full_flutter": {
+    "passed": 2153,
+    "failed": 0
+  },
+  "changed_file_analyzer": "No issues found",
+  "hashes_sha256": {
+    "lib/core/services/session/rider_access_service.dart": "7831d2193da3ca1276b29b24e8f8f6acb6bda8deced3d566d0bd3fe2124d6a73",
+    "test/rider_access_request_ownership_test.dart": "b8eb80792fefc4f395709ed7331ed5442e85ab6197c7815e8fef2bf5313c09d0",
+    "artifacts/waydrop-1.0.0-build58.apk": "32e66375512d83c64cd06358c5dfea92e277ec940b14c1a57ed8addbdd3eb3a5"
+  },
+  "open": [
+    "Storage DatabaseTimeout underlying SQL/wait/resource",
+    "Original initiating CPU/I/O cause",
+    "AccountProfileService manual-retry/Auth-resume ownership",
+    "Existing combined SQL/Edge deployment gates"
+  ],
+  "logs": [
+    "access-owner-after.log",
+    "access-owner-analyze.log",
+    "access-owner-before.log",
+    "access-owner-full-flutter.log"
+  ]
+}

@@ -1,0 +1,60 @@
+00:00 +0: loading C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart
+00:00 +0: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: (setUpAll)
+supabase.supabase_flutter: WARNING: Error while receiving deeplink MissingPluginException(No implementation found for method getInitialAppLink on channel com.llfbandit.app_links/messages)
+supabase.supabase_flutter: INFO: ***** Supabase init completed ***** 
+00:00 +0: C:/Users/karth/Desktop/appclad/test/waydrop_startup_parallel_test.dart: (setUpAll)
+supabase.supabase_flutter: WARNING: Error while receiving deeplink MissingPluginException(No implementation found for method getInitialAppLink on channel com.llfbandit.app_links/messages)
+supabase.supabase_flutter: INFO: ***** Supabase init completed ***** 
+00:01 +0: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: rider refresh keeps content and avoids new eligibility reads; logout and next login route once
+00:02 +0: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: (setUpAll)
+supabase.auth: INFO: Refresh session 
+00:03 +0: C:/Users/karth/Desktop/appclad/test/waydrop_startup_parallel_test.dart: maintenance is displayed without waiting for a stalled parallel profile request
+[PERF_STARTUP] checkUserFlow begin epoch=1793426212293
+[TRACE_APPSTART] config/profile parallel batch START epoch=1793426212293
+[TRACE_APPSTART] onAuthStateChange event=AuthChangeEvent.tokenRefreshed session=true epoch=1793426212754
+[NAV_TRACE] 2026-10-31T11:26:52.755649 MARK source=AppStartScreen detail="onAuthStateChange event=AuthChangeEvent.tokenRefreshed skipped (no-op event, see PERF FIX comment)" inFlight=0 epoch=1793426212755
+ProductionConfigService: fetched fresh production_config.
+[TRACE_APPSTART] changeScreen -> MaintenanceScreen epoch=1793426212774
+[NAV_TRACE] 2026-10-31T11:26:52.775652 BEGIN source=AppStartScreen detail="changeScreen _BrandSplashView -> MaintenanceScreen" inFlightBefore=0 overlapping=false lastSource=null lastDetail="null" lastStart=null epoch=1793426212775
+[NAV_TRACE] 2026-10-31T11:26:52.775652 END source=AppStartScreen detail="changeScreen _BrandSplashView -> MaintenanceScreen" inFlightAfter=0 epoch=1793426212775
+CacheService initialization failed, attempting fallback recovery: MissingPluginException(No implementation found for method getApplicationDocumentsDirectory on channel plugins.flutter.io/path_provider)
+CacheService fallback recovery also failed: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage)
+[PERF_STARTUP] profile response at +699ms
+00:03 +1: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: rider refresh keeps content and avoids new eligibility reads; logout and next login route once
+00:03 +1: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: (setUpAll)
+supabase.auth: INFO: Signing out user with scope: SignOutScope.local 
+00:03 +1: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: rider refresh keeps content and avoids new eligibility reads; logout and next login route once
+00:03 +2: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: approved but inactive rider cannot mount dashboard
+00:03 +3: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: restriction with failed remote logout restores auth owner and next login removes pushed OTP route
+00:03 +3: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: (setUpAll)
+supabase.auth: INFO: Signing out user with scope: SignOutScope.local 
+00:03 +3: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: restriction with failed remote logout restores auth owner and next login removes pushed OTP route
+Restricted account: remote logout failed; local session was cleared.
+[NAV_TRACE] 2026-10-31T11:26:53.719664 BEGIN source=UserSessionService detail="restore AppStartScreen after restriction" inFlightBefore=0 overlapping=false lastSource=null lastDetail="null" lastStart=null epoch=1793426213719
+[NAV_TRACE] 2026-10-31T11:26:53.734627 END source=UserSessionService detail="restore AppStartScreen after restriction" inFlightAfter=0 epoch=1793426213734
+[PERF_STARTUP] checkUserFlow begin epoch=1793426213757
+[TRACE_APPSTART] config/profile parallel batch START epoch=1793426213757
+[TRACE_APPSTART] onAuthStateChange event=AuthChangeEvent.signedOut session=false epoch=1793426213840
+[NAV_TRACE] 2026-10-31T11:26:53.841641 MARK source=AppStartScreen detail="onAuthStateChange event=AuthChangeEvent.signedOut skipped (no-op event, see PERF FIX comment)" inFlight=0 epoch=1793426213841
+ProductionConfigService: fetched fresh production_config.
+[TRACE_APPSTART] currentUser=null epoch=1793426213855
+[TRACE_APPSTART] changeScreen -> LoginScreen epoch=1793426213856
+[NAV_TRACE] 2026-10-31T11:26:53.856640 BEGIN source=AppStartScreen detail="changeScreen _BrandSplashView -> LoginScreen" inFlightBefore=0 overlapping=false lastSource=UserSessionService lastDetail="restore AppStartScreen after restriction" lastStart=2026-10-31 11:26:53.719664 epoch=1793426213856
+[NAV_TRACE] 2026-10-31T11:26:53.857643 END source=AppStartScreen detail="changeScreen _BrandSplashView -> LoginScreen" inFlightAfter=0 epoch=1793426213857
+Loaded 0 active pricing zones from DB with TTL stamp.
+CacheService initialization failed, attempting fallback recovery: MissingPluginException(No implementation found for method read on channel plugins.it_nomads.com/flutter_secure_storage)
+CacheService fallback recovery also failed: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage)
+[TRACE_APPSTART] onAuthStateChange event=AuthChangeEvent.tokenRefreshed session=true epoch=1793426214202
+[NAV_TRACE] 2026-10-31T11:26:54.202069 MARK source=AppStartScreen detail="onAuthStateChange event=AuthChangeEvent.tokenRefreshed session=true currentScreen=LoginScreen isChecking=false" inFlight=0 epoch=1793426214202
+[PERF_STARTUP] checkUserFlow begin epoch=1793426214202
+[TRACE_APPSTART] config/profile parallel batch START epoch=1793426214202
+[TRACE_APPSTART] currentUser=00000000-0000-4000-8000-000000000041 epoch=1793426214203
+[TRACE_APPSTART] applying startup profile epoch=1793426214203
+[PERF_STARTUP] profile response at +2ms
+[PERF_STARTUP] users profile query done at +2ms epoch=1793426214204
+[TRACE_APPSTART] changeScreen -> ProfileSetupScreen epoch=1793426214204
+[NAV_TRACE] 2026-10-31T11:26:54.204604 BEGIN source=AppStartScreen detail="changeScreen LoginScreen -> ProfileSetupScreen" inFlightBefore=0 overlapping=false lastSource=AppStartScreen lastDetail="changeScreen _BrandSplashView -> LoginScreen" lastStart=2026-10-31 11:26:53.856640 epoch=1793426214204
+[NAV_TRACE] 2026-10-31T11:26:54.208600 END source=AppStartScreen detail="changeScreen LoginScreen -> ProfileSetupScreen" inFlightAfter=0 epoch=1793426214208
+00:04 +4: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: auth policy suppresses routine refresh/duplicate logout but routes a restored identity
+00:04 +5: C:/Users/karth/Desktop/appclad/test/waydrop_session_transition_test.dart: (tearDownAll)
+00:04 +5: All tests passed!

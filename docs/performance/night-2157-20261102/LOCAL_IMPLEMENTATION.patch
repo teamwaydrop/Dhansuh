@@ -1,0 +1,474 @@
+diff --git "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\night-before\\parcel_upload_service.dart" b/lib/features/local_parcels/services/parcel_upload_service.dart
+index 0b9c715..50c4dc7 100644
+--- "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\night-before\\parcel_upload_service.dart"
++++ b/lib/features/local_parcels/services/parcel_upload_service.dart
+@@ -1,47 +1,178 @@
++import 'dart:async';
++import 'dart:convert';
+ import 'dart:io';
+-import 'package:flutter/foundation.dart';
++import 'dart:typed_data';
++import 'package:crypto/crypto.dart';
+ import 'package:supabase_flutter/supabase_flutter.dart';
+ 
++class ParcelUploadUnconfirmed implements Exception {
++  const ParcelUploadUnconfirmed();
++  @override
++  String toString() =>
++      'Photo upload could not be confirmed. Check / retry the same photo.';
++}
++
+ class ParcelUploadService {
+-  static final supabase = Supabase.instance.client;
+-
+-  /// Uploads a list of local parcel image files to the 'parcel_images' bucket 
+-  /// concurrently (in parallel) and returns their public URLs once complete.
+-  /// Throws an error if any of the uploads fail.
+-  static Future<List<String>> uploadImages(List<dynamic> images) async {
+-    final List<String> urls = [];
+-    final List<Future<void>> uploadFutures = [];
+-
+-    for (final img in images) {
+-      if (img is File) {
+-        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${img.path.split(RegExp(r'[/\\]')).last}';
+-        final path = 'parcels/$fileName';
+-        
+-        final publicUrl = supabase.storage
+-            .from('parcel_images')
+-            .getPublicUrl(path);
+-        
+-        urls.add(publicUrl);
+-
+-        uploadFutures.add(
+-          supabase.storage
+-              .from('parcel_images')
+-              .upload(
+-                path, 
+-                img, 
+-                fileOptions: const FileOptions(upsert: true),
+-              )
+-              .then((_) {
+-                debugPrint('PARCEL UPLOAD => Uploaded file successfully to $publicUrl');
+-              }),
+-        );
+-      } else if (img is String) {
+-        urls.add(img);
++  static final _shared = ParcelPhotoUploader(Supabase.instance.client);
++  static Future<List<String>> uploadImages(List<dynamic> images) =>
++      _shared.uploadImages(images);
++}
++
++/// Immutable account-scoped addresses survive screen/process recreation.
++/// Timeouts never replace an outstanding write. No automatic write retry.
++class ParcelPhotoUploader {
++  final SupabaseClient client;
++  final Duration responseTimeout;
++  final _inFlight = <String, Future<String>>{};
++  ParcelPhotoUploader(
++    this.client, {
++    this.responseTimeout = const Duration(seconds: 20),
++  });
++
++  Future<List<String>> uploadImages(List<dynamic> images) async {
++    final owner = client.auth.currentUser?.id;
++    if (owner == null) throw const AuthException('Sign in to upload a photo.');
++    final urls = <String>[];
++    // Bound write concurrency, preserving selection order and partial success.
++    for (final image in List<dynamic>.of(images)) {
++      _checkOwner(owner);
++      if (image is String) {
++        urls.add(image);
++      } else if (image is File) {
++        final bytes = await image.readAsBytes();
++        _checkOwner(owner);
++        final digest = sha256.convert(bytes).toString();
++        final suffix = _suffix(bytes);
++        final path = 'parcels/$owner/$digest.$suffix';
++        var work = _inFlight[path];
++        if (work == null) {
++          late final Future<String> owned;
++          owned = _upload(owner, path, bytes, digest, suffix).whenComplete(() {
++            if (identical(_inFlight[path], owned)) _inFlight.remove(path);
++          });
++          _inFlight[path] = work = owned;
++        }
++        try {
++          urls.add(await work.timeout(responseTimeout));
++        } on TimeoutException {
++          throw const ParcelUploadUnconfirmed();
++        }
++        _checkOwner(owner);
+       }
+     }
+-
+-    // Wait for all parallel uploads to finish. If any upload fails, this throws.
+-    await Future.wait(uploadFutures);
+     return urls;
+   }
++
++  void _checkOwner(String owner) {
++    if (client.auth.currentUser?.id != owner) {
++      throw const AuthException('Account changed during photo upload.');
++    }
++  }
++
++  Future<bool> _verified(String owner, String path, String digest) async {
++    _checkOwner(owner);
++    Uint8List remote;
++    try {
++      // Exact-object read, never a broad listing or an existence-only claim.
++      remote = await client.storage.from('parcel_images').download(path);
++    } on StorageException catch (e) {
++      _checkOwner(owner);
++      if (e.statusCode == '404') return false;
++      if (e.statusCode == '400') {
++        try {
++          final body = jsonDecode(e.message);
++          if (body is Map && ['NoSuchKey', 'NotFound'].contains(body['code'])) {
++            return false;
++          }
++        } on FormatException {
++          /* A generic 400 is not proof of absence. */
++        }
++      }
++      rethrow;
++    }
++    _checkOwner(owner);
++    if (sha256.convert(remote).toString() != digest) {
++      throw const ParcelUploadUnconfirmed(); // Never overwrite different content.
++    }
++    return true;
++  }
++
++  Future<String> _upload(
++    String owner,
++    String path,
++    Uint8List bytes,
++    String digest,
++    String suffix,
++  ) async {
++    final bucket = client.storage.from('parcel_images');
++    if (await _verified(owner, path, digest)) return bucket.getPublicUrl(path);
++    _checkOwner(owner);
++    try {
++      await bucket.uploadBinary(
++        path,
++        bytes,
++        fileOptions: FileOptions(
++          upsert: false,
++          contentType: switch (suffix) {
++            'jpg' => 'image/jpeg',
++            'png' => 'image/png',
++            'webp' => 'image/webp',
++            'heic' => 'image/heic',
++            _ => 'application/octet-stream',
++          },
++        ),
++        retryAttempts: 0,
++      );
++    } catch (failure) {
++      _checkOwner(owner);
++      if (failure is StorageException &&
++          ['401', '403', '413', '415', '422'].contains(failure.statusCode)) {
++        rethrow;
++      }
++      // 504, abort and duplicate responses have uncertain commit outcomes.
++      // One read-only reconciliation: no second POST, PUT, deletion or upsert.
++      try {
++        if (await _verified(owner, path, digest)) {
++          return bucket.getPublicUrl(path);
++        }
++      } catch (_) {
++        _checkOwner(owner);
++        throw const ParcelUploadUnconfirmed();
++      }
++      throw const ParcelUploadUnconfirmed();
++    }
++    _checkOwner(owner);
++    return bucket.getPublicUrl(path);
++  }
++
++  static String _suffix(Uint8List bytes) {
++    if (bytes.length >= 3 &&
++        bytes[0] == 255 &&
++        bytes[1] == 216 &&
++        bytes[2] == 255) {
++      return 'jpg';
++    }
++    if (bytes.length >= 8 &&
++        bytes[0] == 137 &&
++        bytes[1] == 80 &&
++        bytes[2] == 78 &&
++        bytes[3] == 71) {
++      return 'png';
++    }
++    if (bytes.length >= 12 &&
++        ascii.decode(bytes.sublist(0, 4), allowInvalid: true) == 'RIFF' &&
++        ascii.decode(bytes.sublist(8, 12), allowInvalid: true) == 'WEBP') {
++      return 'webp';
++    }
++    if (bytes.length >= 12 &&
++        [
++          'heic',
++          'heix',
++          'hevc',
++          'hevx',
++        ].contains(ascii.decode(bytes.sublist(8, 12), allowInvalid: true))) {
++      return 'heic';
++    }
++    return 'bin';
++  }
+ }
+
+diff --git "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\night-before\\parcel_details_screen.dart" b/lib/features/local_parcels/booking/screens/parcel_details_screen.dart
+index 439ee04..6db24e9 100644
+--- "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\night-before\\parcel_details_screen.dart"
++++ b/lib/features/local_parcels/booking/screens/parcel_details_screen.dart
+@@ -90,6 +90,7 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
+   final List<File> _selectedImages = [];
+   final ImagePicker _picker = ImagePicker();
+   bool _imageUploading = false;
++  bool _imageUploadUnconfirmed = false;
+   List<String> _uploadedUrls = [];
+   List<Map<String, String>> _recentContacts = [];
+ 
+@@ -247,30 +248,31 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
+   ];
+ 
+   Future<void> _uploadSelectedImages(List<File> files) async {
+-    setState(() {
+-      _imageUploading = true;
+-    });
++    if (!mounted || _imageUploading) return;
++    setState(() { _imageUploading = true; });
+     try {
+-      final urls = await ParcelUploadService.uploadImages(files);
+-      if (urls.isNotEmpty) {
+-        setState(() {
+-          _uploadedUrls.addAll(urls);
+-        });
+-      }
+-    } catch (e) {
+-      debugPrint('UPLOAD ERROR => $e');
+-      _showSnackBar('Failed to upload package photo: $e. Please try again.');
++      // Reconcile the complete selection; previously completed items are read,
++      // not re-uploaded. Failed batches must not lose their successful objects.
++      final urls = await ParcelUploadService.uploadImages(List<File>.of(_selectedImages));
++      if (!mounted) return;
+       setState(() {
+-        _selectedImages.removeWhere((file) => files.contains(file));
++        _uploadedUrls = urls;
++        _imageUploadUnconfirmed = false;
+       });
+-    } finally {
++    } catch (_) {
++      if (!mounted) return;
+       setState(() {
+-        _imageUploading = false;
++        _uploadedUrls = [];
++        _imageUploadUnconfirmed = true;
+       });
++      _showSnackBar('Photo upload could not be confirmed. Your photos are kept. Tap Check / retry photos.');
++    } finally {
++      if (mounted) setState(() { _imageUploading = false; });
+     }
+   }
+ 
+   Future<void> _pickFromCamera() async {
++    if (_imageUploading) return;
+     if (_selectedImages.length >= 5) {
+       _showSnackBar('You can attach a maximum of 5 photos.');
+       return;
+@@ -282,6 +284,7 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
+         maxWidth: 1024,
+         maxHeight: 1024,
+       );
++      if (!mounted) return;
+       if (image != null) {
+         final file = File(image.path);
+         setState(() {
+@@ -295,6 +298,7 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
+   }
+ 
+   Future<void> _pickFromGallery() async {
++    if (_imageUploading) return;
+     if (_selectedImages.length >= 5) {
+       _showSnackBar('You can attach a maximum of 5 photos.');
+       return;
+@@ -305,6 +309,7 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
+         maxWidth: 1024,
+         maxHeight: 1024,
+       );
++      if (!mounted) return;
+       if (images.isNotEmpty) {
+         final List<File> files = [];
+         for (var image in images) {
+@@ -327,8 +332,10 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
+   }
+ 
+   void _removeSelectedImage(int index) {
++    if (_imageUploading) return;
+     setState(() {
+       _selectedImages.removeAt(index);
++      if (_selectedImages.isEmpty) _imageUploadUnconfirmed = false;
+       if (_uploadedUrls.length > index) {
+         _uploadedUrls.removeAt(index);
+       }
+@@ -533,8 +540,8 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
+       return;
+     }
+ 
+-    if (_uploadedUrls.isEmpty) {
+-      _showSnackBar('Photo upload in progress or failed. Please re-attach.');
++    if (_imageUploadUnconfirmed || _uploadedUrls.length != _selectedImages.length) {
++      _showSnackBar('Tap Check / retry photos to confirm every selected photo.');
+       return;
+     }
+ 
+@@ -1180,6 +1187,12 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
+                                 ),
+                             ],
+                           ),
++                          if (_imageUploadUnconfirmed && !_imageUploading)
++                            TextButton.icon(
++                              onPressed: () => _uploadSelectedImages(List<File>.of(_selectedImages)),
++                              icon: const Icon(Icons.refresh),
++                              label: const Text('Check / retry photos'),
++                            ),
+                           if (_imageUploading) ...[
+                             const SizedBox(height: 8),
+                             Row(
+
+diff --git "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\night-before\\intercity_details_screen.dart" b/lib/features/intercity/parcels/booking/intercity_details_screen.dart
+index 11ad0ef..e9592fe 100644
+--- "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\night-before\\intercity_details_screen.dart"
++++ b/lib/features/intercity/parcels/booking/intercity_details_screen.dart
+@@ -134,6 +134,7 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
+   final List<File> _selectedImages = [];
+   final ImagePicker _picker = ImagePicker();
+   bool _imageUploading = false;
++  bool _imageUploadUnconfirmed = false;
+   List<String> _uploadedUrls = [];
+   List<Map<String, String>> _recentContacts = [];
+ 
+@@ -426,30 +427,31 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
+   }
+ 
+   Future<void> _uploadSelectedImages(List<File> files) async {
+-    setState(() {
+-      _imageUploading = true;
+-    });
++    if (!mounted || _imageUploading) return;
++    setState(() { _imageUploading = true; });
+     try {
+-      final urls = await ParcelUploadService.uploadImages(files);
+-      if (urls.isNotEmpty) {
+-        setState(() {
+-          _uploadedUrls.addAll(urls);
+-        });
+-      }
+-    } catch (e) {
+-      debugPrint('UPLOAD ERROR => $e');
+-      _showSnackBar('Failed to upload package photo: $e. Please try again.');
++      // Reconcile the complete selection; previously completed items are read,
++      // not re-uploaded. Failed batches must not lose their successful objects.
++      final urls = await ParcelUploadService.uploadImages(List<File>.of(_selectedImages));
++      if (!mounted) return;
+       setState(() {
+-        _selectedImages.removeWhere((file) => files.contains(file));
++        _uploadedUrls = urls;
++        _imageUploadUnconfirmed = false;
+       });
+-    } finally {
++    } catch (_) {
++      if (!mounted) return;
+       setState(() {
+-        _imageUploading = false;
++        _uploadedUrls = [];
++        _imageUploadUnconfirmed = true;
+       });
++      _showSnackBar('Photo upload could not be confirmed. Your photos are kept. Tap Check / retry photos.');
++    } finally {
++      if (mounted) setState(() { _imageUploading = false; });
+     }
+   }
+ 
+   Future<void> _pickFromCamera() async {
++    if (_imageUploading) return;
+     if (_selectedImages.length >= 5) {
+       _showSnackBar('You can attach a maximum of 5 photos.');
+       return;
+@@ -461,6 +463,7 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
+         maxWidth: 1024,
+         maxHeight: 1024,
+       );
++      if (!mounted) return;
+       if (image != null) {
+         final file = File(image.path);
+         setState(() {
+@@ -474,6 +477,7 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
+   }
+ 
+   Future<void> _pickFromGallery() async {
++    if (_imageUploading) return;
+     if (_selectedImages.length >= 5) {
+       _showSnackBar('You can attach a maximum of 5 photos.');
+       return;
+@@ -484,6 +488,7 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
+         maxWidth: 1024,
+         maxHeight: 1024,
+       );
++      if (!mounted) return;
+       if (images.isNotEmpty) {
+         final List<File> files = [];
+         for (var image in images) {
+@@ -506,8 +511,10 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
+   }
+ 
+   void _removeSelectedImage(int index) {
++    if (_imageUploading) return;
+     setState(() {
+       _selectedImages.removeAt(index);
++      if (_selectedImages.isEmpty) _imageUploadUnconfirmed = false;
+       if (_uploadedUrls.length > index) {
+         _uploadedUrls.removeAt(index);
+       }
+@@ -672,8 +679,8 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
+       return;
+     }
+ 
+-    if (_uploadedUrls.isEmpty) {
+-      _showSnackBar('Photo upload in progress or failed. Please re-attach.');
++    if (_imageUploadUnconfirmed || _uploadedUrls.length != _selectedImages.length) {
++      _showSnackBar('Tap Check / retry photos to confirm every selected photo.');
+       return;
+     }
+ 
+@@ -1435,6 +1442,12 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
+                                 ),
+                             ],
+                           ),
++                          if (_imageUploadUnconfirmed && !_imageUploading)
++                            TextButton.icon(
++                              onPressed: () => _uploadSelectedImages(List<File>.of(_selectedImages)),
++                              icon: const Icon(Icons.refresh),
++                              label: const Text('Check / retry photos'),
++                            ),
+                           if (_imageUploading) ...[
+                             const SizedBox(height: 8),
+                             Row(
+
+diff --git "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\night-before\\rider_entry_handler.dart" b/lib/features/rider/onboarding/screens/rider_entry_handler.dart
+index 2c5c751..1c511d8 100644
+--- "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\night-before\\rider_entry_handler.dart"
++++ b/lib/features/rider/onboarding/screens/rider_entry_handler.dart
+@@ -64,8 +64,7 @@ class _RiderEntryHandlerState extends ConsumerState<RiderEntryHandler> {
+       }
+     } catch (failure) {
+       if (!mounted || generation != _generation) return;
+-      if (failure is AuthException || (failure is PostgrestException &&
+-          (failure.code == 'PGRST301' || failure.code == 'PGRST303'))) {
++      if (RiderAccessService.requiresLogin(failure)) {
+         access = const RiderAccess(RiderAccessState.unauthenticated);
+       } else {
+         error = failure;

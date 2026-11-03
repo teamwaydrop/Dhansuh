@@ -1,0 +1,22 @@
+{
+  "slug": "process-verification-photo",
+  "baseline_version": 18,
+  "deployed": false,
+  "requires_sql": "PHOTO_ATOMIC_RPC.review.sql",
+  "scope": "Coordinated SQL/handler candidate. Close admission and drain all old photo writers before cutover; never rolling-mix protocols. Managed Auth/full triggers and lock-order integration still required.",
+  "files": [
+    {
+      "path": "functions/process-verification-photo/index.ts",
+      "sha256": "b4a1d0721f4a8a66054981800854077552ea782fe78d2f403d2f5c828d6e428b"
+    },
+    {
+      "path": "functions/_shared/http.ts",
+      "sha256": "7592be0f9749e0400144fac15e696e3e028f8a262b58dcddc35e5bd992d08c45",
+      "change": "Type-only timer annotation compatibility; emitted runtime semantics unchanged."
+    },
+    {
+      "path": "functions/_shared/photo_download.ts",
+      "sha256": "9138854c1ac3d5ace943c85fc055d7a3fcddab10361b0682d5397421c37e35bc"
+    }
+  ]
+}

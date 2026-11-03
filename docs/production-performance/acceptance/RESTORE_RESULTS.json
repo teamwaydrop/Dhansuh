@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "engine": "PostgreSQL 17.11 Windows",
+  "productionConnected": false,
+  "syntheticTablesContentHashesMatched": 10,
+  "functionDefinitionsOwnersACLMatched": true,
+  "policyDefinitionsMatched": true,
+  "indexDefinitionsMatched": true,
+  "triggerDefinitionsMatched": true,
+  "fingerprints": {
+    "rows": {
+      "users": "b05e032e0bb6accfae620cd5cd7e61be",
+      "orders": "d9d68b1ef86e1522cc93931cc76a44cc",
+      "riders": "49ebe19b0416b3c867eea650595ec022",
+      "rider_kyc": "59cbffab4efda79f3e4f427a8d56de0e",
+      "dispatch_config": "a628c45a67b1eced71ffc4e5c617e62b",
+      "rider_locations": "7ea783830b63145c9c0c5b3855314093",
+      "rider_assignments": "a0fc66186a4573edea77d874eca78903",
+      "local_push_capture": "b56c45ddcefbe272e86ef0f38fa8aad1",
+      "government_tax_config": "fda9e74f1cc473d02f114fe738f081c9",
+      "order_assignment_logs": "269af0802e4d943f8c0b7a9efec73603"
+    },
+    "indexes": "814e22d4347ee27dbb7e556fbe7c9818",
+    "policies": "0feebae667e5cf2a9512e5119f363325",
+    "triggers": "49250d99644b1e67c5632a54080fb97a",
+    "functions": "00ae48ba24aaef5a09264bceda975390"
+  },
+  "productionDataRecoveryVerified": false,
+  "limitations": "Same-host synthetic restore. No managed Auth, Storage, vault secrets, pg_net, Edge runtime or off-site restore proof."
+}

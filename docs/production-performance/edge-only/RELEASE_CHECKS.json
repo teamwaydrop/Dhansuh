@@ -1,0 +1,29 @@
+{
+  "checkedDate": "2026-11-01",
+  "productionReadOnly": true,
+  "version": 60,
+  "verify_jwt": false,
+  "bundle": "9e6101aa857a902aefaa82d64d066f845e506e18e60f34441f85a4dc08af9f01",
+  "sourceSha256": "521fd8533d8a6d0fde15ccf9ceb211a8c631e3822f82c7f324b9e629736c9dfc",
+  "sharedSha256": "9994144024984b6a40a0abdc66fb98991bc008322b28fee552e0e54f9f87f40a",
+  "matchesCapturedV60": true,
+  "onlyProductionProject": true,
+  "developmentBranches": 0,
+  "exposedBrowsers": 0,
+  "runtimeLockCompletion": {
+    "previousSha256": "cbf945c3652b17a7fa144f7cf093ff76ee35cdbe1a0e87237876ca1a90dc3976",
+    "currentSha256": "107979eb09b0162c885f1b4d584397fed1c3c1c0849e95ae3220cfdc8124f3b3",
+    "reason": "Added actual runtime remote-module hashes previously absent from typecheck-only lock; cached frozen network runtime now passes",
+    "releaseSourceUnchanged": true
+  },
+  "networkIntegration": {
+    "passed": 8,
+    "failed": 0,
+    "managedAuth": false
+  },
+  "tlsIntegration": {
+    "passed": 3,
+    "failed": 0,
+    "managedEndpoint": false
+  }
+}

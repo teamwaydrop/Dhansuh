@@ -1,0 +1,151 @@
+[
+  {
+    "jsonb_build_object": {
+      "blocked": 0,
+      "activity": [
+        {
+          "n": 1,
+          "type": "walwriter",
+          "wait": "WalWriterMain",
+          "state": null,
+          "wait_type": "Activity"
+        },
+        {
+          "n": 1,
+          "type": "checkpointer",
+          "wait": "CheckpointerMain",
+          "state": null,
+          "wait_type": "Activity"
+        },
+        {
+          "n": 21,
+          "type": "client backend",
+          "wait": "ClientRead",
+          "state": "idle",
+          "wait_type": "Client"
+        },
+        {
+          "n": 1,
+          "type": "background writer",
+          "wait": "BgwriterHibernate",
+          "state": null,
+          "wait_type": "Activity"
+        },
+        {
+          "n": 1,
+          "type": "walsender",
+          "wait": "WalSenderWaitForWal",
+          "state": "active",
+          "wait_type": "Client"
+        },
+        {
+          "n": 1,
+          "type": "archiver",
+          "wait": "ArchiverMain",
+          "state": null,
+          "wait_type": "Activity"
+        },
+        {
+          "n": 1,
+          "type": "pg_cron launcher",
+          "wait": "Extension",
+          "state": null,
+          "wait_type": "Extension"
+        },
+        {
+          "n": 1,
+          "type": "autovacuum launcher",
+          "wait": "AutovacuumMain",
+          "state": null,
+          "wait_type": "Activity"
+        },
+        {
+          "n": 1,
+          "type": "pg_net 0.20.0 worker",
+          "wait": "Extension",
+          "state": null,
+          "wait_type": "Extension"
+        },
+        {
+          "n": 1,
+          "type": "logical replication launcher",
+          "wait": "LogicalLauncherMain",
+          "state": null,
+          "wait_type": "Activity"
+        }
+      ],
+      "database": {
+        "read_ms": 0,
+        "backends": 25,
+        "write_ms": 0,
+        "deadlocks": 0,
+        "temp_bytes": 1532212209261,
+        "temp_files": 373996,
+        "stats_reset": "2026-05-01T02:50:03.043679+05:30"
+      },
+      "settings": {
+        "work_mem": {
+          "unit": "kB",
+          "setting": "2184"
+        },
+        "shared_buffers": {
+          "unit": "8kB",
+          "setting": "28672"
+        },
+        "max_connections": {
+          "unit": null,
+          "setting": "60"
+        },
+        "track_functions": {
+          "unit": null,
+          "setting": "none"
+        },
+        "track_io_timing": {
+          "unit": null,
+          "setting": "off"
+        },
+        "effective_cache_size": {
+          "unit": "8kB",
+          "setting": "49152"
+        },
+        "maintenance_work_mem": {
+          "unit": "kB",
+          "setting": "32768"
+        },
+        "max_parallel_workers": {
+          "unit": null,
+          "setting": "2"
+        },
+        "max_worker_processes": {
+          "unit": null,
+          "setting": "6"
+        },
+        "cron.max_running_jobs": {
+          "unit": null,
+          "setting": "32"
+        },
+        "log_min_duration_statement": {
+          "unit": "ms",
+          "setting": "-1"
+        },
+        "cron.use_background_workers": {
+          "unit": null,
+          "setting": "off"
+        }
+      },
+      "observed_at": "2026-11-02T16:08:16.683329+05:30",
+      "replication": [
+        {
+          "type": "logical",
+          "active": true,
+          "retained_bytes": 5432
+        },
+        {
+          "type": "logical",
+          "active": true,
+          "retained_bytes": 5432
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,81 @@
+{
+  "date": "2026-11-01",
+  "productionWrites": 0,
+  "productionRowsRetrieved": 0,
+  "syntaxOnlyProductionSelect": "PASS; WHERE false returned []",
+  "focused": {
+    "passed": 57,
+    "failed": 0
+  },
+  "fullFlutter": {
+    "passed": 2082,
+    "failed": 0
+  },
+  "newTests": 17,
+  "changedStartupAnalyzer": {
+    "issues": 0
+  },
+  "projectionScan": {
+    "source": "Read-only production public-schema catalog, 1 November 2026",
+    "literalSelectsChecked": 176,
+    "missing": [],
+    "unresolved": [],
+    "limitations": [
+      "Checks static literal SELECT fields/nested table names, not arbitrary runtime strings, filters, RPC output or FK target resolution.",
+      "Unresolved selectors are explicitly not counted as schema-compatible."
+    ]
+  },
+  "apkBuilt": false,
+  "deviceVerified": false,
+  "atomicEdgePayloadUnchanged": true,
+  "files": [
+    {
+      "file": "lib/app_start_screen.dart",
+      "sha256": "17123c16e0a1402535e21b2096c9bbe65ee4b3a05badccb8dfa435fd6fba9013"
+    },
+    {
+      "file": "lib/core/services/session/account_profile_service.dart",
+      "sha256": "5b377766f943ebde14a0254352441643770131d6b87b8c10f82c5737842e7a46"
+    },
+    {
+      "file": "lib/core/services/session/auth_routing_policy.dart",
+      "sha256": "95a778c673ab0145b9bc17e96275fc09bb57dc82949b6a605b1fdfac4ee2f52d"
+    },
+    {
+      "file": "lib/core/services/session/user_session_service.dart",
+      "sha256": "89cfc0b3ac4afe1a810980c8fd34a716ba3d58b1724363848b43952933f1ceb9"
+    },
+    {
+      "file": "lib/core/services/session/rider_access_service.dart",
+      "sha256": "760c5a0238cbdc25d2d4002011125137058313b19f83c473e687ce384ac482d2"
+    },
+    {
+      "file": "lib/shared/widgets/account_guard.dart",
+      "sha256": "3fd5ffae4dbb3fa7b7b1ffbbdf7012288607cf1d8aa18a2a5271da81dd1463f8"
+    },
+    {
+      "file": "lib/shared/screens/connection_error_screen.dart",
+      "sha256": "a23b6774d4b5e4ad2c9d9f7e87465a5bbe39c4b3dcc15e386f2fe6dfdc7ebc70"
+    },
+    {
+      "file": "lib/features/intercity/shared/screens/intercity_searching_screen.dart",
+      "sha256": "876473f7e72d9f0e068d47ca48b43c8241804984acc8e9bada7d3c9b59a4aa88"
+    },
+    {
+      "file": "lib/features/intercity/shared/screens/intercity_tracking_screen.dart",
+      "sha256": "1b733a2fb6038aa7bf2ed281f39eb3a1a0ee7abbd2cb50ab5cf31b68021c75e5"
+    }
+  ],
+  "focusedLog": {
+    "file": ".dart_tool/waydrop-local-runtime/startup-hotfix-focused.log",
+    "sha256": "8791f9aec5c390865cb5f9051d9ff2d3eda1af9b0fc6e99f353ca601703a3fc0"
+  },
+  "fullLog": {
+    "file": ".dart_tool/waydrop-local-runtime/startup-hotfix-full.log",
+    "sha256": "de91d880e4fd513d1a83a25df35a9dc0b1acce65a9d4cc0d6696c8326168d2b1"
+  },
+  "analyzeLog": {
+    "file": ".dart_tool/waydrop-local-runtime/startup-hotfix-analyze.log",
+    "sha256": "e906ad8fd2e1e9edc9c8f0b8b0738640d9fa3ce488cc803efebf7b875fead511"
+  }
+}

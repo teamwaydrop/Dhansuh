@@ -1,0 +1,44 @@
+{
+  "full_flutter": {
+    "passed": 2233,
+    "failed": 0,
+    "skipped": 10,
+    "total": 2243,
+    "command": "flutter test --no-pub --reporter expanded",
+    "log": ".dart_tool/waydrop-local-runtime/build62-full.log"
+  },
+  "focused": {
+    "passed": 30,
+    "failed": 0,
+    "log": ".dart_tool/waydrop-local-runtime/build62-focused.log"
+  },
+  "analyzer": {
+    "errors": 0,
+    "warnings": 1,
+    "infos": 17,
+    "exit_code": 1,
+    "log": ".dart_tool/waydrop-local-runtime/build62-analyzer.log"
+  },
+  "before_prefilled_regression": {
+    "passed": 0,
+    "failed": 1,
+    "actual_directions": 0,
+    "expected_directions": 1,
+    "log": ".dart_tool/waydrop-local-runtime/build62-prefill-before.log"
+  },
+  "after_prefilled_regression": {
+    "directions": 1,
+    "pricing_requests": 3,
+    "additional_requests_after_two_map_ready_events": 0
+  },
+  "native_phone_measured": false,
+  "production_changes": 0,
+  "test_and_implementation_sha256": {
+    "lib/features/local_rides/booking/screens/ride_location_screen.dart": "d1f416b5d622d6af6b4ad0526da260370416bd272b77de2472a2849caacd677a",
+    "lib/modules/payments/controllers/pricing_controller.dart": "172e5ea098bb97e677d458118d5dc832a43e5fe68563af1d7e10394353baa6b6",
+    "lib/core/services/diagnostics/choose_route_timing.dart": "32c44333a2f611eaf3b1cfab479a0892f0ef36b8d552839609e86895290b5180",
+    "lib/core/services/diagnostics/performance_trace.dart": "0818c73f0a2707f8d3387fff43dea418506c5972badf7d8bdded2e067087e0f8",
+    "test/choose_route_loading_test.dart": "f7148a2336c0b00a46f6960baf0a8af703610d2e5745f1626f15590131ad28df",
+    "test/part5_safe_metrics_test.dart": "8aee28a2e6e62593c2ad30b0abc98edf6332ea1167ea2200f5085ddfad6cca6b"
+  }
+}

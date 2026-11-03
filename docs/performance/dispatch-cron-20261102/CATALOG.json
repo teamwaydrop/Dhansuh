@@ -1,0 +1,205 @@
+{
+  "cron": [
+    {
+      "jobid": 2,
+      "active": true,
+      "command": "SELECT public.check_dormant_riders();",
+      "schedule": "0 * * * *"
+    },
+    {
+      "jobid": 3,
+      "active": true,
+      "command": "SELECT public.expire_stale_intercity_requests();",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "jobid": 4,
+      "active": true,
+      "command": "SELECT public.trigger_cleanup_abandoned_kyc_uploads();",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "jobid": 6,
+      "active": true,
+      "command": "SELECT public.expire_stale_active_orders();",
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "jobid": 1,
+      "active": true,
+      "command": "SELECT public.expire_stale_searching_orders();",
+      "schedule": "*/2 * * * *"
+    },
+    {
+      "jobid": 5,
+      "active": true,
+      "command": "SELECT public.redispatch_stalled_searching_orders();",
+      "schedule": "*/1 * * * *"
+    },
+    {
+      "jobid": 7,
+      "active": true,
+      "command": "SELECT public.redispatch_freed_riders();",
+      "schedule": "45 seconds"
+    },
+    {
+      "jobid": 10,
+      "active": true,
+      "command": "SELECT public.retry_pending_order_completion_side_effects();",
+      "schedule": "*/5 * * * *"
+    }
+  ],
+  "triggers": [
+    {
+      "table": "orders",
+      "trigger": "protect_order_financial_columns_trigger",
+      "function": "protect_order_financial_columns",
+      "definition": "CREATE TRIGGER protect_order_financial_columns_trigger BEFORE UPDATE OF commission_amount, gst_amount, rider_earning, commission_percentage, gst_percentage, actual_fare, boost_rider_earning, boost_company_earning, payment_status, fare_payment_method, current_fare, final_fare, boost_amount, boost_percentage, pg_charge_amount ON public.orders FOR EACH ROW EXECUTE FUNCTION protect_order_financial_columns()"
+    },
+    {
+      "table": "orders",
+      "trigger": "protect_order_state_columns_trigger",
+      "function": "protect_order_state_columns",
+      "definition": "CREATE TRIGGER protect_order_state_columns_trigger BEFORE UPDATE OF order_status, pickup_otp, delivery_otp, rider_id ON public.orders FOR EACH ROW EXECUTE FUNCTION protect_order_state_columns()"
+    },
+    {
+      "table": "orders",
+      "trigger": "trg_order_completion_side_effects",
+      "function": "enqueue_order_completion_side_effects",
+      "definition": "CREATE TRIGGER trg_order_completion_side_effects AFTER UPDATE OF order_status ON public.orders FOR EACH ROW EXECUTE FUNCTION enqueue_order_completion_side_effects()"
+    },
+    {
+      "table": "orders",
+      "trigger": "trg_orders_compliance_retention",
+      "function": "set_compliance_retention",
+      "definition": "CREATE TRIGGER trg_orders_compliance_retention BEFORE UPDATE OF order_status ON public.orders FOR EACH ROW EXECUTE FUNCTION set_compliance_retention()"
+    },
+    {
+      "table": "orders",
+      "trigger": "trg_populate_order_code",
+      "function": "trg_orders_order_code",
+      "definition": "CREATE TRIGGER trg_populate_order_code BEFORE INSERT ON public.orders FOR EACH ROW EXECUTE FUNCTION trg_orders_order_code()"
+    },
+    {
+      "table": "orders",
+      "trigger": "trigger_assign_nearby_orders_on_rider_freed",
+      "function": "assign_nearby_searching_orders_on_rider_freed",
+      "definition": "CREATE TRIGGER trigger_assign_nearby_orders_on_rider_freed AFTER UPDATE OF order_status ON public.orders FOR EACH ROW WHEN (((old.order_status = ANY (ARRAY['accepted'::order_status_enum, 'rider_arrived'::order_status_enum, 'picked_up'::order_status_enum, 'ongoing'::order_status_enum, 'payment_pending'::order_status_enum])) AND (new.order_status <> ALL (ARRAY['accepted'::order_status_enum, 'rider_arrived'::order_status_enum, 'picked_up'::order_status_enum, 'ongoing'::order_status_enum, 'payment_pending'::order_status_enum])) AND (new.rider_id IS NOT NULL))) EXECUTE FUNCTION assign_nearby_searching_orders_on_rider_freed()"
+    },
+    {
+      "table": "orders",
+      "trigger": "trigger_assign_new_order_to_nearby_riders",
+      "function": "assign_new_order_to_nearby_online_riders",
+      "definition": "CREATE TRIGGER trigger_assign_new_order_to_nearby_riders AFTER INSERT ON public.orders FOR EACH ROW WHEN ((new.order_status = 'searching'::order_status_enum)) EXECUTE FUNCTION assign_new_order_to_nearby_online_riders()"
+    },
+    {
+      "table": "orders",
+      "trigger": "trigger_enforce_order_rider_service_mode",
+      "function": "enforce_order_rider_service_mode",
+      "definition": "CREATE TRIGGER trigger_enforce_order_rider_service_mode BEFORE UPDATE OF rider_id ON public.orders FOR EACH ROW EXECUTE FUNCTION enforce_order_rider_service_mode()"
+    },
+    {
+      "table": "orders",
+      "trigger": "trigger_order_status_update",
+      "function": "on_order_status_update",
+      "definition": "CREATE TRIGGER trigger_order_status_update AFTER UPDATE OF order_status ON public.orders FOR EACH ROW EXECUTE FUNCTION on_order_status_update()"
+    },
+    {
+      "table": "rider_assignments",
+      "trigger": "trigger_enforce_rider_assignment_service_mode",
+      "function": "enforce_rider_assignment_service_mode",
+      "definition": "CREATE TRIGGER trigger_enforce_rider_assignment_service_mode BEFORE INSERT ON public.rider_assignments FOR EACH ROW EXECUTE FUNCTION enforce_rider_assignment_service_mode()"
+    },
+    {
+      "table": "rider_assignments",
+      "trigger": "trigger_prevent_local_ride_assignment_to_busy_rider",
+      "function": "prevent_local_ride_assignment_to_busy_rider",
+      "definition": "CREATE TRIGGER trigger_prevent_local_ride_assignment_to_busy_rider BEFORE INSERT OR UPDATE ON public.rider_assignments FOR EACH ROW EXECUTE FUNCTION prevent_local_ride_assignment_to_busy_rider()"
+    },
+    {
+      "table": "rider_assignments",
+      "trigger": "trigger_rider_assignment_change",
+      "function": "on_rider_assignment_change",
+      "definition": "CREATE TRIGGER trigger_rider_assignment_change AFTER INSERT OR UPDATE OF assignment_status ON public.rider_assignments FOR EACH ROW EXECUTE FUNCTION on_rider_assignment_change()"
+    },
+    {
+      "table": "riders",
+      "trigger": "on_rider_status_change",
+      "function": "handle_rider_status_change",
+      "definition": "CREATE TRIGGER on_rider_status_change AFTER UPDATE OF account_status ON public.riders FOR EACH ROW EXECUTE FUNCTION handle_rider_status_change()"
+    },
+    {
+      "table": "riders",
+      "trigger": "protect_rider_financial_columns_trigger",
+      "function": "protect_rider_financial_columns",
+      "definition": "CREATE TRIGGER protect_rider_financial_columns_trigger BEFORE UPDATE ON public.riders FOR EACH ROW EXECUTE FUNCTION protect_rider_financial_columns()"
+    },
+    {
+      "table": "riders",
+      "trigger": "trg_riders_gps_bridge_to_rider_locations",
+      "function": "sync_riders_gps_to_rider_locations",
+      "definition": "CREATE TRIGGER trg_riders_gps_bridge_to_rider_locations AFTER UPDATE OF current_lat, current_lng ON public.riders FOR EACH ROW WHEN (((old.current_lat IS DISTINCT FROM new.current_lat) OR (old.current_lng IS DISTINCT FROM new.current_lng) OR (old.current_heading IS DISTINCT FROM new.current_heading) OR (old.last_location_updated_at IS DISTINCT FROM new.last_location_updated_at) OR (old.last_active_at IS DISTINCT FROM new.last_active_at))) EXECUTE FUNCTION sync_riders_gps_to_rider_locations()"
+    },
+    {
+      "table": "riders",
+      "trigger": "trigger_assign_nearby_orders",
+      "function": "assign_nearby_searching_orders_to_rider",
+      "definition": "CREATE TRIGGER trigger_assign_nearby_orders AFTER UPDATE OF account_status ON public.riders FOR EACH ROW WHEN (((new.account_status = 'online'::rider_account_status_enum) AND (old.account_status IS DISTINCT FROM 'online'::rider_account_status_enum))) EXECUTE FUNCTION assign_nearby_searching_orders_to_rider()"
+    },
+    {
+      "table": "riders",
+      "trigger": "trigger_prevent_service_mode_switch_during_active_order",
+      "function": "prevent_service_mode_switch_during_active_order",
+      "definition": "CREATE TRIGGER trigger_prevent_service_mode_switch_during_active_order BEFORE UPDATE OF service_mode ON public.riders FOR EACH ROW EXECUTE FUNCTION prevent_service_mode_switch_during_active_order()"
+    },
+    {
+      "table": "riders",
+      "trigger": "trigger_rider_wallet_balance_update",
+      "function": "on_rider_wallet_balance_update",
+      "definition": "CREATE TRIGGER trigger_rider_wallet_balance_update AFTER UPDATE OF wallet_balance ON public.riders FOR EACH ROW EXECUTE FUNCTION on_rider_wallet_balance_update()"
+    }
+  ],
+  "functions": [
+    {
+      "name": "assign_nearby_searching_orders_core",
+      "signature": "assign_nearby_searching_orders_core(uuid,uuid,double precision,double precision,partner_service_mode_enum)",
+      "definition": "CREATE OR REPLACE FUNCTION public.assign_nearby_searching_orders_core(p_rider_id uuid, p_rider_user_id uuid, p_current_lat double precision, p_current_lng double precision, p_service_mode partner_service_mode_enum)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_order RECORD;\n    v_radius_km double precision;\n    v_stale_sec integer;\n    v_dist_km double precision;\n    v_timeout_sec integer;\n    v_max_search_duration_sec integer;\n    v_existing_id uuid;\n    v_existing_status text;\n    v_rider_vehicle text;\nBEGIN\n    IF p_current_lat IS NULL OR p_current_lng IS NULL THEN\n        RETURN;\n    END IF;\n\n    -- GOVERNMENT TAX DUE: a blocked rider receives no new assignments through this path either.\n    IF public.is_rider_blocked_by_tax_due(p_rider_id) THEN\n        RETURN;\n    END IF;\n\n    -- COD LIMIT: a rider whose cash-on-delivery pending amount has reached their configured limit\n    -- receives no new assignments through this path either, until they settle.\n    IF public.is_rider_blocked_by_cod_limit(p_rider_id) THEN\n        RETURN;\n    END IF;\n\n    SELECT\n        COALESCE(round_2_radius_km, 5.0),\n        COALESCE(rider_location_stale_sec, 60),\n        COALESCE(rider_response_timeout_sec, 120),\n        COALESCE(max_search_duration_sec, 900)\n    INTO\n        v_radius_km,\n        v_stale_sec,\n        v_timeout_sec,\n        v_max_search_duration_sec\n    FROM public.dispatch_config\n    WHERE is_active = true\n    LIMIT 1;\n\n    v_radius_km := COALESCE(v_radius_km, 5.0);\n    v_stale_sec := COALESCE(v_stale_sec, 60);\n    v_timeout_sec := COALESCE(v_timeout_sec, 120);\n    v_max_search_duration_sec := COALESCE(v_max_search_duration_sec, 900);\n\n    SELECT COALESCE(rk.vehicle_type::text, '') INTO v_rider_vehicle\n    FROM public.rider_kyc rk\n    WHERE rk.user_id = p_rider_user_id\n    LIMIT 1;\n\n    FOR v_order IN (\n        SELECT\n            o.id,\n            o.pickup_lat,\n            o.pickup_lng,\n            o.vehicle_type::text AS vehicle_type,\n            o.order_type::text AS order_type,\n            o.rider_earning,\n            o.distance_meters,\n            COALESCE(\n                o.actual_weight_kg,\n                COALESCE(NULLIF(regexp_replace(o.weight_category::text, '[^0-9.]', '', 'g'), ''), '0')::double precision\n            )::double precision AS weight_kg\n        FROM public.orders o\n        WHERE o.order_status = 'searching'\n          AND o.user_id != p_rider_user_id\n          -- STALENESS GUARD: never a candidate for (re-)offering once the order has been searching\n          -- longer than the platform's configured search lifetime.\n          AND o.created_at >= (NOW() - (v_max_search_duration_sec || ' seconds')::interval)\n    ) LOOP\n        v_dist_km := 6371 * acos(\n            LEAST(GREATEST(\n                cos(radians(v_order.pickup_lat))\n                * cos(radians(p_current_lat))\n                * cos(\n                    radians(p_current_lng)\n                    - radians(v_order.pickup_lng)\n                )\n                + sin(radians(v_order.pickup_lat))\n                * sin(radians(p_current_lat))\n            , -1.0), 1.0)\n        );\n\n        IF v_dist_km <= v_radius_km\n           AND public.get_required_service_mode(v_order.order_type, v_order.distance_meters) = p_service_mode\n           AND (\n            ((v_order.order_type = 'ride' OR v_order.order_type = 'intercity_ride' OR v_order.order_type = 'intercity') AND\n             v_rider_vehicle = v_order.vehicle_type)\n            OR\n            (v_order.order_type = 'ride_sharing' AND v_rider_vehicle IN ('auto', 'cab'))\n            OR\n            (\n                (v_order.order_type = 'local_parcel' OR v_order.order_type LIKE '%parcel%' OR v_order.order_type LIKE '%delivery%')\n                AND v_order.order_type != 'intercity_parcel'\n                AND\n                (\n                    (v_order.weight_kg < 10.0 AND v_rider_vehicle = 'bike')\n                    OR\n                    (v_order.weight_kg >= 10.0 AND v_rider_vehicle = 'auto')\n                )\n            )\n            OR\n            (\n                v_order.order_type = 'intercity_parcel'\n                AND\n                (\n                    (v_order.weight_kg < 10.0 AND v_rider_vehicle = 'bike')\n                    OR\n                    (v_order.weight_kg >= 10.0 AND v_rider_vehicle IN ('auto', 'cab'))\n                )\n            )\n            OR\n            (v_order.order_type NOT IN ('ride', 'intercity_ride', 'intercity', 'ride_sharing', 'local_parcel', 'intercity_parcel') AND v_order.order_type NOT LIKE '%parcel%' AND v_order.order_type NOT LIKE '%delivery%')\n        ) THEN\n            v_existing_id := NULL;\n            v_existing_status := NULL;\n\n            SELECT id, assignment_status INTO v_existing_id, v_existing_status\n            FROM public.rider_assignments\n            WHERE order_id = v_order.id\n              AND rider_id = p_rider_id\n            LIMIT 1;\n\n            BEGIN\n                IF v_existing_id IS NULL THEN\n                    INSERT INTO public.rider_assignments (\n                        order_id,\n                        rider_id,\n                        assignment_round,\n                        assignment_status,\n                        distance_km,\n                        estimated_earnings,\n                        sent_at,\n                        expires_at,\n                        last_seen_at,\n                        last_seen_fare\n                    ) VALUES (\n                        v_order.id,\n                        p_rider_id,\n                        1,\n                        'sent',\n                        v_dist_km,\n                        v_order.rider_earning,\n                        NOW(),\n                        NOW() + (v_timeout_sec || ' seconds')::interval,\n                        NOW(),\n                        v_order.rider_earning\n                    );\n\n                    -- FIX: audit-log write isolated into its own sub-transaction -- a duplicate\n                    -- (order_id, rider_id, assignment_round) row here (assignment_round is always 1\n                    -- for this dispatch path) must never undo the rider_assignments INSERT above,\n                    -- which is the actual source of truth for what the rider sees.\n                    BEGIN\n                        INSERT INTO public.order_assignment_logs (\n                            order_id,\n                            rider_id,\n                            assignment_round,\n                            assignment_status,\n                            rider_distance_km,\n                            estimated_pickup_time_min,\n                            sent_at\n                        ) VALUES (\n                            v_order.id,\n                            p_rider_id,\n                            1,\n                            'sent',\n                            v_dist_km,\n                            -- Reproduced verbatim from the live production definition (confirmed via\n                            -- a read-only pg_dump audit against the linked project): the fresh-\n                            -- insert branch has always written v_order.rider_earning into this\n                            -- column here, not CEIL(v_dist_km * 3) like the two re-offer branches\n                            -- below. Almost certainly a pre-existing, unrelated copy/paste quirk in\n                            -- an inert, write-only audit-log column (order_assignment_logs.\n                            -- estimated_pickup_time_min is never selected/read anywhere in the\n                            -- Flutter client -- rider_orders_screen.dart only ever selects this\n                            -- column from rider_assignments, which doesn't have it, and always\n                            -- falls back to its own (distKm * 3).ceil() computation instead) -- but\n                            -- correcting it is out of scope for this fix, so it is left exactly as\n                            -- production already has it rather than silently changing it here.\n                            v_order.rider_earning,\n                            NOW()\n                        );\n                    EXCEPTION WHEN OTHERS THEN\n                        NULL;\n                    END;\n                ELSIF v_existing_status = 'expired' THEN\n                    IF EXISTS (\n                        SELECT 1 FROM public.rider_assignments\n                        WHERE id = v_existing_id\n                          AND v_order.rider_earning > COALESCE(last_seen_fare, estimated_earnings, 0)\n                    ) THEN\n                        UPDATE public.rider_assignments\n                        SET\n                            assignment_status = 'sent',\n                            distance_km = v_dist_km,\n                            sent_at = NOW(),\n                            expires_at = NOW() + (v_timeout_sec || ' seconds')::interval,\n                            updated_at = NOW(),\n                            responded_at = NULL,\n                            response_type = NULL,\n                            hidden_until = NULL,\n                            last_seen_at = NOW(),\n                            last_seen_fare = v_order.rider_earning\n                        WHERE id = v_existing_id;\n\n                        -- FIX: see above -- isolated so a duplicate-round audit row can never roll\n                        -- back the UPDATE that just re-sent this assignment to the rider.\n                        BEGIN\n                            INSERT INTO public.order_assignment_logs (\n                                order_id,\n                                rider_id,\n                                assignment_round,\n                                assignment_status,\n                                rider_distance_km,\n                                estimated_pickup_time_min,\n                                sent_at\n                            ) VALUES (\n                                v_order.id,\n                                p_rider_id,\n                                1,\n                                'sent',\n                                v_dist_km,\n                                CEIL(v_dist_km * 3),\n                                NOW()\n                            );\n                        EXCEPTION WHEN OTHERS THEN\n                            NULL;\n                        END;\n                    END IF;\n                ELSIF v_existing_status = 'rejected' THEN\n                    IF EXISTS (\n                        SELECT 1 FROM public.rider_assignments\n                        WHERE id = v_existing_id\n                          AND NOW() >= COALESCE(hidden_until, NOW())\n                          AND v_order.rider_earning > COALESCE(last_seen_fare, estimated_earnings, 0)\n                    ) THEN\n                        UPDATE public.rider_assignments\n                        SET\n                            assignment_status = 'sent',\n                            distance_km = v_dist_km,\n                            sent_at = NOW(),\n                            expires_at = NOW() + (v_timeout_sec || ' seconds')::interval,\n                            updated_at = NOW(),\n                            responded_at = NULL,\n                            response_type = NULL,\n                            hidden_until = NULL,\n                            last_seen_at = NOW(),\n                            last_seen_fare = v_order.rider_earning\n                        WHERE id = v_existing_id;\n\n                        -- FIX: see above -- isolated so a duplicate-round audit row can never roll\n                        -- back the UPDATE that just re-sent this assignment to the rider.\n                        BEGIN\n                            INSERT INTO public.order_assignment_logs (\n                                order_id,\n                                rider_id,\n                                assignment_round,\n                                assignment_status,\n                                rider_distance_km,\n                                estimated_pickup_time_min,\n                                sent_at\n                            ) VALUES (\n                                v_order.id,\n                                p_rider_id,\n                                1,\n                                'sent',\n                                v_dist_km,\n                                CEIL(v_dist_km * 3),\n                                NOW()\n                            );\n                        EXCEPTION WHEN OTHERS THEN\n                            NULL;\n                        END;\n                    END IF;\n                END IF;\n            EXCEPTION WHEN unique_violation THEN\n                -- Retained: still catches a genuine concurrent-INSERT race on rider_assignments'\n                -- own (order_id, rider_id) unique key (two rematch mechanisms firing at once for a\n                -- pair that has never been offered before). The order_assignment_logs unique key can\n                -- no longer reach this handler at all -- it is caught by its own inner block above.\n                NULL;\n            END;\n        END IF;\n    END LOOP;\nEND;\n$function$\n"
+    },
+    {
+      "name": "assign_nearby_searching_orders_to_rider",
+      "signature": "assign_nearby_searching_orders_to_rider()",
+      "definition": "CREATE OR REPLACE FUNCTION public.assign_nearby_searching_orders_to_rider()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    IF NEW.current_lat IS NULL OR NEW.current_lng IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    PERFORM public.assign_nearby_searching_orders_core(\n        NEW.id,\n        NEW.user_id,\n        NEW.current_lat,\n        NEW.current_lng,\n        NEW.service_mode\n    );\n\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "name": "expire_stale_active_orders",
+      "signature": "expire_stale_active_orders()",
+      "definition": "CREATE OR REPLACE FUNCTION public.expire_stale_active_orders()\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_order RECORD;\n    v_expired_count integer := 0;\nBEGIN\n    -- The CTE snapshots each candidate's PRE-update order_status (old_status) before the UPDATE\n    -- overwrites it -- unlike expire_stale_searching_orders() (which can hardcode the literal\n    -- 'searching' as previous_status, since its WHERE clause matches exactly one starting status),\n    -- this sweep matches six different possible starting statuses, so the true prior value has to\n    -- be captured explicitly to write a correct order_status_history row.\n    FOR v_order IN\n        WITH stale AS (\n            SELECT id, order_status AS old_status\n            FROM public.orders\n            WHERE order_status IN ('accepted', 'rider_arrived', 'picked_up', 'ongoing', 'rider_at_drop', 'payment_pending')\n              AND updated_at < (NOW() - INTERVAL '24 hours')\n        )\n        UPDATE public.orders o\n        SET order_status = 'cancelled',\n            cancel_reason = 'Automatically cancelled: no activity for 24+ hours',\n            cancelled_at = NOW(),\n            updated_at = NOW()\n        FROM stale\n        WHERE o.id = stale.id\n        RETURNING o.id, stale.old_status\n    LOOP\n        v_expired_count := v_expired_count + 1;\n\n        INSERT INTO public.order_status_history (order_id, previous_status, new_status, changed_by, notes)\n        VALUES (\n            v_order.id,\n            v_order.old_status,\n            'cancelled',\n            'system',\n            'Auto-cancelled: no activity for 24+ hours (stale active-order recovery).'\n        );\n\n        UPDATE public.rider_assignments\n        SET assignment_status = 'expired',\n            responded_at = NOW(),\n            updated_at = NOW()\n        WHERE order_id = v_order.id\n          AND assignment_status IN ('sent', 'accepted');\n\n        UPDATE public.order_assignment_logs\n        SET assignment_status = 'expired',\n            responded_at = NOW()\n        WHERE order_id = v_order.id\n          AND assignment_status IN ('sent', 'accepted');\n    END LOOP;\n\n    IF v_expired_count > 0 THEN\n        RAISE LOG '[expire_stale_active_orders] Auto-cancelled % stale active order(s) past 24h with no activity.', v_expired_count;\n    END IF;\nEND;\n$function$\n"
+    },
+    {
+      "name": "expire_stale_searching_orders",
+      "signature": "expire_stale_searching_orders()",
+      "definition": "CREATE OR REPLACE FUNCTION public.expire_stale_searching_orders()\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_max_search_duration_sec integer;\n    v_order RECORD;\n    v_expired_count integer := 0;\nBEGIN\n    SELECT COALESCE(max_search_duration_sec, 900)\n    INTO v_max_search_duration_sec\n    FROM public.dispatch_config\n    WHERE is_active = true\n    LIMIT 1;\n\n    v_max_search_duration_sec := COALESCE(v_max_search_duration_sec, 900);\n\n    FOR v_order IN\n        UPDATE public.orders\n        SET order_status = 'expired',\n            updated_at = NOW()\n        WHERE order_status = 'searching'\n          AND order_type NOT IN ('intercity_ride', 'intercity_parcel')\n          AND created_at < (NOW() - (v_max_search_duration_sec || ' seconds')::interval)\n        RETURNING id\n    LOOP\n        v_expired_count := v_expired_count + 1;\n\n        INSERT INTO public.order_status_history (order_id, previous_status, new_status, changed_by, notes)\n        VALUES (\n            v_order.id,\n            'searching',\n            'expired',\n            'system',\n            'Auto-expired: no rider accepted within the configured search window.'\n        );\n\n        -- Close out any outstanding 'sent' assignment for this order -- it is now moot, and must\n        -- never be resettable back to 'sent' by assign_nearby_searching_orders_to_rider() (which is\n        -- itself now guarded against this by the companion migration's created_at bound, but closing\n        -- it here too keeps rider_assignments/order_assignment_logs consistent with the same\n        -- cleanup update-order-status's 'cancelled' branch already performs for every other\n        -- terminal-order-state transition).\n        UPDATE public.rider_assignments\n        SET assignment_status = 'expired',\n            responded_at = NOW(),\n            updated_at = NOW(),\n            response_type = 'ignored'\n        WHERE order_id = v_order.id\n          AND assignment_status = 'sent';\n\n        UPDATE public.order_assignment_logs\n        SET assignment_status = 'expired',\n            responded_at = NOW()\n        WHERE order_id = v_order.id\n          AND assignment_status = 'sent';\n    END LOOP;\n\n    IF v_expired_count > 0 THEN\n        RAISE LOG '[expire_stale_searching_orders] Expired % order(s) past their % second search window.', v_expired_count, v_max_search_duration_sec;\n    END IF;\n\n    -- Independent safety net: expire any 'sent' rider_assignments whose OWN expires_at has passed,\n    -- regardless of their order's status (covers assignments a dispatch worker or the client's local\n    -- timer never got to close out, e.g. app backgrounded/killed mid-round). Bounded by\n    -- idx_rider_assignments_sent_expires_at.\n    UPDATE public.rider_assignments\n    SET assignment_status = 'expired',\n        responded_at = NOW(),\n        updated_at = NOW(),\n        response_type = 'ignored'\n    WHERE assignment_status = 'sent'\n      AND expires_at < NOW();\nEND;\n$function$\n"
+    },
+    {
+      "name": "find_nearby_riders",
+      "signature": "find_nearby_riders(uuid,double precision,double precision,double precision,integer,uuid[])",
+      "definition": "CREATE OR REPLACE FUNCTION public.find_nearby_riders(p_order_id uuid, p_pickup_lat double precision, p_pickup_lng double precision, p_radius_km double precision, p_limit integer, p_excluded_rider_ids uuid[] DEFAULT '{}'::uuid[])\n RETURNS TABLE(rider_id uuid, user_id uuid, full_name text, vehicle_type text, vehicle_number text, current_lat double precision, current_lng double precision, distance_km numeric)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_order_type text;\n    v_vehicle_type text;\n    v_stale_sec integer;\n    v_creator_user_id uuid;\n    v_weight_kg double precision;\n    v_distance_meters integer;\n    v_required_mode public.partner_service_mode_enum;\n    v_tax_due_threshold numeric;\nBEGIN\n    SELECT\n        o.order_type,\n        o.vehicle_type,\n        o.user_id,\n        COALESCE(\n            o.actual_weight_kg,\n            COALESCE(NULLIF(regexp_replace(o.weight_category::text, '[^0-9.]', '', 'g'), ''), '0')::double precision\n        )::double precision,\n        o.distance_meters\n    INTO\n        v_order_type,\n        v_vehicle_type,\n        v_creator_user_id,\n        v_weight_kg,\n        v_distance_meters\n    FROM orders o\n    WHERE o.id = p_order_id;\n\n    IF auth.uid() IS NOT NULL AND (v_creator_user_id IS NULL OR auth.uid() != v_creator_user_id) THEN\n        RETURN;\n    END IF;\n\n    v_required_mode := public.get_required_service_mode(v_order_type, v_distance_meters);\n\n    SELECT COALESCE(rider_location_stale_sec, 60)\n    INTO v_stale_sec\n    FROM dispatch_config\n    WHERE is_active = true\n    LIMIT 1;\n\n    SELECT public.get_active_tax_due_threshold()\n    INTO v_tax_due_threshold;\n\n    RETURN QUERY\n    WITH candidates AS (\n        SELECT\n            r.id AS rider_id,\n            r.user_id,\n            rk.full_name,\n            rk.vehicle_type::text AS vehicle_type,\n            rk.vehicle_number,\n            r.current_lat,\n            r.current_lng,\n            (\n                6371 * acos(\n                    LEAST(GREATEST(\n                        cos(radians(p_pickup_lat))\n                        * cos(radians(r.current_lat))\n                        * cos(\n                            radians(r.current_lng)\n                            - radians(p_pickup_lng)\n                        )\n                        + sin(radians(p_pickup_lat))\n                        * sin(radians(r.current_lat))\n                    , -1.0), 1.0)\n                )\n            ) AS raw_distance_km\n        FROM riders r\n        INNER JOIN rider_kyc rk\n            ON rk.user_id = r.user_id\n        WHERE\n            r.account_status = 'online'\n            AND r.service_mode = v_required_mode\n            AND r.current_lat IS NOT NULL\n            AND r.current_lng IS NOT NULL\n            AND r.user_id != v_creator_user_id\n            AND NOT (r.id = ANY(p_excluded_rider_ids))\n            AND r.government_tax_due_balance < v_tax_due_threshold\n            AND COALESCE(r.cod_pending_amount, 0) < COALESCE(r.cod_limit, 500)\n            AND (rk.kyc_status::text IN ('approved', 'pending', 'under_review', 'resubmitted') OR rk.kyc_status IS NULL)\n            AND (rk.activation_status::text IN ('active', 'pending', 'inactive') OR rk.activation_status IS NULL)\n            AND (\n                r.last_location_updated_at >= (NOW() - (v_stale_sec || ' seconds')::interval)\n                OR\n                r.last_location_updated_at >= (NOW() - INTERVAL '24 hours')\n                OR\n                r.last_location_updated_at IS NULL\n            )\n            AND (\n                ((v_order_type = 'ride' OR v_order_type = 'intercity_ride' OR v_order_type = 'intercity') AND\n                 rk.vehicle_type::text = v_vehicle_type)\n                OR\n                (v_order_type = 'ride_sharing' AND rk.vehicle_type::text IN ('auto', 'cab'))\n                OR\n                (\n                    (v_order_type = 'local_parcel' OR v_order_type LIKE '%parcel%' OR v_order_type LIKE '%delivery%')\n                    AND v_order_type != 'intercity_parcel'\n                    AND\n                    (\n                        (v_weight_kg < 10.0 AND rk.vehicle_type::text = 'bike')\n                        OR\n                        (v_weight_kg >= 10.0 AND rk.vehicle_type::text = 'auto')\n                    )\n                )\n                OR\n                (\n                    v_order_type = 'intercity_parcel'\n                    AND\n                    (\n                        (v_weight_kg < 10.0 AND rk.vehicle_type::text = 'bike')\n                        OR\n                        (v_weight_kg >= 10.0 AND rk.vehicle_type::text IN ('auto', 'cab'))\n                    )\n                )\n                OR\n                (v_order_type NOT IN ('ride', 'intercity_ride', 'intercity', 'ride_sharing', 'local_parcel', 'intercity_parcel') AND v_order_type NOT LIKE '%parcel%' AND v_order_type NOT LIKE '%delivery%')\n            )\n            AND NOT public.rider_is_on_active_trip(r.id)\n    )\n    SELECT\n        candidates.rider_id,\n        candidates.user_id,\n        candidates.full_name,\n        candidates.vehicle_type,\n        candidates.vehicle_number,\n        candidates.current_lat,\n        candidates.current_lng,\n        ROUND(candidates.raw_distance_km::numeric, 2) AS distance_km\n    FROM candidates\n    WHERE candidates.raw_distance_km <= p_radius_km\n    ORDER BY distance_km ASC\n    LIMIT p_limit;\nEND;\n$function$\n"
+    },
+    {
+      "name": "redispatch_freed_riders",
+      "signature": "redispatch_freed_riders()",
+      "definition": "CREATE OR REPLACE FUNCTION public.redispatch_freed_riders()\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_rider RECORD;\nBEGIN\n    IF NOT pg_try_advisory_xact_lock(4735021, 1) THEN\n        RAISE NOTICE 'redispatch_freed_riders: previous sweep still running -- skipping this tick.';\n        RETURN;\n    END IF;\n\n    FOR v_rider IN (\n        SELECT r.id, r.user_id, r.current_lat, r.current_lng, r.service_mode\n        FROM public.riders r\n        WHERE r.account_status = 'online'\n          AND r.current_lat IS NOT NULL\n          AND r.current_lng IS NOT NULL\n          AND EXISTS (\n              SELECT 1 FROM public.orders o\n              WHERE o.rider_id = r.id\n                AND o.updated_at >= NOW() - INTERVAL '5 minutes'\n          )\n          AND NOT EXISTS (\n              SELECT 1 FROM public.orders bo\n              WHERE bo.rider_id = r.id\n                AND bo.order_status IN ('accepted', 'rider_arrived', 'picked_up', 'rider_at_drop', 'ongoing', 'payment_pending')\n          )\n    ) LOOP\n        BEGIN\n            PERFORM public.assign_nearby_searching_orders_core(\n                v_rider.id,\n                v_rider.user_id,\n                v_rider.current_lat,\n                v_rider.current_lng,\n                v_rider.service_mode\n            );\n        EXCEPTION WHEN OTHERS THEN\n            RAISE WARNING 'redispatch_freed_riders: failed to rematch rider %: %', v_rider.id, SQLERRM;\n        END;\n    END LOOP;\nEND;\n$function$\n"
+    },
+    {
+      "name": "redispatch_stalled_searching_orders",
+      "signature": "redispatch_stalled_searching_orders()",
+      "definition": "CREATE OR REPLACE FUNCTION public.redispatch_stalled_searching_orders()\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_supabase_url text := 'https://yvwpchffctiagevpqgwy.supabase.co';\n    v_service_role_key text;\n    v_max_search_duration_sec integer;\n    v_order RECORD;\nBEGIN\n    IF NOT pg_try_advisory_xact_lock(4735021, 2) THEN\n        RAISE NOTICE 'redispatch_stalled_searching_orders: previous sweep still running -- skipping this tick.';\n        RETURN;\n    END IF;\n\n    SELECT decrypted_secret INTO v_service_role_key\n    FROM vault.decrypted_secrets\n    WHERE name = 'supabase_service_role_key'\n    LIMIT 1;\n\n    IF v_service_role_key IS NULL THEN\n        RAISE WARNING 'redispatch_stalled_searching_orders skipped: vault secret \"supabase_service_role_key\" is not configured.';\n        RETURN;\n    END IF;\n\n    SELECT COALESCE(max_search_duration_sec, 900)\n    INTO v_max_search_duration_sec\n    FROM public.dispatch_config\n    WHERE is_active = true\n    LIMIT 1;\n\n    v_max_search_duration_sec := COALESCE(v_max_search_duration_sec, 900);\n\n    FOR v_order IN (\n        SELECT o.id\n        FROM public.orders o\n        WHERE o.order_status = 'searching'\n          AND o.order_type NOT IN ('intercity_ride', 'intercity_parcel')\n          AND o.created_at >= (NOW() - (v_max_search_duration_sec || ' seconds')::interval)\n          AND COALESCE(o.dispatch_worker_running, false) = false\n          AND (\n              o.dispatch_worker_started_at IS NULL\n              OR o.dispatch_worker_started_at < (NOW() - INTERVAL '20 seconds')\n          )\n    ) LOOP\n        BEGIN\n            PERFORM net.http_post(\n                url := v_supabase_url || '/functions/v1/start-dispatch',\n                headers := jsonb_build_object(\n                    'Content-Type', 'application/json',\n                    'Authorization', 'Bearer ' || v_service_role_key,\n                    'apikey', v_service_role_key\n                ),\n                body := jsonb_build_object(\n                    'order_id', v_order.id,\n                    'is_background', true\n                ),\n                timeout_milliseconds := 5000\n            );\n        EXCEPTION WHEN OTHERS THEN\n            RAISE WARNING 'redispatch_stalled_searching_orders: failed to re-invoke start-dispatch for order %: %', v_order.id, SQLERRM;\n        END;\n    END LOOP;\n\n    UPDATE public.orders\n    SET dispatch_worker_running = false\n    WHERE dispatch_worker_running = true\n      AND order_status != 'searching'\n      AND dispatch_worker_started_at IS NOT NULL\n      AND dispatch_worker_started_at < (NOW() - INTERVAL '120 seconds');\nEND;\n$function$\n"
+    },
+    {
+      "name": "rider_self_rematch",
+      "signature": "rider_self_rematch()",
+      "definition": "CREATE OR REPLACE FUNCTION public.rider_self_rematch()\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_rider RECORD;\nBEGIN\n    SELECT id, user_id, current_lat, current_lng, service_mode\n    INTO v_rider\n    FROM public.riders\n    WHERE user_id = auth.uid();\n\n    IF NOT FOUND THEN\n        RETURN;\n    END IF;\n\n    PERFORM public.assign_nearby_searching_orders_core(\n        v_rider.id,\n        v_rider.user_id,\n        v_rider.current_lat,\n        v_rider.current_lng,\n        v_rider.service_mode\n    );\nEND;\n$function$\n"
+    }
+  ],
+  "observed_at": "2026-11-02T00:18:54.523938+05:30"
+}

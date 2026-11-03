@@ -1,0 +1,85 @@
+{
+  "query": "BEGIN READ ONLY; SET LOCAL statement_timeout='2000ms';\nSELECT jsonb_build_object(\n'cron_recent',(SELECT jsonb_agg(to_jsonb(x)) FROM (SELECT jobid,status,count(*) n,round(avg(extract(epoch FROM(end_time-start_time)))*1000,3) avg_ms,round(max(extract(epoch FROM(end_time-start_time)))*1000,3) max_ms,min(start_time) first_run,max(start_time) last_run,count(*) FILTER(WHERE strpos(lower(return_message),'timeout')>0) timeout_messages FROM(SELECT jobid,status,start_time,end_time,return_message FROM cron.job_run_details ORDER BY runid DESC LIMIT 160)r GROUP BY jobid,status)x),\n'searching_sample',(SELECT count(*) FROM(SELECT id FROM public.orders WHERE order_status IN('created','searching') LIMIT 21)s),\n'stale_running_searching_sample',(SELECT count(*) FROM(SELECT id FROM public.orders WHERE order_status IN('created','searching') AND dispatch_worker_running IS TRUE AND dispatch_worker_started_at<now()-interval'5 minutes' LIMIT 21)s),\n'rls_helper_definition',(SELECT pg_get_functiondef('public.is_admin()'::regprocedure)),\n'observed_at',clock_timestamp()) AS status;\nCOMMIT;",
+  "evidence": [
+    {
+      "status": {
+        "cron_recent": [
+          {
+            "n": 3,
+            "jobid": 3,
+            "avg_ms": 28.604,
+            "max_ms": 40.723,
+            "status": "succeeded",
+            "last_run": "2026-11-03T01:30:00.074283+05:30",
+            "first_run": "2026-11-03T01:00:00.038474+05:30",
+            "timeout_messages": 0
+          },
+          {
+            "n": 1,
+            "jobid": 2,
+            "avg_ms": 32.248,
+            "max_ms": 32.248,
+            "status": "succeeded",
+            "last_run": "2026-11-03T01:30:00.06398+05:30",
+            "first_run": "2026-11-03T01:30:00.06398+05:30",
+            "timeout_messages": 0
+          },
+          {
+            "n": 10,
+            "jobid": 10,
+            "avg_ms": 4.326,
+            "max_ms": 7.75,
+            "status": "succeeded",
+            "last_run": "2026-11-03T01:40:00.045809+05:30",
+            "first_run": "2026-11-03T00:55:00.022404+05:30",
+            "timeout_messages": 0
+          },
+          {
+            "n": 50,
+            "jobid": 5,
+            "avg_ms": 12.875,
+            "max_ms": 34.113,
+            "status": "succeeded",
+            "last_run": "2026-11-03T01:40:00.041291+05:30",
+            "first_run": "2026-11-03T00:51:00.021227+05:30",
+            "timeout_messages": 0
+          },
+          {
+            "n": 66,
+            "jobid": 7,
+            "avg_ms": 13.1,
+            "max_ms": 38.15,
+            "status": "succeeded",
+            "last_run": "2026-11-03T01:39:51.458706+05:30",
+            "first_run": "2026-11-03T00:51:01.869571+05:30",
+            "timeout_messages": 0
+          },
+          {
+            "n": 5,
+            "jobid": 6,
+            "avg_ms": 8.809,
+            "max_ms": 10.01,
+            "status": "succeeded",
+            "last_run": "2026-11-03T01:40:00.028393+05:30",
+            "first_run": "2026-11-03T01:00:00.047932+05:30",
+            "timeout_messages": 0
+          },
+          {
+            "n": 25,
+            "jobid": 1,
+            "avg_ms": 10.92,
+            "max_ms": 32.28,
+            "status": "succeeded",
+            "last_run": "2026-11-03T01:40:00.039999+05:30",
+            "first_run": "2026-11-03T00:52:00.023031+05:30",
+            "timeout_messages": 0
+          }
+        ],
+        "observed_at": "2026-11-03T01:40:19.192039+05:30",
+        "searching_sample": 21,
+        "rls_helper_definition": "CREATE OR REPLACE FUNCTION public.is_admin()\n RETURNS boolean\n LANGUAGE sql\n STABLE\n SET search_path TO 'public'\nAS $function$\n  SELECT EXISTS (\n    SELECT 1 FROM public.admins\n    WHERE email = auth.email() AND is_active = true\n  );\n$function$\n",
+        "stale_running_searching_sample": 0
+      }
+    }
+  ]
+}

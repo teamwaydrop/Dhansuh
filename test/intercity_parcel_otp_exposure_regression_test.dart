@@ -150,7 +150,7 @@ void main() {
       final start = source.indexOf("Future<void> _takeVerificationPhoto(String type) async {");
       final end = source.indexOf('Future<void> _showBypassDialog(');
       final body = source.substring(start, end);
-      expect(body.contains('await _maybeGenerateIntercityDeliveryOtpAfterProof(type);'), isTrue);
+      expect(body.contains('unawaited(_maybeGenerateIntercityDeliveryOtpAfterProof(type));'), isTrue);
     });
 
     test('a successful dropoff photo BYPASS also triggers the same gated OTP-generation call '

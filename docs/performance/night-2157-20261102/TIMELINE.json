@@ -1,0 +1,274 @@
+{
+  "window_start_utc": "2026-11-02T16:27:00Z",
+  "window_end_utc": "2026-11-02T16:33:30Z",
+  "sql": "SELECT timestamp,source,log_attributes['parsed.application_name'] AS app,log_attributes['parsed.sql_state_code'] AS sqlstate,log_attributes['parsed.query_id'] AS query_id,log_attributes['parsed.process_id'] AS pid,extract(event_message,'(57014|PGRST003|DatabaseTimeout|ECONNRESET)') AS safe_code, CASE WHEN positionCaseInsensitive(event_message,'statement timeout')>0 THEN 'statement_timeout' WHEN positionCaseInsensitive(event_message,'user request')>0 THEN 'user_cancel' WHEN positionCaseInsensitive(event_message,'startup')>0 THEN 'startup_timeout' WHEN positionCaseInsensitive(event_message,'warp')>0 THEN 'warp_timeout' WHEN positionCaseInsensitive(event_message,'lock')>0 THEN 'lock_related' ELSE 'other_timeout' END AS kind, arrayFilter(x->positionCaseInsensitive(log_attributes['parsed.query'],x)>0,['storage.objects','on conflict','auth.users','realtime.subscription','redispatch','find_nearby','rider_kyc']) AS sql_features, arrayFilter(k->positionCaseInsensitive(k,'query')>0 OR positionCaseInsensitive(k,'context')>0,mapKeys(log_attributes)) AS diagnostic_keys FROM logs WHERE source IN('postgres_logs','postgrest_logs','pgbouncer_logs') AND (positionCaseInsensitive(event_message,'timeout')>0 OR positionCaseInsensitive(event_message,'canceling')>0 OR positionCaseInsensitive(event_message,'deadlock')>0 OR positionCaseInsensitive(event_message,'waiting for')>0) ORDER BY timestamp LIMIT 65",
+  "rows": {
+    "result": [
+      {
+        "app": "",
+        "diagnostic_keys": [
+          "parsed.query",
+          "parsed.query_id"
+        ],
+        "kind": "user_cancel",
+        "pid": "928738",
+        "query_id": "8074250554804319433",
+        "safe_code": "",
+        "source": "postgres_logs",
+        "sql_features": [],
+        "sqlstate": "57014",
+        "timestamp": "2026-11-02T16:30:32.214000"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [
+          "parsed.query_id"
+        ],
+        "kind": "startup_timeout",
+        "pid": "3949",
+        "query_id": "2515330828828522208",
+        "safe_code": "",
+        "source": "postgres_logs",
+        "sql_features": [],
+        "sqlstate": "00000",
+        "timestamp": "2026-11-02T16:30:33.035000"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [
+          "parsed.query_id"
+        ],
+        "kind": "startup_timeout",
+        "pid": "3949",
+        "query_id": "2515330828828522208",
+        "safe_code": "",
+        "source": "postgres_logs",
+        "sql_features": [],
+        "sqlstate": "00000",
+        "timestamp": "2026-11-02T16:31:11.888000"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:31:13.574845"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:31:14.769716"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:31:14.769716"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:31:14.769716"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:31:14.769716"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [
+          "parsed.query_id"
+        ],
+        "kind": "startup_timeout",
+        "pid": "3949",
+        "query_id": "2515330828828522208",
+        "safe_code": "",
+        "source": "postgres_logs",
+        "sql_features": [],
+        "sqlstate": "00000",
+        "timestamp": "2026-11-02T16:31:18.642000"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:32:22.726852"
+      },
+      {
+        "app": "Supabase Storage API",
+        "diagnostic_keys": [
+          "parsed.query_id"
+        ],
+        "kind": "statement_timeout",
+        "pid": "928561",
+        "query_id": "-3348394660839987691",
+        "safe_code": "",
+        "source": "postgres_logs",
+        "sql_features": [],
+        "sqlstate": "57014",
+        "timestamp": "2026-11-02T16:32:32.720000"
+      },
+      {
+        "app": "Supabase Storage API",
+        "diagnostic_keys": [
+          "parsed.query_id"
+        ],
+        "kind": "statement_timeout",
+        "pid": "928562",
+        "query_id": "-3348394660839987691",
+        "safe_code": "",
+        "source": "postgres_logs",
+        "sql_features": [],
+        "sqlstate": "57014",
+        "timestamp": "2026-11-02T16:32:40.912000"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:32:52.627191"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:32:52.649830"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:32:52.649830"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:32:52.649830"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:32:52.649830"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:32:52.649830"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:32:52.649830"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:33:22.665029"
+      },
+      {
+        "app": "",
+        "diagnostic_keys": [],
+        "kind": "warp_timeout",
+        "pid": "",
+        "query_id": "",
+        "safe_code": "",
+        "source": "postgrest_logs",
+        "sql_features": [],
+        "sqlstate": "",
+        "timestamp": "2026-11-02T16:33:22.669413"
+      }
+    ]
+  }
+}

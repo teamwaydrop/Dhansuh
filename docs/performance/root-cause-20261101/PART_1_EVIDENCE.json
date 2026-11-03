@@ -1,0 +1,6535 @@
+{
+  "window_utc": [
+    "2026-11-01T16:22:00Z",
+    "2026-11-01T16:34:00Z"
+  ],
+  "scope": "Read-only incident logs and later catalog data; current snapshots are not incident metrics",
+  "minute": [
+    {
+      "errors": 0,
+      "max_origin_time": 565,
+      "minute": "2026-11-01T16:22:00",
+      "requests": 39
+    },
+    {
+      "errors": 0,
+      "max_origin_time": 765,
+      "minute": "2026-11-01T16:23:00",
+      "requests": 58
+    },
+    {
+      "errors": 0,
+      "max_origin_time": 653,
+      "minute": "2026-11-01T16:24:00",
+      "requests": 83
+    },
+    {
+      "errors": 0,
+      "max_origin_time": 864,
+      "minute": "2026-11-01T16:25:00",
+      "requests": 473
+    },
+    {
+      "errors": 0,
+      "max_origin_time": 4914,
+      "minute": "2026-11-01T16:26:00",
+      "requests": 233
+    },
+    {
+      "errors": 0,
+      "max_origin_time": 2507,
+      "minute": "2026-11-01T16:27:00",
+      "requests": 411
+    },
+    {
+      "errors": 0,
+      "max_origin_time": 4408,
+      "minute": "2026-11-01T16:28:00",
+      "requests": 444
+    },
+    {
+      "errors": 0,
+      "max_origin_time": 4447,
+      "minute": "2026-11-01T16:29:00",
+      "requests": 412
+    },
+    {
+      "errors": 0,
+      "max_origin_time": 14004,
+      "minute": "2026-11-01T16:30:00",
+      "requests": 269
+    },
+    {
+      "errors": 2,
+      "max_origin_time": 58813,
+      "minute": "2026-11-01T16:31:00",
+      "requests": 295
+    },
+    {
+      "errors": 7,
+      "max_origin_time": 53193,
+      "minute": "2026-11-01T16:32:00",
+      "requests": 55
+    },
+    {
+      "errors": 2,
+      "max_origin_time": 27530,
+      "minute": "2026-11-01T16:33:00",
+      "requests": 169
+    }
+  ],
+  "workload": [
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 176,
+      "mean_origin_ms": 71.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:22:00",
+      "n": 7,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 84,
+      "mean_origin_ms": 60.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:22:00",
+      "n": 5,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 36,
+      "mean_origin_ms": 22.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:22:00",
+      "n": 5,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 334,
+      "mean_origin_ms": 149.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:22:00",
+      "n": 5,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 90,
+      "mean_origin_ms": 54.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:22:00",
+      "n": 5,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 303,
+      "mean_origin_ms": 122.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:22:00",
+      "n": 4,
+      "path": "/realtime/v1/websocket"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 361,
+      "mean_origin_ms": 211.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:22:00",
+      "n": 2,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 295,
+      "mean_origin_ms": 227.5,
+      "method": "HEAD",
+      "minute": "2026-11-01T16:22:00",
+      "n": 2,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 565,
+      "mean_origin_ms": 565,
+      "method": "GET",
+      "minute": "2026-11-01T16:22:00",
+      "n": 1,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 267,
+      "mean_origin_ms": 267,
+      "method": "POST",
+      "minute": "2026-11-01T16:22:00",
+      "n": 1,
+      "path": "/auth/v1/verify"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 219,
+      "mean_origin_ms": 219,
+      "method": "POST",
+      "minute": "2026-11-01T16:22:00",
+      "n": 1,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 351,
+      "mean_origin_ms": 351,
+      "method": "GET",
+      "minute": "2026-11-01T16:22:00",
+      "n": 1,
+      "path": "/rest/v1/pricing_zones"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 765,
+      "mean_origin_ms": 219.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 25,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 50,
+      "mean_origin_ms": 31,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 7,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 71,
+      "mean_origin_ms": 40.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 6,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 400,
+      "mean_origin_ms": 160.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 5,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 198,
+      "mean_origin_ms": 111.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 3,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 79,
+      "mean_origin_ms": 57.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:23:00",
+      "n": 2,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 32,
+      "mean_origin_ms": 22,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 2,
+      "path": "/rest/v1/rider_payout_accounts"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 24,
+      "mean_origin_ms": 19,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 2,
+      "path": "/rest/v1/subscription_plans"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 20,
+      "mean_origin_ms": 14.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 2,
+      "path": "/rest/v1/rider_vehicles"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 416,
+      "mean_origin_ms": 235.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:23:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/get_reward_status"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 15,
+      "mean_origin_ms": 15,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 1,
+      "path": "/realtime/v1/websocket"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 40,
+      "mean_origin_ms": 40,
+      "method": "GET",
+      "minute": "2026-11-01T16:23:00",
+      "n": 1,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 97,
+      "mean_origin_ms": 48.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 11,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 491,
+      "mean_origin_ms": 103.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 8,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 260,
+      "mean_origin_ms": 88,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 5,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 369,
+      "mean_origin_ms": 299.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 4,
+      "path": "/rest/v1/pricing_config"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 21,
+      "mean_origin_ms": 18,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 4,
+      "path": "/realtime/v1/websocket"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 353,
+      "mean_origin_ms": 277,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 4,
+      "path": "/rest/v1/pricing_zones"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 82,
+      "mean_origin_ms": 52,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 4,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 21,
+      "mean_origin_ms": 16.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 4,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 90,
+      "mean_origin_ms": 52.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 3,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 292,
+      "mean_origin_ms": 120.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 3,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 27,
+      "mean_origin_ms": 20.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 3,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 80,
+      "mean_origin_ms": 49.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:24:00",
+      "n": 2,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 45,
+      "mean_origin_ms": 33,
+      "method": "HEAD",
+      "minute": "2026-11-01T16:24:00",
+      "n": 2,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 20,
+      "mean_origin_ms": 19.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 2,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 104,
+      "mean_origin_ms": 104,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/assign_new_order_to_nearby_online_riders_core"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 75,
+      "mean_origin_ms": 75,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 26,
+      "mean_origin_ms": 26,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 27,
+      "mean_origin_ms": 27,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 40,
+      "mean_origin_ms": 40,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 145,
+      "mean_origin_ms": 145,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 461,
+      "mean_origin_ms": 461,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/auth/v1/otp"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 37,
+      "mean_origin_ms": 37,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 34,
+      "mean_origin_ms": 34,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 332,
+      "mean_origin_ms": 332,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 32,
+      "mean_origin_ms": 32,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/rider_payout_accounts"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 34,
+      "mean_origin_ms": 34,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 235,
+      "mean_origin_ms": 235,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 69,
+      "mean_origin_ms": 69,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 653,
+      "mean_origin_ms": 653,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 89,
+      "mean_origin_ms": 89,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/pricing_zones"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 48,
+      "mean_origin_ms": 48,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/order_status_history"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 24,
+      "mean_origin_ms": 24,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 12,
+      "mean_origin_ms": 12,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 349,
+      "mean_origin_ms": 349,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/auth/v1/verify"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 43,
+      "mean_origin_ms": 43,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/log_otp_attempt"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 110,
+      "mean_origin_ms": 110,
+      "method": "POST",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 18,
+      "mean_origin_ms": 18,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 31,
+      "mean_origin_ms": 31,
+      "method": "GET",
+      "minute": "2026-11-01T16:24:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 323,
+      "mean_origin_ms": 68,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 48,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 383,
+      "mean_origin_ms": 68.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 46,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 261,
+      "mean_origin_ms": 62.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 29,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 773,
+      "mean_origin_ms": 71.9,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 26,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 280,
+      "mean_origin_ms": 30.6,
+      "method": "HEAD",
+      "minute": "2026-11-01T16:25:00",
+      "n": 26,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 545,
+      "mean_origin_ms": 132.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 25,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 196,
+      "mean_origin_ms": 83.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 22,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 243,
+      "mean_origin_ms": 82.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 21,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 99,
+      "mean_origin_ms": 26.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 18,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 180,
+      "mean_origin_ms": 33.9,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 16,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 61,
+      "mean_origin_ms": 24.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:25:00",
+      "n": 14,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 725,
+      "mean_origin_ms": 69.9,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 14,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 46,
+      "mean_origin_ms": 23.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 12,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 136,
+      "mean_origin_ms": 65,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:25:00",
+      "n": 11,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 53,
+      "mean_origin_ms": 25.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 11,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 260,
+      "mean_origin_ms": 81.1,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 11,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 864,
+      "mean_origin_ms": 155.8,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 10,
+      "path": "/rest/v1/rpc/send_order_status_notifications_core"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 337,
+      "mean_origin_ms": 143.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 9,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 63,
+      "mean_origin_ms": 37,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 8,
+      "path": "/rest/v1/rider_reliability_view"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 56,
+      "mean_origin_ms": 22.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 8,
+      "path": "/rest/v1/intercity_requests"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 54,
+      "mean_origin_ms": 34.7,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 7,
+      "path": "/rest/v1/order_status_history"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 97,
+      "mean_origin_ms": 38.2,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:25:00",
+      "n": 6,
+      "path": "/rest/v1/rider_travel_plans"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 23,
+      "mean_origin_ms": 18.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 4,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 57,
+      "mean_origin_ms": 36.5,
+      "method": "DELETE",
+      "minute": "2026-11-01T16:25:00",
+      "n": 4,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 323,
+      "mean_origin_ms": 111,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 4,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 38,
+      "mean_origin_ms": 31.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 4,
+      "path": "/rest/v1/pricing_zones"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 75,
+      "mean_origin_ms": 38.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:25:00",
+      "n": 4,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 36,
+      "mean_origin_ms": 32.2,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 4,
+      "path": "/rest/v1/rpc/rider_self_rematch"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 104,
+      "mean_origin_ms": 66,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 4,
+      "path": "/rest/v1/pricing_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 28,
+      "mean_origin_ms": 21.2,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:25:00",
+      "n": 4,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 114,
+      "mean_origin_ms": 57,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 3,
+      "path": "/rest/v1/rpc/log_otp_attempt"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 52,
+      "mean_origin_ms": 37.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 22,
+      "mean_origin_ms": 18,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/rider_is_on_active_trip"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 139,
+      "mean_origin_ms": 82.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/check_otp_lockout"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 36,
+      "mean_origin_ms": 26.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/government_tax_ledger"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 65,
+      "mean_origin_ms": 49,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/assign_nearby_searching_orders_core"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 87,
+      "mean_origin_ms": 73,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 19,
+      "mean_origin_ms": 17.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_tax_due"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 831,
+      "mean_origin_ms": 423,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 169,
+      "mean_origin_ms": 163,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rider_reviews"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 254,
+      "mean_origin_ms": 200,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/complete_order_and_settle"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 49,
+      "mean_origin_ms": 35.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/calculate_fare_breakdown"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 29,
+      "mean_origin_ms": 25,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rider_payout_accounts"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 19,
+      "mean_origin_ms": 16.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_cod_limit"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 113,
+      "mean_origin_ms": 70,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/order_verifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 22,
+      "mean_origin_ms": 21,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/get_dispatch_round_status"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 16,
+      "mean_origin_ms": 14.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 227,
+      "mean_origin_ms": 155,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/process_order_completion_side_effects"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 95,
+      "mean_origin_ms": 95,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/assign_new_order_to_nearby_online_riders_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 72,
+      "mean_origin_ms": 72,
+      "method": "POST",
+      "minute": "2026-11-01T16:25:00",
+      "n": 1,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 64,
+      "mean_origin_ms": 64,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 36,
+      "mean_origin_ms": 36,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:25:00",
+      "n": 1,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 19,
+      "mean_origin_ms": 19,
+      "method": "GET",
+      "minute": "2026-11-01T16:25:00",
+      "n": 1,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 17,
+      "mean_origin_ms": 17,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:25:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 3000,
+      "mean_origin_ms": 452.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 30,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 4093,
+      "mean_origin_ms": 798.9,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 20,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1245,
+      "mean_origin_ms": 175.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 19,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 3562,
+      "mean_origin_ms": 691.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 16,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1621,
+      "mean_origin_ms": 493.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 11,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2605,
+      "mean_origin_ms": 441.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 11,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 110,
+      "mean_origin_ms": 56.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 11,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 969,
+      "mean_origin_ms": 271.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 8,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 68,
+      "mean_origin_ms": 30.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 7,
+      "path": "/rest/v1/pricing_zones"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 85,
+      "mean_origin_ms": 53.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 6,
+      "path": "/rest/v1/pricing_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 175,
+      "mean_origin_ms": 94.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 6,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 4914,
+      "mean_origin_ms": 1123.3,
+      "method": "HEAD",
+      "minute": "2026-11-01T16:26:00",
+      "n": 6,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 36,
+      "mean_origin_ms": 28.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 5,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 419,
+      "mean_origin_ms": 140.8,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:26:00",
+      "n": 5,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 256,
+      "mean_origin_ms": 84.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 5,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1418,
+      "mean_origin_ms": 717.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 4,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 46,
+      "mean_origin_ms": 36.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 4,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 180,
+      "mean_origin_ms": 98,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 4,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 239,
+      "mean_origin_ms": 123.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 4,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 2686,
+      "mean_origin_ms": 1003,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:26:00",
+      "n": 3,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2858,
+      "mean_origin_ms": 1561,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 3,
+      "path": "/rest/v1/order_verifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 271,
+      "mean_origin_ms": 210.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 3,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 80,
+      "mean_origin_ms": 50.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 30,
+      "mean_origin_ms": 26,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 175,
+      "mean_origin_ms": 152,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 184,
+      "mean_origin_ms": 130.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/rest/v1/order_status_history"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 567,
+      "mean_origin_ms": 347.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/send_order_status_notifications_core"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 114,
+      "mean_origin_ms": 96,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 153,
+      "mean_origin_ms": 105,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 42,
+      "mean_origin_ms": 33,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 87,
+      "mean_origin_ms": 76.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/log_otp_attempt"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 135,
+      "mean_origin_ms": 106,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/rest/v1/parcel_security_logs"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 33,
+      "mean_origin_ms": 24,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 2,
+      "path": "/realtime/v1/websocket"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 3687,
+      "mean_origin_ms": 3687,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/storage/v1/object/parcel_images/orders/423183db-d547-4846-bb68-1751091c742c/verifications/pickup/1793550411704_11704.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 15,
+      "mean_origin_ms": 15,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_cod_limit"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 573,
+      "mean_origin_ms": 573,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/storage/v1/object/public/parcel_images/parcels/1793550380646_scaled_4f21bd69-2e43-4e7a-81a1-65419197da004596560308855447380.jpg"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 36,
+      "mean_origin_ms": 36,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/rider_self_rematch"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 25,
+      "mean_origin_ms": 25,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_tax_due"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 18,
+      "mean_origin_ms": 18,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/rider_is_on_active_trip"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 198,
+      "mean_origin_ms": 198,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 35,
+      "mean_origin_ms": 35,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 148,
+      "mean_origin_ms": 148,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/order_parcel_photos"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 72,
+      "mean_origin_ms": 72,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/intercity_requests"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 295,
+      "mean_origin_ms": 295,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/storage/v1/object/public/parcel_images/orders/423183db-d547-4846-bb68-1751091c742c/verifications/pickup/1793550411704_11704.jpg"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 763,
+      "mean_origin_ms": 763,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/rider_reliability_view"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 614,
+      "mean_origin_ms": 614,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/storage/v1/object/parcel_images/parcels/1793550380646_scaled_4f21bd69-2e43-4e7a-81a1-65419197da004596560308855447380.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 164,
+      "mean_origin_ms": 164,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/order_verifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 47,
+      "mean_origin_ms": 47,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 48,
+      "mean_origin_ms": 48,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/calculate_fare_breakdown"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 40,
+      "mean_origin_ms": 40,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 38,
+      "mean_origin_ms": 38,
+      "method": "GET",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 92,
+      "mean_origin_ms": 92,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 304,
+      "mean_origin_ms": 304,
+      "method": "POST",
+      "minute": "2026-11-01T16:26:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/assign_new_order_to_nearby_online_riders_core"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1171,
+      "mean_origin_ms": 200.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 47,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1984,
+      "mean_origin_ms": 227.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 39,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 819,
+      "mean_origin_ms": 163.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 27,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1991,
+      "mean_origin_ms": 358.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 25,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2113,
+      "mean_origin_ms": 386.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 24,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 796,
+      "mean_origin_ms": 147.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 23,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2507,
+      "mean_origin_ms": 269.8,
+      "method": "HEAD",
+      "minute": "2026-11-01T16:27:00",
+      "n": 20,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 528,
+      "mean_origin_ms": 137.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 16,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 65,
+      "mean_origin_ms": 27.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 14,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 270,
+      "mean_origin_ms": 53.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 13,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 237,
+      "mean_origin_ms": 70.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 12,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1834,
+      "mean_origin_ms": 264.9,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 12,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 390,
+      "mean_origin_ms": 145.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 10,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 108,
+      "mean_origin_ms": 45.4,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:27:00",
+      "n": 10,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 722,
+      "mean_origin_ms": 205.9,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:27:00",
+      "n": 9,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 374,
+      "mean_origin_ms": 151.2,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 8,
+      "path": "/rest/v1/rpc/send_order_status_notifications_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 86,
+      "mean_origin_ms": 37.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 8,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 97,
+      "mean_origin_ms": 44.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 7,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 387,
+      "mean_origin_ms": 111.6,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 7,
+      "path": "/rest/v1/order_status_history"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 422,
+      "mean_origin_ms": 129.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 5,
+      "path": "/rest/v1/rider_reliability_view"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 110,
+      "mean_origin_ms": 50,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 5,
+      "path": "/rest/v1/intercity_requests"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 165,
+      "mean_origin_ms": 75.4,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 5,
+      "path": "/rest/v1/parcel_security_logs"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 37,
+      "mean_origin_ms": 32.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 4,
+      "path": "/rest/v1/pricing_zones"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 106,
+      "mean_origin_ms": 73.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:27:00",
+      "n": 4,
+      "path": "/rest/v1/rider_travel_plans"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 59,
+      "mean_origin_ms": 52,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 4,
+      "path": "/rest/v1/rpc/log_otp_attempt"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 111,
+      "mean_origin_ms": 66.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 4,
+      "path": "/rest/v1/pricing_config"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 19,
+      "mean_origin_ms": 16.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 3,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 224,
+      "mean_origin_ms": 97,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 3,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 106,
+      "mean_origin_ms": 87.7,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 3,
+      "path": "/rest/v1/rpc/check_otp_lockout"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 294,
+      "mean_origin_ms": 179.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 343,
+      "mean_origin_ms": 306,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/complete_order_and_settle"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 58,
+      "mean_origin_ms": 53.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:27:00",
+      "n": 2,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 371,
+      "mean_origin_ms": 218,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/assign_nearby_searching_orders_core"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 418,
+      "mean_origin_ms": 244,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 2,
+      "path": "/rest/v1/order_verifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 31,
+      "mean_origin_ms": 31,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 2,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 355,
+      "mean_origin_ms": 329,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/rider_self_rematch"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 73,
+      "mean_origin_ms": 61,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:27:00",
+      "n": 2,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1038,
+      "mean_origin_ms": 585,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 23,
+      "mean_origin_ms": 23,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 48,
+      "mean_origin_ms": 48,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/calculate_fare_breakdown"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 45,
+      "mean_origin_ms": 45,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_cod_limit"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 67,
+      "mean_origin_ms": 67,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/rider_is_on_active_trip"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 67,
+      "mean_origin_ms": 67,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_tax_due"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 23,
+      "mean_origin_ms": 23,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 93,
+      "mean_origin_ms": 93,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/order_verifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 430,
+      "mean_origin_ms": 430,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/storage/v1/object/public/parcel_images/orders/423183db-d547-4846-bb68-1751091c742c/verifications/dropoff/1793550433228_33228.jpg"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 31,
+      "mean_origin_ms": 31,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/government_tax_ledger"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 192,
+      "mean_origin_ms": 192,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/assign_new_order_to_nearby_online_riders_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 26,
+      "mean_origin_ms": 26,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 142,
+      "mean_origin_ms": 142,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/realtime/v1/websocket"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 337,
+      "mean_origin_ms": 337,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/storage/v1/object/public/parcel_images/parcels/1793550380646_scaled_4f21bd69-2e43-4e7a-81a1-65419197da004596560308855447380.jpg"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 831,
+      "mean_origin_ms": 831,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/rider_reviews"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 825,
+      "mean_origin_ms": 825,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/storage/v1/object/parcel_images/orders/423183db-d547-4846-bb68-1751091c742c/verifications/dropoff/1793550433228_33228.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 119,
+      "mean_origin_ms": 119,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 107,
+      "mean_origin_ms": 107,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 206,
+      "mean_origin_ms": 206,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/process_order_completion_side_effects"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 78,
+      "mean_origin_ms": 78,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/rider_payout_accounts"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 55,
+      "mean_origin_ms": 55,
+      "method": "GET",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 34,
+      "mean_origin_ms": 34,
+      "method": "POST",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/order_parcel_photos"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 50,
+      "mean_origin_ms": 50,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:27:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 3707,
+      "mean_origin_ms": 583.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 55,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 3733,
+      "mean_origin_ms": 616.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 48,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 4231,
+      "mean_origin_ms": 581.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 31,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 2872,
+      "mean_origin_ms": 263.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 24,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 3328,
+      "mean_origin_ms": 1052.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 23,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 3864,
+      "mean_origin_ms": 865.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 22,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1452,
+      "mean_origin_ms": 130,
+      "method": "HEAD",
+      "minute": "2026-11-01T16:28:00",
+      "n": 20,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 3858,
+      "mean_origin_ms": 290.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 17,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1210,
+      "mean_origin_ms": 228.9,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 16,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 456,
+      "mean_origin_ms": 101.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 16,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1023,
+      "mean_origin_ms": 209.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 15,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 3610,
+      "mean_origin_ms": 412.2,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:28:00",
+      "n": 11,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 272,
+      "mean_origin_ms": 86.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 11,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 547,
+      "mean_origin_ms": 144.1,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:28:00",
+      "n": 9,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 4408,
+      "mean_origin_ms": 1238.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 7,
+      "path": "/rest/v1/pricing_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1578,
+      "mean_origin_ms": 444,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 7,
+      "path": "/rest/v1/rpc/send_order_status_notifications_core"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 3221,
+      "mean_origin_ms": 522.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 7,
+      "path": "/rest/v1/intercity_requests"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 4088,
+      "mean_origin_ms": 1689.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 7,
+      "path": "/rest/v1/pricing_zones"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 3679,
+      "mean_origin_ms": 657.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 6,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 175,
+      "mean_origin_ms": 56.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 6,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 87,
+      "mean_origin_ms": 50.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 5,
+      "path": "/rest/v1/rider_reliability_view"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 307,
+      "mean_origin_ms": 135.6,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 5,
+      "path": "/rest/v1/order_status_history"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 372,
+      "mean_origin_ms": 162,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:28:00",
+      "n": 5,
+      "path": "/rest/v1/rider_travel_plans"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 326,
+      "mean_origin_ms": 143.2,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 5,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 40,
+      "mean_origin_ms": 29,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:28:00",
+      "n": 4,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 77,
+      "mean_origin_ms": 50.2,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 4,
+      "path": "/rest/v1/rpc/rider_self_rematch"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 42,
+      "mean_origin_ms": 32.8,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:28:00",
+      "n": 4,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2132,
+      "mean_origin_ms": 594.2,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 4,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 390,
+      "mean_origin_ms": 198.8,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 4,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 256,
+      "mean_origin_ms": 116.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 4,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 76,
+      "mean_origin_ms": 73,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 3,
+      "path": "/rest/v1/rpc/log_otp_attempt"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 425,
+      "mean_origin_ms": 241,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/assign_nearby_searching_orders_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 53,
+      "mean_origin_ms": 46,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/calculate_fare_breakdown"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 74,
+      "mean_origin_ms": 55.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 298,
+      "mean_origin_ms": 206.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 33,
+      "mean_origin_ms": 25.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_cod_limit"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 35,
+      "mean_origin_ms": 31.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 27,
+      "mean_origin_ms": 23.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/rider_payout_accounts"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 99,
+      "mean_origin_ms": 69.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 21,
+      "mean_origin_ms": 20,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 71,
+      "mean_origin_ms": 54,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 75,
+      "mean_origin_ms": 54,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1028,
+      "mean_origin_ms": 653,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/process_order_completion_side_effects"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 30,
+      "mean_origin_ms": 23,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/government_tax_ledger"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 30,
+      "mean_origin_ms": 29,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/rider_is_on_active_trip"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 180,
+      "mean_origin_ms": 170,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/rider_reviews"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 3387,
+      "mean_origin_ms": 1737.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/order_verifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 642,
+      "mean_origin_ms": 415.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/assign_new_order_to_nearby_online_riders_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 32,
+      "mean_origin_ms": 28,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_tax_due"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 36,
+      "mean_origin_ms": 36,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:28:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 65,
+      "mean_origin_ms": 65,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/check_otp_lockout"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1307,
+      "mean_origin_ms": 1307,
+      "method": "POST",
+      "minute": "2026-11-01T16:28:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/complete_order_and_settle"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1827,
+      "mean_origin_ms": 339.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 44,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2204,
+      "mean_origin_ms": 398.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 34,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2114,
+      "mean_origin_ms": 216.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 32,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 650,
+      "mean_origin_ms": 155.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 24,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2089,
+      "mean_origin_ms": 460.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 23,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 4447,
+      "mean_origin_ms": 467.1,
+      "method": "HEAD",
+      "minute": "2026-11-01T16:29:00",
+      "n": 22,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1246,
+      "mean_origin_ms": 270.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 18,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1287,
+      "mean_origin_ms": 257.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 18,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 414,
+      "mean_origin_ms": 69.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 16,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 96,
+      "mean_origin_ms": 38,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 14,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1112,
+      "mean_origin_ms": 129.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 13,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 191,
+      "mean_origin_ms": 49,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 12,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 264,
+      "mean_origin_ms": 82.9,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:29:00",
+      "n": 10,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1263,
+      "mean_origin_ms": 193.7,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:29:00",
+      "n": 10,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1978,
+      "mean_origin_ms": 688.1,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 9,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 196,
+      "mean_origin_ms": 95.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 8,
+      "path": "/rest/v1/pricing_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 372,
+      "mean_origin_ms": 91.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 8,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 72,
+      "mean_origin_ms": 41.6,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:29:00",
+      "n": 8,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 179,
+      "mean_origin_ms": 61.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 8,
+      "path": "/rest/v1/pricing_zones"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 157,
+      "mean_origin_ms": 108.7,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 6,
+      "path": "/rest/v1/rpc/send_order_status_notifications_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 243,
+      "mean_origin_ms": 116.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 6,
+      "path": "/rest/v1/order_status_history"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 407,
+      "mean_origin_ms": 243.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 6,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 73,
+      "mean_origin_ms": 42.7,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:29:00",
+      "n": 6,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 199,
+      "mean_origin_ms": 110,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 5,
+      "path": "/rest/v1/rider_reliability_view"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 73,
+      "mean_origin_ms": 43.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 4,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 613,
+      "mean_origin_ms": 223.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 4,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1610,
+      "mean_origin_ms": 545,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 4,
+      "path": "/rest/v1/rpc/rider_self_rematch"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 79,
+      "mean_origin_ms": 55,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 23,
+      "mean_origin_ms": 19.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_tax_due"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 201,
+      "mean_origin_ms": 130.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 37,
+      "mean_origin_ms": 29.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_cod_limit"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 126,
+      "mean_origin_ms": 84,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/log_otp_attempt"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 656,
+      "mean_origin_ms": 351,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/order_verifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 24,
+      "mean_origin_ms": 24,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 272,
+      "mean_origin_ms": 209,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 72,
+      "mean_origin_ms": 66.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/assign_nearby_searching_orders_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 65,
+      "mean_origin_ms": 44,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 176,
+      "mean_origin_ms": 124,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/intercity_requests"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 2753,
+      "mean_origin_ms": 1503.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/assign_new_order_to_nearby_online_riders_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 16,
+      "mean_origin_ms": 16,
+      "method": "GET",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 90,
+      "mean_origin_ms": 57,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 128,
+      "mean_origin_ms": 124.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/process_order_completion_side_effects"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 106,
+      "mean_origin_ms": 79,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 31,
+      "mean_origin_ms": 25,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/rider_is_on_active_trip"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 39,
+      "mean_origin_ms": 36.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/calculate_fare_breakdown"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 81,
+      "mean_origin_ms": 81,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:29:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 279,
+      "mean_origin_ms": 279,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 1,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1882,
+      "mean_origin_ms": 1882,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 1,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 51,
+      "mean_origin_ms": 51,
+      "method": "POST",
+      "minute": "2026-11-01T16:29:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/get_dispatch_round_status"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 14004,
+      "mean_origin_ms": 1358.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 33,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 5966,
+      "mean_origin_ms": 824.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 27,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 11105,
+      "mean_origin_ms": 880.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 19,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 10304,
+      "mean_origin_ms": 1768.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 15,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 748,
+      "mean_origin_ms": 206.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 14,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1578,
+      "mean_origin_ms": 347,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 14,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 12528,
+      "mean_origin_ms": 1924.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 14,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 8300,
+      "mean_origin_ms": 905.1,
+      "method": "HEAD",
+      "minute": "2026-11-01T16:30:00",
+      "n": 13,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1941,
+      "mean_origin_ms": 238.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 10,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 7003,
+      "mean_origin_ms": 752.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 10,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 281,
+      "mean_origin_ms": 72.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 7,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 3307,
+      "mean_origin_ms": 751.2,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:30:00",
+      "n": 6,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 892,
+      "mean_origin_ms": 186.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:30:00",
+      "n": 6,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 4891,
+      "mean_origin_ms": 1033,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 5,
+      "path": "/rest/v1/rpc/send_order_status_notifications_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 130,
+      "mean_origin_ms": 57.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 5,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 5154,
+      "mean_origin_ms": 2438.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 4,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 147,
+      "mean_origin_ms": 71,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 4,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 24,
+      "mean_origin_ms": 21.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 4,
+      "path": "/rest/v1/intercity_requests"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 572,
+      "mean_origin_ms": 210.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 4,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 93,
+      "mean_origin_ms": 74,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 4,
+      "path": "/rest/v1/pricing_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 4335,
+      "mean_origin_ms": 1133.2,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 4,
+      "path": "/rest/v1/order_status_history"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 75,
+      "mean_origin_ms": 58.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 4,
+      "path": "/rest/v1/pricing_zones"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 3210,
+      "mean_origin_ms": 1123,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 3,
+      "path": "/rest/v1/rider_reliability_view"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 476,
+      "mean_origin_ms": 437.3,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 3,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 42,
+      "mean_origin_ms": 36.3,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:30:00",
+      "n": 3,
+      "path": "/rest/v1/rider_travel_plans"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 516,
+      "mean_origin_ms": 214,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 3,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 200,
+      "mean_origin_ms": 125,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/log_otp_attempt"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 62,
+      "mean_origin_ms": 57.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/rider_self_rematch"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 29,
+      "mean_origin_ms": 25.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:30:00",
+      "n": 2,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 62,
+      "mean_origin_ms": 49.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:30:00",
+      "n": 2,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 509,
+      "mean_origin_ms": 303.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 152,
+      "mean_origin_ms": 152,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/rider_reviews"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 64,
+      "mean_origin_ms": 64,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/assign_nearby_searching_orders_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 77,
+      "mean_origin_ms": 77,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 113,
+      "mean_origin_ms": 113,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 105,
+      "mean_origin_ms": 105,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/rider_payout_accounts"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 25,
+      "mean_origin_ms": 25,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/rider_is_on_active_trip"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 44,
+      "mean_origin_ms": 44,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 110,
+      "mean_origin_ms": 110,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/check_otp_lockout"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 285,
+      "mean_origin_ms": 285,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/complete_order_and_settle"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 270,
+      "mean_origin_ms": 270,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 29,
+      "mean_origin_ms": 29,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/calculate_fare_breakdown"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 33,
+      "mean_origin_ms": 33,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 19,
+      "mean_origin_ms": 19,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_cod_limit"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 5091,
+      "mean_origin_ms": 5091,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 24,
+      "mean_origin_ms": 24,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 30,
+      "mean_origin_ms": 30,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_tax_due"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1138,
+      "mean_origin_ms": 1138,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/order_verifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 661,
+      "mean_origin_ms": 661,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 31,
+      "mean_origin_ms": 31,
+      "method": "GET",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/government_tax_ledger"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 164,
+      "mean_origin_ms": 164,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/process_order_completion_side_effects"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1399,
+      "mean_origin_ms": 1399,
+      "method": "POST",
+      "minute": "2026-11-01T16:30:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/assign_new_order_to_nearby_online_riders_core"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1353,
+      "mean_origin_ms": 440.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 31,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2911,
+      "mean_origin_ms": 476.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 28,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 417,
+      "mean_origin_ms": 127.2,
+      "method": "HEAD",
+      "minute": "2026-11-01T16:31:00",
+      "n": 20,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 3170,
+      "mean_origin_ms": 671.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 17,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1631,
+      "mean_origin_ms": 375,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 16,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2533,
+      "mean_origin_ms": 651.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 14,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 603,
+      "mean_origin_ms": 138.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 13,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 3126,
+      "mean_origin_ms": 417.9,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 12,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 10060,
+      "mean_origin_ms": 1046.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 11,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 634,
+      "mean_origin_ms": 142.4,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:31:00",
+      "n": 11,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 2,
+      "max_origin_ms": 58813,
+      "mean_origin_ms": 15537.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 10,
+      "path": "/rest/v1/order_chat_messages"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 472,
+      "mean_origin_ms": 112.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 10,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 690,
+      "mean_origin_ms": 187.9,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 9,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1110,
+      "mean_origin_ms": 212.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 8,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1415,
+      "mean_origin_ms": 602.3,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 7,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 670,
+      "mean_origin_ms": 134.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 6,
+      "path": "/rest/v1/intercity_requests"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 2084,
+      "mean_origin_ms": 568.6,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:31:00",
+      "n": 5,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 54,
+      "mean_origin_ms": 35.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 4,
+      "path": "/rest/v1/pricing_zones"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1137,
+      "mean_origin_ms": 741,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 4,
+      "path": "/rest/v1/rpc/send_order_status_notifications_core"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 360,
+      "mean_origin_ms": 225,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 4,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 217,
+      "mean_origin_ms": 67,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 4,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 407,
+      "mean_origin_ms": 188,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 3,
+      "path": "/rest/v1/order_status_history"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 54,
+      "mean_origin_ms": 53.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 3,
+      "path": "/rest/v1/pricing_config"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 47,
+      "mean_origin_ms": 37,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:31:00",
+      "n": 3,
+      "path": "/rest/v1/rider_travel_plans"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 899,
+      "mean_origin_ms": 410.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 3,
+      "path": "/rest/v1/rider_reliability_view"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 42,
+      "mean_origin_ms": 30.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 3,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 403,
+      "mean_origin_ms": 243.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 954,
+      "mean_origin_ms": 500.5,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/log_otp_attempt"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 87,
+      "mean_origin_ms": 81,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 2,
+      "path": "/rest/v1/rpc/find_nearby_riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 4094,
+      "mean_origin_ms": 2326,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 2,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 52,
+      "mean_origin_ms": 37.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:31:00",
+      "n": 2,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 41,
+      "mean_origin_ms": 38,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:31:00",
+      "n": 2,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1812,
+      "mean_origin_ms": 1078.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 2,
+      "path": "/rest/v1/order_chat_messages"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 31,
+      "mean_origin_ms": 31,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/rider_is_on_active_trip"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 19,
+      "mean_origin_ms": 19,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 772,
+      "mean_origin_ms": 772,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/assign_nearby_searching_orders_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 202,
+      "mean_origin_ms": 202,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/complete_order_and_settle"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 35,
+      "mean_origin_ms": 35,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/calculate_fare_breakdown"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 28,
+      "mean_origin_ms": 28,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_tax_due"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 153,
+      "mean_origin_ms": 153,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rider_reviews"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1458,
+      "mean_origin_ms": 1458,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/process_order_completion_side_effects"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 8845,
+      "mean_origin_ms": 8845,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 30,
+      "mean_origin_ms": 30,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/dispatch_config"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 529,
+      "mean_origin_ms": 529,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/rider_self_rematch"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 36,
+      "mean_origin_ms": 36,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/is_rider_blocked_by_cod_limit"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 22,
+      "mean_origin_ms": 22,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 328,
+      "mean_origin_ms": 328,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/assign_new_order_to_nearby_online_riders_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 48,
+      "mean_origin_ms": 48,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1958,
+      "mean_origin_ms": 1958,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/check_otp_lockout"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 125,
+      "mean_origin_ms": 125,
+      "method": "POST",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 46,
+      "mean_origin_ms": 46,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 528,
+      "mean_origin_ms": 528,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/rider_payout_accounts"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 38,
+      "mean_origin_ms": 38,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/user_devices"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 66,
+      "mean_origin_ms": 66,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/order_verifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 185,
+      "mean_origin_ms": 185,
+      "method": "GET",
+      "minute": "2026-11-01T16:31:00",
+      "n": 1,
+      "path": "/rest/v1/government_tax_ledger"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 7,
+      "max_origin_ms": 53193,
+      "mean_origin_ms": 44632.3,
+      "method": "POST",
+      "minute": "2026-11-01T16:32:00",
+      "n": 9,
+      "path": "/rest/v1/order_chat_messages"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 40428,
+      "mean_origin_ms": 26277.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 5,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 46031,
+      "mean_origin_ms": 17737.6,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 5,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 3707,
+      "mean_origin_ms": 824.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 5,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 48728,
+      "mean_origin_ms": 34373.8,
+      "method": "HEAD",
+      "minute": "2026-11-01T16:32:00",
+      "n": 5,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 50156,
+      "mean_origin_ms": 33258.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 4,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 324,
+      "mean_origin_ms": 189.2,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:32:00",
+      "n": 4,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 39229,
+      "mean_origin_ms": 29255.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 3,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 41046,
+      "mean_origin_ms": 36734.7,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 3,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 41364,
+      "mean_origin_ms": 36628.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 2,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 39056,
+      "mean_origin_ms": 39043.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 2,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 16050,
+      "mean_origin_ms": 10514.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 2,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1118,
+      "mean_origin_ms": 1118,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 1,
+      "path": "/rest/v1/order_chat_messages"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 63,
+      "mean_origin_ms": 63,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 1,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 2659,
+      "mean_origin_ms": 2659,
+      "method": "POST",
+      "minute": "2026-11-01T16:32:00",
+      "n": 1,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 3730,
+      "mean_origin_ms": 3730,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:32:00",
+      "n": 1,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 7721,
+      "mean_origin_ms": 7721,
+      "method": "GET",
+      "minute": "2026-11-01T16:32:00",
+      "n": 1,
+      "path": "/rest/v1/rider_reliability_view"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 775,
+      "mean_origin_ms": 775,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:32:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 10527,
+      "mean_origin_ms": 1707.3,
+      "method": "HEAD",
+      "minute": "2026-11-01T16:33:00",
+      "n": 23,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 8941,
+      "mean_origin_ms": 3452.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 13,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 16450,
+      "mean_origin_ms": 1560.1,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 13,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1547,
+      "mean_origin_ms": 482.2,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:33:00",
+      "n": 13,
+      "path": "/rest/v1/notifications"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 7467,
+      "mean_origin_ms": 1866.2,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 12,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 7748,
+      "mean_origin_ms": 2593,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 11,
+      "path": "/rest/v1/production_config"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 10028,
+      "mean_origin_ms": 1441.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 10,
+      "path": "/rest/v1/user_device_tokens"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 2,
+      "max_origin_ms": 27530,
+      "mean_origin_ms": 7038.6,
+      "method": "POST",
+      "minute": "2026-11-01T16:33:00",
+      "n": 9,
+      "path": "/rest/v1/order_chat_messages"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2116,
+      "mean_origin_ms": 746.4,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 8,
+      "path": "/rest/v1/users"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 2225,
+      "mean_origin_ms": 791.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 8,
+      "path": "/rest/v1/rider_kyc"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 9313,
+      "mean_origin_ms": 2445.8,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 6,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 20099,
+      "mean_origin_ms": 4163.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 6,
+      "path": "/auth/v1/user"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 2291,
+      "mean_origin_ms": 793.2,
+      "method": "POST",
+      "minute": "2026-11-01T16:33:00",
+      "n": 4,
+      "path": "/rest/v1/rpc/send_order_status_notifications_core"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 1330,
+      "mean_origin_ms": 451,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 4,
+      "path": "/rest/v1/rider_reliability_view"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1225,
+      "mean_origin_ms": 471.3,
+      "method": "POST",
+      "minute": "2026-11-01T16:33:00",
+      "n": 3,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 207,
+      "mean_origin_ms": 92,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 3,
+      "path": "/rest/v1/intercity_requests"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 516,
+      "mean_origin_ms": 357.3,
+      "method": "POST",
+      "minute": "2026-11-01T16:33:00",
+      "n": 3,
+      "path": "/rest/v1/order_status_history"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 71,
+      "mean_origin_ms": 47,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:33:00",
+      "n": 3,
+      "path": "/rest/v1/rider_travel_plans"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 412,
+      "mean_origin_ms": 198.3,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 3,
+      "path": "/rest/v1/rider_locations"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 258,
+      "mean_origin_ms": 168.5,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 2,
+      "path": "/storage/v1/object/sign/rider_kyc/8e4189fc-1c26-42ff-b767-ba0c3380f68e/919392860726_attempt_1_von3qpv4/rider_image_g1.jpg"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 2233,
+      "mean_origin_ms": 1143.5,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:33:00",
+      "n": 2,
+      "path": "/rest/v1/orders"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 94,
+      "mean_origin_ms": 94,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:33:00",
+      "n": 1,
+      "path": "/rest/v1/order_assignment_logs"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 519,
+      "mean_origin_ms": 519,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:33:00",
+      "n": 1,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 103,
+      "mean_origin_ms": 103,
+      "method": "POST",
+      "minute": "2026-11-01T16:33:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/assign_nearby_searching_orders_core"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1775,
+      "mean_origin_ms": 1775,
+      "method": "POST",
+      "minute": "2026-11-01T16:33:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/log_otp_attempt"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 38,
+      "mean_origin_ms": 38,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 1,
+      "path": "/rest/v1/rider_assignments"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 100,
+      "mean_origin_ms": 100,
+      "method": "PATCH",
+      "minute": "2026-11-01T16:33:00",
+      "n": 1,
+      "path": "/rest/v1/riders"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 499,
+      "mean_origin_ms": 499,
+      "method": "POST",
+      "minute": "2026-11-01T16:33:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/complete_order_and_settle"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 1313,
+      "mean_origin_ms": 1313,
+      "method": "POST",
+      "minute": "2026-11-01T16:33:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/check_otp_lockout"
+    },
+    {
+      "client_family": "other",
+      "errors": 0,
+      "max_origin_ms": 178,
+      "mean_origin_ms": 178,
+      "method": "POST",
+      "minute": "2026-11-01T16:33:00",
+      "n": 1,
+      "path": "/rest/v1/rpc/process_order_completion_side_effects"
+    },
+    {
+      "client_family": "Dart",
+      "errors": 0,
+      "max_origin_ms": 30,
+      "mean_origin_ms": 30,
+      "method": "GET",
+      "minute": "2026-11-01T16:33:00",
+      "n": 1,
+      "path": "/rest/v1/government_tax_ledger"
+    }
+  ],
+  "slow_requests": [
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "10304",
+      "path": "/rest/v1/users",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:30:49.270000",
+      "upstream_ms": "10217"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "12528",
+      "path": "/rest/v1/rider_kyc",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:30:49.270000",
+      "upstream_ms": "12328"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "10112",
+      "path": "/rest/v1/users",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:30:49.272000",
+      "upstream_ms": "9939"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "13967",
+      "path": "/rest/v1/orders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:30:49.279000",
+      "upstream_ms": "13721"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "10105",
+      "path": "/rest/v1/rider_kyc",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:30:49.280000",
+      "upstream_ms": "9550"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "14004",
+      "path": "/rest/v1/orders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:30:49.280000",
+      "upstream_ms": "13677"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "11105",
+      "path": "/rest/v1/orders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:30:49.292000",
+      "upstream_ms": "10661"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "11168",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "",
+      "status": "201",
+      "timestamp": "2026-11-01T16:31:55.690000",
+      "upstream_ms": "11149"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "11030",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "",
+      "status": "201",
+      "timestamp": "2026-11-01T16:31:56.892000",
+      "upstream_ms": "10983"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "58813",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "PostgREST; error=57014",
+      "status": "500",
+      "timestamp": "2026-11-01T16:31:57.922000",
+      "upstream_ms": "58692"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "10060",
+      "path": "/rest/v1/production_config",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:31:58.201000",
+      "upstream_ms": "10042"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "58248",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "PostgREST; error=57014",
+      "status": "500",
+      "timestamp": "2026-11-01T16:31:58.513000",
+      "upstream_ms": "58102"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "53193",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "PostgREST; error=57014",
+      "status": "500",
+      "timestamp": "2026-11-01T16:32:00.227000",
+      "upstream_ms": "52868"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "52446",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "PostgREST; error=57014",
+      "status": "500",
+      "timestamp": "2026-11-01T16:32:00.551000",
+      "upstream_ms": "51911"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "20382",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "",
+      "status": "201",
+      "timestamp": "2026-11-01T16:32:01.685000",
+      "upstream_ms": "20255"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "51666",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "PostgREST; error=57014",
+      "status": "500",
+      "timestamp": "2026-11-01T16:32:01.748000",
+      "upstream_ms": "51258"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "50321",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "PostgREST; error=57014",
+      "status": "500",
+      "timestamp": "2026-11-01T16:32:03.103000",
+      "upstream_ms": "50243"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "HEAD",
+      "origin_ms": "11474",
+      "path": "/rest/v1/notifications",
+      "proxy_status": "",
+      "status": "206",
+      "timestamp": "2026-11-01T16:32:03.260000",
+      "upstream_ms": "11113"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "30744",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "PostgREST; error=57014",
+      "status": "500",
+      "timestamp": "2026-11-01T16:32:04.448000",
+      "upstream_ms": "30352"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "45086",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "PostgREST; error=57014",
+      "status": "500",
+      "timestamp": "2026-11-01T16:32:04.578000",
+      "upstream_ms": "44591"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "50156",
+      "path": "/rest/v1/production_config",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:06.865000",
+      "upstream_ms": "50049"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "46031",
+      "path": "/rest/v1/users",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:08.279000",
+      "upstream_ms": "45914"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "HEAD",
+      "origin_ms": "48728",
+      "path": "/rest/v1/notifications",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:08.983000",
+      "upstream_ms": "48608"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "41046",
+      "path": "/rest/v1/riders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:09.059000",
+      "upstream_ms": "40910"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "HEAD",
+      "origin_ms": "47260",
+      "path": "/rest/v1/notifications",
+      "proxy_status": "",
+      "status": "206",
+      "timestamp": "2026-11-01T16:32:11.266000",
+      "upstream_ms": "47228"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "49913",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "PostgREST; error=57014",
+      "status": "500",
+      "timestamp": "2026-11-01T16:32:11.787000",
+      "upstream_ms": "49716"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "44508",
+      "path": "/rest/v1/production_config",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:12.242000",
+      "upstream_ms": "44197"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "47940",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "",
+      "status": "201",
+      "timestamp": "2026-11-01T16:32:12.868000",
+      "upstream_ms": "47828"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "41364",
+      "path": "/rest/v1/orders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:15.059000",
+      "upstream_ms": "41080"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "16050",
+      "path": "/auth/v1/user",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:15.062000",
+      "upstream_ms": "10028"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "HEAD",
+      "origin_ms": "40568",
+      "path": "/rest/v1/notifications",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:17.133000",
+      "upstream_ms": "39541"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "39229",
+      "path": "/rest/v1/users",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:17.541000",
+      "upstream_ms": "38235"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "30108",
+      "path": "/rest/v1/riders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:17.687000",
+      "upstream_ms": "29247"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "39050",
+      "path": "/rest/v1/riders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:17.713000",
+      "upstream_ms": "37913"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "40428",
+      "path": "/rest/v1/orders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:17.713000",
+      "upstream_ms": "39354"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "39031",
+      "path": "/rest/v1/rider_kyc",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:17.716000",
+      "upstream_ms": "37584"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "36591",
+      "path": "/rest/v1/users",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:17.717000",
+      "upstream_ms": "35646"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "40423",
+      "path": "/rest/v1/orders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:17.718000",
+      "upstream_ms": "38249"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "39056",
+      "path": "/rest/v1/rider_kyc",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:17.719000",
+      "upstream_ms": "37932"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "36719",
+      "path": "/rest/v1/users",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:22.063000",
+      "upstream_ms": "35180"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "28417",
+      "path": "/rest/v1/production_config",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:25.879000",
+      "upstream_ms": "28222"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "30413",
+      "path": "/rest/v1/orders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:26.107000",
+      "upstream_ms": "30187"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "31893",
+      "path": "/rest/v1/orders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:26.336000",
+      "upstream_ms": "31782"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "HEAD",
+      "origin_ms": "23839",
+      "path": "/rest/v1/notifications",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:33.857000",
+      "upstream_ms": "23062"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "16349",
+      "path": "/rest/v1/orders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:39.878000",
+      "upstream_ms": "15466"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "11946",
+      "path": "/rest/v1/users",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:32:44.831000",
+      "upstream_ms": "9233"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "GET",
+      "origin_ms": "16450",
+      "path": "/rest/v1/riders",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:33:01.854000",
+      "upstream_ms": "16174"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "20099",
+      "path": "/auth/v1/user",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:33:01.945000",
+      "upstream_ms": "19714"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "HEAD",
+      "origin_ms": "10527",
+      "path": "/rest/v1/notifications",
+      "proxy_status": "",
+      "status": "206",
+      "timestamp": "2026-11-01T16:33:03.103000",
+      "upstream_ms": "10274"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "24626",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "PostgREST; error=57014",
+      "status": "500",
+      "timestamp": "2026-11-01T16:33:04.250000",
+      "upstream_ms": "24448"
+    },
+    {
+      "agent": "Dart/3.11 (dart:io)",
+      "method": "POST",
+      "origin_ms": "27530",
+      "path": "/rest/v1/order_chat_messages",
+      "proxy_status": "PostgREST; error=57014",
+      "status": "500",
+      "timestamp": "2026-11-01T16:33:04.303000",
+      "upstream_ms": "27476"
+    },
+    {
+      "agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)",
+      "method": "GET",
+      "origin_ms": "10028",
+      "path": "/rest/v1/user_device_tokens",
+      "proxy_status": "",
+      "status": "200",
+      "timestamp": "2026-11-01T16:33:10.426000",
+      "upstream_ms": "9634"
+    }
+  ],
+  "cron_and_logging": [
+    {
+      "evidence": {
+        "logging": [
+          {
+            "name": "checkpoint_completion_target",
+            "unit": null,
+            "setting": "0.9"
+          },
+          {
+            "name": "checkpoint_timeout",
+            "unit": "s",
+            "setting": "300"
+          },
+          {
+            "name": "deadlock_timeout",
+            "unit": "ms",
+            "setting": "1000"
+          },
+          {
+            "name": "log_lock_waits",
+            "unit": null,
+            "setting": "on"
+          },
+          {
+            "name": "log_min_duration_statement",
+            "unit": "ms",
+            "setting": "-1"
+          }
+        ],
+        "job_runs": [
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:52:00.039664+05:30",
+            "elapsed_ms": 11.428,
+            "start_time": "2026-11-01T21:52:00.028236+05:30"
+          },
+          {
+            "jobid": 1,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:52:00.038278+05:30",
+            "elapsed_ms": 8.797,
+            "start_time": "2026-11-01T21:52:00.029481+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:52:40.045999+05:30",
+            "elapsed_ms": 8.222,
+            "start_time": "2026-11-01T21:52:40.037777+05:30"
+          },
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:53:00.154509+05:30",
+            "elapsed_ms": 108.455,
+            "start_time": "2026-11-01T21:53:00.046054+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:53:25.108456+05:30",
+            "elapsed_ms": 5.797,
+            "start_time": "2026-11-01T21:53:25.102659+05:30"
+          },
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:54:00.660916+05:30",
+            "elapsed_ms": 183.991,
+            "start_time": "2026-11-01T21:54:00.476925+05:30"
+          },
+          {
+            "jobid": 1,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:54:00.571447+05:30",
+            "elapsed_ms": 92.005,
+            "start_time": "2026-11-01T21:54:00.479442+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:54:10.147133+05:30",
+            "elapsed_ms": 22.732,
+            "start_time": "2026-11-01T21:54:10.124401+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:54:55.389193+05:30",
+            "elapsed_ms": 10.978,
+            "start_time": "2026-11-01T21:54:55.378215+05:30"
+          },
+          {
+            "jobid": 10,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:55:00.107556+05:30",
+            "elapsed_ms": 7.277,
+            "start_time": "2026-11-01T21:55:00.100279+05:30"
+          },
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:55:00.113357+05:30",
+            "elapsed_ms": 11.297,
+            "start_time": "2026-11-01T21:55:00.10206+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:55:40.911579+05:30",
+            "elapsed_ms": 17.686,
+            "start_time": "2026-11-01T21:55:40.893893+05:30"
+          },
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:56:00.548643+05:30",
+            "elapsed_ms": 86.435,
+            "start_time": "2026-11-01T21:56:00.462208+05:30"
+          },
+          {
+            "jobid": 1,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:56:00.495346+05:30",
+            "elapsed_ms": 31.366,
+            "start_time": "2026-11-01T21:56:00.46398+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:56:26.291676+05:30",
+            "elapsed_ms": 53.601,
+            "start_time": "2026-11-01T21:56:26.238075+05:30"
+          },
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:57:01.306912+05:30",
+            "elapsed_ms": 199.954,
+            "start_time": "2026-11-01T21:57:01.106958+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:57:11.475628+05:30",
+            "elapsed_ms": 16.471,
+            "start_time": "2026-11-01T21:57:11.459157+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:57:56.932377+05:30",
+            "elapsed_ms": 23.642,
+            "start_time": "2026-11-01T21:57:56.908735+05:30"
+          },
+          {
+            "jobid": 1,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:58:00.334708+05:30",
+            "elapsed_ms": 34.178,
+            "start_time": "2026-11-01T21:58:00.30053+05:30"
+          },
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:58:00.417519+05:30",
+            "elapsed_ms": 115.855,
+            "start_time": "2026-11-01T21:58:00.301664+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:58:45.15995+05:30",
+            "elapsed_ms": 761.411,
+            "start_time": "2026-11-01T21:58:44.398539+05:30"
+          },
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:59:02.149849+05:30",
+            "elapsed_ms": 546.254,
+            "start_time": "2026-11-01T21:59:01.603595+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T21:59:29.906357+05:30",
+            "elapsed_ms": 25.355,
+            "start_time": "2026-11-01T21:59:29.881002+05:30"
+          },
+          {
+            "jobid": 6,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:00:00.524917+05:30",
+            "elapsed_ms": 20.759,
+            "start_time": "2026-11-01T22:00:00.504158+05:30"
+          },
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:00:00.633407+05:30",
+            "elapsed_ms": 127.29,
+            "start_time": "2026-11-01T22:00:00.506117+05:30"
+          },
+          {
+            "jobid": 1,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:00:00.542195+05:30",
+            "elapsed_ms": 34.635,
+            "start_time": "2026-11-01T22:00:00.50756+05:30"
+          },
+          {
+            "jobid": 10,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:00:00.530003+05:30",
+            "elapsed_ms": 20.1,
+            "start_time": "2026-11-01T22:00:00.509903+05:30"
+          },
+          {
+            "jobid": 3,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:00:00.538918+05:30",
+            "elapsed_ms": 27.579,
+            "start_time": "2026-11-01T22:00:00.511339+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:00:15.298109+05:30",
+            "elapsed_ms": 58.892,
+            "start_time": "2026-11-01T22:00:15.239217+05:30"
+          },
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:01:06.378519+05:30",
+            "elapsed_ms": 1872.386,
+            "start_time": "2026-11-01T22:01:04.506133+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:01:05.191117+05:30",
+            "elapsed_ms": 675.613,
+            "start_time": "2026-11-01T22:01:04.515504+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:01:51.997784+05:30",
+            "elapsed_ms": 116.73,
+            "start_time": "2026-11-01T22:01:51.881054+05:30"
+          },
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:02:05.224448+05:30",
+            "elapsed_ms": 1879.731,
+            "start_time": "2026-11-01T22:02:03.344717+05:30"
+          },
+          {
+            "jobid": 1,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:02:03.935659+05:30",
+            "elapsed_ms": 577.85,
+            "start_time": "2026-11-01T22:02:03.357809+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "job startup timeout",
+            "status": "failed",
+            "end_time": "2026-11-01T22:02:48.551156+05:30",
+            "elapsed_ms": 11669.184,
+            "start_time": "2026-11-01T22:02:36.881972+05:30"
+          },
+          {
+            "jobid": 5,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:03:17.063399+05:30",
+            "elapsed_ms": 9656.285,
+            "start_time": "2026-11-01T22:03:07.407114+05:30"
+          },
+          {
+            "jobid": 7,
+            "result": "1 row",
+            "status": "succeeded",
+            "end_time": "2026-11-01T22:03:27.599043+05:30",
+            "elapsed_ms": 323.424,
+            "start_time": "2026-11-01T22:03:27.275619+05:30"
+          }
+        ],
+        "notification_chain": [
+          {
+            "function": "on_notification_insert",
+            "definition": "CREATE OR REPLACE FUNCTION public.on_notification_insert()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nBEGIN\n    -- Call delivery helper to trigger FCM send-push-notification edge function\n    PERFORM public.deliver_push_notification_http_fnc(\n        NEW.user_id,\n        NEW.title,\n        NEW.body,\n        NEW.payload || jsonb_build_object(\n            'notification_id', NEW.id,\n            'type', NEW.notification_type,\n            'reference_id', NEW.reference_id,\n            'reference_type', NEW.reference_type\n        )\n    );\n    RETURN NEW;\nEND;\n$function$\n"
+          }
+        ]
+      }
+    }
+  ],
+  "push_queue_definitions": [
+    {
+      "evidence": {
+        "definitions": [
+          {
+            "name": "http_post",
+            "schema": "net",
+            "definition": "CREATE OR REPLACE FUNCTION net.http_post(url text, body jsonb DEFAULT '{}'::jsonb, params jsonb DEFAULT '{}'::jsonb, headers jsonb DEFAULT '{\"Content-Type\": \"application/json\"}'::jsonb, timeout_milliseconds integer DEFAULT 5000)\n RETURNS bigint\n LANGUAGE plpgsql\nAS $function$\ndeclare\n    request_id bigint;\n    params_array text[];\n    content_type text;\nbegin\n\n    -- Exctract the content_type from headers\n    select\n        header_value into content_type\n    from\n        jsonb_each_text(coalesce(headers, '{}'::jsonb)) r(header_name, header_value)\n    where\n        lower(header_name) = 'content-type'\n    limit\n        1;\n\n    -- If the user provided new headers and omitted the content type\n    -- add it back in automatically\n    if content_type is null then\n        select headers || '{\"Content-Type\": \"application/json\"}'::jsonb into headers;\n    end if;\n\n    -- Confirm that the content-type is set as \"application/json\"\n    if content_type <> 'application/json' then\n        raise exception 'Content-Type header must be \"application/json\"';\n    end if;\n\n    select\n        coalesce(array_agg(net._urlencode_string(key) || '=' || net._urlencode_string(value)), '{}')\n    into\n        params_array\n    from\n        jsonb_each_text(params);\n\n    -- Add to the request queue\n    insert into net.http_request_queue(method, url, headers, body, timeout_milliseconds)\n    values (\n        'POST',\n        net._encode_url_with_params_array(url, params_array),\n        headers,\n        convert_to(body::text, 'UTF8'),\n        timeout_milliseconds\n    )\n    returning id\n    into request_id;\n\n    perform net.wake();\n\n    return request_id;\nend\n$function$\n"
+          },
+          {
+            "name": "send_push_notification_fnc",
+            "schema": "public",
+            "definition": "CREATE OR REPLACE FUNCTION public.send_push_notification_fnc(p_user_id uuid, p_title text, p_body text, p_data jsonb)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n    v_notification_type text := COALESCE(p_data->>'type', 'general');\n    v_reference_id uuid := NULL;\n    v_reference_type text := NULL;\nBEGIN\n    -- Extract reference info if present\n    IF p_data ? 'order_id' THEN\n        BEGIN\n            v_reference_id := (p_data->>'order_id')::uuid;\n            v_reference_type := 'order';\n        EXCEPTION WHEN OTHERS THEN\n            -- Ignore formatting errors\n        END;\n    ELSIF p_data ? 'payment_id' THEN\n        BEGIN\n            v_reference_id := (p_data->>'payment_id')::uuid;\n            v_reference_type := 'payment';\n        EXCEPTION WHEN OTHERS THEN\n            -- Ignore formatting errors\n        END;\n    END IF;\n\n    -- Insert into notifications log table (which triggers async HTTP delivery)\n    INSERT INTO public.notifications (\n        user_id,\n        title,\n        body,\n        notification_type,\n        reference_id,\n        reference_type,\n        payload\n    ) VALUES (\n        p_user_id,\n        p_title,\n        p_body,\n        v_notification_type,\n        v_reference_id,\n        v_reference_type,\n        p_data\n    );\nEXCEPTION WHEN OTHERS THEN\n    RAISE WARNING 'send_push_notification_fnc: failed to insert notification for user %: %', p_user_id, SQLERRM;\n    BEGIN\n        INSERT INTO public.notification_failures (\n            failure_stage, source_function, notification_type, reference_id, user_id,\n            error_code, error_message\n        ) VALUES (\n            'insert', 'send_push_notification_fnc', v_notification_type, v_reference_id, p_user_id,\n            SQLSTATE, left(SQLERRM, 2000)\n        );\n    EXCEPTION WHEN OTHERS THEN\n        NULL;\n    END;\nEND;\n$function$\n"
+          }
+        ],
+        "observed_at": "2026-11-01T23:53:56.977918+05:30",
+        "notification_triggers": [
+          {
+            "trigger": "trigger_notification_insert",
+            "function": "on_notification_insert"
+          }
+        ]
+      }
+    }
+  ],
+  "auth_request_id_join": {
+    "result": [
+      {
+        "auth_duration_raw": "11238051768",
+        "auth_error": "context deadline exceeded",
+        "auth_timestamp": "2026-11-01T16:33:14.000000",
+        "gateway_path": "/auth/v1/user",
+        "gateway_status": "200",
+        "gateway_timestamp": "2026-11-01T16:33:01.945000",
+        "origin_ms": "20099",
+        "upstream_ms": "19714"
+      }
+    ]
+  },
+  "stats_reset": [
+    {
+      "stats_reset": "2026-05-07 11:50:14.71209+05:30",
+      "dealloc": 21
+    }
+  ],
+  "advisors": {
+    "result": {
+      "lints": [
+        {
+          "name": "unindexed_foreign_keys",
+          "title": "Unindexed foreign keys",
+          "level": "INFO",
+          "facing": "EXTERNAL",
+          "categories": [
+            "PERFORMANCE"
+          ],
+          "description": "Identifies foreign key constraints without a covering index, which can impact database performance.",
+          "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys",
+          "count": 1,
+          "findings": [
+            {
+              "detail": "Table \\`public.lawful_disclosure_requests\\` has a foreign key \\`lawful_disclosure_requests_handled_by_admin_id_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "lawful_disclosure_requests",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "lawful_disclosure_requests_handled_by_admin_id_fkey",
+                "fkey_columns": [
+                  3
+                ]
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            }
+          ]
+        },
+        {
+          "name": "unused_index",
+          "title": "Unused Index",
+          "level": "INFO",
+          "facing": "EXTERNAL",
+          "categories": [
+            "PERFORMANCE"
+          ],
+          "description": "Detects if an index has never been used and may be a candidate for removal.",
+          "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+          "count": 43,
+          "findings": [
+            {
+              "detail": "Index \\`idx_pricing_change_logs_changed_by_admin_id\\` on table \\`public.pricing_change_logs\\` has not been used",
+              "metadata": {
+                "name": "pricing_change_logs",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_admin_logs_admin_id\\` on table \\`public.admin_logs\\` has not been used",
+              "metadata": {
+                "name": "admin_logs",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_admin_logs_target_id\\` on table \\`public.admin_logs\\` has not been used",
+              "metadata": {
+                "name": "admin_logs",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_riders_subscription_active\\` on table \\`public.riders\\` has not been used",
+              "metadata": {
+                "name": "riders",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_pricing_change_logs_created_at\\` on table \\`public.pricing_change_logs\\` has not been used",
+              "metadata": {
+                "name": "pricing_change_logs",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_order_chat_messages_rider_id\\` on table \\`public.order_chat_messages\\` has not been used",
+              "metadata": {
+                "name": "order_chat_messages",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_order_chat_messages_sender_id\\` on table \\`public.order_chat_messages\\` has not been used",
+              "metadata": {
+                "name": "order_chat_messages",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_order_chat_messages_user_id\\` on table \\`public.order_chat_messages\\` has not been used",
+              "metadata": {
+                "name": "order_chat_messages",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_deleted_user_archive_deletion_request_id\\` on table \\`public.deleted_user_archive\\` has not been used",
+              "metadata": {
+                "name": "deleted_user_archive",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_dispatch_config_updated_by_admin_id\\` on table \\`public.dispatch_config\\` has not been used",
+              "metadata": {
+                "name": "dispatch_config",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_order_declarations_user_id\\` on table \\`public.order_declarations\\` has not been used",
+              "metadata": {
+                "name": "order_declarations",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_order_parcel_photos_rider_id\\` on table \\`public.order_parcel_photos\\` has not been used",
+              "metadata": {
+                "name": "order_parcel_photos",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_order_status_history_changed_by_admin_id\\` on table \\`public.order_status_history\\` has not been used",
+              "metadata": {
+                "name": "order_status_history",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_order_status_history_changed_by_rider_id\\` on table \\`public.order_status_history\\` has not been used",
+              "metadata": {
+                "name": "order_status_history",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_order_status_history_changed_by_user_id\\` on table \\`public.order_status_history\\` has not been used",
+              "metadata": {
+                "name": "order_status_history",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_order_verifications_created_by\\` on table \\`public.order_verifications\\` has not been used",
+              "metadata": {
+                "name": "order_verifications",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_parcel_compliance_reports_generated_by\\` on table \\`public.parcel_compliance_reports\\` has not been used",
+              "metadata": {
+                "name": "parcel_compliance_reports",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_parcel_compliance_reports_order_id\\` on table \\`public.parcel_compliance_reports\\` has not been used",
+              "metadata": {
+                "name": "parcel_compliance_reports",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_parcel_security_logs_rider_id\\` on table \\`public.parcel_security_logs\\` has not been used",
+              "metadata": {
+                "name": "parcel_security_logs",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_pricing_config_approved_by_admin_id\\` on table \\`public.pricing_config\\` has not been used",
+              "metadata": {
+                "name": "pricing_config",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_payment_disputes_status\\` on table \\`public.payment_disputes\\` has not been used",
+              "metadata": {
+                "name": "payment_disputes",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_pricing_config_created_by_admin_id\\` on table \\`public.pricing_config\\` has not been used",
+              "metadata": {
+                "name": "pricing_config",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_pricing_config_pricing_zone_id\\` on table \\`public.pricing_config\\` has not been used",
+              "metadata": {
+                "name": "pricing_config",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_production_config_updated_by_admin_id\\` on table \\`public.production_config\\` has not been used",
+              "metadata": {
+                "name": "production_config",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_promo_code_users_user_id\\` on table \\`public.promo_code_users\\` has not been used",
+              "metadata": {
+                "name": "promo_code_users",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_notification_failures_created_at\\` on table \\`public.notification_failures\\` has not been used",
+              "metadata": {
+                "name": "notification_failures",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_reward_config_updated_by_admin_id\\` on table \\`public.reward_config\\` has not been used",
+              "metadata": {
+                "name": "reward_config",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_reward_cycles_redeemed_offer_id\\` on table \\`public.reward_cycles\\` has not been used",
+              "metadata": {
+                "name": "reward_cycles",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_rider_vehicles_reviewed_by\\` on table \\`public.rider_vehicles\\` has not been used",
+              "metadata": {
+                "name": "rider_vehicles",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_parcel_security_logs_sender_user_id\\` on table \\`public.parcel_security_logs\\` has not been used",
+              "metadata": {
+                "name": "parcel_security_logs",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_payment_disputes_raised_by\\` on table \\`public.payment_disputes\\` has not been used",
+              "metadata": {
+                "name": "payment_disputes",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_payment_disputes_resolved_by\\` on table \\`public.payment_disputes\\` has not been used",
+              "metadata": {
+                "name": "payment_disputes",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_police_sos_logs_order_id\\` on table \\`public.police_sos_logs\\` has not been used",
+              "metadata": {
+                "name": "police_sos_logs",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_user_promo_usages_order_id\\` on table \\`public.user_promo_usages\\` has not been used",
+              "metadata": {
+                "name": "user_promo_usages",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_user_promo_usages_promo_code_id\\` on table \\`public.user_promo_usages\\` has not been used",
+              "metadata": {
+                "name": "user_promo_usages",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_pricing_config_city_tier\\` on table \\`public.pricing_config\\` has not been used",
+              "metadata": {
+                "name": "pricing_config",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_rider_payout_accounts_beneficiary_id\\` on table \\`public.rider_payout_accounts\\` has not been used",
+              "metadata": {
+                "name": "rider_payout_accounts",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_lawful_disclosure_target_user\\` on table \\`public.lawful_disclosure_requests\\` has not been used",
+              "metadata": {
+                "name": "lawful_disclosure_requests",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_orders_pickup_location\\` on table \\`public.orders\\` has not been used",
+              "metadata": {
+                "name": "orders",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_orders_destination_location\\` on table \\`public.orders\\` has not been used",
+              "metadata": {
+                "name": "orders",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_orders_search_expires_at\\` on table \\`public.orders\\` has not been used",
+              "metadata": {
+                "name": "orders",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_rider_subscription_payment_id\\` on table \\`public.rider_subscription_history\\` has not been used",
+              "metadata": {
+                "name": "rider_subscription_history",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Index \\`idx_rider_subscription_is_active\\` on table \\`public.rider_subscription_history\\` has not been used",
+              "metadata": {
+                "name": "rider_subscription_history",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            }
+          ]
+        },
+        {
+          "name": "multiple_permissive_policies",
+          "title": "Multiple Permissive Policies",
+          "level": "WARN",
+          "facing": "EXTERNAL",
+          "categories": [
+            "PERFORMANCE"
+          ],
+          "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+          "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+          "count": 22,
+          "findings": [
+            {
+              "detail": "Table \\`public.intercity_requests\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Allow request participants to view requests\",admin_can_select_intercity_requests}\\`",
+              "metadata": {
+                "name": "intercity_requests",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.order_assignment_logs\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Allow riders and orders owners to view logs\",admin_can_select_order_assignment_logs}\\`",
+              "metadata": {
+                "name": "order_assignment_logs",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.order_chat_messages\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Allow chat participants to view messages\",admin_can_select_order_chat_messages}\\`",
+              "metadata": {
+                "name": "order_chat_messages",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.orders\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Allow travellers to browse searching intercity orders\",\"Allow travellers to view orders tied to active intercity reques\",\"Allow users to view their own or assigned orders\",admin_can_select_orders}\\`",
+              "metadata": {
+                "name": "orders",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.orders\\` has multiple permissive policies for role \\`authenticated\\` for action \\`UPDATE\\`. Policies include \\`{\"Allow passengers and assigned riders to update orders\",user_can_update_own_order}\\`",
+              "metadata": {
+                "name": "orders",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_assignments\\` has multiple permissive policies for role \\`authenticated\\` for action \\`INSERT\\`. Policies include \\`{\"Allow passengers to insert assignments for their own orders\",\"Allow riders to insert their own assignments\"}\\`",
+              "metadata": {
+                "name": "rider_assignments",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_assignments\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Allow passengers to view assignments for their own orders\",\"Allow riders to view their own assignments\",\"Riders can view own assignments\"}\\`",
+              "metadata": {
+                "name": "rider_assignments",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_assignments\\` has multiple permissive policies for role \\`authenticated\\` for action \\`UPDATE\\`. Policies include \\`{\"Allow passengers to update assignments for their own orders\",\"Allow riders to update their own assignments\"}\\`",
+              "metadata": {
+                "name": "rider_assignments",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_kyc\\` has multiple permissive policies for role \\`authenticated\\` for action \\`INSERT\\`. Policies include \\`{\"Riders can insert own KYC\",\"Users can create own kyc\"}\\`",
+              "metadata": {
+                "name": "rider_kyc",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_kyc\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Riders can view own KYC\",\"Riders view own KYC or admin support view any\",\"Users can view own kyc\",admin_can_select_rider_kyc}\\`",
+              "metadata": {
+                "name": "rider_kyc",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_kyc\\` has multiple permissive policies for role \\`authenticated\\` for action \\`UPDATE\\`. Policies include \\`{\"Users can update own kyc\",admin_can_update_rider_kyc}\\`",
+              "metadata": {
+                "name": "rider_kyc",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_payout_accounts\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Riders can view their own payout account\",admin_can_select_rider_payout_accounts,rider_select_own_payout_account}\\`",
+              "metadata": {
+                "name": "rider_payout_accounts",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_reviews\\` has multiple permissive policies for role \\`authenticated\\` for action \\`INSERT\\`. Policies include \\`{\"Riders can insert reviews for their own orders\",\"Users can insert reviews for their own orders\"}\\`",
+              "metadata": {
+                "name": "rider_reviews",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_reviews\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Users and riders can view reviews\",admin_can_select_rider_reviews}\\`",
+              "metadata": {
+                "name": "rider_reviews",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_travel_plans\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Allow authenticated users to view active travel plans\",admin_can_select_rider_travel_plans}\\`",
+              "metadata": {
+                "name": "rider_travel_plans",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_vehicles\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Riders can view own vehicles\",admin_can_select_rider_vehicles}\\`",
+              "metadata": {
+                "name": "rider_vehicles",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_withdrawal_events\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Riders can view their own withdrawal events\",\"Users can view own withdrawal events\",admin_can_select_rider_withdrawal_events}\\`",
+              "metadata": {
+                "name": "rider_withdrawal_events",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.rider_withdrawals\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Riders can view their own withdrawals\",\"Users can view own withdrawals\",admin_can_select_rider_withdrawals}\\`",
+              "metadata": {
+                "name": "rider_withdrawals",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.riders\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Allow authenticated users to view online riders\",\"Riders can view own rider profile\",\"Users can view own rider profile\",admin_can_select_riders}\\`",
+              "metadata": {
+                "name": "riders",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.riders\\` has multiple permissive policies for role \\`authenticated\\` for action \\`UPDATE\\`. Policies include \\`{\"Allow riders to update their own profile\",\"Riders can update own rider profile\",admin_can_update_riders}\\`",
+              "metadata": {
+                "name": "riders",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.trip_share_tokens\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Allow owners and riders of orders to manage share tokens\",\"Allow public read of active unexpired share tokens\"}\\`",
+              "metadata": {
+                "name": "trip_share_tokens",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            },
+            {
+              "detail": "Table \\`public.users\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{\"Allow travellers to view profile of searching intercity passeng\",\"Allow travellers to view sender profile for active intercity re\",\"Users can view own profile\",admin_can_select_users}\\`",
+              "metadata": {
+                "name": "users",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-11-01T18:22:52.771Z"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "later_health_snapshot": {
+    "observed_at": "2026-11-01T23:53:10.142516+05:30",
+    "max_connections": 60,
+    "client_backend_sessions": 4,
+    "active_client_backends": 1,
+    "blocked_sessions": 0,
+    "old_idle_transactions": 0,
+    "postmaster_start": "2026-05-07T11:51:39.205612+05:30",
+    "scope": "Later state only; active backend includes inspection query"
+  },
+  "source_counts": {
+    "edge_logs": 2941,
+    "function_logs": 1188,
+    "function_edge_logs": 270,
+    "auth_logs": 157,
+    "pgbouncer_logs": 141,
+    "postgres_logs": 89,
+    "storage_logs": 83,
+    "postgrest_logs": 49,
+    "realtime_logs": 12,
+    "auth_audit_logs": 3
+  },
+  "resource_signature_scan": {
+    "scope": "Exact incident window, all ten available log sources",
+    "patterns": [
+      "out of memory|oom.kill|oom-kill|cannot allocate memory",
+      "too many clients|too many connections|remaining connection slots",
+      "deadlock detected|lock timeout|still waiting for.*lock",
+      "no space left|i/o error|input/output error"
+    ],
+    "matches": 0,
+    "limit": "Absence of these text signatures does not exclude saturation, swap, I/O latency or unlogged waits."
+  },
+  "push_delivery_helper_inspection": {
+    "source": "Read-only pg_get_functiondef(public.deliver_push_notification_http_fnc), inspected in this Part 1 pass",
+    "steps": [
+      "Vault decrypted_secret lookup by secret name (definition only, no secret value selected)",
+      "net.http_post with timeout_milliseconds=5000",
+      "net.http_post definition inserts net.http_request_queue, calls net.wake(), returns request ID"
+    ],
+    "conclusion": "Queue work is synchronous SQL, network delivery is asynchronous; no evidence that Chat waits for FCM response."
+  }
+}

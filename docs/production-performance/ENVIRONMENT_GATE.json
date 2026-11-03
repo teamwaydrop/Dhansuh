@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-01",
+  "status": "BLOCKED_AT_STEP_1",
+  "productionChanges": 0,
+  "resourcesCreated": 0,
+  "chargesIncurred": 0,
+  "connectedProjectInventory": [
+    {
+      "ref": "yvwpchffctiagevpqgwy",
+      "name": "waydrop",
+      "purpose": "production; not used for tests",
+      "postgresVersion": "17.6.1.113"
+    }
+  ],
+  "localChecks": {
+    "pathLookup": {
+      "missing": [
+        "psql",
+        "pg_ctl",
+        "postgres",
+        "docker",
+        "podman",
+        "deno",
+        "supabase"
+      ],
+      "available": [
+        "node"
+      ]
+    },
+    "standardInstallLocations": {
+      "postgresProgramFiles": false,
+      "dockerDesktopBinary": false,
+      "podmanProgramFilesBinary": false,
+      "userDenoBinary": false,
+      "chocolateyDenoShim": false,
+      "wingetDenoLink": false
+    },
+    "matchingPostgresDockerPodmanServicesFound": false,
+    "workspaceToolsAndDartToolMatchingExecutablesFound": false,
+    "wslListQuiet": {
+      "exitCode": 1,
+      "message": "The Windows Subsystem for Linux is not installed."
+    }
+  },
+  "regressionRerun": {
+    "command": "node docs/production-performance/validate_preflight.mjs",
+    "exitCode": 0,
+    "passedGroups": 4,
+    "engine": "PGlite PostgreSQL 18.6",
+    "scope": "Synthetic index guards, drop/recreation, drift rejection and ROLLBACK defaults only",
+    "satisfiesPostgres17Gate": false
+  },
+  "notExecuted": [
+    "PostgreSQL 17 concurrent assignment, real GPS trigger or stationary-heartbeat tests",
+    "Deno full-handler or real test-destination delivery tests",
+    "Production restore or previous-version redeployment",
+    "Production end-to-end Auth, payment, dispatch or notification tests"
+  ],
+  "nextRequiredResource": "An available, approved, isolated PostgreSQL 17/Supabase-equivalent test environment with reviewed helper, trigger and authorization parity; synthetic data and nonproduction integrations only.",
+  "stopReason": "User explicitly requested stopping if tests require unavailable resources or paid services. No final production GO is requested while this prerequisite is missing.",
+  "limitations": "Availability checks cover the connected inventory, PATH, listed common install locations, services and workspace tools. They do not establish that PostgreSQL is absent from every disk or account. Existing production backups were not queried or disproven by this environment check.",
+  "supersededBy": {
+    "status": "LOCAL_RUNTIME_AVAILABLE_AND_TESTED",
+    "postgres": "17.11 portable",
+    "deno": "2.9.8 portable",
+    "evidence": "local-tests/README.md"
+  }
+}

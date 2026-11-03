@@ -1,0 +1,251 @@
+{
+  "production_access": {
+    "project": "yvwpchffctiagevpqgwy",
+    "mode": "READ_ONLY",
+    "new_log_queries": 0,
+    "catalog_queries": 1,
+    "edge_source_fetches": 1,
+    "deployments": 0,
+    "migrations": 0,
+    "paid_resources": 0
+  },
+  "commands": [
+    {
+      "name": "push",
+      "command": [
+        "C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\deno-2.9.8-core\\deno.exe",
+        "test",
+        "--cached-only",
+        "--config",
+        "docs/production-performance/edge-only/deno-handler.json",
+        "--allow-env",
+        "--allow-read",
+        "docs/performance/chat-notifications-20261102/push_test.ts"
+      ],
+      "return_code": 0,
+      "expected_return_code": 0,
+      "log": ".dart_tool/waydrop-local-runtime/part4-push.log",
+      "expected_exit": true
+    },
+    {
+      "name": "push-baseline",
+      "command": [
+        "C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\deno-2.9.8-core\\deno.exe",
+        "test",
+        "--cached-only",
+        "--config",
+        "docs/production-performance/edge-only/deno-handler.json",
+        "--allow-env",
+        "--allow-read",
+        "--filter",
+        "/token cleanup:|sibling:|scope:|sequential recorded|foreign notification|empty tokens|network-only/",
+        "docs/performance/chat-notifications-20261102/push_test.ts"
+      ],
+      "return_code": 1,
+      "expected_return_code": 1,
+      "log": ".dart_tool/waydrop-local-runtime/part4-push-baseline.log",
+      "expected_exit": true
+    },
+    {
+      "name": "flutter-focused-final",
+      "command": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "C:\\Users\\karth\\Downloads\\flutter_windows_3.41.4-stable\\flutter\\bin\\flutter.BAT",
+        "test",
+        "--no-pub",
+        "test/part4_chat_lifecycle_test.dart",
+        "test/part4_chat_notifications_test.dart",
+        "test/loading_spike_regression_test.dart",
+        "test/chat_regression_test.dart",
+        "test/waydrop_gps_and_badge_test.dart",
+        "test/part2_realtime_gps_test.dart",
+        "test/notification_failure_tracking_regression_test.dart",
+        "test/send_push_notification_token_cache_regression_test.dart",
+        "test/notification_sound_channel_consistency_regression_test.dart",
+        "test/notification_icon_regression_test.dart",
+        "test/notification_and_gps_traffic_regression_test.dart",
+        "test/realtime_manager_release_safe_collision_guard_regression_test.dart",
+        "--reporter",
+        "expanded"
+      ],
+      "return_code": 0,
+      "expected_return_code": 0,
+      "log": ".dart_tool/waydrop-local-runtime/part4-flutter-focused-final.log",
+      "expected_exit": true
+    },
+    {
+      "name": "analyze-final",
+      "command": [
+        "C:\\Users\\karth\\Downloads\\flutter_windows_3.41.4-stable\\flutter\\bin\\cache\\dart-sdk\\bin\\dart.exe",
+        "analyze",
+        "lib/modules/chat/screens/order_chat_screen.dart",
+        "lib/modules/chat/services/chat_message_delivery.dart",
+        "lib/modules/chat/services/chat_message_merge.dart",
+        "lib/core/services/realtime/realtime_manager.dart",
+        "lib/modules/notifications/services/notification_badge_service.dart",
+        "lib/modules/notifications/services/notification_service.dart",
+        "test/part4_chat_notifications_test.dart"
+      ],
+      "return_code": 2,
+      "expected_return_code": 2,
+      "log": ".dart_tool/waydrop-local-runtime/part4-analyze-final.log",
+      "expected_exit": true
+    }
+  ],
+  "focused_flutter": {
+    "passed": 120,
+    "failed": 0
+  },
+  "push": {
+    "passed": 16,
+    "failed": 0,
+    "includes_restore_globals": true
+  },
+  "push_captured_v24_baseline": {
+    "passed": 0,
+    "failed_expected": 7
+  },
+  "native": {
+    "database": "waydrop_part4_synthetic",
+    "host": "127.0.0.1:54329",
+    "managed_auth": false,
+    "provider_network": false,
+    "tests": [
+      {
+        "test": "captured INSERT policy allows participant to forge sender (rolled back)",
+        "passed": true,
+        "before_forged_inserts_allowed": 1
+      },
+      {
+        "test": "captured INSERT policy allows unsolicited other-user support message (rolled back)",
+        "passed": true
+      },
+      {
+        "test": "candidate denies unsolicited other-user support message",
+        "passed": true
+      },
+      {
+        "test": "candidate preserves own support thread",
+        "passed": true
+      },
+      {
+        "test": "candidate denies forged sender",
+        "passed": true
+      },
+      {
+        "test": "candidate denies foreign order",
+        "passed": true
+      },
+      {
+        "test": "candidate preserves passenger",
+        "passed": true
+      },
+      {
+        "test": "candidate preserves rider",
+        "passed": true
+      },
+      {
+        "test": "candidate preserves support own identity",
+        "passed": true
+      },
+      {
+        "test": "candidate preserves trusted server",
+        "passed": true
+      },
+      {
+        "test": "12 competing identical UUID INSERTs commit one message/notification/enqueue",
+        "passed": true,
+        "attempts": 12,
+        "max_parallel_clients": 8,
+        "committed": 1,
+        "rows": [
+          1,
+          1,
+          1
+        ],
+        "elapsed_ms": 622.63
+      },
+      {
+        "test": "real statement timeout cancels full chat/notification/enqueue transaction",
+        "passed": true,
+        "sqlstate": "57014",
+        "new_committed_rows": 0
+      },
+      {
+        "test": "ordinary enqueue exception preserves chat/inbox and records failure, not a chat 500",
+        "passed": true,
+        "rows": [
+          2,
+          2,
+          1,
+          1
+        ]
+      },
+      {
+        "test": "actual pre-acceptance trigger still blocks passenger chat",
+        "passed": true
+      }
+    ],
+    "chain_round_trip_ms_including_psql_startup": [
+      214.594,
+      82.333,
+      81.08,
+      109.158,
+      85.779,
+      98.559,
+      72.838,
+      86.208,
+      71.689,
+      91.075
+    ],
+    "measurement_limit": "Synthetic mechanism checks only. No before/after trigger optimization or production latency measurement."
+  },
+  "full_flutter": {
+    "passed": 2096,
+    "failed": 16,
+    "log": ".dart_tool/waydrop-local-runtime/part4-flutter-full.log",
+    "scope": "Broader run before final additional merge assertion and cosmetic cleanup. Failure paths are outside Part 4 edits. No clean pre-Part-4 full-suite baseline was run in this turn.",
+    "failures": [
+      "00:07 +287 -1: C:/Users/karth/Desktop/appclad/test/incoming_order_minimize_and_intercity_accept_regression_test.dart: Issue 2 -- busy riders are never announced (sound/haptic) a new incoming order _showIncomingOrder bails out immediately when the rider already has an active order [E]",
+      "00:07 +287 -2: C:/Users/karth/Desktop/appclad/test/incoming_order_minimize_and_intercity_accept_regression_test.dart: Issue 2 -- busy riders are never announced (sound/haptic) a new incoming order a new incoming order plays sound/haptic and is tracked in _announcedOrders, never a dialog/sheet [E]",
+      "00:07 +287 -3: C:/Users/karth/Desktop/appclad/test/incoming_order_minimize_and_intercity_accept_regression_test.dart: Issue 2 -- busy riders are never announced (sound/haptic) a new incoming order reconciliation no longer caps announcing to one assignment per pass [E]",
+      "00:53 +1318 -4: C:/Users/karth/Desktop/appclad/test/production_control_system_regression_test.dart: 8. Home screen UI-level feature-flag enforcement (critical entry points only) the existing location-serviceability disabled behavior (separate reason, separate wording) is unchanged for tiles that are not feature-flag-disabled [E]",
+      "01:14 +1707 -5: C:/Users/karth/Desktop/appclad/test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart: listenActiveOrder() -- realtime callback skips its DB call while covered, subscription itself untouched the realtime subscription is still established unconditionally [E]",
+      "01:14 +1707 -6: C:/Users/karth/Desktop/appclad/test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart: listenActiveOrder() -- realtime callback skips its DB call while covered, subscription itself untouched the initial snapshot poll at setup is NOT gated (must always run once) [E]",
+      "01:14 +1707 -7: C:/Users/karth/Desktop/appclad/test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart: listenActiveOrder() -- realtime callback skips its DB call while covered, subscription itself untouched the realtime callback's own poll call is gated on isOpen [E]",
+      "01:14 +1707 -8: C:/Users/karth/Desktop/appclad/test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart: fetchSearchingOrders() call sites -- now gated on hasActiveOrder, matching the pre-existing startLocationTimer() invariant startLocationTimer()'s pre-existing hasActiveOrder guard is untouched (baseline invariant this fix reuses) [E]",
+      "01:14 +1708 -9: C:/Users/karth/Desktop/appclad/test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart: fetchSearchingOrders() call sites -- now gated on hasActiveOrder, matching the pre-existing startLocationTimer() invariant the orders-update channel (_ordersUpdateSubId) now checks !hasActiveOrder before fetchSearchingOrders() [E]",
+      "01:14 +1710 -10: C:/Users/karth/Desktop/appclad/test/rider_orders_screen_duplicate_active_order_work_suppressed_regression_test.dart: Untouched: assignment-expiry, rider status, and dispatch-critical rematch semantics listenRiderStatus() (rider online/offline) is completely unmodified by this fix [E]",
+      "01:16 +1750 -11: C:/Users/karth/Desktop/appclad/test/ride_b_missed_after_ride_a_completion_regression_test.dart: 2. THE FIX: the self-heal condition also fires on this instance's first poll, not only on an in-memory wasBusy->free transition the flag is captured into isFirstPollForThisInstance and flipped BEFORE the busy/free setState -- so the very first call after a fresh mount is unambiguously identified as \"first\", and every call after that is correctly \"not first\" [E]",
+      "01:16 +1753 -12: C:/Users/karth/Desktop/appclad/test/ride_b_missed_after_ride_a_completion_regression_test.dart: 3. No unnecessary repeated/duplicate work introduced (egress discipline preserved) the pre-existing _pollInFlight/_pollQueued re-entrancy guard (coalesces overlapping triggers into a single follow-up poll) is untouched and still wraps this whole function [E]",
+      "01:16 +1760 -13: C:/Users/karth/Desktop/appclad/test/ride_b_missed_after_ride_a_completion_regression_test.dart: 5. Every other reconciliation path this bug report asked about is untouched fetchSearchingOrders() itself -- the query that actually populates the visible list -- is completely unchanged: still rider_assignments where assignment_status='sent' joined to orders, still the same column projection (egress fix preserved) [E]",
+      "01:19 +1844 -14: C:/Users/karth/Desktop/appclad/test/subscription_trial_banner_and_vehicle_selection_regression_test.dart: 0. The mirrored logic above matches the real source exactly _isSubscriptionActive itself is unchanged (still the real entitlement check) [E]",
+      "01:19 +1853 -15: C:/Users/karth/Desktop/appclad/test/subscription_trial_banner_and_vehicle_selection_regression_test.dart: 5/6/7. Vehicle selector: only verified vehicles are selectable, all three are visible an unverified vehicle is non-tappable (onTap is null) and shows \"Not verified\" [E]",
+      "01:20 +1853 -16: C:/Users/karth/Desktop/appclad/test/subscription_trial_banner_and_vehicle_selection_regression_test.dart: 5/6/7. Vehicle selector: only verified vehicles are selectable, all three are visible isVerified is derived from availableVehicleTypes, which is filtered to verifiedVehicleTypes -- the rider's actual verified vehicles (KYC-approved primary or approved rider_vehicles), never an arbitrary/unfiltered set [E]"
+    ]
+  },
+  "analysis": {
+    "errors": 0,
+    "warnings": 3,
+    "infos": 11,
+    "initial_attempt": "Analysis server crashed with closed pipe; direct SDK rerun completed."
+  },
+  "source_sha256": {
+    "lib/modules/chat/screens/order_chat_screen.dart": "669fb79425e99555a9a08e40574137f05a82d85451471fd4a0fd61382021d732",
+    "lib/modules/chat/services/chat_message_delivery.dart": "0055c40a808af83dc3607839b4feaf3e6dba48e7d3634138d2836a0a09e48d79",
+    "lib/modules/chat/services/chat_message_merge.dart": "f7c2bf781543ac013984182943970958a5d22ad3f68100c778adeac63c22f442",
+    "lib/core/services/realtime/realtime_manager.dart": "1c604cc20e7e813372e5690beb11986cd865a9fa1f2a0f2e89ebfb75f13bac3c",
+    "lib/modules/notifications/services/notification_badge_service.dart": "de70277acc7d2f1b3ed30d0686040baad7676ec02989cb1b7bbca15e355b5782",
+    "lib/modules/notifications/services/notification_service.dart": "22e263b92f741dd13e9b446ced31aeda10ae1284fa99edb30da00bc8b28b5147",
+    "supabase/functions/send-push-notification/index.ts": "3e3693f8618f58f1c2fbb9227b65a45315ff02ef83648e6d6294f4b5fc25f084",
+    "supabase/functions/send-push-notification/fcm_result.ts": "b4313366db3ed8ac98ecc38afe689ce214e70332c6aaac1d29146b21400ba30f",
+    "docs/performance/chat-notifications-20261102/CHAT_SENDER_POLICY.candidate.sql": "2cb30b7392edfaece275e9bada88db2ab09e0c0ecb75b786c04f5ddf40f4003c",
+    "test/part4_chat_notifications_test.dart": "5e3525a93baa5f653e4d19bd717a9bb892fd25e48cfd1ac9d8250c138c1bf989",
+    "test/part4_chat_lifecycle_test.dart": "446667a800028a0eb5dc51e45e1565f3ee80b2b75daa5e69704b9fafa92ae33b",
+    "test/chat_regression_test.dart": "3407e824bfe7a8d0bac7bb77db48406bf75974442e26dbb1223e9239ecaae1a0"
+  },
+  "initiating_incident_cause": "UNPROVEN",
+  "part5_started": false
+}

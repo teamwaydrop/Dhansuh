@@ -1,0 +1,13 @@
+{
+  "status": "TYPE_ONLY_LEGACY_RECONSTRUCTION",
+  "change": "Explicit finalAssignment type annotation only",
+  "originalSourceSha256": "521fd8533d8a6d0fde15ccf9ceb211a8c631e3822f82c7f324b9e629736c9dfc",
+  "reconstructionSourceSha256": "a99f8f583ce7028a32fd31a964f5b32bbf759937511fa885be2ea5620ea761b5",
+  "erasedJavaScriptIdentical": true,
+  "erasedJavaScriptSha256": "6304955143342e5df36887adc6290d7abfe0992b563d156dee17414e8a9d4099",
+  "limits": [
+    "Original captured v60 bytes remain unchanged.",
+    "Legacy logic retains the known race; use only while acceptance traffic is blocked.",
+    "Hosted runtime and original hosted dependency graph are not proven."
+  ]
+}

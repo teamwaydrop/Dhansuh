@@ -1,0 +1,278 @@
+[
+  {
+    "table_name": "admin_logs",
+    "columns": "{id,admin_id,action_type,target_type,target_id,description,metadata,ip_address,user_agent,created_at}"
+  },
+  {
+    "table_name": "admins",
+    "columns": "{id,admin_code,name,phone,email,password_hash,role,permissions,is_active,is_account_locked,last_login_at,created_at}"
+  },
+  {
+    "table_name": "cod_settlement_ledger",
+    "columns": "{id,rider_id,payment_id,entry_type,amount,created_at}"
+  },
+  {
+    "table_name": "data_deletion_requests",
+    "columns": "{id,user_id,requested_at,status,processed_at,processed_by,notes}"
+  },
+  {
+    "table_name": "deleted_user_archive",
+    "columns": "{id,user_id,deletion_request_id,role,original_phone,original_email,original_full_name,deleted_at,deleted_by,notes}"
+  },
+  {
+    "table_name": "dispatch_config",
+    "columns": "{id,config_code,round_1_radius_km,round_1_batch_size,round_2_radius_km,round_2_batch_size,round_3_radius_km,round_3_batch_size,rider_response_timeout_sec,max_search_duration_sec,reject_cooldown_sec,timeout_cooldown_sec,rider_location_stale_sec,max_active_orders_per_rider,allow_round_3,allow_boosted_priority,is_active,updated_by_admin_id,created_at,updated_at,round_2_trigger_if_no_riders_sec,round_2_trigger_after_sec,round_3_trigger_after_sec}"
+  },
+  {
+    "table_name": "distance_discounts",
+    "columns": "{id,km_5_discount,km_10_discount,km_15_discount,km_20_discount,is_active,created_at,updated_at}"
+  },
+  {
+    "table_name": "government_tax_config",
+    "columns": "{id,threshold_amount,is_active,created_at,updated_at}"
+  },
+  {
+    "table_name": "government_tax_ledger",
+    "columns": "{id,rider_id,order_id,payment_id,entry_type,service_category,taxable_base,rate_percent,amount,created_at}"
+  },
+  {
+    "table_name": "intercity_requests",
+    "columns": "{id,parcel_id,route_id,traveller_id,sender_id,initiated_by,status,proposed_fare,sender_confirmed,traveller_confirmed,created_at,updated_at,booking_type,expires_at,metadata,expiry_reason,cancelled_reason,cancelled_by_actor}"
+  },
+  {
+    "table_name": "lawful_disclosure_requests",
+    "columns": "{id,created_at,handled_by_admin_id,requesting_authority,reference_number,legal_basis,legal_review_confirmed,target_user_id,target_phone_last4,disclosed_scope,result_summary,notes}"
+  },
+  {
+    "table_name": "notification_failures",
+    "columns": "{id,failure_stage,source_function,notification_type,reference_id,user_id,notification_id,error_code,error_message,pg_net_request_id,created_at}"
+  },
+  {
+    "table_name": "notifications",
+    "columns": "{id,user_id,title,body,notification_type,reference_id,reference_type,is_read,push_sent,delivery_status,delivery_error,payload,created_at,read_at}"
+  },
+  {
+    "table_name": "order_assignment_logs",
+    "columns": "{id,order_id,rider_id,assignment_status,assignment_round,rider_distance_km,estimated_pickup_time_min,sent_at,viewed_at,responded_at,rejection_reason,metadata,created_at}"
+  },
+  {
+    "table_name": "order_chat_messages",
+    "columns": "{id,order_id,rider_id,sender_id,sender_type,message,created_at,is_support,user_id,message_type,metadata}"
+  },
+  {
+    "table_name": "order_completion_side_effects",
+    "columns": "{order_id,terminal_status,enqueued_at,attempts,activity_effect_done,reward_effect_done,token_effect_done,processed_at,last_error}"
+  },
+  {
+    "table_name": "order_declarations",
+    "columns": "{id,order_id,user_id,declaration_text,accepted,accepted_ip,accepted_device_id,accepted_at,declaration_version,accepted_device_ref}"
+  },
+  {
+    "table_name": "order_parcel_photos",
+    "columns": "{id,order_id,rider_id,photo_url,latitude,longitude,captured_at,photo_type,file_sha256}"
+  },
+  {
+    "table_name": "order_status_history",
+    "columns": "{id,order_id,previous_status,new_status,changed_by,changed_by_user_id,changed_by_rider_id,changed_by_admin_id,notes,metadata,created_at}"
+  },
+  {
+    "table_name": "order_verifications",
+    "columns": "{id,order_id,verification_type,verification_status,photo_url,latitude,longitude,metadata,created_by,created_at}"
+  },
+  {
+    "table_name": "orders",
+    "columns": "{id,order_code,user_id,rider_id,order_type,vehicle_type,order_status,pricing_config_id,distance_meters,distance_km,estimated_duration_min,actual_duration_min,time_taken_seconds,pickup_address,pickup_lat,pickup_lng,destination_address,destination_lat,destination_lng,actual_fare,current_fare,final_fare,base_fare,distance_fare,time_fare,waiting_charge,platform_fee,gst_percentage,gst_amount,commission_percentage,commission_amount,rider_earning,boost_amount,subscription_commission_waived,pricing_snapshot,payment_mode,payment_status,payment_id,pickup_otp,delivery_otp,search_expires_at,cancelled_by,cancel_reason,parcel_type,receiver_name,receiver_phone,weight_category,actual_weight_kg,parcel_images,special_instructions,created_at,updated_at,accepted_at,rider_arrived_at,picked_up_at,rider_at_drop_at,completed_at,cancelled_at,pickup_otp_attempts,delivery_otp_attempts,boost_company_earning,boost_rider_earning,boost_percentage,dispatch_attempts,boost_round,current_search_radius_km,last_dispatched_at,rider_rejections_count,redispatch_count,pickup_city,destination_city,travel_date,dispatch_state,created_ip_address,created_lat,created_lng,sender_declaration_accepted,sender_declaration_accepted_at,pickup_verification_completed,pickup_verification_completed_at,compliance_flagged,compliance_notes,created_device_ref,created_device_record_id,created_device_model,created_device_brand,created_os_version,created_app_version,compliance_status,compliance_score,compliance_retention_until,parcel_declared_value,high_risk_parcel,dispatch_worker_running,dispatch_worker_started_at,seats_requested,near_destination_notified,trip_started_at,upi_payment_prompted_at,fare_payment_method,fare_payment_attempted_at,fare_paid_at,fare_payment_reference,fare_payment_screenshot_url,idempotency_key,pg_charge_amount}"
+  },
+  {
+    "table_name": "otp_attempts",
+    "columns": "{id,phone,attempted_at,is_successful,otp_code,client_ip,action_type}"
+  },
+  {
+    "table_name": "parcel_compliance_reports",
+    "columns": "{id,order_id,generated_for,generated_at,report_json,generated_by}"
+  },
+  {
+    "table_name": "parcel_compliance_view",
+    "columns": "{order_id,order_code,order_type,order_status,compliance_status,compliance_score,compliance_flagged,compliance_notes,parcel_declared_value,high_risk_parcel,created_device_ref,created_device_record_id,created_device_model,created_device_brand,created_os_version,created_app_version,created_ip_address,created_lat,created_lng,pickup_verification_completed,pickup_verification_completed_at,compliance_retention_until,sender_id,sender_phone,declaration_id,declaration_version,declaration_text,declaration_accepted_at,declaration_accepted_ip,declaration_accepted_device_ref,sos_trigger_count,photo_count}"
+  },
+  {
+    "table_name": "parcel_security_logs",
+    "columns": "{id,order_id,sender_user_id,rider_id,event_type,photo_url,latitude,longitude,ip_address,device_id,metadata,created_at,event_latitude,event_longitude}"
+  },
+  {
+    "table_name": "parcel_security_timeline_view",
+    "columns": "{order_id,order_code,log_id,event_type,event_latitude,event_longitude,event_timestamp,device_id,metadata}"
+  },
+  {
+    "table_name": "passenger_trip_stats_view",
+    "columns": "{user_id,completed_trips}"
+  },
+  {
+    "table_name": "payment_disputes",
+    "columns": "{id,order_id,raised_by,raised_role,reason,status,evidence_screenshot_url,admin_notes,resolved_by,resolved_at,created_at,updated_at}"
+  },
+  {
+    "table_name": "payments",
+    "columns": "{id,payment_code,user_id,rider_id,payment_for,reference_id,amount,gst_amount,platform_fee,discount_amount,final_amount,payment_method,payment_gateway,gateway_transaction_id,gateway_order_id,payment_status,paid_at,refunded_at,refund_reason,metadata,created_at,updated_at,rider_earning,company_earning,webhook_received,webhook_payload,failure_reason,settlement_reference,payment_source,plan_id}"
+  },
+  {
+    "table_name": "police_sos_logs",
+    "columns": "{id,order_id,rider_id,opened_at,latitude,longitude,notes,police_reference_code,support_ticket_code,rider_lat,rider_lng}"
+  },
+  {
+    "table_name": "pricing_change_logs",
+    "columns": "{id,pricing_config_id,changed_by_admin_id,old_data,new_data,change_reason,created_at}"
+  },
+  {
+    "table_name": "pricing_config",
+    "columns": "{id,pricing_code,service_type,vehicle_type,city_tier,pricing_zone_id,commission_percentage,gst_percentage,cancellation_fee,waiting_charge_per_min,subscription_commission_waiver,max_boost_percentage,pricing_rules,future_rules,approval_status,approved_by_admin_id,approved_at,rejection_reason,is_active,effective_from,effective_until,created_by_admin_id,created_at,updated_at,discount_percentage}"
+  },
+  {
+    "table_name": "pricing_zones",
+    "columns": "{id,zone_code,zone_name,zone_type,cities,is_active,created_at,center_lat,center_lng,radius_km,zone_shape}"
+  },
+  {
+    "table_name": "production_config",
+    "columns": "{id,config_code,is_active,minimum_android_version,latest_android_version,force_update,update_message,maintenance_mode,maintenance_message,local_rides_enabled,ride_booking_enabled,intercity_enabled,parcel_enabled,payments_enabled,subscriptions_enabled,notifications_enabled,extra_flags,updated_by_admin_id,created_at,updated_at}"
+  },
+  {
+    "table_name": "promo_code_users",
+    "columns": "{id,promo_code_id,user_id,created_at}"
+  },
+  {
+    "table_name": "promo_codes",
+    "columns": "{id,code,discount_type,discount_value,max_discount,min_order_value,expires_at,max_uses,uses_count,is_active,audience_type,created_at}"
+  },
+  {
+    "table_name": "reward_config",
+    "columns": "{id,config_code,is_active,user_rewards_enabled,user_required_rides,user_offer_validity_days,user_default_discount_type,user_default_discount_value,partner_rewards_enabled,partner_required_rides,partner_offer_validity_days,partner_default_discount_type,partner_default_discount_value,updated_by_admin_id,created_at,updated_at,activation_window_minutes}"
+  },
+  {
+    "table_name": "reward_cycles",
+    "columns": "{id,owner_type,owner_id,cycle_number,qualifying_rides_threshold,discount_type,discount_value,unlocked_at,expires_at,status,redeemed_at,redeemed_offer_id,created_at,activation_expires_at,pass_closed_at}"
+  },
+  {
+    "table_name": "reward_offer_categories",
+    "columns": "{id,code,display_name,sort_order,is_active,default_discount_type,default_discount_value,created_at,updated_at}"
+  },
+  {
+    "table_name": "reward_offers",
+    "columns": "{id,category_id,merchant_name,title,description,discount_type,discount_value,coupon_code,redemption_instructions,terms,valid_from,valid_until,image_url,address,phone,is_active,sort_order,created_at,updated_at}"
+  },
+  {
+    "table_name": "rider_assignments",
+    "columns": "{id,order_id,rider_id,assignment_round,assignment_status,distance_km,estimated_earnings,sent_at,viewed_at,responded_at,expires_at,created_at,updated_at,last_seen_at,last_response_at,response_type,hidden_until,last_seen_fare,accepted_at,rejected_at}"
+  },
+  {
+    "table_name": "rider_daily_activity",
+    "columns": "{id,rider_id,date,online_seconds,active_seconds,completed_orders,cancelled_orders,earnings,last_online_toggle_at,created_at,updated_at}"
+  },
+  {
+    "table_name": "rider_kyc",
+    "columns": "{id,user_id,full_name,father_name,vehicle_type,aadhaar_number,pan_number,driving_license_number,vehicle_number,rider_image,aadhaar_front_image,aadhaar_back_image,pan_front_image,pan_back_image,license_front_image,license_back_image,vehicle_image,kyc_status,activation_status,handled_by_admin_id,approved_at,rejected_at,rejection_reason,activated_at,created_at,updated_at,rejection_count,blocked_until,date_of_birth,VECHILE_RC_front_image,VECHILE_RC_back_image}"
+  },
+  {
+    "table_name": "rider_kyc_public",
+    "columns": "{user_id,full_name,vehicle_type,vehicle_number,rider_image,kyc_status,vehicle_image}"
+  },
+  {
+    "table_name": "rider_kyc_retention_archive",
+    "columns": "{id,rider_id,user_id,kyc_id,full_name,father_name,date_of_birth,aadhaar_number,pan_number,driving_license_number,vehicle_number,vehicle_type,rider_image_path,aadhaar_front_image_path,aadhaar_back_image_path,pan_front_image_path,pan_back_image_path,license_front_image_path,license_back_image_path,vehicle_image_path,vehicle_rc_front_image_path,vehicle_rc_back_image_path,additional_vehicles,deletion_requested_at,retention_reason,retention_expires_at,legal_hold,created_at}"
+  },
+  {
+    "table_name": "rider_locations",
+    "columns": "{rider_id,current_lat,current_lng,current_heading,last_location_updated_at,last_active_at,created_at,updated_at}"
+  },
+  {
+    "table_name": "rider_payout_accounts",
+    "columns": "{id,rider_id,user_id,beneficiary_id,beneficiary_name,beneficiary_email,beneficiary_phone,account_number,ifsc_code,upi_vpa,cashfree_beneficiary_added,cashfree_beneficiary_status,cashfree_beneficiary_response,is_primary,created_at,updated_at,payout_method,default_fare_payment_method,upi_verified,upi_verified_at,upi_verification_last_checked_at,upi_verification_last_response,upi_self_certified,upi_self_certified_at,personal_qr_path,personal_qr_uploaded_at}"
+  },
+  {
+    "table_name": "rider_payout_updates_log",
+    "columns": "{id,user_id,created_at}"
+  },
+  {
+    "table_name": "rider_reliability_view",
+    "columns": "{rider_id,user_id,reliability_score,rating,completion_rate,on_time_rate,total_completed,total_cancelled,experience_score}"
+  },
+  {
+    "table_name": "rider_reviews",
+    "columns": "{id,order_id,rider_id,user_id,rating,tags,comment,created_at,rated_by}"
+  },
+  {
+    "table_name": "rider_subscription_history",
+    "columns": "{id,rider_id,amount,payment_status,payment_id,starts_at,expires_at,is_active,created_at,expire_warning_sent}"
+  },
+  {
+    "table_name": "rider_travel_plans",
+    "columns": "{id,rider_id,pickup_city,destination_city,pickup_lat,pickup_lng,destination_lat,destination_lng,weight_preference,travel_date,status,created_at,updated_at,plan_code,max_weight_kg,max_bookings,travel_plan_type,vehicle_type,route_geometry,distance_km,base_fare_per_seat,gst_amount_per_seat,price_per_seat,cancel_reason,selected_route_geometry,selected_route_meta,route_selection_status}"
+  },
+  {
+    "table_name": "rider_vehicles",
+    "columns": "{id,rider_id,vehicle_type,vehicle_number,rc_front_image,rc_back_image,vehicle_image,status,rejection_reason,created_at,updated_at,reviewed_by,reviewed_at}"
+  },
+  {
+    "table_name": "rider_withdrawal_events",
+    "columns": "{id,withdrawal_id,event_type,old_status,new_status,response,created_at}"
+  },
+  {
+    "table_name": "rider_withdrawals",
+    "columns": "{id,rider_id,user_id,amount,transfer_id,status,cashfree_reference_id,cashfree_response,created_at,updated_at}"
+  },
+  {
+    "table_name": "riders",
+    "columns": "{id,kyc_id,user_id,rating,total_orders,total_completed_orders,total_cancelled_orders,total_earnings,today_earnings,wallet_balance,cod_pending_amount,cod_limit,account_status,current_lat,current_lng,current_heading,last_location_updated_at,last_active_at,subscription_active,subscription_expires_at,commission_waiver_active,is_verified,created_at,updated_at,last_dormant_notification_sent_at,last_sub_offline_notification_sent_at,service_mode,government_tax_due_balance,rating_sum,total_ratings,free_trial_started_at,free_trial_expires_at,free_trial_used}"
+  },
+  {
+    "table_name": "settlement_reconciliation_summary",
+    "columns": "{order_id,rider_id,final_fare,order_status,payment_mode,payment_status,cash_collected,wallet_transaction_sum,total_settlements}"
+  },
+  {
+    "table_name": "subscription_plans",
+    "columns": "{plan_id,label,amount,duration_hours,is_active,created_at,updated_at,vehicle_type}"
+  },
+  {
+    "table_name": "tax_rate_config",
+    "columns": "{id,service_category,rate_percent,effective_from,is_active,created_at,updated_at}"
+  },
+  {
+    "table_name": "travel_matches",
+    "columns": "{id,order_id,plan_id,matched_direction,created_at}"
+  },
+  {
+    "table_name": "travel_plan_capacity_view",
+    "columns": "{plan_id,max_weight_kg,used_weight_kg,remaining_capacity_kg}"
+  },
+  {
+    "table_name": "travel_plan_seat_availability_view",
+    "columns": "{plan_id,max_bookings,confirmed_count,available_seats}"
+  },
+  {
+    "table_name": "trip_share_tokens",
+    "columns": "{token_id,order_id,token,expires_at,is_revoked,access_count,last_accessed_at,created_at}"
+  },
+  {
+    "table_name": "user_device_tokens",
+    "columns": "{id,user_id,fcm_token,device_type,created_at,updated_at,device_id,device_model,device_brand,os_version,app_version,last_ip_address,last_lat,last_lng,user_device_id}"
+  },
+  {
+    "table_name": "user_devices",
+    "columns": "{id,user_id,device_id,device_ref,device_model,device_brand,os_version,app_version,last_ip_address,last_seen_at,created_at,updated_at,is_active}"
+  },
+  {
+    "table_name": "user_promo_usages",
+    "columns": "{id,user_id,promo_code_id,used_at,order_id}"
+  },
+  {
+    "table_name": "users",
+    "columns": "{id,phone,created_at,full_name,email,profile_completed,onboarding_completed,preferred_mode,last_active_mode,role,pref_order_notifications,pref_chat_notifications,pref_rating_notifications,pref_admin_notifications,user_code,order_notification_mode,rating,total_ratings,gender,profile_photo_url,is_developer,rating_sum,deleted_at}"
+  },
+  {
+    "table_name": "wallet_audit_logs",
+    "columns": "{id,run_at,discrepancies_found,details}"
+  },
+  {
+    "table_name": "wallet_transactions",
+    "columns": "{id,rider_id,amount,type,reference_id,reference_type,description,created_at}"
+  }
+]

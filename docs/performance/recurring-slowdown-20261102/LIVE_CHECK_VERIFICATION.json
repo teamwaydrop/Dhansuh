@@ -1,0 +1,46 @@
+{
+  "observed_at": "2026-11-02T08:40:35.115137+00:00",
+  "user_build": "release 1.0.0 (54), user confirmed; installed artifact hash not obtained",
+  "production": {
+    "sql_read_snapshots": 1,
+    "edge_metadata_reads": 1,
+    "public_http_gets": 6,
+    "log_queries": 0,
+    "writes": 0,
+    "deployments": 0,
+    "paid_resources": 0
+  },
+  "reproduction": {
+    "pre_fix_expected_failed_tests": 2,
+    "pre_fix_pending_reads": 2,
+    "post_fix_pending_reads": 1,
+    "focused_pass": 39,
+    "full_flutter_pass": 2120,
+    "full_flutter_fail": 0,
+    "targeted_analyzer": "No issues found; 2 changed files",
+    "full_analyzer": "stalled; own analyzer subprocess stopped; targeted retry succeeded"
+  },
+  "limitations": [
+    "Six public desktop reads cannot prove private APIs/phone performance",
+    "No Android device connected",
+    "Original November incident initiating cause unproven",
+    "Explicit manual retry may still overlap a timed-out non-cancelled request",
+    "No APK rebuild or install performed"
+  ],
+  "source_sha256": {
+    "lib/core/services/session/account_profile_service.dart": "b395aea43b5194ab50a6ddeebce2a40bc9bc0798488bff5e78d86f63b33a3c19",
+    "test/startup_account_schema_regression_test.dart": "f51dcb867d8fa5f5a9bf2ca79f6a20dc9f3f4b8f4855f63a9e94d6ec056cf505"
+  },
+  "logs": {
+    "live-startup-timeout-before.log": "c792005eee60c9062464eb792836dd741194373b768ec5a45fe3097f9c5f0a81",
+    "live-startup-focused.log": "f1d35f62818037f5f1281e56e41868cfce4e1c4dff05e57a2e3d7aa8bd02ae37",
+    "live-full-flutter.log": "c9e3ea6e2e05cefd8cca6d9a889c17a69dcc062356ea1fa3bd17944b13901f2b",
+    "live-analyze.log": "01d5c9e014125980ce9a62bf10cf538de283f684a161085e31eeec73770d9474",
+    "live-analyze-targeted.log": "bd9dfa5ea555b509aaf2d9d7ef145861db58208f07b12a1045e77f0e7bb70aea"
+  },
+  "fresh_artifacts_sha256": {
+    "LIVE_HTTP_1355.json": "33d4b6c40873d1a3fe379a317df191e7d8f110afe3b7ae2efc5a4e7cc8186c25",
+    "LIVE_DATABASE_1355.json": "1ee0129e9610f005971609b23fe9e2fbe34cf2386941dfbbaa55e2970fd669b2",
+    "STARTUP_TIMEOUT_MINIMAL.patch": "f4cdb6bcb2eb9ab4cf263ca3c725d258ba2157dee545584e4a3be80049920f0a"
+  }
+}

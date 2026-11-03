@@ -1,0 +1,259 @@
+import { useCallback, useEffect, useState } from 'react'
+import { Users, UserCheck, DollarSign, TrendingUp, ClipboardList, ArrowDownCircle, Inbox, AlertCircle } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { supabase } from '../lib/supabase'
+import { cachedFetch, readCache } from '../lib/queryCache'
+import StatCard from '../components/ui/StatCard'
+import Badge from '../components/ui/Badge'
+import { StatCardSkeleton, TableSkeleton, Skeleton } from '../components/ui/Skeleton'
+
+const CACHE_KEY = 'dashboard'
+const CACHE_TTL = 60_000 // 1 minute
+
+async function fetchDashboardData() {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
+  sevenDaysAgo.setHours(0, 0, 0, 0)
+
+  // Bounded queries stay client-side (7-day chart + last 10 trips) so the
+  // day buckets are computed in the admin's own timezone, exactly as before.
+  // All three calls run in parallel — counts + all-time revenue sums are
+  // aggregated inside Postgres (1 round trip, no huge row sets). Falls back
+  // to the original parallel queries if the migration hasn't been applied.
+  const [{ data: weekPayments }, { data: trips }, { data: agg, error: aggError }] = await Promise.all([
+    supabase.from('payments').select('final_amount, created_at').eq('payment_status', 'paid').gte('created_at', sevenDaysAgo.toISOString()),
+    supabase.from('orders').select('id, order_code, order_type, order_status, pickup_address, destination_address, final_fare, actual_fare, created_at').in('order_status', ['completed', 'delivered']).order('created_at', { ascending: false }).limit(10),
+    supabase.rpc('get_dashboard_stats', { p_today: today.toISOString() }),
+  ])
+
+  let statsData
+  if (!aggError && agg) {
+    statsData = {
+      totalRiders:       agg.total_riders ?? 0,
+      activeRiders:      agg.active_riders ?? 0,
+      pendingKyc:        agg.pending_kyc ?? 0,
+      pendingWithdrawals: agg.pending_withdrawals ?? 0,
+      todayRevenue:      Number(agg.today_revenue) || 0,
+      totalRevenue:      Number(agg.total_revenue) || 0,
+    }
+  } else {
+    const [
+      { count: totalRiders },
+      { count: activeRiders },
+      { count: pendingKyc },
+      { count: pendingWithdrawals },
+      { data: todayPayments },
+      { data: allPayments },
+    ] = await Promise.all([
+      supabase.from('riders').select('id', { count: 'exact', head: true }),
+      supabase.from('riders').select('id', { count: 'exact', head: true }).eq('account_status', 'online'),
+      supabase.from('rider_kyc').select('id', { count: 'exact', head: true }).eq('kyc_status', 'pending'),
+      supabase.from('rider_withdrawals').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      supabase.from('payments').select('final_amount').eq('payment_status', 'paid').gte('created_at', today.toISOString()),
+      supabase.from('payments').select('final_amount').eq('payment_status', 'paid'),
+    ])
+    statsData = {
+      totalRiders,
+      activeRiders,
+      pendingKyc: pendingKyc ?? 0,
+      pendingWithdrawals: pendingWithdrawals ?? 0,
+      todayRevenue: (todayPayments || []).reduce((s, p) => s + (p.final_amount || 0), 0),
+      totalRevenue: (allPayments || []).reduce((s, p) => s + (p.final_amount || 0), 0),
+    }
+  }
+
+  // Build 7-day chart
+  const dayMap = {}
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(sevenDaysAgo)
+    d.setDate(d.getDate() + i)
+    const key = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' })
+    dayMap[key] = 0
+  }
+  ;(weekPayments || []).forEach(p => {
+    const key = new Date(p.created_at).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' })
+    if (key in dayMap) dayMap[key] += p.final_amount || 0
+  })
+
+  return {
+    stats: statsData,
+    chart: Object.entries(dayMap).map(([day, revenue]) => ({ day, revenue })),
+    trips: trips || [],
+  }
+}
+
+function RevenueTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-white rounded-lg shadow-card-hover border border-gray-100 px-3.5 py-2.5">
+      <p className="text-[11px] text-gray-400 mb-0.5">{label}</p>
+      <p className="text-sm font-semibold text-gray-900 tabular-nums">₹{Number(payload[0].value).toFixed(2)}</p>
+    </div>
+  )
+}
+
+export default function Dashboard() {
+  const cached = readCache(CACHE_KEY, CACHE_TTL, true)
+  const [stats, setStats]       = useState(cached?.stats ?? null)
+  const [chartData, setChart]   = useState(cached?.chart ?? [])
+  const [recentTrips, setTrips] = useState(cached?.trips ?? [])
+  const [loading, setLoading]   = useState(!cached)
+  const [error, setError]       = useState('')
+
+  const load = useCallback(async () => {
+    try {
+      setError('')
+      // Stale-while-revalidate: cached data shows instantly, fresh data lands
+      // in the background. cachedFetch dedupes concurrent mounts (StrictMode).
+      const data = await cachedFetch(CACHE_KEY, fetchDashboardData, CACHE_TTL, true)
+      setStats(data.stats)
+      setChart(data.chart)
+      setTrips(data.trips)
+    } catch (e) {
+      console.error(e)
+      setError('Could not load dashboard data. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    let timer
+
+    // Only schedules a new timer while the tab is visible — a backgrounded
+    // tab never has a pending refresh, so it can't fire one either.
+    const scheduleNext = () => {
+      clearTimeout(timer)
+      if (cancelled || document.visibilityState === 'hidden') return
+      timer = setTimeout(tick, CACHE_TTL)
+    }
+    const tick = async () => {
+      await load()
+      scheduleNext()
+    }
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        clearTimeout(timer)
+      } else {
+        clearTimeout(timer)
+        tick() // exactly one refresh on return, then resumes the normal cadence
+      }
+    }
+
+    load().then(scheduleNext)
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [load])
+
+  return (
+    <div className="p-6 space-y-6">
+      <div>
+        <h1 className="text-xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Welcome back. Here's what's happening today.</p>
+      </div>
+
+      {error && (
+        <div className="flex items-center justify-between gap-3 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">
+          <span className="flex items-center gap-2"><AlertCircle size={16} /> {error}</span>
+          <button onClick={load} className="font-medium underline hover:no-underline shrink-0">Retry</button>
+        </div>
+      )}
+
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        {loading ? (
+          Array.from({ length: 6 }).map((_, i) => <StatCardSkeleton key={i} />)
+        ) : (
+          <>
+            <StatCard title="Total Riders"   value={stats?.totalRiders ?? 0}                                          icon={Users}     color="orange" />
+            <StatCard title="Active Riders"  value={stats?.activeRiders ?? 0}                                         icon={UserCheck} color="green"  sub="Currently online" />
+            <StatCard title="Today Revenue"  value={`₹${(stats?.todayRevenue || 0).toFixed(2)}`}                      icon={DollarSign} color="blue" />
+            <StatCard title="Total Revenue"  value={`₹${(stats?.totalRevenue || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={TrendingUp} color="purple" />
+            <StatCard title="Pending KYC"    value={stats?.pendingKyc ?? 0}                                           icon={ClipboardList} color="orange" sub="Awaiting review" />
+            <StatCard title="Pending Payouts" value={stats?.pendingWithdrawals ?? 0}                                  icon={ArrowDownCircle} color="blue" sub="Withdrawal requests" />
+          </>
+        )}
+      </div>
+
+      {/* Chart */}
+      <div className="bg-white rounded-xl p-5 shadow-card border border-gray-100">
+        <h2 className="text-sm font-semibold text-gray-700 mb-4">Revenue — Last 7 Days</h2>
+        {loading ? (
+          <Skeleton className="h-[220px] w-full" />
+        ) : (
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="dashRevenueLine" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#10B981" />
+                  <stop offset="100%" stopColor="#059669" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={{ stroke: '#f1f5f9' }} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={v => `₹${v}`} axisLine={false} tickLine={false} />
+              <Tooltip content={<RevenueTooltip />} cursor={{ stroke: '#10B981', strokeWidth: 1, strokeDasharray: '4 4' }} />
+              <Line type="monotone" dataKey="revenue" stroke="url(#dashRevenueLine)" strokeWidth={2.5} dot={{ fill: '#10B981', strokeWidth: 0, r: 4 }} activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff' }} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+
+      {/* Recent Trips */}
+      <div className="bg-white rounded-xl shadow-card border border-gray-100">
+        <div className="px-5 py-4 border-b border-gray-100">
+          <h2 className="text-sm font-semibold text-gray-700">Recently Completed Trips</h2>
+        </div>
+        {loading ? (
+          <TableSkeleton rows={5} cols={6} />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+                  <th className="px-5 py-3 text-left font-semibold">Trip ID</th>
+                  <th className="px-5 py-3 text-left font-semibold">Type</th>
+                  <th className="px-5 py-3 text-left font-semibold">Pickup</th>
+                  <th className="px-5 py-3 text-left font-semibold">Drop</th>
+                  <th className="px-5 py-3 text-left font-semibold">Amount</th>
+                  <th className="px-5 py-3 text-left font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {recentTrips.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-5 py-14 text-center text-gray-400">
+                      <div className="flex flex-col items-center gap-2">
+                        <Inbox size={28} className="text-gray-300" />
+                        <span>No completed trips yet</span>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                {recentTrips.map(t => (
+                  <tr key={t.id} className="hover:bg-gray-50/70 transition-colors">
+                    <td className="px-5 py-3 font-mono text-xs text-gray-500">{t.order_code || t.id?.slice(0, 8) || '—'}</td>
+                    <td className="px-5 py-3"><Badge value={t.order_type} /></td>
+                    <td className="px-5 py-3 text-gray-700 max-w-[180px] truncate">{t.pickup_address}</td>
+                    <td className="px-5 py-3 text-gray-700 max-w-[180px] truncate">{t.destination_address}</td>
+                    <td className="px-5 py-3 font-medium text-gray-900 tabular-nums">₹{Number(t.final_fare || t.actual_fare || 0).toFixed(2)}</td>
+                    <td className="px-5 py-3"><Badge value={t.order_status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

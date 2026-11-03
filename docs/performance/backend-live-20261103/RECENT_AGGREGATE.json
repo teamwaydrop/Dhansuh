@@ -1,0 +1,57 @@
+{
+  "query": "SELECT source,count() AS n,countIf(source='edge_logs' AND toInt32OrZero(log_attributes['response.status_code'])>=500) AS http5xx,countIf(source='edge_logs' AND toFloat64OrZero(log_attributes['response.origin_time'])>5000) AS over5s,max(if(source='function_edge_logs',toFloat64OrZero(log_attributes['execution_time_ms']),toFloat64OrZero(log_attributes['response.origin_time']))) AS max_ms,countIf(positionCaseInsensitive(event_message,'timeout')>0 OR log_attributes['parsed.sql_state_code']='57014') AS timeout_records,min(timestamp) AS first_record,max(timestamp) AS last_record FROM logs GROUP BY source ORDER BY source",
+  "evidence": {
+    "result": [
+      {
+        "first_record": "2026-11-02T20:00:27.274000",
+        "http5xx": 0,
+        "last_record": "2026-11-02T20:00:31.565000",
+        "max_ms": 1038,
+        "n": 12,
+        "over5s": 0,
+        "source": "edge_logs",
+        "timeout_records": 0
+      },
+      {
+        "first_record": "2026-11-02T20:00:28.321000",
+        "http5xx": 0,
+        "last_record": "2026-11-02T20:00:31.600000",
+        "max_ms": 1311,
+        "n": 6,
+        "over5s": 0,
+        "source": "function_edge_logs",
+        "timeout_records": 0
+      },
+      {
+        "first_record": "2026-11-02T20:00:27.248000",
+        "http5xx": 0,
+        "last_record": "2026-11-02T20:01:42.267000",
+        "max_ms": 0,
+        "n": 30,
+        "over5s": 0,
+        "source": "function_logs",
+        "timeout_records": 0
+      },
+      {
+        "first_record": "2026-11-02T19:55:34.434000",
+        "http5xx": 0,
+        "last_record": "2026-11-02T20:05:21.226000",
+        "max_ms": 0,
+        "n": 72,
+        "over5s": 0,
+        "source": "postgres_logs",
+        "timeout_records": 0
+      },
+      {
+        "first_record": "2026-11-02T20:01:27.817368",
+        "http5xx": 0,
+        "last_record": "2026-11-02T20:01:27.817368",
+        "max_ms": 0,
+        "n": 2,
+        "over5s": 0,
+        "source": "postgrest_logs",
+        "timeout_records": 2
+      }
+    ]
+  }
+}

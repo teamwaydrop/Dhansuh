@@ -1,0 +1,125 @@
+{
+  "production_writes": 0,
+  "root_cause_proven": false,
+  "capture_limit_reached": true,
+  "last_retained_timestamp": "2026-11-02T06:58:51.495639",
+  "counts_in_retained_prefix_only": {
+    "over_20s": 16,
+    "http500": 3,
+    "sql57014": 4,
+    "cron_startup_failures": 3
+  },
+  "earliest_selected_gateway_slow_observation": {
+    "agent": "Dart/3.11 (dart:io)",
+    "backend_type": "",
+    "database_timestamp": "",
+    "message": "",
+    "method": "GET",
+    "origin_ms": "4865",
+    "path": "/rest/v1/dispatch_config",
+    "pid": "",
+    "query": "",
+    "query_id": "",
+    "source": "edge_logs",
+    "sqlstate": "",
+    "status": "200",
+    "timestamp": "2026-11-02T06:48:43.405000",
+    "upstream_ms": "4843"
+  },
+  "slowest_requests": [
+    {
+      "timestamp": "2026-11-02T06:51:47.680000",
+      "method": "GET",
+      "path": "/rest/v1/orders",
+      "status": "200",
+      "origin_ms": "46634",
+      "upstream_ms": "46317",
+      "upstream_fraction": 0.993202
+    },
+    {
+      "timestamp": "2026-11-02T06:51:46.322000",
+      "method": "GET",
+      "path": "/rest/v1/riders",
+      "status": "200",
+      "origin_ms": "42395",
+      "upstream_ms": "41946",
+      "upstream_fraction": 0.989409
+    },
+    {
+      "timestamp": "2026-11-02T06:51:47.355000",
+      "method": "GET",
+      "path": "/rest/v1/users",
+      "status": "500",
+      "origin_ms": "39865",
+      "upstream_ms": "39394",
+      "upstream_fraction": 0.988185
+    },
+    {
+      "timestamp": "2026-11-02T06:51:52.687000",
+      "method": "PATCH",
+      "path": "/rest/v1/riders",
+      "status": "204",
+      "origin_ms": "39743",
+      "upstream_ms": "39538",
+      "upstream_fraction": 0.994842
+    },
+    {
+      "timestamp": "2026-11-02T06:51:47.558000",
+      "method": "GET",
+      "path": "/rest/v1/orders",
+      "status": "500",
+      "origin_ms": "39653",
+      "upstream_ms": "38546",
+      "upstream_fraction": 0.972083
+    },
+    {
+      "timestamp": "2026-11-02T06:51:53.411000",
+      "method": "GET",
+      "path": "/rest/v1/orders",
+      "status": "200",
+      "origin_ms": "38694",
+      "upstream_ms": "38421",
+      "upstream_fraction": 0.992945
+    }
+  ],
+  "cron_failure_events": [
+    {
+      "timestamp": "2026-11-02T06:52:09.870000",
+      "message": "cron job 7 job startup timeout"
+    },
+    {
+      "timestamp": "2026-11-02T06:52:11.252000",
+      "message": "cron job 5 job startup timeout"
+    },
+    {
+      "timestamp": "2026-11-02T06:52:11.949000",
+      "message": "cron job 1 job startup timeout"
+    }
+  ],
+  "timed_out_queries": [
+    {
+      "timestamp": "2026-11-02T06:52:00.503000",
+      "pid": "878768",
+      "query": "WITH pgrst_source AS (INSERT INTO \"public\".\"rider_assignments\"(\"accepted_at\", \"assignment_round\", \"assignment_status\", \"distance_km\", \"estimated_earnings\", \"expires_at\", \"last_seen_at\", \"last_seen_fare\", \"order_id\", \"rejected_at\", \"responded_at\", \"rider_id\", \"sent_at\", \"updated_at\") SELECT \"pgrst_body\".\"accepted_at\", \"pgrst_body\".\"assignment_round\", \"pgrst_body\".\"assignment_status\", \"pgrst_body\".\"distance_km\", \"pgrst_body\".\"estimated_earnings\", \"pgrst_body\".\"expires_at\", \"pgrst_body\".\"last_seen_at\", \"pgrst_body\".\"last_seen_fare\", \"pgrst_body\".\"order_id\", \"pgrst_body\".\"rejected_at\", \"pgrst_body\".\"responded_at\", \"pgrst_body\".\"rider_id\", \"pgrst_body\".\"sent_at\", \"pgrst_body\".\"updated_at\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"accepted_at\", \"assignment_round\", \"assignment_status\", \"distance_km\", \"estimated_earnings\", \"expires_at\", \"last_seen_at\", \"last_seen_fare\", \"order_id\", \"rejected_at\", \"responded_at\", \"rider_id\", \"sent_at\", \"updated_at\" FROM json_to_recordset(pgrst_payload.json_data) AS _(\"accepted_at\" timestamp with time zone, \"assignment_round\" integer, \"assignment_status\" public.intercity_assignment_status_enum, \"distance_km\" numeric, \"estimated_earnings\" numeric, \"expires_at\" timestamp with time zone, \"last_seen_at\" timestamp with time zone, \"last_seen_fare\" numeric, \"order_id\" uuid, \"rejected_at\" timestamp with time zone, \"responded_at\" timestamp with time zone, \"rider_id\" uuid, \"sent_at\" timestamp with time zone, \"updated_at\" timestamp with time zone) ) pgrst_body WHERE set_config('?', (coalesce(nullif(current_setting('?', true), '?')::int, 0) + 1)::text, true) <> '?' ON CONFLICT(\"order_id\", \"rider_id\") DO UPDATE SET \"accepted_at\" = EXCLUDED.\"accepted_at\", \"assignment_round\" = EXCLUDED.\"assignment_round\", \"assignment_status\" = EXCLUDED.\"assignment_status\", \"distance_km\" = EXCLUDED.\"distance_km\", \"estimated_earnings\" = EXCLUDED.\"estimated_earnings\", \"expires_at\" = EXCLUDED.\"expires_at\", \"last_seen_at\" = EXCLUDED.\"last_seen_at\", \"last_seen_fare\" = EXCLUDED.\"last_seen_fare\", \"order_id\" = EXCLUDED.\"order_id\", \"rejected_at\" = EXCLUDED.\"rejected_at\", \"responded_at\" = EXCLUDED.\"responded_at\", \"rider_id\" = EXCLUDED.\"rider_id\", \"sent_at\" = EXCLUDED.\"sent_at\", \"updated_at\" = EXCLUDED.\"updated_at\"WHERE set_config('?', (coalesce(nullif(current_setting('?', true), '?')::int, 0) - 1)::text, true) <> '?' RETURNING 1) SELECT '?' AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, '?'::text AS body, nullif(current_setting('?', true), '?') AS response_headers, nullif(current_setting('?', true), '?') AS response_status, nullif(current_setting('?', true),'?')::int AS response_inserted FROM (SELECT * FROM pgrst_source) _postgrest_t"
+    },
+    {
+      "timestamp": "2026-11-02T06:52:12.262000",
+      "pid": "878770",
+      "query": ""
+    },
+    {
+      "timestamp": "2026-11-02T06:52:18.937000",
+      "pid": "878769",
+      "query": ""
+    },
+    {
+      "timestamp": "2026-11-02T06:52:29.197000",
+      "pid": "3006625",
+      "query": "SELECT sum(calls) as total_queries, sum(total_exec_time / 1000) as total_time_seconds FROM extensions.pg_stat_statements t1 JOIN pg_database t3 ON (t1.dbid=t3.oid)"
+    }
+  ],
+  "exporter_pid_association": "Incident PID 3006625 matches later postgres_exporter activity; not a query-start/resource sample.",
+  "http_timestamp_semantics": "unverified; no derived HTTP start/end claimed",
+  "prior_coordinated_candidate_hash_drift": [],
+  "offline_evidence_assertions_passed": true
+}

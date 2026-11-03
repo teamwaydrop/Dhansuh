@@ -117,8 +117,10 @@ void main() {
       // The whole point of reusing subscription_active/subscription_expires_at is that these
       // already-authoritative commission call sites need zero changes -- guard that they still
       // contain their original check, unmodified by this feature.
-      expect(acceptOrder.contains('rider.subscription_active === true'), isTrue);
-      expect(acceptOrder.contains('rider.subscription_expires_at'), isTrue);
+      final atomic = _read('supabase/functions/accept-order/acceptance_sql.ts');
+      expect(acceptOrder.contains('acceptOrderAtomically'), isTrue);
+      expect(atomic.contains('v_rider.subscription_active AND v_rider.subscription_expires_at>v_now'), isTrue);
+      expect(atomic.contains('CASE WHEN v_subscription THEN 0 ELSE COALESCE(v_order.commission_percentage,10) END'), isTrue);
       expect(completionSettlement.contains('v_rider.subscription_active IS TRUE'), isTrue);
     });
   });

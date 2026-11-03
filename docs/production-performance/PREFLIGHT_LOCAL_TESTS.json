@@ -1,0 +1,24 @@
+{
+  "status": "LOCAL_CHECKS_PASS_DEPLOYMENT_HOLD",
+  "engine": "PostgreSQL 18.6 (PGlite 0.5.13) on wasm32-unknown-emscripten, compiled by emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.5 (1db513782be24469589d7cb8a1f1834e9a33f271), 32-bit",
+  "productionConnected": false,
+  "scope": "Synthetic index DDL checks only. Not PG17 lock/concurrency or Supabase integration verification.",
+  "results": [
+    {
+      "check": "Split user_id index guard, dry run, synthetic drop and exact DDL recreation",
+      "passed": true
+    },
+    {
+      "check": "Split kyc_id index guard, dry run, synthetic drop and exact DDL recreation",
+      "passed": true
+    },
+    {
+      "check": "Index drift is rejected; target index survives",
+      "passed": true
+    },
+    {
+      "check": "All eight SQL deployment/recovery drafts default to ROLLBACK",
+      "passed": true
+    }
+  ]
+}

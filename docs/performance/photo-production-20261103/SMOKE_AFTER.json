@@ -1,0 +1,25 @@
+{
+  "cases": [
+    {
+      "method": "OPTIONS",
+      "invalid_auth": false,
+      "status": 200,
+      "expected_status": 200
+    },
+    {
+      "method": "POST",
+      "invalid_auth": false,
+      "status": 401,
+      "expected_status": 401
+    },
+    {
+      "method": "POST",
+      "invalid_auth": true,
+      "status": 401,
+      "expected_status": 401
+    }
+  ],
+  "business_writes": 0,
+  "no_customer_data": true,
+  "real_authenticated_photo_flow_tested": false
+}

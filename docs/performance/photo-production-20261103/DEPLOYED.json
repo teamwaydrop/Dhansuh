@@ -1,0 +1,18 @@
+{
+  "id": "d5b0a7b2-3127-4d80-97e2-33e698c72687",
+  "slug": "process-verification-photo",
+  "name": "process-verification-photo",
+  "status": "ACTIVE",
+  "version": 19,
+  "created_at": 1781271542946,
+  "updated_at": 1793703963531,
+  "verify_jwt": false,
+  "import_map": false,
+  "entrypoint_path": "file:///tmp/user_fn_yvwpchffctiagevpqgwy_d5b0a7b2-3127-4d80-97e2-33e698c72687_19/source/functions/process-verification-photo/index.ts",
+  "ezbr_sha256": "c3d9561de409616c64ded1da6aa0fd7f99df6c2c6f7ed69fc7b6190d77e76dc8",
+  "scope": "legacy-compatible early ownership guard and full-body deadline; atomic RPC not deployed",
+  "exact_hosted_source_verified": true,
+  "local_tests_passed": 14,
+  "strict_typecheck_exit": 0,
+  "cloud_test_projects_created": 0
+}

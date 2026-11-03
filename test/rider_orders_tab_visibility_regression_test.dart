@@ -35,15 +35,12 @@ void main() {
 
     test('a true cold start may call _loadServiceMode(skipQuery: seedUsable), reusing the '
         'app-start snapshot instead of forcing a live re-fetch', () {
-      // R1 FIX #2: skipQuery is only ever true when a fresh, unconsumed app-start snapshot
-      // exists -- gated by the static, process-lifetime _hasConsumedColdStartSeed flag -- so
-      // this is safe exactly once per app launch, and never on a mid-session screen recreation.
+      // Reuse a fresh validated response once per consumer. A new entry check
+      // publishes a new response; reusing the same old seed is still forbidden.
       expect(
-        source.contains('static bool _hasConsumedColdStartSeed'),
+        initStateBody.contains("initialData.consumeFor('RiderDashboard',"),
         isTrue,
-        reason: 'the cold-start seed path must be gated by a process-lifetime one-shot flag, '
-            'not just presence of the snapshot, so a mid-session recreation cannot reuse a '
-            'stale seed',
+        reason: 'presence alone must not permit stale seed reuse',
       );
       expect(
         RegExp(r'_loadServiceMode\(\s*skipQuery:\s*seedUsable\s*\)').hasMatch(initStateBody),

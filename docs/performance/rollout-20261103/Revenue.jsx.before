@@ -1,0 +1,322 @@
+import { useCallback, useEffect, useState } from 'react'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts'
+import { DollarSign, TrendingUp, Percent, Wallet, Inbox, AlertCircle, Route, Landmark, Receipt } from 'lucide-react'
+import { supabase } from '../lib/supabase'
+import { cachedFetch, readCache } from '../lib/queryCache'
+import StatCard from '../components/ui/StatCard'
+import Badge from '../components/ui/Badge'
+import { StatCardSkeleton, Skeleton, TableSkeleton } from '../components/ui/Skeleton'
+
+const CACHE_KEY = 'revenue'
+const CACHE_TTL = 5 * 60_000 // 5 minutes
+
+async function fetchRevenueData() {
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const thirtyDaysAgo = new Date(); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29); thirtyDaysAgo.setHours(0, 0, 0, 0)
+
+  // Bounded queries stay client-side (30-day chart + last 20 withdrawals),
+  // all-time sums + per-type breakdown are aggregated inside Postgres — all
+  // three run in parallel (1 round trip for the heavy aggregates instead of
+  // 3 full-table scans). Falls back to the original queries if the
+  // migration hasn't been applied yet.
+  const [{ data: last30 }, { data: wdList }, { data: agg, error: aggError }] = await Promise.all([
+    supabase.from('payments').select('final_amount, rider_earning, created_at').eq('payment_status', 'paid').gte('created_at', thirtyDaysAgo.toISOString()),
+    supabase.from('rider_withdrawals').select('id, transfer_id, amount, status, created_at').order('created_at', { ascending: false }).limit(20),
+    supabase.rpc('get_revenue_data', { p_today: today.toISOString() }),
+  ])
+
+  let revenueData
+  let typeData
+  if (!aggError && agg) {
+    revenueData = {
+      totalRevenue:    Number(agg.total_revenue) || 0,
+      todayRevenue:    Number(agg.today_revenue) || 0,
+      totalCommission: Number(agg.total_commission) || 0,
+      totalPayout:     Number(agg.total_payout) || 0,
+      totalRides:      Number(agg.total_rides) || 0,
+      totalCollection: Number(agg.total_collection) || 0,
+      totalGst:        Number(agg.total_gst) || 0,
+    }
+    typeData = (agg.type_breakdown || []).map(t => ({
+      type: t.type,
+      revenue: Number(t.revenue) || 0,
+      orders: Number(t.orders) || 0,
+    }))
+  } else {
+    const [
+      { data: allPaid },
+      { data: todayPaid },
+      { data: orderTypeData },
+    ] = await Promise.all([
+      supabase.from('payments').select('final_amount, rider_earning').eq('payment_status', 'paid'),
+      supabase.from('payments').select('final_amount, rider_earning').eq('payment_status', 'paid').gte('created_at', today.toISOString()),
+      supabase.from('orders').select('order_type, final_fare, actual_fare, gst_amount').in('order_status', ['completed', 'delivered']),
+    ])
+
+    const sum = (arr, key) => (arr || []).reduce((s, r) => s + (Number(r[key]) || 0), 0)
+    const commission = (arr) => (arr || []).reduce((s, r) => s + ((Number(r.final_amount) || 0) - (Number(r.rider_earning) || 0)), 0)
+
+    revenueData = {
+      totalRevenue:    sum(allPaid, 'final_amount'),
+      todayRevenue:    sum(todayPaid, 'final_amount'),
+      totalCommission: commission(allPaid),
+      totalPayout:     sum(allPaid, 'rider_earning'),
+      totalRides:      (orderTypeData || []).length,
+      totalCollection: sum(allPaid, 'final_amount'),
+      totalGst:        sum(orderTypeData, 'gst_amount'),
+    }
+
+    // Build per-type breakdown
+    const typeMap = {}
+    ;(orderTypeData || []).forEach(o => {
+      const t = o.order_type || 'unknown'
+      if (!typeMap[t]) typeMap[t] = { type: t, revenue: 0, orders: 0 }
+      typeMap[t].revenue += Number(o.final_fare || o.actual_fare || 0)
+      typeMap[t].orders  += 1
+    })
+    typeData = Object.values(typeMap).sort((a, b) => b.revenue - a.revenue)
+  }
+
+  // Build 30-day chart
+  const dayMap = {}
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(thirtyDaysAgo); d.setDate(d.getDate() + i)
+    const key = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    dayMap[key] = { revenue: 0, commission: 0, payout: 0 }
+  }
+  ;(last30 || []).forEach(p => {
+    const key = new Date(p.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    if (key in dayMap) {
+      dayMap[key].revenue    += Number(p.final_amount) || 0
+      dayMap[key].commission += (Number(p.final_amount) || 0) - (Number(p.rider_earning) || 0)
+      dayMap[key].payout     += Number(p.rider_earning) || 0
+    }
+  })
+
+  return {
+    data: revenueData,
+    chart: Object.entries(dayMap).map(([day, v]) => ({ day, ...v })),
+    withdrawals: wdList || [],
+    typeBreakdown: typeData,
+  }
+}
+
+function RevenueTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-white rounded-lg shadow-card-hover border border-gray-100 px-3.5 py-2.5">
+      <p className="text-[11px] text-gray-400 mb-1">{label}</p>
+      <div className="space-y-0.5">
+        {payload.map(p => (
+          <p key={p.dataKey} className="text-xs font-medium tabular-nums" style={{ color: p.color }}>
+            {p.name}: ₹{Number(p.value).toFixed(2)}
+          </p>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function TypeTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-white rounded-lg shadow-card-hover border border-gray-100 px-3.5 py-2.5">
+      <p className="text-[11px] text-gray-400 mb-0.5 capitalize">{label?.replace(/_/g, ' ')}</p>
+      <p className="text-sm font-semibold text-gray-900 tabular-nums">₹{Number(payload[0].value).toFixed(2)}</p>
+    </div>
+  )
+}
+
+export default function Revenue() {
+  const cached = readCache(CACHE_KEY, CACHE_TTL, true)
+  const [data, setData]           = useState(cached?.data ?? null)
+  const [chart, setChart]         = useState(cached?.chart ?? [])
+  const [withdrawals, setWd]      = useState(cached?.withdrawals ?? [])
+  const [typeBreakdown, setTypeBreakdown] = useState(cached?.typeBreakdown ?? [])
+  const [loading, setLoading]     = useState(!cached)
+  const [error, setError]         = useState('')
+
+  const load = useCallback(async () => {
+    try {
+      setError('')
+      const result = await cachedFetch(CACHE_KEY, fetchRevenueData, CACHE_TTL, true)
+      setData(result.data)
+      setChart(result.chart)
+      setWd(result.withdrawals)
+      setTypeBreakdown(result.typeBreakdown)
+    } catch (e) {
+      console.error(e)
+      setError('Could not load revenue data. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    let timer
+
+    // Only schedules a new timer while the tab is visible — a backgrounded
+    // tab never has a pending refresh, so it can't fire one either.
+    const scheduleNext = () => {
+      clearTimeout(timer)
+      if (cancelled || document.visibilityState === 'hidden') return
+      timer = setTimeout(tick, CACHE_TTL)
+    }
+    const tick = async () => {
+      await load()
+      scheduleNext()
+    }
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        clearTimeout(timer)
+      } else {
+        clearTimeout(timer)
+        tick() // exactly one refresh on return, then resumes the normal cadence
+      }
+    }
+
+    load().then(scheduleNext)
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [load])
+
+  return (
+    <div className="p-6 space-y-6">
+      <div>
+        <h1 className="text-xl font-bold text-gray-900 tracking-tight">Revenue & Payouts</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Financial overview and rider withdrawals</p>
+      </div>
+
+      {error && (
+        <div className="flex items-center justify-between gap-3 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">
+          <span className="flex items-center gap-2"><AlertCircle size={16} /> {error}</span>
+          <button onClick={load} className="font-medium underline hover:no-underline shrink-0">Retry</button>
+        </div>
+      )}
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {loading ? Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />) : (
+          <>
+            <StatCard title="Total Revenue"    value={`₹${(data?.totalRevenue    || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={TrendingUp}  color="orange" />
+            <StatCard title="Today's Revenue"  value={`₹${(data?.todayRevenue    || 0).toFixed(2)}`}                                            icon={DollarSign}  color="blue"   />
+            <StatCard title="Company Earnings" value={`₹${(data?.totalCommission || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={Percent}     color="green"  />
+            <StatCard title="Rider Payouts"    value={`₹${(data?.totalPayout     || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={Wallet}      color="purple" />
+          </>
+        )}
+      </div>
+
+      {/* GST / collection visibility — existing stored values only, no new tax calculation */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {loading ? Array.from({ length: 3 }).map((_, i) => <StatCardSkeleton key={i} />) : (
+          <>
+            <StatCard title="Total Rides"        value={(data?.totalRides      || 0).toLocaleString('en-IN')}                                       icon={Route}    color="blue"   />
+            <StatCard title="Total Collection"   value={`₹${(data?.totalCollection || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}    icon={Landmark} color="orange" />
+            <StatCard title="Total GST Collected" value={`₹${(data?.totalGst    || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}       icon={Receipt}  color="green"  />
+          </>
+        )}
+      </div>
+
+      {/* 30-day area chart */}
+      <div className="bg-white rounded-xl p-5 shadow-card border border-gray-100">
+        <h2 className="text-sm font-semibold text-gray-700 mb-4">Revenue Breakdown — Last 30 Days</h2>
+        {loading ? <Skeleton className="h-[240px] w-full" /> : (
+          <ResponsiveContainer width="100%" height={240}>
+            <AreaChart data={chart} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="revenue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#94a3b8' }} interval={4} axisLine={{ stroke: '#f1f5f9' }} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} tickFormatter={v => `₹${v}`} axisLine={false} tickLine={false} />
+              <Tooltip content={<RevenueTooltip />} cursor={{ stroke: '#10B981', strokeWidth: 1, strokeDasharray: '4 4' }} />
+              <Legend wrapperStyle={{ fontSize: 12 }} iconType="circle" iconSize={8} />
+              <Area type="monotone" dataKey="revenue"    stroke="#10B981" fill="url(#revenue)" strokeWidth={2.5} name="Revenue" />
+              <Area type="monotone" dataKey="commission" stroke="#f59e0b" fill="transparent"   strokeWidth={2} name="Commission" />
+              <Area type="monotone" dataKey="payout"     stroke="#6366f1" fill="transparent"   strokeWidth={2} name="Rider Payout" />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+
+      {/* Order Type Breakdown */}
+      {(loading || typeBreakdown.length > 0) && (
+        <div className="bg-white rounded-xl p-5 shadow-card border border-gray-100">
+          <h2 className="text-sm font-semibold text-gray-700 mb-4">Revenue by Service Type (All Time)</h2>
+          {loading ? <Skeleton className="h-[220px] w-full" /> : (
+            <>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={typeBreakdown} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="type" tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={v => v.replace(/_/g, ' ')} axisLine={{ stroke: '#f1f5f9' }} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={v => `₹${v}`} axisLine={false} tickLine={false} />
+                  <Tooltip content={<TypeTooltip />} cursor={{ fill: '#f8fafc' }} />
+                  <Bar dataKey="revenue" fill="#10B981" name="Revenue" radius={[6, 6, 0, 0]} maxBarSize={56} />
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                {typeBreakdown.map(t => (
+                  <div key={t.type} className="bg-gray-50 rounded-lg p-3 text-sm">
+                    <p className="text-gray-500 text-xs capitalize mb-1">{t.type.replace(/_/g, ' ')}</p>
+                    <p className="font-semibold text-gray-900 tabular-nums">₹{Number(t.revenue).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                    <p className="text-xs text-gray-400">{t.orders} orders</p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Withdrawals table */}
+      <div className="bg-white rounded-xl shadow-card border border-gray-100">
+        <div className="px-5 py-4 border-b border-gray-100">
+          <h2 className="text-sm font-semibold text-gray-700">Rider Withdrawal Requests</h2>
+        </div>
+        {loading ? <TableSkeleton rows={5} cols={4} /> : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+                  <th className="px-5 py-3 text-left font-semibold">Transfer ID</th>
+                  <th className="px-5 py-3 text-left font-semibold">Amount</th>
+                  <th className="px-5 py-3 text-left font-semibold">Status</th>
+                  <th className="px-5 py-3 text-left font-semibold">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {withdrawals.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-5 py-14 text-center text-gray-400">
+                      <div className="flex flex-col items-center gap-2">
+                        <Inbox size={28} className="text-gray-300" />
+                        <span>No withdrawal requests</span>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                {withdrawals.map(w => (
+                  <tr key={w.id} className="hover:bg-gray-50/70 transition-colors">
+                    <td className="px-5 py-3 font-mono text-xs text-gray-500">{w.transfer_id || w.id?.slice(0, 8) || '—'}</td>
+                    <td className="px-5 py-3 font-medium text-gray-900 tabular-nums">₹{Number(w.amount || 0).toFixed(2)}</td>
+                    <td className="px-5 py-3"><Badge value={w.status} /></td>
+                    <td className="px-5 py-3 text-gray-400 text-xs">{w.created_at ? new Date(w.created_at).toLocaleDateString('en-IN') : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

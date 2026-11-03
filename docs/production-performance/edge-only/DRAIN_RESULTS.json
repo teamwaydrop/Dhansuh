@@ -1,0 +1,16 @@
+{
+  "productionConnected": false,
+  "tests": [
+    {
+      "name": "Drain query detects a pre-cutoff transaction and held assignment write lock",
+      "status": "PASS"
+    },
+    {
+      "name": "Drain query clears only after transaction and write lock end",
+      "status": "PASS"
+    }
+  ],
+  "limitations": [
+    "Verifies SQL counters locally; does not establish a managed routing cutoff or prove old v60 workers drained."
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "build": {
+    "exit_code": 0,
+    "elapsed_seconds": 513.36,
+    "version": "1.0.0+62",
+    "command": [
+      "flutter",
+      "build",
+      "apk",
+      "--release",
+      "--build-name=1.0.0",
+      "--build-number=62",
+      "--dart-define-from-file=.env",
+      "--dart-define=WAYDROP_SOURCE_FINGERPRINT=13843f2ea486f4f69b90e6d486cd19b474802dece2822af740e41471c411784c"
+    ],
+    "production_changes": 0
+  },
+  "new_apk": {
+    "package": "com.waydrop.app",
+    "version_code": "62",
+    "version_name": "1.0.0",
+    "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+    "apk_sha256": "843ba7b998487aabb7a20ba57afb2b8b171305f9922c2e3604ebd287c81773f3",
+    "bytes": 87983599
+  },
+  "reference_build61": {
+    "package": "com.waydrop.app",
+    "version_code": "61",
+    "version_name": "1.0.0",
+    "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+    "apk_sha256": "9ada783fd3eef7659e30a3c951a99c2239a1417bf500cedadc25581378781581",
+    "bytes": 87836143
+  },
+  "same_signer": true,
+  "plaintext_env_asset_absent": true,
+  "artifact": "artifacts/waydrop-1.0.0-build62.apk",
+  "installed": false,
+  "published": false,
+  "phone_performance_measured": false,
+  "aot": {
+    "lib/arm64-v8a/libapp.so": {
+      "new_sha256": "e0181b53d4dfe995965b23ea61155bf8d96fee520a5dd32ec535caba36033bd2",
+      "previous_sha256": "0a183ecbaf69eb6b347fc8c2e2d323e31eefde822ec0e8930c3049ac4d32857a",
+      "changed": true
+    },
+    "lib/armeabi-v7a/libapp.so": {
+      "new_sha256": "d30d9d36ac628ad2e97a7b04624996714ebe7d0b264d5b53c8d6032655a64f15",
+      "previous_sha256": "8dfde54d43f525d03b96c52b61731b4ca6e99a4e4f577183b78f1a1051d2cbc8",
+      "changed": true
+    },
+    "lib/x86_64/libapp.so": {
+      "new_sha256": "e59a812c125420514fe0d345e8a3b370cfcd57863944bc92cfcce1eb1b11ebae",
+      "previous_sha256": "25cc47120ea6b2103d9c211a960ab5b5a92a1eb9017ad83f0e3d6d163ed79d9d",
+      "changed": true
+    }
+  },
+  "frozen_source_unchanged": true
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "slug": "start-dispatch",
+    "version": 72,
+    "status": "ACTIVE"
+  },
+  {
+    "slug": "create-order",
+    "version": 78,
+    "status": "ACTIVE"
+  },
+  {
+    "slug": "accept-order",
+    "version": 60,
+    "status": "ACTIVE"
+  },
+  {
+    "slug": "send-push-notification",
+    "version": 24,
+    "status": "ACTIVE"
+  },
+  {
+    "slug": "reject-order",
+    "version": 19,
+    "status": "ACTIVE"
+  }
+]

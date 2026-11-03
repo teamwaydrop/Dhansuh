@@ -1,0 +1,23 @@
+{
+  "slug": "process-verification-photo",
+  "baseline_version": 18,
+  "baseline_bundle_sha256": "b5ae5253ffc57de6c3db41ce9e212fc673f299e75ea4ea8d0dfa48efd66ce50f",
+  "deployed": false,
+  "files": [
+    {
+      "path": "functions/process-verification-photo/index.ts",
+      "sha256": "dbbd9956e87418ecc28cfaabda586dee923735d1731a80f2efb5a4864464ce5c",
+      "modified_or_added": true
+    },
+    {
+      "path": "functions/_shared/http.ts",
+      "sha256": "6f840c9c871b0e4d6584d2b23d0b5700c985abbbca2b4ef3f87a0cee642bf01f",
+      "modified_or_added": false
+    },
+    {
+      "path": "functions/_shared/photo_download.ts",
+      "sha256": "9138854c1ac3d5ace943c85fc055d7a3fcddab10361b0682d5397421c37e35bc",
+      "modified_or_added": true
+    }
+  ]
+}

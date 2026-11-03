@@ -69,7 +69,7 @@ class ProductionConfigService {
   String? _appVersion;
 
   /// Single initialization/fetch path. Safe to call more than once (e.g. defensive callers) --
-  /// concurrent calls share one in-flight fetch, and a call after the first successful fetch this
+  /// concurrent calls share one in-flight fetch, and a call after the first completed attempt this
   /// session is a no-op unless `force: true`.
   Future<void> init({bool force = false}) async {
     if (_inFlight != null) {
@@ -82,6 +82,10 @@ class ProductionConfigService {
     try {
       await _inFlight;
     } finally {
+      // Failure already selected the documented cache/default fallback. Routine
+      // auth/navigation rechecks must not restart the same failed cold-start read.
+      // Explicit refresh(force: true) still retries immediately.
+      _hasFetchedThisSession = true;
       _inFlight = null;
     }
   }
@@ -91,6 +95,10 @@ class ProductionConfigService {
   Future<void> refresh({bool force = true}) => init(force: force);
 
   Future<void> _fetch() async {
+    await Future.wait([_loadAppVersion(), _fetchConfig()]);
+  }
+
+  Future<void> _loadAppVersion() async {
     try {
       // Phase 2 audit finding: PackageInfo.fromPlatform() is a platform-channel call with no
       // built-in bound -- in the extremely unlikely case it never resolves, this await would
@@ -102,7 +110,9 @@ class ProductionConfigService {
     } catch (e) {
       debugPrint('ProductionConfigService: PackageInfo.fromPlatform() failed: $e');
     }
+  }
 
+  Future<void> _fetchConfig() async {
     // Always try the persisted last-known-good first so `_config` is never worse than a previous
     // successful fetch while the network call below is in flight.
     final cached = CacheService.instance.get(_cacheKey);
@@ -113,14 +123,13 @@ class ProductionConfigService {
     try {
       final row = await Supabase.instance.client
           .from('production_config')
-          .select()
+          .select(_hardcodedDefaults.keys.join(','))
           .eq('is_active', true)
           .maybeSingle()
           .timeout(_fetchTimeout);
 
       if (row != null) {
         _config = _mergeWithDefaults(Map<String, dynamic>.from(row));
-        _hasFetchedThisSession = true;
         unawaited(CacheService.instance.put(_cacheKey, _config));
         debugPrint('ProductionConfigService: fetched fresh production_config.');
       } else {

@@ -1,0 +1,1 @@
+{"compilerOptions":{"useUnknownInCatchVariables":false},"imports":{"https://deno.land/std@0.168.0/http/server.ts":"./pricing_mock.ts","https://esm.sh/@supabase/supabase-js@2":"./pricing_mock.ts"}}

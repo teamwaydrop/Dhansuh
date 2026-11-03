@@ -96,11 +96,15 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     setState(() => loading = true);
 
     try {
-      await Supabase.instance.client.from('users').update({
+      // A verified account can legitimately arrive here without a public profile.
+      // Recover only on this explicit form submission; never backfill on launch.
+      await Supabase.instance.client.from('users').upsert({
+        'id': user.id,
+        if (user.phone != null) 'phone': user.phone,
         'full_name': name,
         'email': email.isEmpty ? null : email,
         'profile_completed': true,
-      }).eq('id', user.id);
+      }, onConflict: 'id').select('id').single();
 
       if (!mounted) return;
       
@@ -115,6 +119,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         MaterialPageRoute(builder: (_) => const PermissionsScreen()),
       );
     } catch (e) {
+      if (!mounted) return;
       showAppSnackBar(
         context,
         e.toString(),
@@ -122,7 +127,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       );
     }
 
-    setState(() => loading = false);
+    if (mounted) setState(() => loading = false);
   }
 
   @override

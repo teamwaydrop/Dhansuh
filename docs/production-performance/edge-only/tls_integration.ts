@@ -1,0 +1,11 @@
+import postgres from 'npm:postgres@3.4.5';
+import assert from 'node:assert/strict';
+const cert=await Deno.readTextFile(new URL('../../../.dart_tool/waydrop-local-runtime/synthetic-pg-tls/ca.crt',import.meta.url));
+const url='postgresql://waydrop_edge@127.0.0.1:54329/waydrop_perf_test';
+const results:{name:string;status:string;error?:string}[]=[];
+async function test(name:string,fn:()=>Promise<void>){try{await fn();results.push({name,status:'PASS'});console.log('PASS '+name);}catch(e){results.push({name,status:'FAIL',error:String(e)});console.error('FAIL '+name+': '+String(e));}}
+await test('untrusted TLS certificate is rejected with certificate verification enabled',async()=>{const db=postgres(url,{max:1,prepare:false,ssl:{rejectUnauthorized:true,servername:'localhost'},connect_timeout:3});try{await assert.rejects(db`SELECT 1`,/certificate|issuer|UnknownIssuer|UnknownCA|self.signed/i);}finally{await db.end({timeout:1});}});
+await test('trusted local CA negotiates encrypted PG and existing service role',async()=>{const db=postgres(url,{max:1,prepare:false,ssl:{rejectUnauthorized:true,ca:cert,servername:'localhost'},connect_timeout:3});try{const [connection]=await db`SELECT ssl FROM pg_stat_ssl WHERE pid=pg_backend_pid()`;assert.equal(connection?.ssl,true);await db.begin(async tx=>{await tx`SET LOCAL ROLE service_role`;const [r]=await tx`SELECT current_user role`;assert.equal(r.role,'service_role');});}finally{await db.end({timeout:1});}});
+await test('trusted CA still rejects mismatched TLS server identity',async()=>{const db=postgres(url,{max:1,prepare:false,ssl:{rejectUnauthorized:true,ca:cert,servername:'wrong.invalid'},connect_timeout:3});try{await assert.rejects(db`SELECT 1`,/hostname|name|identity|valid|certificate/i);}finally{await db.end({timeout:1});}});
+await Deno.writeTextFile(new URL('TLS_RESULTS.json',import.meta.url),JSON.stringify({productionConnected:false,tests:results,limitations:['Tests pinned postgres.js TLS using synthetic CA and loopback, not the managed Supabase certificate chain or production endpoint/factory branch.','Explicit test CA is supplied to test driver only. Release TLS settings and secrets are unchanged.']},null,2)+'\n');
+if(results.some(r=>r.status==='FAIL'))Deno.exit(1);

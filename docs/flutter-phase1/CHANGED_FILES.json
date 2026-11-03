@@ -1,0 +1,76 @@
+{
+  "sourceBaseline": "Phase 1 start snapshot in .dart_tool/flutter_phase1_before",
+  "files": [
+    {
+      "path": "lib/core/services/location/location_cache_service.dart",
+      "status": "modified",
+      "sha256": "ccf089750c816b509726f36e85d1a52d98175e5f69f344284debb8e07791f283"
+    },
+    {
+      "path": "lib/core/services/realtime/realtime_order_controller.dart",
+      "status": "modified",
+      "sha256": "b86ed7b19cdcb72629438f7fad131ed548cd1e3675b290b3e6ea26116596a51f"
+    },
+    {
+      "path": "lib/features/rider/earnings/rider_earnings_tab.dart",
+      "status": "modified",
+      "sha256": "7d5d20eb6810d00a05f51cad1351b2ba601312098cddbf4cfbc9a6d8ef9240e8"
+    },
+    {
+      "path": "lib/features/rider/home/rider_home_tab.dart",
+      "status": "modified",
+      "sha256": "6ba55a10c4cdd35f73333b3e7a4569520bd64449e7c08fc8ac8b47fed5953f24"
+    },
+    {
+      "path": "lib/features/user/activity/activity_tab.dart",
+      "status": "modified",
+      "sha256": "0ee94be9f8f14edf90634b2d9d2cdb67cd03e11f4c2ce4e63ea23bbb22aa8501"
+    },
+    {
+      "path": "lib/main_navigation_screen.dart",
+      "status": "modified",
+      "sha256": "e7d4ded283ec9a3a6ad3b7bf32708f4787d0d4b710fdf7ffed1e28d531596eda"
+    },
+    {
+      "path": "lib/shared/widgets/lazy_indexed_stack.dart",
+      "status": "modified",
+      "sha256": "4a32840c69a7a8d2082a788e7dd6da25ad3f68084e35680e92a3cce634bd3a26"
+    },
+    {
+      "path": "test/egress_fixes_3_to_10_regression_test.dart",
+      "status": "modified",
+      "sha256": "da1fd26ec3b9ae87d81ef577fa76cddcaeda186f13461e026a6b5a6a965eea73"
+    },
+    {
+      "path": "test/intercity_traveller_cancellation_and_vehicle_regression_test.dart",
+      "status": "modified",
+      "sha256": "fbc5a92d28725839eb4903a0d011b441f92a50ab79f09389a8454deb125937bb"
+    },
+    {
+      "path": "test/ola_search_geocode_eta_egress_regression_test.dart",
+      "status": "modified",
+      "sha256": "158f25dbb1c672f06ac05df5e2174e13b3f79a9dd3cee246fd0023e3b95ebe21"
+    },
+    {
+      "path": "test/phase1_earnings_requests_test.dart",
+      "status": "added",
+      "sha256": "a93a56ff9ff43e060f3156a5a70415b120d620e3543250bbcbe016cab9efef34"
+    },
+    {
+      "path": "test/phase1_gps_completion_test.dart",
+      "status": "added",
+      "sha256": "487cda5a3277b4fc63e6d9062b9874a4c43e4fef703d5be42c7cb109a6f492e3"
+    },
+    {
+      "path": "test/phase1_tab_lifecycle_test.dart",
+      "status": "added",
+      "sha256": "c18d25f89db7cd5a07aecb78e92a60b035912bad327fbcdfca2aa36efa8f9704"
+    },
+    {
+      "path": "test/phase1_tracking_controller_test.dart",
+      "status": "added",
+      "sha256": "7dace2d0978126d37ecd9840d236cc50ff7dc70994bc589e119911d6dce13017"
+    }
+  ],
+  "backendChanged": []
+}

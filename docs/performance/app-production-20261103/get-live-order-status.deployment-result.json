@@ -1,0 +1,13 @@
+{
+  "id": "c4c4e5e2-42e3-4ca2-98ff-871bbfa9b36d",
+  "slug": "get-live-order-status",
+  "name": "get-live-order-status",
+  "status": "ACTIVE",
+  "version": 55,
+  "created_at": 1779900116119,
+  "updated_at": 1793702041347,
+  "verify_jwt": false,
+  "import_map": false,
+  "entrypoint_path": "file:///tmp/user_fn_yvwpchffctiagevpqgwy_c4c4e5e2-42e3-4ca2-98ff-871bbfa9b36d_55/source/functions/get-live-order-status/index.ts",
+  "ezbr_sha256": "40c1c6938c0a569797bffcb64aee6c8fdedfb390dd67ef815d2cf8a93a862944"
+}

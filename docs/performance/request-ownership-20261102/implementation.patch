@@ -1,0 +1,146 @@
+diff --git "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\access-owner.before.dart" b/lib/core/services/session/rider_access_service.dart
+index 4fcb1f2..1b16bff 100644
+--- "a/C:\\Users\\karth\\Desktop\\appclad\\.dart_tool\\waydrop-local-runtime\\access-owner.before.dart"
++++ b/lib/core/services/session/rider_access_service.dart
+@@ -20,11 +20,19 @@ class RiderAccess {
+   const RiderAccess(this.state, {this.kyc, this.rider});
+ }
+ 
++class _RiderAccessFlight {
++  final String? credential;
++  _RiderAccessFlight(this.credential);
++  late final Future<RiderAccess> result;
++  int pendingReads = 0;
++  bool resultSettled = false;
++}
++
+ /// One decision table for startup, entry, switching mode and dashboard guards.
+ /// No persistent eligibility cache: approvals/blocks must be rechecked on entry.
+ class RiderAccessService {
+   static final instance = RiderAccessService();
+-  final Map<String, Future<RiderAccess>> _inFlight = {};
++  final Map<String, _RiderAccessFlight> _inFlight = {};
+ 
+   static RiderAccess decide({
+     required bool authenticated,
+@@ -66,33 +74,75 @@ class RiderAccessService {
+       return const RiderAccess(RiderAccessState.unauthenticated);
+     }
+     final existing = _inFlight[userId];
+-    if (existing != null) return existing;
+-    final request = _fetch(client, userId);
+-    _inFlight[userId] = request;
++    final credential = client.auth.currentSession?.accessToken;
++    if (existing != null && existing.credential == credential) {
++      return existing.result;
++    }
++    final flight = _RiderAccessFlight(credential);
++    _inFlight[userId] = flight;
++    flight.result = _fetch(client, userId, flight);
+     try {
+-      return await request;
++      return await flight.result;
+     } finally {
++      flight.resultSettled = true;
++      _releaseIfSettled(userId, flight);
++    }
++  }
++
++  void _releaseIfSettled(String userId, _RiderAccessFlight flight) {
++    if (flight.resultSettled &&
++        flight.pendingReads == 0 &&
++        identical(_inFlight[userId], flight)) {
+       _inFlight.remove(userId);
+     }
+   }
+ 
+-  Future<RiderAccess> _fetch(SupabaseClient client, String userId) async {
++  Future<T> _read<T>(
++    String userId,
++    _RiderAccessFlight flight,
++    Future<T> Function() action,
++  ) {
++    flight.pendingReads++;
++    // Materialize the lazy PostgREST builder once. UI .timeout() does not
++    // cancel this transport, so ownership must survive until it really settles.
++    return Future<T>.sync(action).whenComplete(() {
++      flight.pendingReads--;
++      _releaseIfSettled(userId, flight);
++    });
++  }
++
++  Future<RiderAccess> _fetch(
++    SupabaseClient client,
++    String userId,
++    _RiderAccessFlight flight,
++  ) async {
+     final rows = await Future.wait([
+-      client
+-          .from('rider_kyc')
+-          .select(
+-            'blocked_until, kyc_status, rejection_reason, activation_status',
+-          )
+-          .eq('user_id', userId)
+-          .maybeSingle(),
+-      client
+-          .from('riders')
+-          .select(
+-            'id, user_id, kyc_id, rating, account_status, service_mode, subscription_active, subscription_expires_at, free_trial_started_at, free_trial_expires_at, free_trial_used, total_earnings, wallet_balance, cod_pending_amount, cod_limit, government_tax_due_balance, rider_kyc!riders_kyc_id_fkey(full_name, rider_image)',
+-          )
+-          .eq('user_id', userId)
+-          .maybeSingle(),
++      _read<Map<String, dynamic>?>(
++        userId,
++        flight,
++        () => client
++            .from('rider_kyc')
++            .select(
++              'blocked_until, kyc_status, rejection_reason, activation_status',
++            )
++            .eq('user_id', userId)
++            .maybeSingle(),
++      ),
++      _read<Map<String, dynamic>?>(
++        userId,
++        flight,
++        () => client
++            .from('riders')
++            .select(
++              'id, user_id, kyc_id, rating, account_status, service_mode, subscription_active, subscription_expires_at, free_trial_started_at, free_trial_expires_at, free_trial_used, total_earnings, wallet_balance, cod_pending_amount, cod_limit, government_tax_due_balance, rider_kyc!riders_kyc_id_fkey(full_name, rider_image)',
++            )
++            .eq('user_id', userId)
++            .maybeSingle(),
++      ),
+     ]).timeout(const Duration(seconds: 8));
++    if (client.auth.currentUser?.id != userId) {
++      return const RiderAccess(RiderAccessState.unauthenticated);
++    }
+     var access = decide(
+       authenticated: true,
+       kyc: rows[0],
+@@ -100,14 +150,17 @@ class RiderAccessService {
+       activePayout: false,
+     );
+     if (access.state == RiderAccessState.payoutRequired) {
+-      final payout = await client
+-          .from('rider_payout_accounts')
+-          .select('id')
+-          .eq('user_id', userId)
+-          .eq('cashfree_beneficiary_status', 'active')
+-          .limit(1)
+-          .maybeSingle()
+-          .timeout(const Duration(seconds: 8));
++      final payout = await _read<Map<String, dynamic>?>(
++        userId,
++        flight,
++        () => client
++            .from('rider_payout_accounts')
++            .select('id')
++            .eq('user_id', userId)
++            .eq('cashfree_beneficiary_status', 'active')
++            .limit(1)
++            .maybeSingle(),
++      ).timeout(const Duration(seconds: 8));
+       access = decide(
+         authenticated: true,
+         kyc: rows[0],

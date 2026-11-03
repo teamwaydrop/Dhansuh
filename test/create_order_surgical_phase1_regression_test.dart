@@ -1,24 +1,13 @@
-// Regression guard for the SURGICAL, Phase-1-only create-order artifact staged at
-// .audit_backup/phase1_surgical_create_order/create-order_surgical.ts -- built directly from the
-// real, freshly-downloaded production create-order v76 baseline (production_baseline_v76.ts, same
-// directory) plus ONLY the production_config feature-flag enforcement block. This is deliberately
-// NOT the live working-tree file (supabase/functions/create-order/index.ts), which still carries
-// several already-committed-but-undeployed local changes unrelated to Phase 1 (bike/auto parcel
-// vehicle selection, a device-upsert/promo/OTP concurrency refactor, whole-rupee promo rounding) --
-// this test file exists specifically to prove the STAGED artifact is clean before it is ever placed
-// at the deploy path.
-//
-// Convention: this repo's Edge Function tests read source as text and assert structurally (never
-// execute Deno code from Dart). The order_type/flag branching here is simple enough to mirror
-// exactly as a pure Dart function for real behavioral coverage of cases A-G, cross-checked against
-// the actual .ts source via structural assertions -- same pattern used elsewhere in this suite for
-// logic that can't be imported directly (e.g. private Dart methods mirrored in
-// subscription_trial_banner_and_vehicle_selection_regression_test.dart).
+// Regression checks for the tracked create-order production-control insertion.
+// The former test depended on unversioned .audit_backup deployment files that are
+// absent from this checkout. The immutable fixture is the real pre-control source
+// from commit ed24dee (provenance and SHA-256 alongside it). It is not claimed to
+// be the historical deployed v76 artifact. Current business features are preserved.
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-const _stagedDir = '.audit_backup/phase1_surgical_create_order';
+const _baselinePath = 'test/fixtures/create_order_before_production_control.ts';
 
 String _read(String path) => File(path).readAsStringSync();
 
@@ -41,19 +30,19 @@ void main() {
   late String prodBaseline;
 
   setUpAll(() {
-    surgical = _read('$_stagedDir/create-order_surgical.ts');
-    prodBaseline = _read('$_stagedDir/production_baseline_v76.ts');
+    surgical = _read('supabase/functions/create-order/index.ts').replaceAll('\r\n', '\n');
+    prodBaseline = _read(_baselinePath).replaceAll('\r\n', '\n');
   });
 
-  group('0. The surgical file is built directly from the real production baseline, not local HEAD', () {
-    test('the production baseline file itself contains no Phase 1 code (proves it is a genuine '
-        'pre-Phase-1 download, not already-patched)', () {
+  group('0. The current create-order file preserves the tracked pre-control implementation', () {
+    test('the tracked baseline file contains no Phase 1 code (the fixture is '
+        'pre-control source, not the patched working copy)', () {
       expect(prodBaseline.contains('production_config'), isFalse);
       expect(prodBaseline.contains('PHASE 1'), isFalse);
     });
 
-    test('the surgical file is production baseline + exactly 36 added lines, 0 removed, 0 '
-        'changed elsewhere (1485 -> 1521 lines)', () {
+    test('the current file is tracked baseline + exactly 36 added lines, 0 removed, 0 '
+        'changed elsewhere (one import plus the 35-line control insertion)', () {
       final prodLines = prodBaseline.split('\n').length;
       final surgicalLines = surgical.split('\n').length;
       expect(surgicalLines - prodLines, equals(36));
@@ -152,73 +141,43 @@ void main() {
     });
   });
 
-  group('G. Everything else is byte-identical to the real production baseline -- confirmed '
-      'absent: every local-only change explicitly excluded from this deployment', () {
-    test('bike/auto vehicle selection for local parcels is ABSENT (production still always '
-        'recomputes normalizedVehicleType, never honors a client vehicle_type choice)', () {
-      expect(surgical.contains('Bike cannot carry a parcel over 10kg'), isFalse);
-      expect(surgical.contains('vehicle_type === "bike" || vehicle_type === "auto"'), isFalse);
-      // The single production line this local-only feature would have replaced is present,
-      // unchanged, exactly as in the baseline.
-      expect(
-        surgical.contains('if (\n      order_type === "local_parcel"\n    ) {\n      normalizedVehicleType = calculatedParcelVehicle;'),
-        isTrue,
-      );
-    });
-
-    test('the device-upsert/promo-usage/OTP-logging concurrency refactor is ABSENT (production '
-        'still runs the original sequential "FIND OR INSERT USER DEVICE" block in its original '
-        'single location, not a hoisted deviceUpsertPromise)', () {
-      expect(surgical.contains('deviceUpsertPromise'), isFalse);
-      expect(surgical.contains('promoUsagePromise'), isFalse);
-      expect(surgical.contains('otpLoggingPromise'), isFalse);
-      expect(surgical.contains('deviceComplianceLogsPromise'), isFalse);
-      expect(surgical.contains('Promise.allSettled([promoUsagePromise'), isFalse);
-    });
-
-    test('the whole-rupee promo-discount rounding fix is ABSENT (production still uses the '
-        'original .toFixed(2) computation for a promo-discounted final_fare)', () {
-      expect(surgical.contains('finalFare = Math.round(currentFare - appliedDiscount);'), isFalse);
-      expect(surgical.contains('finalFare = Number((currentFare - appliedDiscount).toFixed(2));'), isTrue);
-    });
-
-    test('every other line of the file is untouched: diffing the surgical file against the raw '
-        'production baseline (recomputed here, not just trusted from an earlier shell diff) '
-        'shows changes confined to the single Phase 1 insertion point', () {
-      final prodLines = prodBaseline.split('\n');
-      final surgicalLines = surgical.split('\n');
-      // The two files must be identical for every line up to the import insertion point (line 9,
-      // 0-indexed 8), and identical again for every line from the end of the Phase 1 block onward
-      // once the line-count offset (36 added lines) is accounted for.
-      for (var i = 0; i < 9; i++) {
-        expect(surgicalLines[i], equals(prodLines[i]), reason: 'line ${i + 1} before the import diverges');
-      }
-      const insertedAt152 = 36; // lines added starting at (1-indexed) line 152
-      for (var i = 151; i < prodLines.length; i++) {
-        expect(
-          surgicalLines[i + insertedAt152],
-          equals(prodLines[i]),
-          reason: 'line ${i + 1} of production baseline diverges after accounting for the Phase 1 insertion',
-        );
+  group('G. Existing pricing, devices, OTP and vehicle behavior is preserved', () {
+    test('verified bike/auto parcel selection already in the baseline remains', () {
+      for (final marker in ['Bike cannot carry a parcel over 10kg', 'vehicle_type === "bike" || vehicle_type === "auto"']) {
+        expect(prodBaseline.contains(marker), isTrue);
+        expect(surgical.contains(marker), isTrue);
       }
     });
 
-    test('pricing, commission, GST/tax, vehicle handling, device handling, OTP handling, '
-        'Cashfree/payment-related fields, and dispatch-relevant fields are all still present, '
-        'unchanged, from the production baseline', () {
-      for (final marker in [
-        'gst_amount',
-        'company_earning',
-        'calculatedParcelVehicle',
-        'created_device_id',
-        'pickupOtp',
-        'deliveryOtp',
-        'payment_id',
-        'initialStatus',
-        'searchExpiryMinutes',
-      ]) {
-        expect(surgical.contains(marker), isTrue, reason: '$marker missing from surgical file');
-        expect(prodBaseline.contains(marker), isTrue, reason: '$marker missing from production baseline (sanity check)');
+    test('existing parallel device/promo/OTP work remains rather than being reverted', () {
+      for (final marker in ['deviceUpsertPromise', 'promoUsagePromise', 'otpLoggingPromise']) {
+        expect(prodBaseline.contains(marker), isTrue);
+        expect(surgical.contains(marker), isTrue);
+      }
+    });
+
+    test('existing whole-rupee promo rounding is preserved', () {
+      const expression = 'finalFare = Math.round(currentFare - appliedDiscount);';
+      expect(prodBaseline.contains(expression), isTrue);
+      expect(surgical.contains(expression), isTrue);
+    });
+
+    test('removing only the config import and control insertion reproduces the immutable baseline', () {
+      const configImport = 'import { getProductionConfig, isFeatureEnabled } from "../_shared/production_config_cache.ts";\n';
+      final withoutImport = surgical.replaceFirst(configImport, '');
+      final start = withoutImport.indexOf('    // =====================================================\n    // PHASE 1 PRODUCTION CONTROL:');
+      final end = withoutImport.indexOf('    // =====================================================\n    // NORMALIZE PARCEL TYPE', start);
+      expect(start, greaterThan(-1));
+      expect(end, greaterThan(start));
+      final restored = withoutImport.replaceRange(start, end, '');
+      expect(restored, prodBaseline, reason: 'no pricing, authentication, financial, OTP or dispatch behavior outside the control insertion may change unnoticed');
+    });
+
+    test('all payment, financial, device, OTP and dispatch fields remain present', () {
+      for (final marker in ['gst_amount', 'company_earning', 'calculatedParcelVehicle',
+        'created_device_id', 'pickupOtp', 'deliveryOtp', 'payment_id', 'initialStatus', 'searchExpiryMinutes']) {
+        expect(prodBaseline.contains(marker), isTrue, reason: 'baseline missing $marker');
+        expect(surgical.contains(marker), isTrue, reason: 'implementation missing $marker');
       }
     });
   });

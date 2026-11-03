@@ -1,0 +1,78 @@
+{
+  "generated_utc": "2026-11-02T09:28:26.647786+00:00",
+  "authorization": "User explicitly authorized production fixes/write access; new test-project creation explicitly declined after $0/month quote.",
+  "production_actions": {
+    "applied_migrations": [
+      "20261102143243_waydrop_independent_dispatch_load_fixes",
+      "20261102144946_waydrop_internal_dispatch_rpc_acl"
+    ],
+    "edge_deployments": {
+      "reject-order": 19
+    },
+    "business_test_rows_created": 0,
+    "cron_schedule_changes": 0,
+    "paid_resources": 0,
+    "new_test_projects": 0,
+    "broad_log_queries": 0,
+    "coordinated_protocol_activated": false
+  },
+  "tests": {
+    "fresh_native_dispatch_groups": 5,
+    "fresh_reject_handler_tests": 8,
+    "fresh_actual_native_reject_lock_test": true,
+    "fresh_native_rpc_actual_denials": 6,
+    "production_reject_negative_preflight_http_checks": 4,
+    "production_rpc_negative_http_checks": 3,
+    "frozen_dependency_check": "PASS",
+    "latest_prior_full_flutter": {
+      "passed": 2120,
+      "failed": 0,
+      "rerun_this_rollout": false
+    },
+    "android_release_build": "PASS",
+    "apk_version": 55,
+    "same_signer_as_54": true,
+    "phone_performance_measured": false
+  },
+  "remaining": [
+    "managed coordinated dispatch/eligibility/acceptance/push integration and old-writer drain",
+    "actual Android journeys and latency",
+    "original incident initiating CPU/RAM/I/O/lock cause"
+  ],
+  "migration_files_sha256": {
+    "supabase/migrations/20261102143243_waydrop_independent_dispatch_load_fixes.sql": "60f4f7d1a411b12d2fb96138b8b7a5d0d94afb2a81fbacc92c79145455e04425",
+    "supabase/migrations/20261102144946_waydrop_internal_dispatch_rpc_acl.sql": "8fd57af99ec197b275011564cf7175eb02996b13ecd4db384c9a4a902ea71010"
+  },
+  "deployed_request_files_sha256": {
+    "reject-order/index.ts": "0e291c72b529029c82a82be32c835561159cc9ec811af2ac3bca9e7a11249be1",
+    "reject-order/deno.json": "72d37e4f71f022f2d1c407d25c79679d0e7f977c56ed8b87cd7f6b7ee78e2f1b",
+    "reject-order/deno.lock": "b48275a31d72f0947b0e5b7d9c4538d457ba65a059dc7b03dbfd09818de6f311"
+  },
+  "artifact_sha256": {
+    "docs/performance/authorized-rollout-20261102/ACL_BEFORE.json": "83ee2dd3e229ebe6f10a557040a64bd59ccef8b1d3a47071baf28ae745596e54",
+    "docs/performance/authorized-rollout-20261102/ACL_NATIVE_RESULTS.json": "91c8e9784545e0ab6d49367b34fcd1e82e42237f771fdabbb6a1ea8a02833870",
+    "docs/performance/authorized-rollout-20261102/ACL_POST_VERIFICATION.json": "c01e827d39fe6fbe1fe1e4ac2f5b475f53db67e105e7b76c21008ae41bc53e14",
+    "docs/performance/authorized-rollout-20261102/ACL_PRODUCTION_SMOKE.json": "d0951373398a8f50f49554940d8c0c73b0d0a92107e0dfaf495d37032ae6669a",
+    "docs/performance/authorized-rollout-20261102/APK_VERIFICATION.json": "a955b7da85a2b64d35175b97a32ed46726a7cab9c8d0bd2ef9b13c7b09bfee94",
+    "docs/performance/authorized-rollout-20261102/assign_nearby_searching_orders_core.patch": "5f5e93b6648660ad2c54e2cffde8c148ac04c0fc05a517e477f14aa6a5ffee17",
+    "docs/performance/authorized-rollout-20261102/core.before.sql": "7cbeaeb6e0808a97f7f8579fb64e8ba41bcbfe0a5e68dda1ff75545aa7a11e42",
+    "docs/performance/authorized-rollout-20261102/FINAL_HEALTH.json": "9a694ce9ec2ca1a62d4688d48dbda3a9ff4e035603e38374cc5f59e145ee6254",
+    "docs/performance/authorized-rollout-20261102/FUNCTION_MANIFEST.json": "52d3a8dd3d08c68eb627c3b90da7d2696a74e69f197c0297cf590bc690d51b44",
+    "docs/performance/authorized-rollout-20261102/MIGRATION_HISTORY.json": "1db78635a1040cb7a52c6ab9da71dcf48f9a22d4997e5359c789ecbc388254ce",
+    "docs/performance/authorized-rollout-20261102/PRODUCTION_FUNCTIONS.before.json": "9390ea42e3e1e703c098d520458b8729388159c19fb727646f78925e70c0f98e",
+    "docs/performance/authorized-rollout-20261102/redispatch_freed_riders.patch": "d03f4ebafc744b1ff57255c6e6639cadf21c0bdd278eaee0603926e1647da356",
+    "docs/performance/authorized-rollout-20261102/reject-order.v18.before.ts": "1bfb893c7e2e04c3f19b2a2525e27d09c317611b2a5fdca563b0185963ad8485",
+    "docs/performance/authorized-rollout-20261102/REJECT_DEPLOYMENT.json": "2cb0bd0232e3d9756ed350c3610da1c8fd7f1373e09a272e5a1d2432fb3a7823",
+    "docs/performance/authorized-rollout-20261102/REJECT_FAIL_CLOSED.ts": "0ab471d142874636fc38cc2878ff446b7da6538dd2864096a46867157ade0f7a",
+    "docs/performance/authorized-rollout-20261102/REJECT_NATIVE_RESULT.json": "d46526fbe784724e5f1fafb4f7829ce6f47785b4614050887bfa2b7a6cdbf19e",
+    "docs/performance/authorized-rollout-20261102/REJECT_PRODUCTION_SMOKE.json": "308cb134b5f4df9e55041ea45b55e4707c0f89d667eaa61b634b85efcad35e17",
+    "docs/performance/authorized-rollout-20261102/REJECT_UPLOAD.json": "37f7ce6d1bb605e2678e2a7639ca10796aa2da315add708220078c84f49b06b0",
+    "docs/performance/authorized-rollout-20261102/ROLLBACK_LOAD_FIXES.sql": "341d026e1d81141e1522e2423f53083910d138dc536372d543bb0afe228d4f69",
+    "docs/performance/authorized-rollout-20261102/SECURITY_ADVISOR_SUMMARY.json": "f5d090ddb8b64f738c5b084c35dc2e1e060f9c8d7779a5bd599163288a65455b",
+    "docs/performance/authorized-rollout-20261102/SQL_APPLY_RESULT.json": "5ec9e6a0ce0b96e161f07551da8f1bbeb018126662aa02019835691dcee6a386",
+    "docs/performance/authorized-rollout-20261102/SQL_POST_VERIFICATION.json": "16d26e9151729b10fb5e033f078885db8e3a0bbdb49aaf49ae2351ba805671ad",
+    "docs/performance/authorized-rollout-20261102/SQL_REHEARSAL.json": "42035ccdb563d5bfd76e0aed9e0e4ba5a8e7114ee0e5297936a8f5ae90ebb878",
+    "docs/performance/authorized-rollout-20261102/sweep.before.sql": "2a5774e75e72b9bf01c03ea4b1a31274b9779e871510000f4eda79dccf751b0a"
+  },
+  "local_postgres_stopped": true
+}

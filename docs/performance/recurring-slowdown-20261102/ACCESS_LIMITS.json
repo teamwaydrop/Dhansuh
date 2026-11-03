@@ -1,0 +1,31 @@
+{
+  "dashboard_url": "https://supabase.com/dashboard/project/yvwpchffctiagevpqgwy",
+  "browser_inventory": {
+    "apps": [],
+    "browsers": []
+  },
+  "get_browser_result": "No browser is available",
+  "user_export_status": "No verified local historical export path; user supplied dashboard URL only",
+  "historical_chart_values_obtained": false,
+  "project_metadata": {
+    "region": "ap-south-1",
+    "status": "ACTIVE_HEALTHY",
+    "version": "17.6.1.113",
+    "compute_size": "not exposed"
+  },
+  "missing": [
+    "onset backend wait/blocker/query-start trace",
+    "incident CPU user/system/steal/throttle",
+    "available memory and swap/paging rates",
+    "disk read/write latency, IOPS, throughput and queue depth",
+    "active/waiting SQL and pool acquisition/admission history",
+    "incident-time compute entitlement"
+  ],
+  "sources": [
+    "https://supabase.com/docs/guides/observability/reports",
+    "https://supabase.com/docs/guides/observability/metrics",
+    "https://supabase.com/docs/guides/observability/log-field-reference",
+    "https://www.postgresql.org/docs/17/monitoring-stats.html",
+    "https://github.com/citusdata/pg_cron"
+  ]
+}

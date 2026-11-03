@@ -1,0 +1,82 @@
+{
+  "at_utc": "2026-11-03T10:32:44.666684+00:00",
+  "phase": "before",
+  "no_customer_data": true,
+  "business_writes": 0,
+  "results": [
+    {
+      "case": 0,
+      "slug": "calculate-order-pricing",
+      "method": "POST",
+      "expected_status": 400,
+      "status": 400,
+      "ms": 594.0,
+      "cors_origin": "*"
+    },
+    {
+      "case": 1,
+      "slug": "get-live-order-status",
+      "method": "POST",
+      "expected_status": 401,
+      "status": 401,
+      "ms": 468.0,
+      "cors_origin": null
+    },
+    {
+      "case": 2,
+      "slug": "calculate-order-pricing",
+      "method": "OPTIONS",
+      "expected_status": 200,
+      "status": 200,
+      "ms": 485.0,
+      "cors_origin": "*"
+    },
+    {
+      "case": 3,
+      "slug": "get-live-order-status",
+      "method": "OPTIONS",
+      "expected_status": 200,
+      "status": 200,
+      "ms": 453.0,
+      "cors_origin": "*"
+    },
+    {
+      "case": 4,
+      "slug": "calculate-order-pricing",
+      "method": "POST",
+      "expected_status": 200,
+      "status": 200,
+      "ms": 1453.0,
+      "cors_origin": "*",
+      "public_quote_sha256": "0f7b5083ed8366be9fa8d2a2080b2e57b70813275a554a165e12fca80b8cc50c",
+      "public_quote_response": {
+        "success": true,
+        "pricing": {
+          "vehicle_type": "auto",
+          "order_type": "ride",
+          "city_tier": "warangal",
+          "detected_city": "Warangal Zone",
+          "distance_km": 5,
+          "distance_from_zone_center_km": 0,
+          "base_fare": "77.00",
+          "boost_amount": "0.00",
+          "subtotal": "77.00",
+          "commission_percent": 2,
+          "commission_amount": "1.54",
+          "gst_percentage": 5,
+          "gst_amount": "4.01",
+          "rider_earning": "75.45",
+          "final_fare": "81.00",
+          "cancellation_fee": "0.00",
+          "waiting_charge_per_min": "0.00",
+          "subscription_commission_waiver": true,
+          "pricing_code": "WARANGAL_AUTO_RIDE_V1",
+          "config_id": "b5ff0605-a300-4657-9e3e-7b5fcf238246",
+          "discount_percentage": 0.01,
+          "discount_amount": "0.01",
+          "fare_after_discount": "76.99"
+        }
+      }
+    }
+  ]
+}

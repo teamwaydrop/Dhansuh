@@ -1,0 +1,26 @@
+[
+  {
+    "table": "users",
+    "status": 200,
+    "code": null,
+    "row_data_returned": false
+  },
+  {
+    "table": "riders",
+    "status": 401,
+    "code": "42501",
+    "row_data_returned": false
+  },
+  {
+    "table": "rider_kyc",
+    "status": 401,
+    "code": "42501",
+    "row_data_returned": false
+  },
+  {
+    "table": "orders",
+    "status": 401,
+    "code": "42501",
+    "row_data_returned": false
+  }
+]

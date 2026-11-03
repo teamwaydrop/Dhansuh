@@ -1,0 +1,112 @@
+diff --git a/supabase/functions/send-push-notification/index.ts b/supabase/functions/send-push-notification/index.ts
+index f9c61d8..b65a444 100644
+--- a/supabase/functions/send-push-notification/index.ts
++++ b/supabase/functions/send-push-notification/index.ts
+@@ -1,3 +1,4 @@
++// LOCAL PROPOSAL ONLY. Based on deployed v24; NOT DEPLOYED.
+ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+ import { fetchWithTimeout } from "../_shared/http.ts";
+@@ -36,10 +37,26 @@ let _cachedAccessToken: { token: string; expiresAtMs: number } | null = null;
+ const TOKEN_REFRESH_MARGIN_MS = 5 * 60 * 1000;
+ 
+ // Generate Google OAuth2 access token using RS256 Web Crypto
++let _accessTokenInFlight: Promise<string> | null = null;
++
+ async function getAccessToken(clientEmail: string, privateKey: string): Promise<string> {
+   if (_cachedAccessToken && _cachedAccessToken.expiresAtMs - TOKEN_REFRESH_MARGIN_MS > Date.now()) {
+     return _cachedAccessToken.token;
+   }
++  if (_accessTokenInFlight) return _accessTokenInFlight;
++  const request = mintAccessToken(clientEmail, privateKey);
++  _accessTokenInFlight = request;
++  try {
++    return await request;
++  } finally {
++    if (_accessTokenInFlight === request) _accessTokenInFlight = null;
++  }
++}
++
++async function mintAccessToken(clientEmail: string, privateKey: string): Promise<string> {
++  if (_cachedAccessToken && _cachedAccessToken.expiresAtMs - TOKEN_REFRESH_MARGIN_MS > Date.now()) {
++    return _cachedAccessToken.token;
++  }
+ 
+   const cleanKey = privateKey.replace(/\\n/g, "\n");
+   const der = pemToDer(cleanKey);
+@@ -115,6 +132,12 @@ serve(async (req) => {
+     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+   );
+   let notificationId: string | undefined;
++  let phaseStarted = performance.now();
++  const markPhase = (phase: string) => {
++    const now = performance.now();
++    console.info(JSON.stringify({ event: "waydrop_push_perf", phase, duration_ms: now - phaseStarted }));
++    phaseStarted = now;
++  };
+ 
+   try {
+     const body = await req.json();
+@@ -185,7 +208,9 @@ serve(async (req) => {
+     // net.http_post call is fire-and-forget (pg_net, inside a plpgsql EXCEPTION-guarded block) and
+     // never inspects the response body -- an intentional admin-controlled skip must not be
+     // logged/surfaced as a delivery failure.
++    markPhase("auth_and_input");
+     const productionConfig = await getProductionConfig(supabase);
++    markPhase("production_config");
+     if (!isFeatureEnabled(productionConfig, "notifications_enabled")) {
+       console.log(`[SendPushNotification] Skipped: notifications_enabled=false (user_id=${user_id}, notification_id=${notificationId})`);
+       return Response.json(
+@@ -210,6 +235,14 @@ serve(async (req) => {
+       }
+     };
+ 
++    // Start only after authentication and the global feature gate. Observe
++    // rejection immediately, including when a preference returns early.
++    const tokensPromise = Promise.resolve(supabase
++      .from("user_device_tokens")
++      .select("fcm_token")
++      .eq("user_id", user_id))
++      .then(result => result, error => ({ data: null, error }));
++
+     // 1. Fetch user notification preferences
+     const { data: userPref, error: userPrefError } = await supabase
+       .from("users")
+@@ -217,6 +250,7 @@ serve(async (req) => {
+       .eq("id", user_id)
+       .maybeSingle();
+ 
++    markPhase("preferences");
+     if (userPrefError) {
+       throw userPrefError;
+     }
+@@ -285,11 +319,9 @@ serve(async (req) => {
+     }
+ 
+     // 2. Fetch active device tokens for the user
+-    const { data: tokens, error: tokensError } = await supabase
+-      .from("user_device_tokens")
+-      .select("fcm_token")
+-      .eq("user_id", user_id);
++    const { data: tokens, error: tokensError } = await tokensPromise;
+ 
++    markPhase("remaining_token_wait");
+     if (tokensError) {
+       throw tokensError;
+     }
+@@ -313,6 +345,7 @@ serve(async (req) => {
+       serviceAccount.private_key
+     );
+ 
++    markPhase("oauth");
+     const projectId = serviceAccount.project_id;
+     const fcmUrl = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
+ 
+@@ -388,6 +421,7 @@ serve(async (req) => {
+     });
+ 
+     const results = await Promise.all(sendPromises);
++    markPhase("fcm_and_invalid_token_cleanup");
+ 
+     const anyOk = results.some((r) => r.ok);
+     if (anyOk) {

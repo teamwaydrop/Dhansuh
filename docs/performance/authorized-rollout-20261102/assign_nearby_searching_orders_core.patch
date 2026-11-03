@@ -1,0 +1,29 @@
+--- assign_nearby_searching_orders_core.before
++++ assign_nearby_searching_orders_core.after
+@@ -186,7 +186,7 @@
+                             -- production already has it rather than silently changing it here.
+                             v_order.rider_earning,
+                             NOW()
+-                        );
++                        ) ON CONFLICT (order_id, rider_id, assignment_round) DO NOTHING;
+                     EXCEPTION WHEN OTHERS THEN
+                         NULL;
+                     END;
+@@ -229,7 +229,7 @@
+                                 v_dist_km,
+                                 CEIL(v_dist_km * 3),
+                                 NOW()
+-                            );
++                            ) ON CONFLICT (order_id, rider_id, assignment_round) DO NOTHING;
+                         EXCEPTION WHEN OTHERS THEN
+                             NULL;
+                         END;
+@@ -274,7 +274,7 @@
+                                 v_dist_km,
+                                 CEIL(v_dist_km * 3),
+                                 NOW()
+-                            );
++                            ) ON CONFLICT (order_id, rider_id, assignment_round) DO NOTHING;
+                         EXCEPTION WHEN OTHERS THEN
+                             NULL;
+                         END;

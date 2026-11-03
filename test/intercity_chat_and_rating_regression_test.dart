@@ -67,9 +67,8 @@ void main() {
       );
     });
 
-    test('the pre-existing red-error path for genuine send failures is untouched (still red, '
-        'still shown for real failures -- only the pre-acceptance case is redirected away from it)', () {
-      expect(source.contains("'Failed to send message: \$e'"), isTrue);
+    test('genuine send failures remain visible with a meaningful sanitized message', () {
+      expect(source.contains('Could not send this message. Please try again.'), isTrue);
       expect(source.contains('backgroundColor: Colors.red'), isTrue);
     });
   });

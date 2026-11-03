@@ -1,0 +1,70 @@
+{
+  "scope": "Controlled offline Flutter tests, not physical-device or production benchmarks",
+  "beforeBaseline": "Saved Phase 1-start source; controller baseline has only injected HTTP/realtime/clock seams.",
+  "samples": [
+    {
+      "scenario": "Two concurrent tracking-controller starts while order read is blocked",
+      "metric": "orders HTTP GET sends",
+      "before": 2,
+      "after": 1,
+      "beforeEvidence": "flutter_phase1_baseline_controller.txt",
+      "afterTest": "concurrent and repeated starts share one order request, channel and live fetch"
+    },
+    {
+      "scenario": "Five identical rider GPS events",
+      "metric": "location ValueNotifier notifications",
+      "before": 5,
+      "after": 1,
+      "beforeEvidence": "flutter_phase1_baseline_map_notifications.txt",
+      "afterTest": "identical GPS heartbeats do not rebuild location listeners"
+    },
+    {
+      "scenario": "Two frames pumped after changing to another tab",
+      "metric": "hidden child ticker callbacks",
+      "before": 2,
+      "after": 0,
+      "beforeEvidence": "flutter_phase1_baseline_tab_gps.txt",
+      "afterTest": "visited hidden tab retains State but stops ticking animations"
+    },
+    {
+      "scenario": "Normally completed GPS position stream",
+      "metric": "restart possible",
+      "before": false,
+      "after": true,
+      "beforeEvidence": "flutter_phase1_baseline_tab_gps.txt",
+      "afterTest": "normal GPS stream completion releases its handle so tracking can restart"
+    }
+  ],
+  "afterOnly": [
+    {
+      "scenario": "Activity hidden for 61 seconds of fake-clock time",
+      "metric": "loadOrders calls",
+      "value": 0
+    },
+    {
+      "scenario": "Tracking controller paused for 30 seconds of fake-clock time",
+      "metric": "additional fallback REST/live requests",
+      "value": 0
+    },
+    {
+      "scenario": "Three concurrent Earnings refresh calls while rider read is pending",
+      "metric": "rider GET / threshold GET",
+      "value": "1 / 1; zero additional order reads after disposal"
+    },
+    {
+      "scenario": "Eight order events during initial pending enrichment",
+      "metric": "orders GET / name GET / live function sends after drain",
+      "value": "1 / 1 / 2 total"
+    }
+  ],
+  "device": {
+    "attachedAndroidDevices": 0,
+    "coldStartupMs": null,
+    "warmStartupMs": null,
+    "firstUsableMs": null,
+    "actualRequestsPerMinute": null,
+    "gpsWritesPerMinute": null,
+    "profileFrameBuildMs": null,
+    "profileFrameRasterMs": null
+  }
+}

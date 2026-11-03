@@ -1,0 +1,1 @@
+Deno.serve((req) => new Response(JSON.stringify({success:false,retryable:true,message:'Rejection is temporarily unavailable. Please retry shortly.'}), {status:req.method==='OPTIONS'?200:503,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization,x-client-info,apikey,content-type'}}));

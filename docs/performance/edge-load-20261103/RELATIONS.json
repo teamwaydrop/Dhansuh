@@ -1,0 +1,436 @@
+{
+  "query": "BEGIN READ ONLY; SET LOCAL statement_timeout='2s'; SELECT jsonb_build_object('foreign_keys',(SELECT jsonb_agg(jsonb_build_object('table',conrelid::regclass::text,'name',conname,'definition',pg_get_constraintdef(oid))) FROM pg_constraint WHERE contype='f' AND conrelid IN('public.orders'::regclass,'public.riders'::regclass,'public.order_parcel_photos'::regclass,'public.order_verifications'::regclass,'public.travel_matches'::regclass)),'indexes',(SELECT jsonb_agg(jsonb_build_object('table',tablename,'name',indexname,'definition',indexdef)) FROM pg_indexes WHERE schemaname='public' AND tablename IN('orders','riders','rider_kyc','order_parcel_photos','order_verifications','travel_matches','pricing_config','pricing_zones')),'triggers',(SELECT jsonb_agg(jsonb_build_object('table',tgrelid::regclass::text,'name',tgname,'definition',pg_get_triggerdef(oid))) FROM pg_trigger WHERE NOT tgisinternal AND tgrelid IN('public.orders'::regclass,'public.order_parcel_photos'::regclass,'public.order_verifications'::regclass,'public.travel_matches'::regclass)),'observed_at',clock_timestamp()) AS edge_relations; COMMIT;",
+  "result": [
+    {
+      "edge_relations": {
+        "indexes": [
+          {
+            "name": "order_parcel_photos_pkey",
+            "table": "order_parcel_photos",
+            "definition": "CREATE UNIQUE INDEX order_parcel_photos_pkey ON public.order_parcel_photos USING btree (id)"
+          },
+          {
+            "name": "idx_order_parcel_photos_order_id",
+            "table": "order_parcel_photos",
+            "definition": "CREATE INDEX idx_order_parcel_photos_order_id ON public.order_parcel_photos USING btree (order_id)"
+          },
+          {
+            "name": "idx_order_parcel_photos_rider_id",
+            "table": "order_parcel_photos",
+            "definition": "CREATE INDEX idx_order_parcel_photos_rider_id ON public.order_parcel_photos USING btree (rider_id)"
+          },
+          {
+            "name": "order_verifications_pkey",
+            "table": "order_verifications",
+            "definition": "CREATE UNIQUE INDEX order_verifications_pkey ON public.order_verifications USING btree (id)"
+          },
+          {
+            "name": "idx_order_verifications_created_by",
+            "table": "order_verifications",
+            "definition": "CREATE INDEX idx_order_verifications_created_by ON public.order_verifications USING btree (created_by)"
+          },
+          {
+            "name": "idx_order_verifications_order_id",
+            "table": "order_verifications",
+            "definition": "CREATE INDEX idx_order_verifications_order_id ON public.order_verifications USING btree (order_id)"
+          },
+          {
+            "name": "orders_pkey",
+            "table": "orders",
+            "definition": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)"
+          },
+          {
+            "name": "idx_orders_user_id",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_user_id ON public.orders USING btree (user_id)"
+          },
+          {
+            "name": "idx_orders_rider_id",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_rider_id ON public.orders USING btree (rider_id)"
+          },
+          {
+            "name": "idx_orders_order_type",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_order_type ON public.orders USING btree (order_type)"
+          },
+          {
+            "name": "idx_orders_order_code",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_order_code ON public.orders USING btree (order_code)"
+          },
+          {
+            "name": "idx_orders_payment_id",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_payment_id ON public.orders USING btree (payment_id)"
+          },
+          {
+            "name": "idx_orders_pricing_config_id",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_pricing_config_id ON public.orders USING btree (pricing_config_id)"
+          },
+          {
+            "name": "idx_orders_pickup_location",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_pickup_location ON public.orders USING btree (pickup_lat, pickup_lng)"
+          },
+          {
+            "name": "idx_orders_destination_location",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_destination_location ON public.orders USING btree (destination_lat, destination_lng)"
+          },
+          {
+            "name": "idx_orders_vehicle_type",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_vehicle_type ON public.orders USING btree (vehicle_type)"
+          },
+          {
+            "name": "idx_orders_order_status",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_order_status ON public.orders USING btree (order_status)"
+          },
+          {
+            "name": "idx_orders_payment_status",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_payment_status ON public.orders USING btree (payment_status)"
+          },
+          {
+            "name": "idx_orders_searching_created_at",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_searching_created_at ON public.orders USING btree (created_at) WHERE (order_status = 'searching'::order_status_enum)"
+          },
+          {
+            "name": "orders_order_code_key",
+            "table": "orders",
+            "definition": "CREATE UNIQUE INDEX orders_order_code_key ON public.orders USING btree (order_code)"
+          },
+          {
+            "name": "idx_orders_user_idempotency_key",
+            "table": "orders",
+            "definition": "CREATE UNIQUE INDEX idx_orders_user_idempotency_key ON public.orders USING btree (user_id, idempotency_key) WHERE (idempotency_key IS NOT NULL)"
+          },
+          {
+            "name": "idx_orders_search_expires_at",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_search_expires_at ON public.orders USING btree (search_expires_at)"
+          },
+          {
+            "name": "idx_orders_created_at",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_created_at ON public.orders USING btree (created_at DESC)"
+          },
+          {
+            "name": "idx_orders_created_device_record_id",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_created_device_record_id ON public.orders USING btree (created_device_record_id)"
+          },
+          {
+            "name": "idx_orders_user_created_id",
+            "table": "orders",
+            "definition": "CREATE INDEX idx_orders_user_created_id ON public.orders USING btree (user_id, created_at DESC, id DESC)"
+          },
+          {
+            "name": "pricing_config_pkey",
+            "table": "pricing_config",
+            "definition": "CREATE UNIQUE INDEX pricing_config_pkey ON public.pricing_config USING btree (id)"
+          },
+          {
+            "name": "pricing_config_pricing_code_key",
+            "table": "pricing_config",
+            "definition": "CREATE UNIQUE INDEX pricing_config_pricing_code_key ON public.pricing_config USING btree (pricing_code)"
+          },
+          {
+            "name": "idx_pricing_config_service_type",
+            "table": "pricing_config",
+            "definition": "CREATE INDEX idx_pricing_config_service_type ON public.pricing_config USING btree (service_type)"
+          },
+          {
+            "name": "idx_pricing_config_vehicle_type",
+            "table": "pricing_config",
+            "definition": "CREATE INDEX idx_pricing_config_vehicle_type ON public.pricing_config USING btree (vehicle_type)"
+          },
+          {
+            "name": "idx_pricing_config_city_tier",
+            "table": "pricing_config",
+            "definition": "CREATE INDEX idx_pricing_config_city_tier ON public.pricing_config USING btree (city_tier)"
+          },
+          {
+            "name": "idx_pricing_config_is_active",
+            "table": "pricing_config",
+            "definition": "CREATE INDEX idx_pricing_config_is_active ON public.pricing_config USING btree (is_active)"
+          },
+          {
+            "name": "idx_pricing_config_approval_status",
+            "table": "pricing_config",
+            "definition": "CREATE INDEX idx_pricing_config_approval_status ON public.pricing_config USING btree (approval_status)"
+          },
+          {
+            "name": "unique_active_pricing_config",
+            "table": "pricing_config",
+            "definition": "CREATE UNIQUE INDEX unique_active_pricing_config ON public.pricing_config USING btree (service_type, COALESCE(vehicle_type, ''::text), COALESCE((pricing_zone_id)::text, ''::text)) WHERE (is_active = true)"
+          },
+          {
+            "name": "idx_pricing_config_created_at",
+            "table": "pricing_config",
+            "definition": "CREATE INDEX idx_pricing_config_created_at ON public.pricing_config USING btree (created_at DESC)"
+          },
+          {
+            "name": "idx_pricing_config_created_by_admin_id",
+            "table": "pricing_config",
+            "definition": "CREATE INDEX idx_pricing_config_created_by_admin_id ON public.pricing_config USING btree (created_by_admin_id)"
+          },
+          {
+            "name": "idx_pricing_config_pricing_zone_id",
+            "table": "pricing_config",
+            "definition": "CREATE INDEX idx_pricing_config_pricing_zone_id ON public.pricing_config USING btree (pricing_zone_id)"
+          },
+          {
+            "name": "idx_pricing_config_approved_by_admin_id",
+            "table": "pricing_config",
+            "definition": "CREATE INDEX idx_pricing_config_approved_by_admin_id ON public.pricing_config USING btree (approved_by_admin_id)"
+          },
+          {
+            "name": "pricing_zones_pkey",
+            "table": "pricing_zones",
+            "definition": "CREATE UNIQUE INDEX pricing_zones_pkey ON public.pricing_zones USING btree (id)"
+          },
+          {
+            "name": "pricing_zones_zone_code_key",
+            "table": "pricing_zones",
+            "definition": "CREATE UNIQUE INDEX pricing_zones_zone_code_key ON public.pricing_zones USING btree (zone_code)"
+          },
+          {
+            "name": "rider_kyc_pkey",
+            "table": "rider_kyc",
+            "definition": "CREATE UNIQUE INDEX rider_kyc_pkey ON public.rider_kyc USING btree (id)"
+          },
+          {
+            "name": "idx_rider_kyc_user_id",
+            "table": "rider_kyc",
+            "definition": "CREATE INDEX idx_rider_kyc_user_id ON public.rider_kyc USING btree (user_id)"
+          },
+          {
+            "name": "idx_rider_kyc_handled_by_admin_id",
+            "table": "rider_kyc",
+            "definition": "CREATE INDEX idx_rider_kyc_handled_by_admin_id ON public.rider_kyc USING btree (handled_by_admin_id)"
+          },
+          {
+            "name": "idx_rider_kyc_kyc_status",
+            "table": "rider_kyc",
+            "definition": "CREATE INDEX idx_rider_kyc_kyc_status ON public.rider_kyc USING btree (kyc_status)"
+          },
+          {
+            "name": "idx_rider_kyc_activation_status",
+            "table": "rider_kyc",
+            "definition": "CREATE INDEX idx_rider_kyc_activation_status ON public.rider_kyc USING btree (activation_status)"
+          },
+          {
+            "name": "idx_rider_kyc_created_at",
+            "table": "rider_kyc",
+            "definition": "CREATE INDEX idx_rider_kyc_created_at ON public.rider_kyc USING btree (created_at DESC)"
+          },
+          {
+            "name": "idx_riders_account_status_service_mode",
+            "table": "riders",
+            "definition": "CREATE INDEX idx_riders_account_status_service_mode ON public.riders USING btree (account_status, service_mode) INCLUDE (current_lat, current_lng, user_id, last_location_updated_at)"
+          },
+          {
+            "name": "riders_pkey",
+            "table": "riders",
+            "definition": "CREATE UNIQUE INDEX riders_pkey ON public.riders USING btree (id)"
+          },
+          {
+            "name": "riders_kyc_id_key",
+            "table": "riders",
+            "definition": "CREATE UNIQUE INDEX riders_kyc_id_key ON public.riders USING btree (kyc_id)"
+          },
+          {
+            "name": "riders_user_id_key",
+            "table": "riders",
+            "definition": "CREATE UNIQUE INDEX riders_user_id_key ON public.riders USING btree (user_id)"
+          },
+          {
+            "name": "idx_riders_user_id",
+            "table": "riders",
+            "definition": "CREATE INDEX idx_riders_user_id ON public.riders USING btree (user_id)"
+          },
+          {
+            "name": "idx_riders_kyc_id",
+            "table": "riders",
+            "definition": "CREATE INDEX idx_riders_kyc_id ON public.riders USING btree (kyc_id)"
+          },
+          {
+            "name": "idx_riders_subscription_active",
+            "table": "riders",
+            "definition": "CREATE INDEX idx_riders_subscription_active ON public.riders USING btree (subscription_active)"
+          },
+          {
+            "name": "idx_riders_account_status",
+            "table": "riders",
+            "definition": "CREATE INDEX idx_riders_account_status ON public.riders USING btree (account_status)"
+          },
+          {
+            "name": "idx_riders_government_tax_due_balance",
+            "table": "riders",
+            "definition": "CREATE INDEX idx_riders_government_tax_due_balance ON public.riders USING btree (government_tax_due_balance)"
+          },
+          {
+            "name": "idx_riders_service_mode",
+            "table": "riders",
+            "definition": "CREATE INDEX idx_riders_service_mode ON public.riders USING btree (service_mode) WHERE (account_status = 'online'::rider_account_status_enum)"
+          },
+          {
+            "name": "idx_riders_location_updated",
+            "table": "riders",
+            "definition": "CREATE INDEX idx_riders_location_updated ON public.riders USING btree (last_location_updated_at DESC)"
+          },
+          {
+            "name": "idx_riders_created_at",
+            "table": "riders",
+            "definition": "CREATE INDEX idx_riders_created_at ON public.riders USING btree (created_at DESC)"
+          },
+          {
+            "name": "idx_riders_online_coords",
+            "table": "riders",
+            "definition": "CREATE INDEX idx_riders_online_coords ON public.riders USING btree (current_lat, current_lng) WHERE (account_status = 'online'::rider_account_status_enum)"
+          },
+          {
+            "name": "travel_matches_pkey",
+            "table": "travel_matches",
+            "definition": "CREATE UNIQUE INDEX travel_matches_pkey ON public.travel_matches USING btree (id)"
+          },
+          {
+            "name": "travel_matches_order_id_plan_id_key",
+            "table": "travel_matches",
+            "definition": "CREATE UNIQUE INDEX travel_matches_order_id_plan_id_key ON public.travel_matches USING btree (order_id, plan_id)"
+          },
+          {
+            "name": "idx_travel_matches_order_id",
+            "table": "travel_matches",
+            "definition": "CREATE INDEX idx_travel_matches_order_id ON public.travel_matches USING btree (order_id)"
+          },
+          {
+            "name": "idx_travel_matches_plan_id",
+            "table": "travel_matches",
+            "definition": "CREATE INDEX idx_travel_matches_plan_id ON public.travel_matches USING btree (plan_id)"
+          }
+        ],
+        "triggers": [
+          {
+            "name": "protect_order_financial_columns_trigger",
+            "table": "orders",
+            "definition": "CREATE TRIGGER protect_order_financial_columns_trigger BEFORE UPDATE OF commission_amount, gst_amount, rider_earning, commission_percentage, gst_percentage, actual_fare, boost_rider_earning, boost_company_earning, payment_status, fare_payment_method, current_fare, final_fare, boost_amount, boost_percentage, pg_charge_amount ON public.orders FOR EACH ROW EXECUTE FUNCTION protect_order_financial_columns()"
+          },
+          {
+            "name": "protect_order_state_columns_trigger",
+            "table": "orders",
+            "definition": "CREATE TRIGGER protect_order_state_columns_trigger BEFORE UPDATE OF order_status, pickup_otp, delivery_otp, rider_id ON public.orders FOR EACH ROW EXECUTE FUNCTION protect_order_state_columns()"
+          },
+          {
+            "name": "trg_order_completion_side_effects",
+            "table": "orders",
+            "definition": "CREATE TRIGGER trg_order_completion_side_effects AFTER UPDATE OF order_status ON public.orders FOR EACH ROW EXECUTE FUNCTION enqueue_order_completion_side_effects()"
+          },
+          {
+            "name": "trg_orders_compliance_retention",
+            "table": "orders",
+            "definition": "CREATE TRIGGER trg_orders_compliance_retention BEFORE UPDATE OF order_status ON public.orders FOR EACH ROW EXECUTE FUNCTION set_compliance_retention()"
+          },
+          {
+            "name": "trg_populate_order_code",
+            "table": "orders",
+            "definition": "CREATE TRIGGER trg_populate_order_code BEFORE INSERT ON public.orders FOR EACH ROW EXECUTE FUNCTION trg_orders_order_code()"
+          },
+          {
+            "name": "trigger_assign_nearby_orders_on_rider_freed",
+            "table": "orders",
+            "definition": "CREATE TRIGGER trigger_assign_nearby_orders_on_rider_freed AFTER UPDATE OF order_status ON public.orders FOR EACH ROW WHEN (((old.order_status = ANY (ARRAY['accepted'::order_status_enum, 'rider_arrived'::order_status_enum, 'picked_up'::order_status_enum, 'ongoing'::order_status_enum, 'payment_pending'::order_status_enum])) AND (new.order_status <> ALL (ARRAY['accepted'::order_status_enum, 'rider_arrived'::order_status_enum, 'picked_up'::order_status_enum, 'ongoing'::order_status_enum, 'payment_pending'::order_status_enum])) AND (new.rider_id IS NOT NULL))) EXECUTE FUNCTION assign_nearby_searching_orders_on_rider_freed()"
+          },
+          {
+            "name": "trigger_assign_new_order_to_nearby_riders",
+            "table": "orders",
+            "definition": "CREATE TRIGGER trigger_assign_new_order_to_nearby_riders AFTER INSERT ON public.orders FOR EACH ROW WHEN ((new.order_status = 'searching'::order_status_enum)) EXECUTE FUNCTION assign_new_order_to_nearby_online_riders()"
+          },
+          {
+            "name": "trigger_enforce_order_rider_service_mode",
+            "table": "orders",
+            "definition": "CREATE TRIGGER trigger_enforce_order_rider_service_mode BEFORE UPDATE OF rider_id ON public.orders FOR EACH ROW EXECUTE FUNCTION enforce_order_rider_service_mode()"
+          },
+          {
+            "name": "trigger_order_status_update",
+            "table": "orders",
+            "definition": "CREATE TRIGGER trigger_order_status_update AFTER UPDATE OF order_status ON public.orders FOR EACH ROW EXECUTE FUNCTION on_order_status_update()"
+          }
+        ],
+        "observed_at": "2026-11-03T02:02:12.171798+05:30",
+        "foreign_keys": [
+          {
+            "name": "riders_kyc_id_fkey",
+            "table": "riders",
+            "definition": "FOREIGN KEY (kyc_id) REFERENCES rider_kyc(id) ON DELETE CASCADE"
+          },
+          {
+            "name": "riders_user_id_fkey",
+            "table": "riders",
+            "definition": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+          },
+          {
+            "name": "orders_created_device_record_id_fkey",
+            "table": "orders",
+            "definition": "FOREIGN KEY (created_device_record_id) REFERENCES user_devices(id) ON DELETE SET NULL"
+          },
+          {
+            "name": "orders_payment_id_fkey",
+            "table": "orders",
+            "definition": "FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE SET NULL"
+          },
+          {
+            "name": "orders_pricing_config_id_fkey",
+            "table": "orders",
+            "definition": "FOREIGN KEY (pricing_config_id) REFERENCES pricing_config(id) ON DELETE SET NULL"
+          },
+          {
+            "name": "orders_rider_id_fkey",
+            "table": "orders",
+            "definition": "FOREIGN KEY (rider_id) REFERENCES riders(id) ON DELETE SET NULL"
+          },
+          {
+            "name": "orders_user_id_fkey",
+            "table": "orders",
+            "definition": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT"
+          },
+          {
+            "name": "order_parcel_photos_order_id_fkey",
+            "table": "order_parcel_photos",
+            "definition": "FOREIGN KEY (order_id) REFERENCES orders(id)"
+          },
+          {
+            "name": "order_parcel_photos_rider_id_fkey",
+            "table": "order_parcel_photos",
+            "definition": "FOREIGN KEY (rider_id) REFERENCES riders(id)"
+          },
+          {
+            "name": "order_verifications_created_by_fkey",
+            "table": "order_verifications",
+            "definition": "FOREIGN KEY (created_by) REFERENCES auth.users(id) ON DELETE SET NULL"
+          },
+          {
+            "name": "order_verifications_order_id_fkey",
+            "table": "order_verifications",
+            "definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE"
+          },
+          {
+            "name": "travel_matches_order_id_fkey",
+            "table": "travel_matches",
+            "definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE"
+          },
+          {
+            "name": "travel_matches_plan_id_fkey",
+            "table": "travel_matches",
+            "definition": "FOREIGN KEY (plan_id) REFERENCES rider_travel_plans(id) ON DELETE CASCADE"
+          }
+        ]
+      }
+    }
+  ]
+}

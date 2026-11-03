@@ -1,0 +1,93 @@
+{
+  "window_utc": [
+    "2026-11-02T10:21:00Z",
+    "2026-11-02T10:30:00Z"
+  ],
+  "query": "SELECT timestamp,source,\nCASE WHEN source='postgres_logs' THEN 'duplicate_key_query' WHEN startsWith(log_attributes['request.path'],'/storage/') THEN 'slow_storage' ELSE 'audit_http' END AS kind,\nCASE WHEN source='postgres_logs' THEN CASE WHEN positionCaseInsensitive(log_attributes['parsed.query'],'order_assignment_logs')>0 THEN 'order_assignment_logs INSERT' ELSE 'other' END\nWHEN position(log_attributes['request.path'],'/verifications/pickup/')>0 THEN 'pickup_verification'\nWHEN position(log_attributes['request.path'],'/verifications/dropoff/')>0 THEN 'dropoff_verification'\nWHEN position(log_attributes['request.path'],'/parcels/')>0 THEN 'parcel_booking_image'\nWHEN startsWith(log_attributes['request.path'],'/storage/') THEN 'other_parcel_image'\nELSE 'order_assignment_logs' END AS flow,\nlog_attributes['response.status_code'] AS status,log_attributes['response.origin_time'] AS origin_ms,log_attributes['request.headers.content_length'] AS request_bytes\nFROM logs\nWHERE (source='postgres_logs' AND log_attributes['parsed.sql_state_code']='23505')\nOR(source='edge_logs' AND log_attributes['request.method']='POST' AND (log_attributes['request.path']='/rest/v1/order_assignment_logs' OR(startsWith(log_attributes['request.path'],'/storage/') AND startsWith(log_attributes['request.headers.user_agent'],'Dart/') AND toFloat64OrZero(log_attributes['response.origin_time'])>5000)))\nORDER BY timestamp LIMIT 15",
+  "limit": 15,
+  "result": {
+    "result": [
+      {
+        "flow": "order_assignment_logs",
+        "kind": "audit_http",
+        "origin_ms": "42",
+        "request_bytes": "243",
+        "source": "edge_logs",
+        "status": "409",
+        "timestamp": "2026-11-02T10:21:17.956000"
+      },
+      {
+        "flow": "order_assignment_logs INSERT",
+        "kind": "duplicate_key_query",
+        "origin_ms": "",
+        "request_bytes": "",
+        "source": "postgres_logs",
+        "status": "",
+        "timestamp": "2026-11-02T10:21:17.985000"
+      },
+      {
+        "flow": "parcel_booking_image",
+        "kind": "slow_storage",
+        "origin_ms": "19148",
+        "request_bytes": "19751",
+        "source": "edge_logs",
+        "status": "200",
+        "timestamp": "2026-11-02T10:24:39.697000"
+      },
+      {
+        "flow": "order_assignment_logs",
+        "kind": "audit_http",
+        "origin_ms": "63",
+        "request_bytes": "243",
+        "source": "edge_logs",
+        "status": "409",
+        "timestamp": "2026-11-02T10:25:09.106000"
+      },
+      {
+        "flow": "order_assignment_logs INSERT",
+        "kind": "duplicate_key_query",
+        "origin_ms": "",
+        "request_bytes": "",
+        "source": "postgres_logs",
+        "status": "",
+        "timestamp": "2026-11-02T10:25:09.140000"
+      },
+      {
+        "flow": "pickup_verification",
+        "kind": "slow_storage",
+        "origin_ms": "8635",
+        "request_bytes": "690122",
+        "source": "edge_logs",
+        "status": "200",
+        "timestamp": "2026-11-02T10:25:28.682000"
+      },
+      {
+        "flow": "dropoff_verification",
+        "kind": "slow_storage",
+        "origin_ms": "22676",
+        "request_bytes": "544967",
+        "source": "edge_logs",
+        "status": "200",
+        "timestamp": "2026-11-02T10:25:57.119000"
+      },
+      {
+        "flow": "order_assignment_logs",
+        "kind": "audit_http",
+        "origin_ms": "623",
+        "request_bytes": "243",
+        "source": "edge_logs",
+        "status": "409",
+        "timestamp": "2026-11-02T10:26:59.005000"
+      },
+      {
+        "flow": "order_assignment_logs INSERT",
+        "kind": "duplicate_key_query",
+        "origin_ms": "",
+        "request_bytes": "",
+        "source": "postgres_logs",
+        "status": "",
+        "timestamp": "2026-11-02T10:26:59.320000"
+      }
+    ]
+  }
+}

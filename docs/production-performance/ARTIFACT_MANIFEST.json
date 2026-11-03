@@ -1,0 +1,72 @@
+{
+  "status": "LOCAL_TESTED_PRODUCTION_NOT_APPROVED",
+  "files": [
+    {
+      "file": "waves/01_find_nearby_riders.sql",
+      "sha256": "e774af6d47d29815125c962de33637eb2d5e6f270a52c90d027944a06cc9163c",
+      "bytes": 6473
+    },
+    {
+      "file": "waves/01_find_nearby_riders.rollback.sql",
+      "sha256": "b4637e3a95bcb96082096e579bdd78156b2ec9118c4326eb5b71f0415f13d4c8",
+      "bytes": 5957
+    },
+    {
+      "file": "waves/02_assign_nearby_searching_orders_core.sql",
+      "sha256": "3632fd98be88f6460b337c6f3ff4dbe6c2d9ab07e55d39d7d198fe69312576fe",
+      "bytes": 14128
+    },
+    {
+      "file": "waves/02_assign_nearby_searching_orders_core.rollback.sql",
+      "sha256": "cd75bd1e534d7ebb3ffedba9ccea6c7e5c3330938f468baedab8aa7a398fff99",
+      "bytes": 13800
+    },
+    {
+      "file": "waves/03_drop_idx_riders_user_id.sql",
+      "sha256": "bccf79bfead8a4b59ae471cddf571c88d9e832ee9a2db40b63f294fa1c7a0122",
+      "bytes": 1837
+    },
+    {
+      "file": "waves/03_restore_idx_riders_user_id.rollback.sql",
+      "sha256": "f507e18e5d0304d90d24634c6649bc304bd44c83a36125e213fdb1874b7dff63",
+      "bytes": 342
+    },
+    {
+      "file": "waves/04_drop_idx_riders_kyc_id.sql",
+      "sha256": "d37a49af9e693fdf16e1d26bbd3a7e9e032687521a7047b855d60e64019099c5",
+      "bytes": 1823
+    },
+    {
+      "file": "waves/04_restore_idx_riders_kyc_id.rollback.sql",
+      "sha256": "1c95f01c0f97569e564a3ff39d00700367a7c44eef599f17f437f1d5b5e0b602",
+      "bytes": 340
+    },
+    {
+      "file": "waves/05_push_timing.index.ts",
+      "sha256": "57684cd0137a6753ed31808b50e53325101ee662d9994504ea3eb5eff4c7a82f",
+      "bytes": 16866
+    },
+    {
+      "file": "waves/06_push_oauth.index.ts",
+      "sha256": "de655e56c9f73d4b4b23884772dd297191f64b159de85d9127ccfb59f2e47d77",
+      "bytes": 17434
+    },
+    {
+      "file": "waves/07_push_prefetch.index.ts",
+      "sha256": "6edfd9435eb7365e10e22604f1e9e19e599775e50270701f3bea978953153a1b",
+      "bytes": 17706
+    },
+    {
+      "file": "waves/shared/http.ts",
+      "sha256": "7592be0f9749e0400144fac15e696e3e028f8a262b58dcddc35e5bd992d08c45",
+      "bytes": 2289
+    },
+    {
+      "file": "waves/05_compat.index.ts",
+      "sha256": "03f1afe23eda545a67c3a7adf2ebfbc5310a0803371753f808b90180c618c8f2",
+      "bytes": 16405
+    }
+  ],
+  "backup_manifest": ".dart_tool/production_performance_preflight_20261101/MANIFEST.json",
+  "revision": "Deno typed-array and timer compatibility corrections; earlier wave hashes superseded"
+}

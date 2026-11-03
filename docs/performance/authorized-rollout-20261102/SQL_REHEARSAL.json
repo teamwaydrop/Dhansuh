@@ -1,0 +1,1 @@
+{"passed": true, "production": false, "database": "waydrop_part3_test", "transaction": "ROLLBACK", "definitions_and_hashes": "exact", "owner_acl": "local fixture substitutions only; production file uses production fingerprints"}

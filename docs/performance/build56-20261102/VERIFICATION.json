@@ -1,0 +1,140 @@
+{
+  "date_ist": "2026-11-02",
+  "production_reads": 0,
+  "production_writes": 0,
+  "production_deployments": 0,
+  "resources_created": 0,
+  "paid_resources": 0,
+  "new_tests": 5,
+  "baseline_passenger_widget": {
+    "passed": 0,
+    "expected_failures": 2
+  },
+  "baseline_zone_service": {
+    "passed": 1,
+    "expected_failures": 2
+  },
+  "focused_actual_widget_service": {
+    "passed": 10,
+    "failed": 0
+  },
+  "full_flutter": {
+    "passed": 2133,
+    "failed": 0,
+    "previous": 2128
+  },
+  "targeted_analyzer": {
+    "exit_code": 0,
+    "errors": 0,
+    "warnings": 0,
+    "infos": 0
+  },
+  "logs": {
+    "passenger-loader-before.log": {
+      "marker_verified": "+0 -2: Some tests failed.",
+      "sha256": "756631e3e7ade76a94b79716d68e2cae4fe57a750de809443ecce693cf50dd7a"
+    },
+    "zones-singleflight-before.log": {
+      "marker_verified": "+1 -2: Some tests failed.",
+      "sha256": "02fcae9a824a96461d08b7e9a0f6e080b30659a3b40a1a34f051a6deb50c8125"
+    },
+    "build56-focused.log": {
+      "marker_verified": "+10: All tests passed!",
+      "sha256": "58ccb1365f952bc8b4eedea7068f59514481d01c19aefd7b5df18e20f23e14fe"
+    },
+    "build56-full-flutter.log": {
+      "marker_verified": "+2133: All tests passed!",
+      "sha256": "77883a4adbfac9de82d4aca1bdede2252ee84d5da6c5b1ee953db3af58ab6593"
+    },
+    "build56-analyze.log": {
+      "marker_verified": "No issues found!",
+      "sha256": "77b2518ca8451239e26fa5806443facaea3d43e6c0d265756a10fa0b05639e38"
+    }
+  },
+  "source_sha256": {
+    "lib/features/user/home/home_tab.dart": "698bc1dbca5d3809cae9f26fdc852ace1fecec054fbc31dc3e682d9e3207ef82",
+    "lib/core/services/location/serviceability_service.dart": "4de5863c2eb701702dffc803ee8956f5caf0d174db094ca9ebbf06394cb797cd",
+    "test/passenger_home_location_loading_test.dart": "307b38f2fa108c579ff790e96dfef42e01191ba5d3fc2280b3492adaebd0f3a3",
+    "test/serviceability_shared_load_test.dart": "ef3bf35e35ad9aaa6f5323665546edf3e0627ed48937c78b6db3e58efd315baf",
+    "lib/features/rider/home/rider_home_tab.dart": "f067f0a72aff4b484a2e160b596dd42e7d3d7e59812a33da6dea95430fa70f64",
+    "lib/core/services/config/production_config_service.dart": "89df6e2df23a749ca41917e75b5e1c7c18a688f20ae54f7b2cd6c1aed45716de",
+    "pubspec.yaml": "3a0990d2fc29c7f25ac3611cb2815dee6e686af4f0ef243740f54d349dcc58e3",
+    "pubspec.lock": "0e68ad3677c5d36d5115a2b53f2238214c9ba5fec67f591473c719a1dd9a9b1a",
+    "docs/performance/BUILD_56_PERFORMANCE_HANDOFF.md": "adb83de954979554e7e8655f221f8edf6fac9a21ed2bc330cc7ffa6a66c4477c",
+    "docs/performance/WAYDROP_PERFORMANCE_FIX_REPORT.md": "ddab9737cc714013419630a7985c602d48ce0dae18068831ec1976773fdada99"
+  },
+  "apk": {
+    "build": {
+      "exit_code": 0,
+      "elapsed_seconds": 580.22,
+      "version": "1.0.0+56",
+      "command": [
+        "flutter",
+        "build",
+        "apk",
+        "--release",
+        "--build-name=1.0.0",
+        "--build-number=56",
+        "--dart-define-from-file=.env"
+      ],
+      "production_changes": 0
+    },
+    "new_apk": {
+      "package": "com.waydrop.app",
+      "version_code": "56",
+      "version_name": "1.0.0",
+      "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+      "apk_sha256": "b6e5bdbfbeb74338a52f284e80a6e1272bb1d7f842b21da2edd2ae66c95bf559",
+      "bytes": 87819759
+    },
+    "reference_build55": {
+      "package": "com.waydrop.app",
+      "version_code": "55",
+      "version_name": "1.0.0",
+      "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+      "apk_sha256": "0f9f687603a103878fb76b8ef1082b6e9bb42daa07037494cf3f02f277fb7904",
+      "bytes": 87819759
+    },
+    "same_signer": true,
+    "plaintext_env_asset_absent": true,
+    "artifact": "artifacts/waydrop-1.0.0-build56.apk",
+    "installed": false,
+    "published": false,
+    "phone_performance_measured": false,
+    "aot_library_comparison": [
+      {
+        "entry": "lib/arm64-v8a/libapp.so",
+        "build55_sha256": "15b1ec385cdba4a96f43979560c3648e9e19145c3a3fc3af85c73ecda44cdae5",
+        "build56_sha256": "a24a041ebf093af65e06088b192a460f8661ce25fe3297c933b7dcb4a8db82b7",
+        "changed": true
+      },
+      {
+        "entry": "lib/armeabi-v7a/libapp.so",
+        "build55_sha256": "7311da5844964bdf9d3fbfcd03153756b58c56ccb22654470a2e694a4365cd4e",
+        "build56_sha256": "d4dcc6a377746e7e5f6d67638a52d6fe661d65b19e3a3b3942c34038468ec4fb",
+        "changed": true
+      },
+      {
+        "entry": "lib/x86_64/libapp.so",
+        "build55_sha256": "1641e7cdf810169319f1e142c5d787a1b311bb42923ecea218e2f01b2fcf2e6f",
+        "build56_sha256": "435171642c8c1487351b2f4af9a6fa6be0098cbc8424b325c1d780f82266e486",
+        "changed": true
+      }
+    ],
+    "aot_provenance_limit": "All three AOT libraries differ from Build55; source/build chronology is recorded, not a full source-map attestation or device artifact hash."
+  },
+  "release_assessment": {
+    "flutter": "CONDITIONAL GO for same-device candidate verification",
+    "combined_SQL": "NO-GO; existing managed safety gates unchanged",
+    "combined_Edge": "NO-GO; existing managed safety gates unchanged"
+  },
+  "handset_available": false,
+  "remaining": [
+    "Storage transfer/authorization/server timing split",
+    "REST tail latency at device/test window",
+    "Historical paging/device disk/IO budget/admission metrics at onset",
+    "Original November 1 initiating cause",
+    "Managed combined writer fencing/eligibility/acceptance/push verification"
+  ],
+  "speed_guarantee": false
+}

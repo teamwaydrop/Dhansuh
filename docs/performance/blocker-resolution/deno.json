@@ -1,0 +1,9 @@
+{
+  "nodeModulesDir": "none",
+  "compilerOptions": {"lib": ["deno.window", "dom", "dom.iterable"]},
+  "imports": {
+    "https://deno.land/std@0.224.0/http/server.ts": "../../production-performance/local-tests/push-mocks/server.ts",
+    "https://esm.sh/@supabase/supabase-js@2": "../../production-performance/local-tests/push-mocks/supabase.ts",
+    "https://esm.sh/@supabase/supabase-js@2.118.0": "../../production-performance/local-tests/push-mocks/supabase.ts"
+  }
+}

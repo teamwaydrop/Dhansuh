@@ -1,0 +1,13 @@
+{
+  "id": "14820d31-73bf-4edb-ba38-b6a873520108",
+  "slug": "calculate-order-pricing",
+  "name": "calculate-order-pricing",
+  "status": "ACTIVE",
+  "version": 76,
+  "created_at": 1778426309113,
+  "updated_at": 1793702012074,
+  "verify_jwt": false,
+  "import_map": false,
+  "entrypoint_path": "file:///tmp/user_fn_yvwpchffctiagevpqgwy_14820d31-73bf-4edb-ba38-b6a873520108_76/source/functions/calculate-order-pricing/index.ts",
+  "ezbr_sha256": "76ab498d0890dddb6d1cd551c351c04dce94edaf42d98cf653be5e00bead94e2"
+}

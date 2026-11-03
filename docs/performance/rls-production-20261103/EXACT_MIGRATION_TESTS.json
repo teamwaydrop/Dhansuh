@@ -1,0 +1,12 @@
+{
+  "passed": 5,
+  "failed": 0,
+  "fixture_only_hash_substitution": true,
+  "results": [
+    "real production fingerprints refuse a different fixture without changes",
+    "exact migration with fixture-only fingerprints changes precisely four SELECT expressions",
+    "guarded rollback restores the entire original policy state",
+    "graph drift aborts atomically without changing other policies",
+    "500ms lock timeout aborts behind an observed concurrent writer lock"
+  ]
+}

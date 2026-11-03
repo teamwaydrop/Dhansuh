@@ -92,8 +92,9 @@ void main() {
       expect(kycScreen.contains('const RiderKycPendingScreen()'), isTrue);
     });
 
-    test('rider_kyc has a database-level unique constraint on user_id', () {
-      final migration = _read('supabase/migrations/20260731000003_prevent_duplicate_rider_kyc_rows.sql');
+    // Source contract for the preserved local proposal, not a live-schema assertion.
+    test('preserved KYC proposal specifies a unique user_id constraint', () {
+      final migration = _read('docs/migration-review/superseded-local-history/20260731000003_prevent_duplicate_rider_kyc_rows.sql');
       expect(
         migration.contains('CREATE UNIQUE INDEX') && migration.contains('"rider_kyc"') && migration.contains('"user_id"'),
         isTrue,
@@ -109,7 +110,7 @@ void main() {
     test('the generic catch-all only uses ErrorType.offline for an actual connectivity exception', () {
       expect(appStart.contains('isConnectivityError'), isTrue);
       expect(
-        appStart.contains('errorType: isConnectivityError ? ErrorType.offline : ErrorType.general'),
+        appStart.contains('errorType: isConnectivityError ? ErrorType.offline : ErrorType.backend'),
         isTrue,
         reason: 'ConnectionErrorScreen defaults errorType to ErrorType.offline, so every catch block here must '
             'set it explicitly instead of letting an unrelated bug/exception render as "No Internet Connection"',
@@ -117,20 +118,24 @@ void main() {
     });
 
     test('a TimeoutException on startup is shown as a backend/timeout error, not "No Internet Connection"', () {
-      final timeoutBranchIndex = appStart.indexOf('on TimeoutException catch (_) {');
-      final branchEnd = appStart.indexOf('} catch (e) {', timeoutBranchIndex);
+      final timeoutBranchIndex = appStart.indexOf('on TimeoutException catch (e) {');
+      final branchEnd = appStart.indexOf('} catch (e, st) {', timeoutBranchIndex);
       final timeoutBranch = appStart.substring(timeoutBranchIndex, branchEnd);
       expect(timeoutBranch.contains('errorType: ErrorType.backend'), isTrue);
     });
 
-    test('the riders/kyc/orders batch fetch has a timeout, matching the profile query above it', () {
-      final batchIndex = appStart.indexOf('final results = await Future.wait([');
-      final batchEnd = appStart.indexOf(';', batchIndex);
-      final batch = appStart.substring(batchIndex, batchEnd);
+    test('secondary Home reads retain their in-flight lane until HTTP completes', () {
+      // Future.timeout cannot cancel HTTP; releasing the lane starts overlapping reads.
+      final home = File('lib/features/user/home/home_tab.dart').readAsStringSync();
+      final batchIndex = home.indexOf('final results = await Future.wait<dynamic>([');
+      final batchEnd = home.indexOf(';', batchIndex);
+      final batch = home.substring(batchIndex, batchEnd);
       expect(batch.contains('riderFuture'), isTrue);
       expect(batch.contains('kycFuture'), isTrue);
       expect(batch.contains('ordersFuture'), isTrue);
-      expect(batch.contains('.timeout('), isTrue);
+      expect(batch.contains('.timeout('), isFalse);
+      expect(home.contains('if (_loadInFlight)'), isTrue);
+      expect(home.contains('_refreshBackoff.recordFailure()'), isTrue);
     });
   });
 
@@ -153,7 +158,11 @@ void main() {
 
       test('$name rejects a body.user_id that does not match the authenticated user', () {
         expect(source.contains('body.user_id !== authData.user.id'), isTrue);
-        expect(source.contains('Forbidden: user_id does not match authenticated user'), isTrue);
+        final guardStart = source.indexOf('if (!body.user_id || body.user_id !== authData.user.id)');
+        final guardEnd = source.indexOf('\n    }', guardStart);
+        final guard = source.substring(guardStart, guardEnd);
+        expect(guard.contains('status: 403'), isTrue);
+        expect(guard.contains('Forbidden:'), isTrue);
       });
 
       test('$name performs the auth check before any KYC-record read/write', () {

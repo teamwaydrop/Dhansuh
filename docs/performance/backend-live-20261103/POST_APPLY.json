@@ -1,0 +1,27 @@
+[
+  {
+    "verification": {
+      "job": {
+        "jobid": 5,
+        "active": true,
+        "command": "SELECT public.redispatch_stalled_searching_orders();",
+        "schedule": "*/1 * * * *"
+      },
+      "function": {
+        "acl": "{postgres=X/postgres,service_role=X/postgres}",
+        "md5": "d70d703c15e3ee72834dc627af1fee80",
+        "owner": "postgres",
+        "settings": [
+          "search_path=public"
+        ],
+        "anon_execute": false,
+        "service_execute": true,
+        "security_definer": true,
+        "authenticated_execute": false
+      },
+      "observed_at": "2026-11-03T01:54:53.136009+05:30",
+      "client_backends": 5,
+      "blocked_sessions": 0
+    }
+  }
+]

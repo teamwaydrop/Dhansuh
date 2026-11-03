@@ -1,0 +1,217 @@
+{
+  "date_ist": "2026-11-02",
+  "production": {
+    "metadata_sql_reads": 2,
+    "log_queries": 0,
+    "writes": 0,
+    "deployments": 0,
+    "configuration_changes": 0,
+    "paid_resources": 0,
+    "new_supabase_projects": 0
+  },
+  "local_database": {
+    "host": "127.0.0.1",
+    "port": 54329,
+    "database": "waydrop_rls_hotpath_test",
+    "synthetic_data_only": true,
+    "policy_count": 40,
+    "column_count": 243,
+    "server_stopped_after_tests": true,
+    "original_policies_restored_after_tests": true,
+    "engine": "PostgreSQL 17.11"
+  },
+  "native_groups": {
+    "passed": 6,
+    "failed": 0,
+    "actor_rowset_comparisons": 57,
+    "update_target_comparisons": 18,
+    "anon_denial_probes": 8
+  },
+  "concurrent_identity_reads": {
+    "passed": 16,
+    "failed": 0
+  },
+  "rollback_checks": {
+    "passed": 3,
+    "failed": 0
+  },
+  "helper_call_counts_over_9_queries": {
+    "25": {
+      "before": 342,
+      "after": 18
+    },
+    "250": {
+      "before": 1341,
+      "after": 18
+    }
+  },
+  "timing_repeat": {
+    "counterbalanced": true,
+    "samples_per_actor_phase": 24,
+    "summaries": [
+      {
+        "actor": 1,
+        "before": {
+          "median_ms": 5.252,
+          "min_ms": 1.904,
+          "max_ms": 10.785,
+          "samples": 24
+        },
+        "after": {
+          "median_ms": 3.3015,
+          "min_ms": 1.473,
+          "max_ms": 8.876,
+          "samples": 24
+        }
+      },
+      {
+        "actor": 5,
+        "before": {
+          "median_ms": 7.5969999999999995,
+          "min_ms": 2.774,
+          "max_ms": 12.75,
+          "samples": 24
+        },
+        "after": {
+          "median_ms": 2.8635,
+          "min_ms": 1.373,
+          "max_ms": 7.442,
+          "samples": 24
+        }
+      },
+      {
+        "actor": 999,
+        "before": {
+          "median_ms": 6.801500000000001,
+          "min_ms": 1.806,
+          "max_ms": 11.718,
+          "samples": 24
+        },
+        "after": {
+          "median_ms": 2.194,
+          "min_ms": 1.348,
+          "max_ms": 10.477,
+          "samples": 24
+        }
+      }
+    ],
+    "initial_owner_regression_retained": true,
+    "production_latency_gain_claimed": false
+  },
+  "flutter": {
+    "latest_full_passed": 2138,
+    "latest_full_failed": 0,
+    "rerun_this_followup": false,
+    "tested_changed_client_dart_hashes_preserved": true,
+    "change_this_followup": "release number only"
+  },
+  "candidate": {
+    "scope": "four existing authenticated SELECT predicates",
+    "default_end": "ROLLBACK",
+    "production_approved": false,
+    "production_applied": false,
+    "standalone_assessment": "CONDITIONAL; local validation passed, managed client authorization smoke and explicit approval pending",
+    "combined_sql_edge": "NO-GO; prior gates unchanged"
+  },
+  "baseline_distinction": "Inactive admins may retain KYC visibility via independent users.role admin/support policy; preserved, not resolved",
+  "limitations": [
+    "RLS-only local fixture, no full trigger/foreign-key/provider stack",
+    "No managed Auth JWT signature/end-to-end validation",
+    "No new real-device latency measurement",
+    "Original initiating shared backend resource cause unproven"
+  ],
+  "apk": {
+    "build": {
+      "exit_code": 0,
+      "elapsed_seconds": 593.42,
+      "version": "1.0.0+57",
+      "command": [
+        "flutter",
+        "build",
+        "apk",
+        "--release",
+        "--build-name=1.0.0",
+        "--build-number=57",
+        "--dart-define-from-file=.env"
+      ],
+      "production_changes": 0
+    },
+    "new_apk": {
+      "package": "com.waydrop.app",
+      "version_code": "57",
+      "version_name": "1.0.0",
+      "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+      "apk_sha256": "34eabf5b60753137d8e7cfaf22ea29ec194b3329f7c7a5c1d0bc03e21a83e8dd",
+      "bytes": 87819759
+    },
+    "reference_build56": {
+      "package": "com.waydrop.app",
+      "version_code": "56",
+      "version_name": "1.0.0",
+      "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+      "apk_sha256": "b6e5bdbfbeb74338a52f284e80a6e1272bb1d7f842b21da2edd2ae66c95bf559",
+      "bytes": 87819759
+    },
+    "same_signer": true,
+    "plaintext_env_asset_absent": true,
+    "artifact": "artifacts/waydrop-1.0.0-build57.apk",
+    "installed": false,
+    "published": false,
+    "phone_performance_measured": false,
+    "aot_library_comparison": [
+      {
+        "entry": "lib/arm64-v8a/libapp.so",
+        "build56_sha256": "a24a041ebf093af65e06088b192a460f8661ce25fe3297c933b7dcb4a8db82b7",
+        "build57_sha256": "fafe03fdc923ac31efda3b81caefebd0f4263a385266ea0e9d6db0ebbea663c9",
+        "changed": true
+      },
+      {
+        "entry": "lib/armeabi-v7a/libapp.so",
+        "build56_sha256": "d4dcc6a377746e7e5f6d67638a52d6fe661d65b19e3a3b3942c34038468ec4fb",
+        "build57_sha256": "b28fe10c3bd266d6d728861e0da7f29290c9023468c7519b658bc46acf58cac5",
+        "changed": true
+      },
+      {
+        "entry": "lib/x86_64/libapp.so",
+        "build56_sha256": "435171642c8c1487351b2f4af9a6fa6be0098cbc8424b325c1d780f82266e486",
+        "build57_sha256": "626b39de5c079bd3e35ce04a08d726d44264bf0fdd9f6f8ce2009b89cd89c573",
+        "changed": true
+      }
+    ],
+    "aot_provenance_limit": "AOT libraries differ from Build56; not a source-map attestation or handset artifact hash."
+  },
+  "artifact_sha256": {
+    "BENCHMARK.json": "1bd4e85b538f9708dd8e1424682c7405908b756d396642dd763b9738f06750c2",
+    "COUNTERBALANCED.json": "236c990fd4c93631f8db4e2aed91c88b8f50a5bde080aafd37f92b0590f592cf",
+    "counterbalanced_test.py": "9f80b59d8044836f517bc10c565795d2fceb8277e456f7c8b6839797f1ef6915",
+    "LIVE_COLUMN_METADATA.json": "49d0aff67a8bccc7837da0531cf82144503b4b5d9c1bcfa7a04aa720caa2571a",
+    "LIVE_METADATA.json": "812171548cfbe58df7df3d575b6d9c4e345f994b8bae9553f3c68cf69309ab0e",
+    "local_fixture.py": "eefb3a7c8025f3c09f4b88738dfb631deac6afbe5695cd4651658e9682026252",
+    "NATIVE_RESULTS.json": "c08132f3453daac5f8b155c8eddd9ff0c9b5aac5b400821bb457f6ee49492f90",
+    "native_test.py": "7ceb1c69d920e6a0c43c7af1db5d009d9593fee5e6a67a9e1b0cec81212f4665",
+    "PLAN_250_after_actor1.json": "2726fdd6e3d4450e69588f65e3843b34e15b8be3a1f8492db642875a319dc9be",
+    "PLAN_250_after_actor5.json": "c8d1f6deca5636e582ff88341f2a073fa7db2eb0c2a9b90db70e0effa815c7f1",
+    "PLAN_250_after_actor999.json": "f90430aaeff2fb7038668d1233eaa776c677a2dbc5bb566794acb4b12669dd68",
+    "PLAN_250_before_actor1.json": "e463ba719306cc1f8790158e58ca4f4ca0605b6052167ba656bec66ae7de18e3",
+    "PLAN_250_before_actor5.json": "168ca7c43ebb6ef6ccec5e786bc6fdb2e7b5ba323a4cbb06b4e591f34152e530",
+    "PLAN_250_before_actor999.json": "2b11f19502af6d0a2fd1794acb45f315f44df5a0a9526ad2f987bddb2699e263",
+    "PLAN_25_after_actor1.json": "898da2746cdabddff2ad6080f5c72d59d0b35d976b7a2e58b7ff5314ddf4fd65",
+    "PLAN_25_after_actor5.json": "1f7040ded62971f1deda8f1e259793bf33750a0403307db5a6831cbbbb3e33f3",
+    "PLAN_25_after_actor999.json": "1cd894fd74472e8adfcffd0471f8a76edea08c8230a4131e990a6d3b037c1834",
+    "PLAN_25_before_actor1.json": "59a2579ab1d2846c3afa643a5660e035a99cc08f64241f45aa85ef66be23fd3d",
+    "PLAN_25_before_actor5.json": "3d187365962a1827eac1bdbc1fc419d98e15c66c8d768405cc36fe25c75c09e4",
+    "PLAN_25_before_actor999.json": "b20aa511d34a353bc5ddc805c35285449be5147fd632342b9e4ca30c6393539e",
+    "RLS_INITPLAN_CANDIDATE.sql": "96c12d1636dbdf452bebf2a664cbda2cbbe85e82dcaeecde1fa9ccbdbf323bdb",
+    "RLS_INITPLAN_ROLLBACK.sql": "9d21c16a5804608507342347cd88f6cb3af0be25b502bad8325380f1259ef9c7",
+    "ROLLBACK_RESULTS.json": "c97e1eb1dd3e30a171ecb99ffa4128ec3ca477e19e045d980740c746e47837ad",
+    "rollback_test.py": "d7cd6d7504ab08adb8020bfcc95847140cb1c61d16d0863c03ebf627316acbf7",
+    "SYNTHETIC_SCHEMA.sql": "7f49a2d393bd54c4851f11fc5e8b071c15e1f61485b53caa4093f3767a69ed2b"
+  },
+  "report_source_sha256": {
+    "docs/performance/WAYDROP_RLS_HOTPATH_VALIDATION.md": "f4351874fcf28c620160c2cc524848603851371040bfed75b8499023c0cf0bb9",
+    "docs/performance/WAYDROP_PRODUCTION_DEPLOYMENT_CHECKLIST.md": "ffab2fa0d95d71f88733764da26adf9b79ce1d05f50cb26cacf7abdfc3e352ef",
+    "docs/performance/WAYDROP_PERFORMANCE_FIX_REPORT.md": "271ba4380d7aa6f22feaedd3cdd2418b8708529df9a6b791c9ff478d5a7ee0b6",
+    "pubspec.yaml": "eef57f8ee25e8981d61e44dd8a00aaa95f94d530ca8f0bb6585a76ca1b9641b5",
+    "docs/supabase-phase2/proposals/04_admin_rls_initplan.sql": "47dca013cf72494df185878dad4553e5785f79308b07fe4bf4ee720b28de3ccd"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "outcome": "Read-only statement cancelled at locally scoped 2500ms statement_timeout; no retry",
+  "incidentEvidence": false,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"error\":{\"name\":\"HttpException\",\"message\":\"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\\n\"}}"
+      }
+    ],
+    "structuredContent": {
+      "error_code": "INVALID_ARGUMENT"
+    },
+    "isError": true
+  }
+}

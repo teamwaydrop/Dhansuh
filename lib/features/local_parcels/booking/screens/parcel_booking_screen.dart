@@ -17,6 +17,7 @@
 /// ============================================================================
 
 import 'dart:convert';
+import 'package:waydrop/core/services/network/single_flight_refresh.dart';
 import 'dart:math';
 import 'dart:io';
 import 'dart:async';
@@ -275,7 +276,16 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
     await webController.loadFlutterAsset('assets/map/ola_map_booking.html');
   }
 
-  Future<void> _fetchNearbyRiders() async {
+  final _nearbyRiderRefresh = SingleFlightRefresh();
+
+  Future<void> _fetchNearbyRiders() {
+    if (!mounted) return Future<void>.value();
+    return _nearbyRiderRefresh.run(_fetchNearbyRidersOnce);
+  }
+
+  Future<void> _fetchNearbyRidersOnce() async {
+    final originLat = widget.pickupLat;
+    final originLng = widget.pickupLng;
     try {
       // Egress fix: mirrors the geographic bounding-box pattern from
       // ride_location_screen.dart's _fetchNearbyRiders() (CLIENT-3). The haversine
@@ -288,7 +298,7 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
       const double kmPerDegreeLat = 111.32;
       final double latDelta = radiusKm / kmPerDegreeLat;
       final double lngDegreeKm =
-          kmPerDegreeLat * cos(widget.pickupLat * (pi / 180)).abs();
+          kmPerDegreeLat * cos(originLat * (pi / 180)).abs();
       final double lngDelta =
           radiusKm / (lngDegreeKm < 0.000001 ? 0.000001 : lngDegreeKm);
 
@@ -301,10 +311,12 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
           .eq('account_status', 'online')
           .not('current_lat', 'is', null)
           .not('current_lng', 'is', null)
-          .gte('current_lat', widget.pickupLat - latDelta)
-          .lte('current_lat', widget.pickupLat + latDelta)
-          .gte('current_lng', widget.pickupLng - lngDelta)
-          .lte('current_lng', widget.pickupLng + lngDelta);
+          .gte('current_lat', originLat - latDelta)
+          .lte('current_lat', originLat + latDelta)
+          .gte('current_lng', originLng - lngDelta)
+          .lte('current_lng', originLng + lngDelta);
+
+      if (!mounted || widget.pickupLat != originLat || widget.pickupLng != originLng) return;
 
       final List<Map<String, dynamic>> riders =
           (response as List).map<Map<String, dynamic>>((r) {
@@ -329,9 +341,9 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
         if (lat == null || lng == null) return false;
 
         const p = 0.017453292519943295; // Math.PI / 180
-        final a = 0.5 - cos((lat - widget.pickupLat) * p) / 2 +
-            cos(widget.pickupLat * p) * cos(lat * p) *
-            (1 - cos((lng - widget.pickupLng) * p)) / 2;
+        final a = 0.5 - cos((lat - originLat) * p) / 2 +
+            cos(originLat * p) * cos(lat * p) *
+            (1 - cos((lng - originLng) * p)) / 2;
         final distanceKm = 12742 * asin(sqrt(a));
         return distanceKm <= 5.0;
       }).toList();
@@ -346,7 +358,7 @@ class _ParcelBookingScreenState extends State<ParcelBookingScreen> {
   }
 
   Future<void> _updateRidersOnMap({String? filterType}) async {
-    if (!mapLoaded) return;
+    if (!mounted || !mapLoaded) return;
     try {
       final ridersJson = jsonEncode(nearbyRiders);
       final filterArg = filterType != null ? '"$filterType"' : 'null';

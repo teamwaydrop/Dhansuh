@@ -1,0 +1,60 @@
+{
+  "build": {
+    "exit_code": 0,
+    "elapsed_seconds": 580.22,
+    "version": "1.0.0+56",
+    "command": [
+      "flutter",
+      "build",
+      "apk",
+      "--release",
+      "--build-name=1.0.0",
+      "--build-number=56",
+      "--dart-define-from-file=.env"
+    ],
+    "production_changes": 0
+  },
+  "new_apk": {
+    "package": "com.waydrop.app",
+    "version_code": "56",
+    "version_name": "1.0.0",
+    "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+    "apk_sha256": "b6e5bdbfbeb74338a52f284e80a6e1272bb1d7f842b21da2edd2ae66c95bf559",
+    "bytes": 87819759
+  },
+  "reference_build55": {
+    "package": "com.waydrop.app",
+    "version_code": "55",
+    "version_name": "1.0.0",
+    "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+    "apk_sha256": "0f9f687603a103878fb76b8ef1082b6e9bb42daa07037494cf3f02f277fb7904",
+    "bytes": 87819759
+  },
+  "same_signer": true,
+  "plaintext_env_asset_absent": true,
+  "artifact": "artifacts/waydrop-1.0.0-build56.apk",
+  "installed": false,
+  "published": false,
+  "phone_performance_measured": false,
+  "aot_library_comparison": [
+    {
+      "entry": "lib/arm64-v8a/libapp.so",
+      "build55_sha256": "15b1ec385cdba4a96f43979560c3648e9e19145c3a3fc3af85c73ecda44cdae5",
+      "build56_sha256": "a24a041ebf093af65e06088b192a460f8661ce25fe3297c933b7dcb4a8db82b7",
+      "changed": true
+    },
+    {
+      "entry": "lib/armeabi-v7a/libapp.so",
+      "build55_sha256": "7311da5844964bdf9d3fbfcd03153756b58c56ccb22654470a2e694a4365cd4e",
+      "build56_sha256": "d4dcc6a377746e7e5f6d67638a52d6fe661d65b19e3a3b3942c34038468ec4fb",
+      "changed": true
+    },
+    {
+      "entry": "lib/x86_64/libapp.so",
+      "build55_sha256": "1641e7cdf810169319f1e142c5d787a1b311bb42923ecea218e2f01b2fcf2e6f",
+      "build56_sha256": "435171642c8c1487351b2f4af9a6fa6be0098cbc8424b325c1d780f82266e486",
+      "changed": true
+    }
+  ],
+  "aot_provenance_limit": "All three AOT libraries differ from Build55; source/build chronology is recorded, not a full source-map attestation or device artifact hash."
+}

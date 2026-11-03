@@ -20,6 +20,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:waydrop/core/services/network/single_flight_refresh.dart';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -35,7 +36,6 @@ import 'package:waydrop/core/services/location/location_permission_helper.dart';
 import 'package:waydrop/core/services/maps/ola_map_service.dart';
 import 'package:waydrop/shared/helpers/location_display_service.dart';
 import 'package:waydrop/shared/helpers/device_info_helper.dart';
-import 'package:waydrop/shared/widgets/states/vehicle_pricing_skeleton_card.dart';
 import 'package:waydrop/features/local_rides/searching/screens/ride_searching_screen.dart';
 import 'package:waydrop/modules/payments/controllers/pricing_controller.dart';
 
@@ -43,6 +43,9 @@ import 'package:waydrop/features/local_parcels/booking/screens/parcel_details_sc
 import 'package:waydrop/features/intercity/rides/booking/intercity_ride_booking_screen.dart';
 import 'package:waydrop/shared/helpers/insets.dart';
 import 'package:waydrop/core/services/location/serviceability_service.dart';
+import 'package:waydrop/core/services/diagnostics/choose_route_timing.dart';
+import 'package:waydrop/core/services/diagnostics/performance_trace.dart';
+import 'package:waydrop/shared/widgets/states/app_skeleton_card.dart';
 
 class RideLocationScreen extends StatefulWidget {
   final String orderType;
@@ -65,18 +68,97 @@ class RideLocationScreen extends StatefulWidget {
   });
 
   @override
-  State<RideLocationScreen> createState() =>
-      _RideLocationScreenState();
+  State<RideLocationScreen> createState() => _RideLocationScreenState();
 }
 
-class _RideLocationScreenState
-    extends State<RideLocationScreen> with SingleTickerProviderStateMixin {
-
+class _RideLocationScreenState extends State<RideLocationScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _pulseController;
 
   // Booking Flow States
   bool _showBookingOptions = false;
   late PricingController pricingController;
+  String? _quotedContext;
+  String? _quotedAccount;
+  int _pricingGeneration = 0;
+  int _routeGeneration = 0;
+  int _pickupSelectionGeneration = 0;
+  int _destinationSelectionGeneration = 0;
+  final _routeFlights = <String, Future<RouteModel?>>{};
+  late ChooseRouteTiming _routeTiming;
+
+  String _quoteContext() => jsonEncode([
+    pickupLat,
+    pickupLng,
+    destinationLat,
+    destinationLng,
+    pickupController.text,
+    destinationController.text,
+    distanceMeters,
+    selectedBoostAmount,
+  ]);
+  bool _validQuote(dynamic quote) {
+    if (quote is! Map) return false;
+    final fare = double.tryParse(quote['final_fare']?.toString() ?? '');
+    return fare != null && fare.isFinite && fare >= 0;
+  }
+
+  Map<String, dynamic> get _visiblePricing =>
+      _quotedContext == _quoteContext() &&
+          _quotedAccount == supabase.auth.currentUser?.id
+      ? Map.fromEntries(
+          pricingController.pricingData.entries.where(
+            (e) => _validQuote(e.value),
+          ),
+        )
+      : {};
+  bool get _hasSelectedQuote =>
+      selectedVehicle != null &&
+      _visiblePricing.containsKey(selectedVehicle) &&
+      distanceMeters > 0 &&
+      pickupLat != null &&
+      pickupLng != null &&
+      destinationLat != null &&
+      destinationLng != null;
+  bool get _canBook =>
+      _hasSelectedQuote &&
+      !creatingOrder &&
+      !waitingForPayment &&
+      !loadingRoute;
+
+  void _onPricingChanged() {
+    if (!mounted) return;
+    final quotes = _visiblePricing;
+    final oldSelection = selectedVehicle;
+    final selection = quotes.containsKey(oldSelection)
+        ? oldSelection
+        : ['bike', 'auto', 'cab'].where(quotes.containsKey).firstOrNull;
+    setState(() {
+      selectedVehicle = selection;
+      if (selection != oldSelection) {
+        ++_promoGeneration;
+        _isValidatingPromo = false;
+        _appliedPromoCode = null;
+        _promoDiscount = 0;
+      }
+    });
+    if (selection != oldSelection && selection != null) {
+      _updateRidersOnMap(filterType: selection);
+    }
+    if (quotes.isNotEmpty) {
+      final context = _quotedContext;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || context != _quotedContext || _visiblePricing.isEmpty) {
+          return;
+        }
+        _routeTiming.mark(ChooseRouteStage.optionRendered, once: true);
+        if (_canBook) {
+          _routeTiming.mark(ChooseRouteStage.bookingReady, once: true);
+        }
+      });
+    }
+  }
+
   String? selectedVehicle;
   String paymentMode = 'cash';
   double selectedBoostAmount = 0;
@@ -88,6 +170,7 @@ class _RideLocationScreenState
   String? _appliedPromoCode;
   double _promoDiscount = 0.0;
   bool _isValidatingPromo = false;
+  int _promoGeneration = 0;
   Timer? _riderRefreshTimer;
   final supabase = Supabase.instance.client;
 
@@ -95,17 +178,13 @@ class _RideLocationScreenState
   // CONTROLLERS
   // =====================================================
 
-  final pickupController =
-      TextEditingController();
+  final pickupController = TextEditingController();
 
-  final destinationController =
-      TextEditingController();
+  final destinationController = TextEditingController();
 
-  final pickupFocus =
-      FocusNode();
+  final pickupFocus = FocusNode();
 
-  final destinationFocus =
-      FocusNode();
+  final destinationFocus = FocusNode();
 
   // =====================================================
   // MAP PICKER STATE
@@ -153,8 +232,7 @@ class _RideLocationScreenState
 
   double durationSeconds = 0;
 
-  List<Map<String, dynamic>>
-      routePoints = [];
+  List<Map<String, dynamic>> routePoints = [];
 
   bool loadingRoute = false;
 
@@ -166,17 +244,13 @@ class _RideLocationScreenState
 
   Timer? destinationDebounce;
 
-  List<dynamic> pickupResults =
-      [];
+  List<dynamic> pickupResults = [];
 
-  List<dynamic>
-      destinationResults = [];
+  List<dynamic> destinationResults = [];
 
-  bool loadingPickupSearch =
-      false;
+  bool loadingPickupSearch = false;
 
-  bool loadingDestinationSearch =
-      false;
+  bool loadingDestinationSearch = false;
 
   // =====================================================
   // UI
@@ -215,6 +289,11 @@ class _RideLocationScreenState
   void initState() {
     super.initState();
     pricingController = PricingController();
+    _routeTiming = ChooseRouteTiming(0)..mark(ChooseRouteStage.navigationStart);
+    pricingController.addListener(_onPricingChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _routeTiming.mark(ChooseRouteStage.firstFrame);
+    });
     _screenOpenTime = DateTime.now();
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1800),
@@ -223,8 +302,7 @@ class _RideLocationScreenState
     _initialize();
   }
 
-  Future<void> _initialize()
-      async {
+  Future<void> _initialize() async {
     pickupFocus.addListener(_onFocusChange);
     destinationFocus.addListener(_onFocusChange);
     pickupController.addListener(_onPickupTextChanged);
@@ -252,10 +330,17 @@ class _RideLocationScreenState
       if (!mounted) return;
       _initWebView();
       if (!mounted) return;
+      final hadCoordinates = _hasRouteCoordinates;
+      if (hadCoordinates) unawaited(_calculateRoute());
       await _loadCurrentLocation();
       if (!mounted) return;
+      if (!hadCoordinates && _hasRouteCoordinates) {
+        unawaited(_calculateRoute());
+      }
 
-      if (pickupLat != null && pickupLng != null && (destinationLat == null || destinationLng == null)) {
+      if (pickupLat != null &&
+          pickupLng != null &&
+          (destinationLat == null || destinationLng == null)) {
         setState(() {
           _activeField = 'destination';
         });
@@ -265,7 +350,8 @@ class _RideLocationScreenState
   }
 
   void _onFocusChange() {
-    final within500ms = DateTime.now().difference(_screenOpenTime).inMilliseconds < 500;
+    final within500ms =
+        DateTime.now().difference(_screenOpenTime).inMilliseconds < 500;
 
     if (pickupFocus.hasFocus) {
       if (_activeField != 'pickup') {
@@ -277,7 +363,7 @@ class _RideLocationScreenState
           _draggedLng = null;
         });
       }
-      
+
       if (_pickupWasPrefilled || within500ms) {
         if (pickupController.text.isNotEmpty) {
           pickupController.selection = TextSelection(
@@ -344,6 +430,10 @@ class _RideLocationScreenState
 
   @override
   void dispose() {
+    ++_routeGeneration;
+    ++_pricingGeneration;
+    pricingController.removeListener(_onPricingChanged);
+    pricingController.dispose();
     _pulseController.dispose();
 
     pickupFocus.removeListener(_onFocusChange);
@@ -436,14 +526,7 @@ class _RideLocationScreenState
           },
         )
         ..setNavigationDelegate(
-          NavigationDelegate(
-            onPageFinished: (url) async {
-              setState(() => mapLoaded = true);
-              await _injectMap();
-              await _updateMarkers();
-              await _calculateRoute();
-            },
-          ),
+          NavigationDelegate(onPageFinished: (_) => handleMapReady()),
         )
         ..loadFlutterAsset('assets/map/ola_map_location_picker.html');
     } catch (e) {
@@ -452,13 +535,25 @@ class _RideLocationScreenState
     }
   }
 
+  /// Map readiness only paints current geometry. It must never restart pricing.
+  Future<void> handleMapReady() async {
+    if (!mounted) return;
+    setState(() => mapLoaded = true);
+    await _injectMap();
+    if (!mounted) return;
+    await _updateMarkers();
+    if (!mounted) return;
+    await _paintCurrentRoute();
+  }
+
   Future<void> _injectMap() async {
     if (webController == null) return;
     final apiKey = OlaMapService.apiKey;
     final safeApiKey = apiKey.replaceAll('"', '');
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themeMode = isDark ? 'dark' : 'light';
-    final js = '''
+    final js =
+        '''
       if(window.initializeMap){
         window.initializeMap(
           "$safeApiKey",
@@ -473,9 +568,7 @@ class _RideLocationScreenState
   // CURRENT LOCATION
   // =====================================================
 
-  Future<void>
-      _loadCurrentLocation()
-      async {
+  Future<void> _loadCurrentLocation() async {
     if (widget.prefillPickupAddress != null) {
       _isProgrammaticMove = true;
       await _updateMarkers();
@@ -483,22 +576,13 @@ class _RideLocationScreenState
     }
 
     try {
+      await LocationCacheService.initializeLocation();
 
-      await LocationCacheService
-          .initializeLocation();
+      final lat = LocationCacheService.currentLat;
 
-      final lat =
-          LocationCacheService
-              .currentLat;
+      final lng = LocationCacheService.currentLng;
 
-      final lng =
-          LocationCacheService
-              .currentLng;
-
-      if (
-        lat == null ||
-        lng == null
-      ) {
+      if (lat == null || lng == null) {
         pickupController.text = '';
         return;
       }
@@ -524,25 +608,22 @@ class _RideLocationScreenState
       _isProgrammaticMove = true;
 
       await _updateMarkers();
-
     } catch (e) {
-
-      debugPrint(
-        'CURRENT LOCATION ERROR => $e',
-      );
+      debugPrint('CURRENT LOCATION ERROR => $e');
     }
   }
 
   Future<void> _useCurrentLocationForActiveField() async {
-    final hasPermission = await LocationPermissionHelper.checkAndRequestLocation(
-      context,
-      primaryColor: primaryColor,
-    );
+    final hasPermission =
+        await LocationPermissionHelper.checkAndRequestLocation(
+          context,
+          primaryColor: primaryColor,
+        );
     if (!hasPermission) return;
 
     try {
       final isDestination = _activeField == 'destination';
-      
+
       setState(() {
         if (isDestination) {
           loadingDestinationGeocode = true;
@@ -554,7 +635,7 @@ class _RideLocationScreenState
       await LocationCacheService.initializeLocation();
       final lat = LocationCacheService.currentLat;
       final lng = LocationCacheService.currentLng;
-      
+
       if (lat == null || lng == null) {
         _show('Could not fetch GPS coordinates. Please enable GPS.');
         return;
@@ -562,20 +643,28 @@ class _RideLocationScreenState
 
       final address = LocationCacheService.currentAddress;
       final city = LocationCacheService.currentCity;
-      
+
       _isProgrammaticMove = true;
-      
+
       setState(() {
         if (isDestination) {
           destinationLat = lat;
           destinationLng = lng;
-          destinationController.text = (address == 'Selected Location' || address == 'Fetching location...') ? 'Current Location' : address;
+          destinationController.text =
+              (address == 'Selected Location' ||
+                  address == 'Fetching location...')
+              ? 'Current Location'
+              : address;
           destinationCity = city;
           destinationResults = [];
         } else {
           pickupLat = lat;
           pickupLng = lng;
-          pickupController.text = (address == 'Selected Location' || address == 'Fetching location...') ? 'Current Location' : address;
+          pickupController.text =
+              (address == 'Selected Location' ||
+                  address == 'Fetching location...')
+              ? 'Current Location'
+              : address;
           pickupCity = city;
           pickupResults = [];
         }
@@ -598,7 +687,6 @@ class _RideLocationScreenState
           FocusScope.of(context).unfocus();
         }
       }
-
     } catch (e) {
       _show('Error fetching current location.');
     } finally {
@@ -610,10 +698,11 @@ class _RideLocationScreenState
   }
 
   Future<void> _recenterToCurrentLocation() async {
-    final hasPermission = await LocationPermissionHelper.checkAndRequestLocation(
-      context,
-      primaryColor: primaryColor,
-    );
+    final hasPermission =
+        await LocationPermissionHelper.checkAndRequestLocation(
+          context,
+          primaryColor: primaryColor,
+        );
     if (!hasPermission) return;
 
     try {
@@ -628,7 +717,9 @@ class _RideLocationScreenState
 
       _isProgrammaticMove = true;
       if (webController != null) {
-        await webController!.runJavaScript('if(window.recenterMap) { window.recenterMap($lat, $lng); }');
+        await webController!.runJavaScript(
+          'if(window.recenterMap) { window.recenterMap($lat, $lng); }',
+        );
       }
 
       setState(() {
@@ -657,134 +748,74 @@ class _RideLocationScreenState
   // SEARCH
   // =====================================================
 
-  Future<void>
-      searchPickup(
-    String value,
-  ) async {
-
+  Future<void> searchPickup(String value) async {
     pickupDebounce?.cancel();
 
-    if (
-      value.trim().isEmpty
-    ) {
-
+    if (value.trim().isEmpty) {
       setState(() {
-
         pickupResults = [];
       });
 
       return;
     }
 
-    pickupDebounce = Timer(
+    pickupDebounce = Timer(const Duration(milliseconds: 400), () async {
+      setState(() {
+        loadingPickupSearch = true;
+      });
 
-      const Duration(
-        milliseconds: 400,
-      ),
+      final results = await OlaMapService.autocomplete(value);
 
-      () async {
-
-        setState(() {
-
-          loadingPickupSearch =
-              true;
-        });
-
-        final results =
-
-            await OlaMapService
-                .autocomplete(
-          value,
-        );
-
-        if (!mounted) return;
-
-        setState(() {
-
-          pickupResults = results;
-
-          loadingPickupSearch =
-              false;
-        });
-      },
-    );
-  }
-
-  Future<void>
-      searchDestination(
-    String value,
-  ) async {
-
-    destinationDebounce
-        ?.cancel();
-
-    if (
-      value.trim().isEmpty
-    ) {
+      if (!mounted) return;
 
       setState(() {
+        pickupResults = results;
 
+        loadingPickupSearch = false;
+      });
+    });
+  }
+
+  Future<void> searchDestination(String value) async {
+    destinationDebounce?.cancel();
+
+    if (value.trim().isEmpty) {
+      setState(() {
         destinationResults = [];
       });
 
       return;
     }
 
-    destinationDebounce = Timer(
+    destinationDebounce = Timer(const Duration(milliseconds: 400), () async {
+      setState(() {
+        loadingDestinationSearch = true;
+      });
 
-      const Duration(
-        milliseconds: 400,
-      ),
+      final results = await OlaMapService.autocomplete(value);
 
-      () async {
+      if (!mounted) return;
 
-        setState(() {
+      setState(() {
+        destinationResults = results;
 
-          loadingDestinationSearch =
-              true;
-        });
-
-        final results =
-
-            await OlaMapService
-                .autocomplete(
-          value,
-        );
-
-        if (!mounted) return;
-
-        setState(() {
-
-          destinationResults =
-              results;
-
-          loadingDestinationSearch =
-              false;
-        });
-      },
-    );
+        loadingDestinationSearch = false;
+      });
+    });
   }
 
   // =====================================================
   // SELECT PICKUP
   // =====================================================
 
-  Future<void>
-      selectPickup(
-    dynamic item,
-  ) async {
+  Future<void> selectPickup(dynamic item) async {
+    final selection = ++_pickupSelectionGeneration;
+    ++_routeGeneration;
+    _invalidateQuote();
 
-    final description =
+    final description = item['description']?.toString() ?? '';
 
-        item['description']
-            ?.toString()
-
-        ??
-
-        '';
-
-    pickupController.text =
-        description;
+    pickupController.text = description;
 
     pickupResults = [];
 
@@ -802,37 +833,32 @@ class _RideLocationScreenState
         coords = await OlaMapService.getCoordinatesFromAddress(description);
       }
 
-      if (
-        coords == null
-      ) {
-
+      if (coords == null) {
         return;
       }
 
+      if (!mounted || selection != _pickupSelectionGeneration) return;
       _isProgrammaticMove = true;
 
-      pickupLat =
-          coords['latitude'];
+      pickupLat = coords['latitude'];
 
-      pickupLng =
-          coords['longitude'];
+      pickupLng = coords['longitude'];
 
       pickupCity = coords['city'] ?? '';
 
       setState(() {});
 
-      await _updateMarkers();
-
+      unawaited(_updateMarkers());
       await _calculateRoute();
     } finally {
-      if (mounted) {
+      if (mounted && selection == _pickupSelectionGeneration) {
         setState(() {
           loadingPickupGeocode = false;
         });
       }
     }
 
-    if (!mounted) return;
+    if (!mounted || selection != _pickupSelectionGeneration) return;
 
     if (destinationLat == null || destinationLng == null) {
       FocusScope.of(context).requestFocus(destinationFocus);
@@ -845,22 +871,14 @@ class _RideLocationScreenState
   // SELECT DESTINATION
   // =====================================================
 
-  Future<void>
-      selectDestination(
-    dynamic item,
-  ) async {
+  Future<void> selectDestination(dynamic item) async {
+    final selection = ++_destinationSelectionGeneration;
+    ++_routeGeneration;
+    _invalidateQuote();
 
-    final description =
+    final description = item['description']?.toString() ?? '';
 
-        item['description']
-            ?.toString()
-
-        ??
-
-        '';
-
-    destinationController.text =
-        description;
+    destinationController.text = description;
 
     destinationResults = [];
 
@@ -878,37 +896,32 @@ class _RideLocationScreenState
         coords = await OlaMapService.getCoordinatesFromAddress(description);
       }
 
-      if (
-        coords == null
-      ) {
-
+      if (coords == null) {
         return;
       }
 
+      if (!mounted || selection != _destinationSelectionGeneration) return;
       _isProgrammaticMove = true;
 
-      destinationLat =
-          coords['latitude'];
+      destinationLat = coords['latitude'];
 
-      destinationLng =
-          coords['longitude'];
+      destinationLng = coords['longitude'];
 
       destinationCity = coords['city'] ?? '';
 
       setState(() {});
 
-      await _updateMarkers();
-
+      unawaited(_updateMarkers());
       await _calculateRoute();
     } finally {
-      if (mounted) {
+      if (mounted && selection == _destinationSelectionGeneration) {
         setState(() {
           loadingDestinationGeocode = false;
         });
       }
     }
 
-    if (!mounted) return;
+    if (!mounted || selection != _destinationSelectionGeneration) return;
 
     // Unfocus or shift focus to pickup if empty
     if (pickupLat == null || pickupLng == null) {
@@ -986,7 +999,8 @@ class _RideLocationScreenState
   void _confirmPickerLocation() {
     if (_draggedLat == null || _draggedLng == null) return;
 
-    final address = (_draggedAddress == null || _draggedAddress == 'Selected Location')
+    final address =
+        (_draggedAddress == null || _draggedAddress == 'Selected Location')
         ? 'Pinned Location'
         : _draggedAddress!;
     final city = _draggedCity ?? '';
@@ -999,7 +1013,7 @@ class _RideLocationScreenState
         pickupController.text = address;
         pickupCity = city;
         pickupResults = [];
-        
+
         if (destinationLat == null || destinationLng == null) {
           FocusScope.of(context).requestFocus(destinationFocus);
         } else {
@@ -1072,182 +1086,152 @@ class _RideLocationScreenState
   // ROUTE
   // =====================================================
 
-  Future<void>
-      _calculateRoute()
-      async {
+  String _coordinateKey() =>
+      jsonEncode([pickupLat, pickupLng, destinationLat, destinationLng]);
+  bool get _hasRouteCoordinates =>
+      pickupLat != null &&
+      pickupLng != null &&
+      destinationLat != null &&
+      destinationLng != null;
+  bool _ownsRoute(int generation, String key) =>
+      mounted && generation == _routeGeneration && key == _coordinateKey();
+  void _invalidateQuote() {
+    ++_pricingGeneration;
+    _quotedContext = null;
+    selectedVehicle = null;
+    distanceMeters = 0;
+    durationSeconds = 0;
+    pricingController.reset();
+  }
 
-    if (
-
-      pickupLat == null
-
-      ||
-
-      pickupLng == null
-
-      ||
-
-      destinationLat == null
-
-      ||
-
-      destinationLng == null
-
-    ) {
-
+  Future<void> _calculateRoute() async {
+    if (!mounted) return;
+    final generation = ++_routeGeneration;
+    final key = _coordinateKey();
+    _invalidateQuote();
+    _routeTiming = ChooseRouteTiming(generation)
+      ..mark(ChooseRouteStage.coordinatesReady);
+    final originLat = pickupLat,
+        originLng = pickupLng,
+        dropLat = destinationLat,
+        dropLng = destinationLng;
+    if (originLat == null ||
+        originLng == null ||
+        dropLat == null ||
+        dropLng == null) {
       await _clearRoute();
-
       return;
     }
-
     try {
-
-      setState(() {
-
-        loadingRoute = true;
-      });
-
-      final route =
-
-          await OlaMapService
-              .getDirections(
-
-        originLat:
-            pickupLat!,
-
-        originLng:
-            pickupLng!,
-
-        destinationLat:
-            destinationLat!,
-
-        destinationLng:
-            destinationLng!,
-      );
-
-      if (
-        route == null
-      ) {
-
+      setState(() => loadingRoute = true);
+      _routeTiming.mark(ChooseRouteStage.routeStart);
+      var work = _routeFlights[key];
+      if (work == null) {
+        late final Future<RouteModel?> owned;
+        owned =
+            OlaMapService.getDirections(
+              originLat: originLat,
+              originLng: originLng,
+              destinationLat: dropLat,
+              destinationLng: dropLng,
+            ).whenComplete(() {
+              if (identical(_routeFlights[key], owned)) {
+                _routeFlights.remove(key);
+              }
+            });
+        _routeFlights[key] = work = owned;
+      }
+      final route = await work;
+      if (!_ownsRoute(generation, key)) return;
+      _routeTiming.mark(ChooseRouteStage.routeEnd);
+      if (route == null) {
+        _routeTiming.mark(ChooseRouteStage.routeFailure);
         return;
       }
-
-      distanceMeters =
-          route.distanceMeters;
-
-      durationSeconds =
-          route.durationSeconds;
-
-      routePoints =
-          route.polylinePoints;
-
-      final polylineJson =
-          jsonEncode(
-        routePoints,
-      );
-
-      if (webController != null) {
-        await webController!.runJavaScript('''
-          if(window.drawRoute){
-            window.drawRoute(
-              $polylineJson
-            );
-          }
-        ''');
-
-        final String paddingJson = _showBookingOptions 
-            ? '{"top": 120, "bottom": 240, "left": 50, "right": 50}' 
-            : '{"top": 180, "bottom": 180, "left": 50, "right": 50}';
-
-        await webController!.runJavaScript('''
-          if(window.fitRouteBounds){
-            window.fitRouteBounds($paddingJson);
-          }
-        ''');
+      distanceMeters = route.distanceMeters;
+      durationSeconds = route.durationSeconds;
+      routePoints = route.polylinePoints;
+      // Coordinates/distance are authoritative now. Map painting is not a pricing prerequisite.
+      setState(() => loadingRoute = false);
+      if (distanceMeters > 0 && !_autoNavigated) {
+        _autoNavigated = true;
+        unawaited(
+          continueFlow().catchError((Object _) {
+            if (_ownsRoute(generation, key)) {
+              _show('Unable to verify route. Please retry.');
+            }
+          }),
+        );
       }
-
-      if (mounted) {
-        setState(() {});
-        if (distanceMeters > 0 && !_autoNavigated) {
-          _autoNavigated = true;
-          // Route through continueFlow() unconditionally so local rides also pass through
-          // its serviceability gate (ServiceabilityService.isLocationServiceable) instead of
-          // jumping straight to _onRouteCalculated() and skipping it — continueFlow() itself
-          // calls _onRouteCalculated() for the local-ride case once the gate passes.
-          continueFlow();
-        }
+      await _paintCurrentRoute();
+    } catch (_) {
+      if (_ownsRoute(generation, key)) {
+        _routeTiming.mark(ChooseRouteStage.routeFailure);
       }
-
-    } catch (e) {
-
-      debugPrint(
-        'ROUTE ERROR => $e',
-      );
-
     } finally {
-
-      if (mounted) {
-
-        setState(() {
-
-          loadingRoute = false;
-        });
-      }
+      if (_ownsRoute(generation, key)) setState(() => loadingRoute = false);
     }
+  }
+
+  Future<void> _paintCurrentRoute() async {
+    final controller = webController;
+    if (!mounted ||
+        controller == null ||
+        distanceMeters <= 0 ||
+        routePoints.isEmpty)
+      return;
+    final generation = _routeGeneration;
+    final key = _coordinateKey();
+    final polylineJson = jsonEncode(routePoints);
+    _routeTiming.mark(ChooseRouteStage.mapStart);
+    await controller.runJavaScript(
+      'if(window.drawRoute){window.drawRoute($polylineJson);}',
+    );
+    if (!_ownsRoute(generation, key)) return;
+    final paddingJson = _showBookingOptions
+        ? '{"top":120,"bottom":240,"left":50,"right":50}'
+        : '{"top":180,"bottom":180,"left":50,"right":50}';
+    await controller.runJavaScript(
+      'if(window.fitRouteBounds){window.fitRouteBounds($paddingJson);}',
+    );
+    if (!_ownsRoute(generation, key)) return;
+    _routeTiming.mark(ChooseRouteStage.mapEnd);
   }
 
   // =====================================================
   // CONTINUE
   // =====================================================
 
-  Future<void>
-      continueFlow()
-      async {
+  Future<void> continueFlow() async {
+    final routeContext = _quoteContext();
 
-    if (
-
-      pickupLat == null
-
-      ||
-
-      pickupLng == null
-
-    ) {
-
-      _show(
-        'Select pickup location',
-      );
+    if (pickupLat == null || pickupLng == null) {
+      _show('Select pickup location');
 
       return;
     }
 
     final String pickupAddress = pickupController.text;
-    final bool isLocal = widget.orderType == 'ride' || widget.orderType == 'local_parcel';
+    final bool isLocal =
+        widget.orderType == 'ride' || widget.orderType == 'local_parcel';
     if (isLocal) {
+      _routeTiming.mark(ChooseRouteStage.serviceabilityStart);
       final sResult = await ServiceabilityService.isLocationServiceable(
         address: pickupAddress,
         latitude: pickupLat,
         longitude: pickupLng,
         city: pickupCity,
       );
+      if (!mounted || routeContext != _quoteContext()) return;
+      _routeTiming.mark(ChooseRouteStage.serviceabilityEnd);
       if (!sResult.isServiceable) {
         Navigator.popUntil(context, (route) => route.isFirst);
         return;
       }
     }
 
-    if (
-
-      destinationLat == null
-
-      ||
-
-      destinationLng == null
-
-    ) {
-
-      _show(
-        'Select destination location',
-      );
+    if (destinationLat == null || destinationLng == null) {
+      _show('Select destination location');
 
       return;
     }
@@ -1257,7 +1241,8 @@ class _RideLocationScreenState
       return;
     }
 
-    if (pickupController.text.trim().toLowerCase() == destinationController.text.trim().toLowerCase()) {
+    if (pickupController.text.trim().toLowerCase() ==
+        destinationController.text.trim().toLowerCase()) {
       _show('Pickup and destination cannot be the same address.');
       return;
     }
@@ -1275,9 +1260,7 @@ class _RideLocationScreenState
     }
 
     try {
-
       setState(() {
-
         openingPreview = true;
       });
 
@@ -1302,7 +1285,8 @@ class _RideLocationScreenState
           ),
         );
       } else {
-        final bool isIntercity = widget.orderType == 'intercity_ride' || distanceMeters > 20000;
+        final bool isIntercity =
+            widget.orderType == 'intercity_ride' || distanceMeters > 20000;
         if (isIntercity) {
           await Navigator.push(
             context,
@@ -1326,9 +1310,7 @@ class _RideLocationScreenState
           _onRouteCalculated();
         }
       }
-
     } finally {
-
       if (mounted) {
         setState(() {
           openingPreview = false;
@@ -1342,18 +1324,8 @@ class _RideLocationScreenState
   // MESSAGE
   // =====================================================
 
-  void _show(
-    String text,
-  ) {
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(
-
-      SnackBar(
-        content: Text(text),
-      ),
-    );
+  void _show(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   // =====================================================
@@ -1368,12 +1340,16 @@ class _RideLocationScreenState
       return const SizedBox();
     }
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     final textCol = isDark ? Colors.white : const Color(0xFF0F172A);
-    final subTextCol = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final subTextCol = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF64748B);
 
     final containerBg = isDark ? const Color(0xFF0F172A) : Colors.white;
-    final borderCol = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
+    final borderCol = isDark
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFE2E8F0);
 
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 4),
@@ -1405,7 +1381,7 @@ class _RideLocationScreenState
           itemBuilder: (context, index) {
             final item = results[index];
             final description = item['description']?.toString() ?? '';
-            
+
             final firstComma = description.indexOf(',');
             final String mainText;
             final String secondaryText;
@@ -1417,7 +1393,10 @@ class _RideLocationScreenState
               secondaryText = '';
             }
 
-            final cityName = OlaMapService.getCityFromDescription(mainText, secondaryText);
+            final cityName = OlaMapService.getCityFromDescription(
+              mainText,
+              secondaryText,
+            );
 
             return Material(
               color: Colors.transparent,
@@ -1426,12 +1405,17 @@ class _RideLocationScreenState
                   FocusScope.of(context).unfocus();
                   onTap(item);
                 },
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 leading: Container(
                   height: 36,
                   width: 36,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                    color: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFF1F5F9),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -1468,12 +1452,19 @@ class _RideLocationScreenState
                     : null,
                 trailing: cityName.isNotEmpty
                     ? Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                          color: isDark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFE2E8F0),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                            color: isDark
+                                ? const Color(0xFF334155)
+                                : const Color(0xFFCBD5E1),
                             width: 1.0,
                           ),
                         ),
@@ -1482,7 +1473,9 @@ class _RideLocationScreenState
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
-                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                            color: isDark
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF475569),
                           ),
                         ),
                       )
@@ -1508,12 +1501,14 @@ class _RideLocationScreenState
     required bool isGeocoding,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = isPickup ? const Color(0xFF10B981) : const Color(0xFFEF4444);
-    
+    final primaryColor = isPickup
+        ? const Color(0xFF10B981)
+        : const Color(0xFFEF4444);
+
     final textCol = isDark ? Colors.white : const Color(0xFF0F172A);
     final hintCol = isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
-    final borderCol = isDark 
-        ? Colors.white.withValues(alpha: 0.08) 
+    final borderCol = isDark
+        ? Colors.white.withValues(alpha: 0.08)
         : const Color(0xFFE2E8F0);
 
     return Container(
@@ -1550,9 +1545,11 @@ class _RideLocationScreenState
         decoration: InputDecoration(
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 16),
-          hintText: isPickup 
-              ? 'Enter pickup location...' 
-              : (widget.orderType.contains('parcel') ? 'Enter delivery location...' : 'Where do you want to go?'),
+          hintText: isPickup
+              ? 'Enter pickup location...'
+              : (widget.orderType.contains('parcel')
+                    ? 'Enter delivery location...'
+                    : 'Where do you want to go?'),
           hintStyle: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.bold,
@@ -1567,9 +1564,7 @@ class _RideLocationScreenState
               size: 22,
             ),
           ),
-          prefixIconConstraints: const BoxConstraints(
-            minWidth: 54,
-          ),
+          prefixIconConstraints: const BoxConstraints(minWidth: 54),
           suffixIcon: (loading || isGeocoding)
               ? Padding(
                   padding: const EdgeInsets.all(16),
@@ -1583,28 +1578,24 @@ class _RideLocationScreenState
                   ),
                 )
               : controller.text.isEmpty
-                  ? const SizedBox(width: 48, height: 48)
-                  : IconButton(
-                      onPressed: () {
-                        controller.clear();
-                        if (isPickup) {
-                          pickupResults = [];
-                          pickupLat = null;
-                          pickupLng = null;
-                        } else {
-                          destinationResults = [];
-                          destinationLat = null;
-                          destinationLng = null;
-                        }
-                        _clearRoute();
-                        setState(() {});
-                      },
-                      icon: Icon(
-                        Icons.close_rounded,
-                        size: 20,
-                        color: hintCol,
-                      ),
-                    ),
+              ? const SizedBox(width: 48, height: 48)
+              : IconButton(
+                  onPressed: () {
+                    controller.clear();
+                    if (isPickup) {
+                      pickupResults = [];
+                      pickupLat = null;
+                      pickupLng = null;
+                    } else {
+                      destinationResults = [];
+                      destinationLat = null;
+                      destinationLng = null;
+                    }
+                    _clearRoute();
+                    setState(() {});
+                  },
+                  icon: Icon(Icons.close_rounded, size: 20, color: hintCol),
+                ),
         ),
       ),
     );
@@ -1623,8 +1614,10 @@ class _RideLocationScreenState
   DateTime? _lastRiderFetchAt;
 
   Duration _riderRefreshInterval(Duration elapsed) {
-    if (elapsed < const Duration(seconds: 60)) return const Duration(seconds: 5);
-    if (elapsed < const Duration(seconds: 180)) return const Duration(seconds: 10);
+    if (elapsed < const Duration(seconds: 60))
+      return const Duration(seconds: 5);
+    if (elapsed < const Duration(seconds: 180))
+      return const Duration(seconds: 10);
     return const Duration(seconds: 20);
   }
 
@@ -1633,8 +1626,11 @@ class _RideLocationScreenState
     _riderTimerStartedAt ??= DateTime.now();
     _riderRefreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       final now = DateTime.now();
-      final interval = _riderRefreshInterval(now.difference(_riderTimerStartedAt!));
-      if (_lastRiderFetchAt != null && now.difference(_lastRiderFetchAt!) < interval) {
+      final interval = _riderRefreshInterval(
+        now.difference(_riderTimerStartedAt!),
+      );
+      if (_lastRiderFetchAt != null &&
+          now.difference(_lastRiderFetchAt!) < interval) {
         return;
       }
       _lastRiderFetchAt = now;
@@ -1642,8 +1638,18 @@ class _RideLocationScreenState
     });
   }
 
-  Future<void> _fetchNearbyRiders() async {
-    if (pickupLat == null || pickupLng == null) return;
+  final _nearbyRiderRefresh = SingleFlightRefresh();
+
+  Future<void> _fetchNearbyRiders() {
+    if (!mounted || pickupLat == null || pickupLng == null)
+      return Future<void>.value();
+    return _nearbyRiderRefresh.run(_fetchNearbyRidersOnce);
+  }
+
+  Future<void> _fetchNearbyRidersOnce() async {
+    final originLat = pickupLat;
+    final originLng = pickupLng;
+    if (originLat == null || originLng == null) return;
     try {
       // CLIENT-3 (WayDrop Progressive Degradation Audit): this used to fetch every online rider
       // platform-wide every 5 seconds and filter to the 5km radius client-side in Dart. The
@@ -1655,7 +1661,7 @@ class _RideLocationScreenState
       const double kmPerDegreeLat = 111.32;
       final double latDelta = radiusKm / kmPerDegreeLat;
       final double lngDegreeKm =
-          kmPerDegreeLat * cos(pickupLat! * (pi / 180)).abs();
+          kmPerDegreeLat * cos(originLat * (pi / 180)).abs();
       final double lngDelta =
           radiusKm / (lngDegreeKm < 0.000001 ? 0.000001 : lngDegreeKm);
 
@@ -1668,40 +1674,56 @@ class _RideLocationScreenState
           .eq('account_status', 'online')
           .not('current_lat', 'is', null)
           .not('current_lng', 'is', null)
-          .gte('current_lat', pickupLat! - latDelta)
-          .lte('current_lat', pickupLat! + latDelta)
-          .gte('current_lng', pickupLng! - lngDelta)
-          .lte('current_lng', pickupLng! + lngDelta);
+          .gte('current_lat', originLat - latDelta)
+          .lte('current_lat', originLat + latDelta)
+          .gte('current_lng', originLng - lngDelta)
+          .lte('current_lng', originLng + lngDelta);
 
-      final List<Map<String, dynamic>> riders =
-          (response as List).map<Map<String, dynamic>>((r) {
-        final map = Map<String, dynamic>.from(r as Map);
-        final kyc = map['rider_kyc!riders_kyc_id_fkey'] ?? map['rider_kyc'];
-        String vehicleType = 'bike';
-        if (kyc is Map) {
-          vehicleType = kyc['vehicle_type']?.toString().toLowerCase().trim() ?? 'bike';
-        } else if (kyc is List && kyc.isNotEmpty && kyc[0] is Map) {
-          vehicleType = kyc[0]['vehicle_type']?.toString().toLowerCase().trim() ?? 'bike';
-        }
-        if (vehicleType == 'car') {
-          vehicleType = 'cab';
-        }
-        map['vehicle_type'] = vehicleType;
-        map.remove('rider_kyc!riders_kyc_id_fkey');
-        map.remove('rider_kyc');
-        return map;
-      }).where((rider) {
-        final double? lat = double.tryParse(rider['current_lat']?.toString() ?? '');
-        final double? lng = double.tryParse(rider['current_lng']?.toString() ?? '');
-        if (lat == null || lng == null) return false;
+      if (!mounted || pickupLat != originLat || pickupLng != originLng) return;
 
-        const p = 0.017453292519943295; // Math.PI / 180
-        final a = 0.5 - cos((lat - pickupLat!) * p) / 2 +
-            cos(pickupLat! * p) * cos(lat * p) *
-            (1 - cos((lng - pickupLng!) * p)) / 2;
-        final distanceKmObj = 12742 * asin(sqrt(a));
-        return distanceKmObj <= 5.0;
-      }).toList();
+      final List<Map<String, dynamic>> riders = (response as List)
+          .map<Map<String, dynamic>>((r) {
+            final map = Map<String, dynamic>.from(r as Map);
+            final kyc = map['rider_kyc!riders_kyc_id_fkey'] ?? map['rider_kyc'];
+            String vehicleType = 'bike';
+            if (kyc is Map) {
+              vehicleType =
+                  kyc['vehicle_type']?.toString().toLowerCase().trim() ??
+                  'bike';
+            } else if (kyc is List && kyc.isNotEmpty && kyc[0] is Map) {
+              vehicleType =
+                  kyc[0]['vehicle_type']?.toString().toLowerCase().trim() ??
+                  'bike';
+            }
+            if (vehicleType == 'car') {
+              vehicleType = 'cab';
+            }
+            map['vehicle_type'] = vehicleType;
+            map.remove('rider_kyc!riders_kyc_id_fkey');
+            map.remove('rider_kyc');
+            return map;
+          })
+          .where((rider) {
+            final double? lat = double.tryParse(
+              rider['current_lat']?.toString() ?? '',
+            );
+            final double? lng = double.tryParse(
+              rider['current_lng']?.toString() ?? '',
+            );
+            if (lat == null || lng == null) return false;
+
+            const p = 0.017453292519943295; // Math.PI / 180
+            final a =
+                0.5 -
+                cos((lat - originLat) * p) / 2 +
+                cos(originLat * p) *
+                    cos(lat * p) *
+                    (1 - cos((lng - originLng) * p)) /
+                    2;
+            final distanceKmObj = 12742 * asin(sqrt(a));
+            return distanceKmObj <= 5.0;
+          })
+          .toList();
 
       if (mounted) {
         setState(() => nearbyRiders = riders);
@@ -1713,7 +1735,7 @@ class _RideLocationScreenState
   }
 
   Future<void> _updateRidersOnMap({String? filterType}) async {
-    if (!mapLoaded || webController == null) return;
+    if (!mounted || !mapLoaded || webController == null) return;
     try {
       final ridersJson = jsonEncode(nearbyRiders);
       final filterArg = filterType != null ? '"$filterType"' : 'null';
@@ -1726,26 +1748,36 @@ class _RideLocationScreenState
   }
 
   Future<void> _fetchPricing() async {
+    if (!mounted ||
+        loadingRoute ||
+        distanceMeters <= 0 ||
+        pickupLat == null ||
+        pickupLng == null ||
+        destinationLat == null ||
+        destinationLng == null)
+      return;
+    final generation = ++_pricingGeneration;
+    final context = _quoteContext();
+    _quotedContext = context;
+    _quotedAccount = supabase.auth.currentUser?.id;
+    _routeTiming.mark(ChooseRouteStage.pricingStart);
     final double distanceKmObj = distanceMeters / 1000;
-    await pricingController.fetchMultiplePricing(
-      orderType: 'ride',
-      distanceKm: distanceKmObj,
-      pickupAddress: pickupController.text,
-      maxBoostAmount: selectedBoostAmount,
-      pickupLat: pickupLat!,
-      pickupLng: pickupLng!,
+    await PerformanceTrace.measure(
+      'choose_route',
+      () => pricingController.fetchMultiplePricing(
+        orderType: 'ride',
+        distanceKm: distanceKmObj,
+        pickupAddress: pickupController.text,
+        maxBoostAmount: selectedBoostAmount,
+        pickupLat: pickupLat!,
+        pickupLng: pickupLng!,
+        publishAsReady: true,
+      ),
     );
-
-    if (selectedVehicle == null) {
-      if (pricingController.pricingData.containsKey('bike')) {
-        selectedVehicle = 'bike';
-      } else if (pricingController.pricingData.containsKey('auto')) {
-        selectedVehicle = 'auto';
-      } else if (pricingController.pricingData.containsKey('cab')) {
-        selectedVehicle = 'cab';
-      }
-    }
-    if (mounted) {
+    if (mounted &&
+        generation == _pricingGeneration &&
+        context == _quoteContext()) {
+      _routeTiming.mark(ChooseRouteStage.pricingEnd);
       setState(() {});
       _updateRidersOnMap(filterType: selectedVehicle);
     }
@@ -1760,6 +1792,16 @@ class _RideLocationScreenState
       );
       return;
     }
+    final generation = ++_promoGeneration;
+    final quoteContext = _quoteContext();
+    final vehicle = selectedVehicle;
+    final account = supabase.auth.currentUser?.id;
+    bool owns() =>
+        mounted &&
+        generation == _promoGeneration &&
+        quoteContext == _quoteContext() &&
+        vehicle == selectedVehicle &&
+        account == supabase.auth.currentUser?.id;
 
     setState(() {
       _isValidatingPromo = true;
@@ -1767,7 +1809,11 @@ class _RideLocationScreenState
 
     try {
       final pricingData = pricingController.pricingData;
-      final currentFare = double.tryParse(pricingData[selectedVehicle]?['final_fare']?.toString() ?? '') ?? 0.0;
+      final currentFare =
+          double.tryParse(
+            pricingData[selectedVehicle]?['final_fare']?.toString() ?? '',
+          ) ??
+          0.0;
       final user = supabase.auth.currentUser;
 
       if (user == null) {
@@ -1782,12 +1828,15 @@ class _RideLocationScreenState
           'p_user_id': user.id,
         },
       );
+      if (!owns()) return;
 
       if (response == null) {
         throw Exception("Failed to validate promo code");
       }
 
-      final Map<String, dynamic> result = Map<String, dynamic>.from(response as Map);
+      final Map<String, dynamic> result = Map<String, dynamic>.from(
+        response as Map,
+      );
 
       if (result['success'] == true) {
         setState(() {
@@ -1798,7 +1847,9 @@ class _RideLocationScreenState
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Promo code "$_appliedPromoCode" applied! Discount: ₹${_promoDiscount.toStringAsFixed(2)}'),
+              content: Text(
+                'Promo code "$_appliedPromoCode" applied! Discount: ₹${_promoDiscount.toStringAsFixed(2)}',
+              ),
               backgroundColor: const Color(0xFF10B981),
               behavior: SnackBarBehavior.floating,
             ),
@@ -1808,7 +1859,7 @@ class _RideLocationScreenState
         throw Exception(result['message'] ?? "Invalid promo code");
       }
     } catch (e) {
-      if (mounted) {
+      if (mounted && owns()) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString().replaceAll("Exception: ", "")),
@@ -1818,7 +1869,7 @@ class _RideLocationScreenState
         );
       }
     } finally {
-      if (mounted) {
+      if (owns()) {
         setState(() {
           _isValidatingPromo = false;
         });
@@ -1834,53 +1885,73 @@ class _RideLocationScreenState
     );
   }
 
-  Future<void> _submitOrderToBackend({String? paymentId, required String idempotencyKey}) async {
+  Future<void> _submitOrderToBackend({
+    String? paymentId,
+    required String idempotencyKey,
+  }) async {
+    final quoteContext = _quoteContext();
+    final vehicle = selectedVehicle;
+    final account = supabase.auth.currentUser?.id;
     final deviceMeta = await DeviceInfoHelper.getDeviceMetadata();
+    if (!mounted ||
+        !_hasSelectedQuote ||
+        quoteContext != _quoteContext() ||
+        vehicle != selectedVehicle ||
+        account != supabase.auth.currentUser?.id) {
+      throw StateError('Route or fare changed. Please review before booking.');
+    }
     final user = supabase.auth.currentUser;
     final double distanceKmObj = distanceMeters / 1000;
 
-    final response = await supabase.functions.invoke(
-      'create-order',
-      body: {
-        'user_id': user?.id,
-        'order_type': 'ride',
-        'vehicle_type': selectedVehicle,
-        'pickup_address': pickupController.text,
-        'pickup_lat': pickupLat,
-        'pickup_lng': pickupLng,
-        'destination_address': destinationController.text,
-        'destination_lat': destinationLat,
-        'destination_lng': destinationLng,
-        'distance_km': distanceKmObj,
-        'distance_meters': distanceMeters.round(),
-        'duration_seconds': durationSeconds.round(),
-        'payment_mode': paymentMode,
-        'payment_id': paymentId,
-        'pickup_city': extractCity(pickupCity, pickupController.text),
-        'destination_city': extractCity(destinationCity, destinationController.text),
-        'max_boost_amount': selectedBoostAmount,
-        'promo_code': _appliedPromoCode,
-        // Device snapshot
-        'created_device_id': deviceMeta['device_id'],
-        'device_model': deviceMeta['device_model'],
-        'device_brand': deviceMeta['device_brand'],
-        'os_version': deviceMeta['os_version'],
-        'app_version': deviceMeta['app_version'],
-        // P1 fix (create-order idempotency): identifies this specific tap of "Book" so a client
-        // timeout + reconciliation retry (see _createOrder below) can never create a second
-        // order for it -- create-order treats a repeat of the same key for the same user as a
-        // no-op that returns the already-created order instead of inserting again.
-        'idempotency_key': idempotencyKey,
-      },
-      // CLIENT-1 (WayDrop Progressive Degradation Audit): bounded so a stalled backend can never
-      // hang this screen forever — surfaces as the same caught exception _createOrder already
-      // handles (SnackBar + resetting creatingOrder), instead of an infinite "creating order" state.
-    ).timeout(const Duration(seconds: 30));
+    final response = await supabase.functions
+        .invoke(
+          'create-order',
+          body: {
+            'user_id': user?.id,
+            'order_type': 'ride',
+            'vehicle_type': selectedVehicle,
+            'pickup_address': pickupController.text,
+            'pickup_lat': pickupLat,
+            'pickup_lng': pickupLng,
+            'destination_address': destinationController.text,
+            'destination_lat': destinationLat,
+            'destination_lng': destinationLng,
+            'distance_km': distanceKmObj,
+            'distance_meters': distanceMeters.round(),
+            'duration_seconds': durationSeconds.round(),
+            'payment_mode': paymentMode,
+            'payment_id': paymentId,
+            'pickup_city': extractCity(pickupCity, pickupController.text),
+            'destination_city': extractCity(
+              destinationCity,
+              destinationController.text,
+            ),
+            'max_boost_amount': selectedBoostAmount,
+            'promo_code': _appliedPromoCode,
+            // Device snapshot
+            'created_device_id': deviceMeta['device_id'],
+            'device_model': deviceMeta['device_model'],
+            'device_brand': deviceMeta['device_brand'],
+            'os_version': deviceMeta['os_version'],
+            'app_version': deviceMeta['app_version'],
+            // P1 fix (create-order idempotency): identifies this specific tap of "Book" so a client
+            // timeout + reconciliation retry (see _createOrder below) can never create a second
+            // order for it -- create-order treats a repeat of the same key for the same user as a
+            // no-op that returns the already-created order instead of inserting again.
+            'idempotency_key': idempotencyKey,
+          },
+          // CLIENT-1 (WayDrop Progressive Degradation Audit): bounded so a stalled backend can never
+          // hang this screen forever — surfaces as the same caught exception _createOrder already
+          // handles (SnackBar + resetting creatingOrder), instead of an infinite "creating order" state.
+        )
+        .timeout(const Duration(seconds: 30));
 
     debugPrint('CREATE ORDER RESPONSE => ${response.data}');
 
     if (response.data == null || response.data['success'] != true) {
-      final errorMsg = response.data?['error'] ?? 'Unknown error occurred while creating order';
+      final errorMsg =
+          response.data?['error'] ??
+          'Unknown error occurred while creating order';
       throw Exception(errorMsg);
     }
 
@@ -1917,7 +1988,7 @@ class _RideLocationScreenState
   }
 
   Future<void> _createOrder() async {
-    if (selectedVehicle == null) return;
+    if (!_canBook) return;
 
     // Both 'cash' and 'upi' are collected directly by the driver at trip
     // completion — no payment gateway involved at booking time.
@@ -1946,7 +2017,9 @@ class _RideLocationScreenState
         information: ['idempotencyKey: $idempotencyKey'],
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) {
         setState(() {
@@ -1959,6 +2032,8 @@ class _RideLocationScreenState
 
   void _selectVehicle(String vehicle) {
     setState(() {
+      ++_promoGeneration;
+      _isValidatingPromo = false;
       selectedVehicle = vehicle;
       _appliedPromoCode = null;
       _promoDiscount = 0.0;
@@ -1982,20 +2057,22 @@ class _RideLocationScreenState
         }
       ''');
     }
-    Future.delayed(const Duration(milliseconds: 150), () {
-      if (mounted && _showBookingOptions) {
-        _fetchPricing();
-        _startRiderRefreshTimer();
-        _fetchNearbyRiders();
-      }
-    });
+    if (mounted && _showBookingOptions) {
+      _fetchPricing();
+      _startRiderRefreshTimer();
+      _fetchNearbyRiders();
+    }
   }
 
   void _onRouteCleared() {
+    ++_pricingGeneration;
+    _quotedContext = null;
+    pricingController.reset();
     _riderRefreshTimer?.cancel();
     setState(() {
       _showBookingOptions = false;
       nearbyRiders = [];
+      selectedVehicle = null;
     });
   }
 
@@ -2022,8 +2099,11 @@ class _RideLocationScreenState
     required VoidCallback onTap,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final hasDiscount = selected && _appliedPromoCode != null && _promoDiscount > 0;
-    final displayFare = hasDiscount ? (fare - _promoDiscount).clamp(0.0, double.infinity) : fare;
+    final hasDiscount =
+        selected && _appliedPromoCode != null && _promoDiscount > 0;
+    final displayFare = hasDiscount
+        ? (fare - _promoDiscount).clamp(0.0, double.infinity)
+        : fare;
     return GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -2039,18 +2119,38 @@ class _RideLocationScreenState
                 width: 72,
                 decoration: BoxDecoration(
                   color: selected
-                      ? (isDark ? const Color(0xFF10B981).withValues(alpha: 0.18) : const Color(0xFFECFDF5))
+                      ? (isDark
+                            ? const Color(0xFF10B981).withValues(alpha: 0.18)
+                            : const Color(0xFFECFDF5))
                       : (isDark ? const Color(0xFF1E222B) : Colors.white),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: selected
                         ? const Color(0xFF10B981)
-                        : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                        : (isDark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFE2E8F0)),
                     width: selected ? 2.0 : 1.0,
                   ),
                   boxShadow: selected
-                      ? [BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.2), blurRadius: 12, offset: const Offset(0, 4))]
-                      : [BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+                      ? [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF10B981,
+                            ).withValues(alpha: 0.2),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(
+                              alpha: isDark ? 0.25 : 0.04,
+                            ),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                 ),
                 padding: const EdgeInsets.all(6),
                 child: ClipRRect(
@@ -2062,8 +2162,16 @@ class _RideLocationScreenState
                       final isBike = vehicle == 'bike';
                       final isAuto = vehicle == 'auto';
                       return Icon(
-                        isBike ? Icons.directions_bike : isAuto ? Icons.electric_rickshaw : Icons.local_taxi,
-                        color: selected ? const Color(0xFF10B981) : (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+                        isBike
+                            ? Icons.directions_bike
+                            : isAuto
+                            ? Icons.electric_rickshaw
+                            : Icons.local_taxi,
+                        color: selected
+                            ? const Color(0xFF10B981)
+                            : (isDark
+                                  ? const Color(0xFF64748B)
+                                  : const Color(0xFF94A3B8)),
                         size: 32,
                       );
                     },
@@ -2078,7 +2186,9 @@ class _RideLocationScreenState
                   fontWeight: selected ? FontWeight.bold : FontWeight.w600,
                   color: selected
                       ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                      : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                      : (isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B)),
                 ),
               ),
               const SizedBox(height: 2),
@@ -2089,7 +2199,9 @@ class _RideLocationScreenState
                   style: TextStyle(
                     fontSize: 10,
                     decoration: TextDecoration.lineThrough,
-                    color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                    color: isDark
+                        ? const Color(0xFF64748B)
+                        : const Color(0xFF94A3B8),
                   ),
                 ),
               Text(
@@ -2099,7 +2211,9 @@ class _RideLocationScreenState
                   fontWeight: FontWeight.bold,
                   color: selected
                       ? const Color(0xFF10B981)
-                      : (isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155)),
+                      : (isDark
+                            ? const Color(0xFFCBD5E1)
+                            : const Color(0xFF334155)),
                 ),
               ),
               const SizedBox(height: 1),
@@ -2107,7 +2221,9 @@ class _RideLocationScreenState
                 'incl. GST',
                 style: TextStyle(
                   fontSize: 7.5,
-                  color: isDark ? const Color(0xFF64748B) : Colors.grey.shade600,
+                  color: isDark
+                      ? const Color(0xFF64748B)
+                      : Colors.grey.shade600,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -2125,7 +2241,9 @@ class _RideLocationScreenState
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF171A21) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2135,7 +2253,9 @@ class _RideLocationScreenState
             label: 'Pay via Cash',
             value: 'cash',
             accentColor: const Color(0xFF10B981),
-            bgColor: isDark ? const Color(0xFF10B981).withValues(alpha: 0.15) : const Color(0xFFECFDF5),
+            bgColor: isDark
+                ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                : const Color(0xFFECFDF5),
           ),
           const SizedBox(height: 8),
           _buildPaymentChipVertical(
@@ -2143,10 +2263,15 @@ class _RideLocationScreenState
             label: 'Pay via UPI',
             value: 'online',
             accentColor: const Color(0xFF10B981),
-            bgColor: isDark ? const Color(0xFF10B981).withValues(alpha: 0.15) : const Color(0xFFECFDF5),
+            bgColor: isDark
+                ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                : const Color(0xFFECFDF5),
           ),
           const SizedBox(height: 10),
-          Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+          Divider(
+            height: 1,
+            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+          ),
           const SizedBox(height: 10),
           GestureDetector(
             onTap: () => setState(() => showPromoField = !showPromoField),
@@ -2155,21 +2280,39 @@ class _RideLocationScreenState
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFFFFBEB),
+                    color: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFFFFBEB),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.card_giftcard_rounded, size: 14, color: isDark ? const Color(0xFF10B981) : const Color(0xFFD97706)),
+                  child: Icon(
+                    Icons.card_giftcard_rounded,
+                    size: 14,
+                    color: isDark
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFFD97706),
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Text(
                   'Apply Promo Code',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1E293B)),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                  ),
                 ),
                 const Spacer(),
                 AnimatedRotation(
                   turns: showPromoField ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                  child: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 18,
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
+                  ),
                 ),
               ],
             ),
@@ -2179,22 +2322,38 @@ class _RideLocationScreenState
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF10B981).withValues(alpha: 0.12) : const Color(0xFFECFDF5),
+                color: isDark
+                    ? const Color(0xFF10B981).withValues(alpha: 0.12)
+                    : const Color(0xFFECFDF5),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.check_circle_rounded, size: 14, color: const Color(0xFF10B981)),
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 14,
+                    color: const Color(0xFF10B981),
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     '$_appliedPromoCode Applied',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF10B981)),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF10B981),
+                    ),
                   ),
                   const Spacer(),
                   Text(
                     '- \u20B9${_promoDiscount.toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF10B981)),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF10B981),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   GestureDetector(
@@ -2205,7 +2364,13 @@ class _RideLocationScreenState
                         _promoController.clear();
                       });
                     },
-                    child: Icon(Icons.cancel_rounded, size: 16, color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+                    child: Icon(
+                      Icons.cancel_rounded,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF64748B)
+                          : const Color(0xFF94A3B8),
+                    ),
                   ),
                 ],
               ),
@@ -2224,17 +2389,55 @@ class _RideLocationScreenState
                             controller: _promoController,
                             autofocus: true,
                             textCapitalization: TextCapitalization.characters,
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 1.2, color: isDark ? Colors.white : const Color(0xFF1E293B)),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.2,
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF1E293B),
+                            ),
                             decoration: InputDecoration(
                               hintText: 'Enter promo code...',
-                              hintStyle: TextStyle(color: isDark ? const Color(0xFF64748B) : const Color(0xFFCBD5E1), fontWeight: FontWeight.normal, letterSpacing: 0),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                              hintStyle: TextStyle(
+                                color: isDark
+                                    ? const Color(0xFF64748B)
+                                    : const Color(0xFFCBD5E1),
+                                fontWeight: FontWeight.normal,
+                                letterSpacing: 0,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 9,
+                              ),
                               isDense: true,
                               filled: true,
-                              fillColor: isDark ? const Color(0xFF1E222B) : Colors.white,
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))),
-                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF10B981), width: 1.5)),
-                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))),
+                              fillColor: isDark
+                                  ? const Color(0xFF1E222B)
+                                  : Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: isDark
+                                      ? const Color(0xFF1E293B)
+                                      : const Color(0xFFE2E8F0),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF10B981),
+                                  width: 1.5,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: isDark
+                                      ? const Color(0xFF1E293B)
+                                      : const Color(0xFFE2E8F0),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -2242,11 +2445,31 @@ class _RideLocationScreenState
                         GestureDetector(
                           onTap: _applyPromo,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                            decoration: BoxDecoration(color: const Color(0xFF10B981), borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 9,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF10B981),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                             child: _isValidatingPromo
-                               ? const SizedBox(height: 14, width: 14, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.0))
-                                : const Text('Apply', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                                ? const SizedBox(
+                                    height: 14,
+                                    width: 14,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.0,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Apply',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],
@@ -2274,14 +2497,24 @@ class _RideLocationScreenState
         duration: const Duration(milliseconds: 160),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? bgColor : (isDark ? const Color(0xFF1E222B) : Colors.white),
+          color: selected
+              ? bgColor
+              : (isDark ? const Color(0xFF1E222B) : Colors.white),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: selected ? accentColor.withValues(alpha: 0.6) : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+            color: selected
+                ? accentColor.withValues(alpha: 0.6)
+                : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
             width: selected ? 1.5 : 1.0,
           ),
           boxShadow: selected
-              ? [BoxShadow(color: accentColor.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2))]
+              ? [
+                  BoxShadow(
+                    color: accentColor.withValues(alpha: 0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : [],
         ),
         child: Row(
@@ -2289,7 +2522,11 @@ class _RideLocationScreenState
             Icon(
               icon,
               size: 16,
-              color: selected ? accentColor : (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+              color: selected
+                  ? accentColor
+                  : (isDark
+                        ? const Color(0xFF64748B)
+                        : const Color(0xFF94A3B8)),
             ),
             const SizedBox(width: 10),
             Flexible(
@@ -2299,7 +2536,11 @@ class _RideLocationScreenState
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: selected ? (isDark ? Colors.white : accentColor) : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
+                  color: selected
+                      ? (isDark ? Colors.white : accentColor)
+                      : (isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF475569)),
                 ),
               ),
             ),
@@ -2312,7 +2553,12 @@ class _RideLocationScreenState
                 width: 16,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFCBD5E1), width: 1.5),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFCBD5E1),
+                    width: 1.5,
+                  ),
                 ),
               ),
           ],
@@ -2331,20 +2577,34 @@ class _RideLocationScreenState
     final km = distanceMeters / 1000;
     final mins = durationSeconds / 60;
 
-    final isSearchingPickup = pickupFocus.hasFocus && pickupController.text.isNotEmpty;
-    final isSearchingDestination = destinationFocus.hasFocus && destinationController.text.isNotEmpty;
+    final isSearchingPickup =
+        pickupFocus.hasFocus && pickupController.text.isNotEmpty;
+    final isSearchingDestination =
+        destinationFocus.hasFocus && destinationController.text.isNotEmpty;
     final isSearching = isSearchingPickup || isSearchingDestination;
 
-    final showCenterPin = (_activeField != null) && mapLoaded && !(pickupLat != null && pickupLng != null && destinationLat != null && destinationLng != null);
+    final showCenterPin =
+        (_activeField != null) &&
+        mapLoaded &&
+        !(pickupLat != null &&
+            pickupLng != null &&
+            destinationLat != null &&
+            destinationLng != null);
 
-    final bool isIntercityRide = widget.orderType == 'intercity_ride' || (!widget.orderType.contains('parcel') && distanceMeters > 20000);
+    final bool isIntercityRide =
+        widget.orderType == 'intercity_ride' ||
+        (!widget.orderType.contains('parcel') && distanceMeters > 20000);
     final String submitButtonText = widget.orderType.contains('parcel')
         ? 'Confirm & Add Details'
-        : (isIntercityRide ? 'Confirm Intercity Ride' : 'Confirm & Search Rides');
+        : (isIntercityRide
+              ? 'Confirm Intercity Ride'
+              : 'Confirm & Search Rides');
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: isDark ? const Color(0xFF1E222B) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF1E222B)
+          : const Color(0xFFF8FAFC),
       body: Stack(
         children: [
           // 1. Full-screen map Webview
@@ -2352,10 +2612,8 @@ class _RideLocationScreenState
             child: _useMockMap
                 ? _buildMockMapFallback(isDark)
                 : (webController != null
-                    ? WebViewWidget(controller: webController!)
-                    : const Center(
-                        child: CircularProgressIndicator(),
-                      )),
+                      ? WebViewWidget(controller: webController!)
+                      : const Center(child: CircularProgressIndicator())),
           ),
 
           // Center Pin Overlay for Map Dragging/Picking
@@ -2368,9 +2626,14 @@ class _RideLocationScreenState
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        color: _activeField == 'pickup' ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                        color: _activeField == 'pickup'
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFFEF4444),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -2381,7 +2644,9 @@ class _RideLocationScreenState
                         ],
                       ),
                       child: Text(
-                        _activeField == 'pickup' ? 'Set Pickup' : 'Set Destination',
+                        _activeField == 'pickup'
+                            ? 'Set Pickup'
+                            : 'Set Destination',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11,
@@ -2402,9 +2667,12 @@ class _RideLocationScreenState
                             child: AnimatedBuilder(
                               animation: _pulseController,
                               builder: (context, child) {
-                                final scale = 0.3 + (_pulseController.value * 1.2);
+                                final scale =
+                                    0.3 + (_pulseController.value * 1.2);
                                 final opacity = 1.0 - _pulseController.value;
-                                final color = _activeField == 'pickup' ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+                                final color = _activeField == 'pickup'
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFFEF4444);
                                 return Transform.scale(
                                   scale: scale,
                                   child: Opacity(
@@ -2434,7 +2702,9 @@ class _RideLocationScreenState
                               height: 6,
                               width: 6,
                               decoration: BoxDecoration(
-                                color: _activeField == 'pickup' ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                                color: _activeField == 'pickup'
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFFEF4444),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -2446,7 +2716,11 @@ class _RideLocationScreenState
                             child: AnimatedBuilder(
                               animation: _pulseController,
                               builder: (context, child) {
-                                final double translationY = -6.0 * (1.0 - (_pulseController.value - 0.5).abs() * 2);
+                                final double translationY =
+                                    -6.0 *
+                                    (1.0 -
+                                        (_pulseController.value - 0.5).abs() *
+                                            2);
                                 return Transform.translate(
                                   offset: Offset(0, translationY),
                                   child: child,
@@ -2455,7 +2729,9 @@ class _RideLocationScreenState
                               child: Icon(
                                 Icons.location_on_rounded,
                                 size: 40,
-                                color: _activeField == 'pickup' ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                                color: _activeField == 'pickup'
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFFEF4444),
                               ),
                             ),
                           ),
@@ -2495,7 +2771,10 @@ class _RideLocationScreenState
               children: [
                 // Top Custom Bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: [
                       GestureDetector(
@@ -2509,12 +2788,16 @@ class _RideLocationScreenState
                                 : Colors.white.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                              color: isDark
+                                  ? const Color(0xFF1E293B)
+                                  : const Color(0xFFE2E8F0),
                               width: 1.0,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.08),
+                                color: Colors.black.withValues(
+                                  alpha: isDark ? 0.2 : 0.08,
+                                ),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
@@ -2523,7 +2806,9 @@ class _RideLocationScreenState
                           child: Icon(
                             Icons.arrow_back_rounded,
                             size: 20,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF0F172A),
                           ),
                         ),
                       ),
@@ -2534,15 +2819,19 @@ class _RideLocationScreenState
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF0F172A),
                             letterSpacing: -0.8,
                             shadows: isDark
                                 ? [
                                     Shadow(
-                                      color: Colors.black.withValues(alpha: 0.4),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.4,
+                                      ),
                                       blurRadius: 4,
                                       offset: const Offset(0, 2),
-                                    )
+                                    ),
                                   ]
                                 : null,
                           ),
@@ -2555,7 +2844,10 @@ class _RideLocationScreenState
                 if (!_showBookingOptions) ...[
                   // UNIFIED PREMIUM ROUTE SEARCH CARD (Simplified to flat, full-width inputs)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2605,19 +2897,28 @@ class _RideLocationScreenState
                         child: GestureDetector(
                           onTap: _useCurrentLocationForActiveField,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF171A21) : Colors.white,
+                              color: isDark
+                                  ? const Color(0xFF171A21)
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: isDark ? 0.1 : 0.06),
+                                  color: Colors.black.withValues(
+                                    alpha: isDark ? 0.1 : 0.06,
+                                  ),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
                               ],
                               border: Border.all(
-                                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFE2E8F0),
                                 width: 1.0,
                               ),
                             ),
@@ -2630,14 +2931,20 @@ class _RideLocationScreenState
                                   color: Color(0xFF10B981),
                                 ),
                                 const SizedBox(width: 6),
-                                Text(
-                                  _activeField == 'destination'
-                                      ? 'Use Current Location for Destination'
-                                      : 'Use Current Location for Pickup',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF1E293B),
+                                Flexible(
+                                  child: Text(
+                                    _activeField == 'destination'
+                                        ? 'Use Current Location for Destination'
+                                        : 'Use Current Location for Pickup',
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark
+                                          ? const Color(0xFFCBD5E1)
+                                          : const Color(0xFF1E293B),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -2662,7 +2969,9 @@ class _RideLocationScreenState
               child: FloatingActionButton(
                 heroTag: 'ride_location_gps_fab',
                 mini: true,
-                backgroundColor: isDark ? const Color(0xFF171A21) : Colors.white,
+                backgroundColor: isDark
+                    ? const Color(0xFF171A21)
+                    : Colors.white,
                 foregroundColor: const Color(0xFF10B981),
                 elevation: 4,
                 onPressed: _recenterToCurrentLocation,
@@ -2677,138 +2986,173 @@ class _RideLocationScreenState
               right: 0,
               bottom: 0,
               child: Container(
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 24 + Insets.bottom(context)),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF171A21) : Colors.white,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                    border: Border.all(
-                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                      width: 1.0,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
-                        blurRadius: 20,
-                        offset: const Offset(0, -6),
-                      ),
-                    ],
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  20,
+                  20,
+                  24 + Insets.bottom(context),
+                ),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF171A21) : Colors.white,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFE2E8F0),
+                    width: 1.0,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(
+                        alpha: isDark ? 0.2 : 0.06,
+                      ),
+                      blurRadius: 20,
+                      offset: const Offset(0, -6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Select your location',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF0F172A),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Card containing the address details with the red pin icon
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF0F1115)
+                            : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.white.withOpacity(0.04)
+                              : const Color(0xFFE2E8F0),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Select your location',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          // Left red/orange ring icon matching the screenshot
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3.0),
+                            child: Container(
+                              height: 16,
+                              width: 16,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color(
+                                  0xFF8A3000,
+                                ), // dark brown center
+                                border: Border.all(
+                                  color: const Color(0xFFE05300),
+                                  width: 3.5,
+                                ), // orange border
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFFE05300,
+                                    ).withOpacity(0.3),
+                                    blurRadius: 4,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _isGeocoding
+                                    ? const SizedBox(
+                                        height: 18,
+                                        width: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Color(0xFFEF4444),
+                                              ),
+                                        ),
+                                      )
+                                    : Text(
+                                        _draggedAddress ??
+                                            'Pinpoint location...',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: isDark
+                                              ? Colors.white
+                                              : const Color(0xFF0F172A),
+                                          height: 1.4,
+                                        ),
+                                      ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      
-                      // Card containing the address details with the red pin icon
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF0F1115) : const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isDark ? Colors.white.withOpacity(0.04) : const Color(0xFFE2E8F0),
-                            width: 1.0,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // CTA Button: Select Drop / Select Pickup
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: _isGeocoding ? null : _confirmPickerLocation,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(26),
                           ),
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Left red/orange ring icon matching the screenshot
-                            Padding(
-                              padding: const EdgeInsets.only(top: 3.0),
-                              child: Container(
-                                height: 16,
-                                width: 16,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: const Color(0xFF8A3000), // dark brown center
-                                  border: Border.all(color: const Color(0xFFE05300), width: 3.5), // orange border
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFFE05300).withOpacity(0.3),
-                                      blurRadius: 4,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _isGeocoding
-                                      ? const SizedBox(
-                                          height: 18,
-                                          width: 18,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFEF4444)),
-                                          ),
-                                        )
-                                      : Text(
-                                          _draggedAddress ?? 'Pinpoint location...',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                            height: 1.4,
-                                          ),
-                                        ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 20),
-                      
-                      // CTA Button: Select Drop / Select Pickup
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: _isGeocoding ? null : _confirmPickerLocation,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(26),
-                            ),
-                          ),
-                          child: Text(
-                            _activeField == 'pickup' ? 'Select Pickup' : 'Select Drop',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: -0.1,
-                            ),
+                        child: Text(
+                          _activeField == 'pickup'
+                              ? 'Select Pickup'
+                              : 'Select Drop',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.1,
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
+            ),
 
           // 5. FLOATING BOTTOM SUMMARY CARD & ACTIONS (when route is active)
-          if (!isSearching && distanceMeters > 0 && !showCenterPin && !_showBookingOptions)
+          if (!isSearching &&
+              distanceMeters > 0 &&
+              !showCenterPin &&
+              !_showBookingOptions)
             Positioned(
               left: 16,
               right: 16,
@@ -2826,13 +3170,17 @@ class _RideLocationScreenState
                         borderRadius: BorderRadius.circular(22),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.08),
+                            color: Colors.black.withValues(
+                              alpha: isDark ? 0.2 : 0.08,
+                            ),
                             blurRadius: 20,
                             offset: const Offset(0, 4),
                           ),
                         ],
                         border: Border.all(
-                          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                          color: isDark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFE2E8F0),
                           width: 1.0,
                         ),
                       ),
@@ -2845,24 +3193,30 @@ class _RideLocationScreenState
                                   height: 40,
                                   width: 40,
                                   decoration: BoxDecoration(
-                                    color: isDark 
-                                        ? const Color(0xFF1E293B).withValues(alpha: 0.6) 
+                                    color: isDark
+                                        ? const Color(
+                                            0xFF1E293B,
+                                          ).withValues(alpha: 0.6)
                                         : const Color(0xFFEFF6FF),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Icon(
                                     Icons.straighten_rounded,
-                                    color: isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB),
+                                    color: isDark
+                                        ? const Color(0xFF60A5FA)
+                                        : const Color(0xFF2563EB),
                                     size: 20,
                                   ),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Wrap(
-                                        crossAxisAlignment: WrapCrossAlignment.center,
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
                                         spacing: 6,
                                         runSpacing: 4,
                                         children: [
@@ -2871,17 +3225,31 @@ class _RideLocationScreenState
                                             style: TextStyle(
                                               fontSize: 9,
                                               fontWeight: FontWeight.w700,
-                                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                              color: isDark
+                                                  ? const Color(0xFF94A3B8)
+                                                  : const Color(0xFF64748B),
                                               letterSpacing: 0.5,
                                             ),
                                           ),
                                           if (isIntercityRide)
                                             Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 5,
+                                                    vertical: 1.5,
+                                                  ),
                                               decoration: BoxDecoration(
-                                                color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                                                borderRadius: BorderRadius.circular(6),
-                                                border: Border.all(color: const Color(0xFF10B981), width: 0.8),
+                                                color: const Color(
+                                                  0xFF10B981,
+                                                ).withValues(alpha: 0.15),
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                                border: Border.all(
+                                                  color: const Color(
+                                                    0xFF10B981,
+                                                  ),
+                                                  width: 0.8,
+                                                ),
                                               ),
                                               child: const Text(
                                                 'INTERCITY',
@@ -2900,7 +3268,9 @@ class _RideLocationScreenState
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w800,
-                                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                          color: isDark
+                                              ? Colors.white
+                                              : const Color(0xFF0F172A),
                                         ),
                                       ),
                                     ],
@@ -2912,7 +3282,9 @@ class _RideLocationScreenState
                           Container(
                             height: 32,
                             width: 1,
-                            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                            color: isDark
+                                ? const Color(0xFF1E293B)
+                                : const Color(0xFFE2E8F0),
                           ),
                           Expanded(
                             child: Row(
@@ -2922,8 +3294,10 @@ class _RideLocationScreenState
                                   height: 40,
                                   width: 40,
                                   decoration: BoxDecoration(
-                                    color: isDark 
-                                        ? const Color(0xFF1E293B).withValues(alpha: 0.6) 
+                                    color: isDark
+                                        ? const Color(
+                                            0xFF1E293B,
+                                          ).withValues(alpha: 0.6)
                                         : const Color(0xFFECFDF5),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -2936,14 +3310,17 @@ class _RideLocationScreenState
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'EST. TIME',
                                         style: TextStyle(
                                           fontSize: 9,
                                           fontWeight: FontWeight.w700,
-                                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                          color: isDark
+                                              ? const Color(0xFF94A3B8)
+                                              : const Color(0xFF64748B),
                                           letterSpacing: 0.5,
                                         ),
                                       ),
@@ -2953,7 +3330,9 @@ class _RideLocationScreenState
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w800,
-                                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                          color: isDark
+                                              ? Colors.white
+                                              : const Color(0xFF0F172A),
                                         ),
                                       ),
                                     ],
@@ -2972,10 +3351,14 @@ class _RideLocationScreenState
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: loadingRoute || openingPreview ? null : continueFlow,
+                        onPressed: loadingRoute || openingPreview
+                            ? null
+                            : continueFlow,
                         style: ElevatedButton.styleFrom(
                           elevation: isDark ? 4 : 8,
-                          shadowColor: primaryColor.withValues(alpha: isDark ? 0.2 : 0.3),
+                          shadowColor: primaryColor.withValues(
+                            alpha: isDark ? 0.2 : 0.3,
+                          ),
                           backgroundColor: primaryColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18),
@@ -3027,27 +3410,40 @@ class _RideLocationScreenState
                 snap: true,
                 snapSizes: const [0.28, 0.45, 0.85],
                 builder: (context, scrollController) {
-                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
                   final double distanceKmVal = distanceMeters / 1000;
                   final double durationMinVal = durationSeconds / 60;
-                  
-                  final pricingData = pricingController.pricingData;
+
+                  final pricingData = _visiblePricing;
                   final hasPricing = pricingData.isNotEmpty;
 
                   // Find final fare for selected vehicle
                   double originalFare = 0.0;
-                  if (selectedVehicle != null && pricingData.containsKey(selectedVehicle)) {
-                    originalFare = double.tryParse(pricingData[selectedVehicle]?['final_fare']?.toString() ?? '') ?? 0.0;
+                  if (selectedVehicle != null &&
+                      pricingData.containsKey(selectedVehicle)) {
+                    originalFare =
+                        double.tryParse(
+                          pricingData[selectedVehicle]?['final_fare']
+                                  ?.toString() ??
+                              '',
+                        ) ??
+                        0.0;
                   }
-                  final double finalFare = (originalFare - _promoDiscount).clamp(0.0, double.infinity);
+                  final double finalFare = (originalFare - _promoDiscount)
+                      .clamp(0.0, double.infinity);
 
                   return Container(
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(28),
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+                          color: Colors.black.withValues(
+                            alpha: isDark ? 0.35 : 0.08,
+                          ),
                           blurRadius: 18,
                           offset: const Offset(0, -3),
                         ),
@@ -3062,7 +3458,9 @@ class _RideLocationScreenState
                             height: 4,
                             margin: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                              color: isDark
+                                  ? const Color(0xFF334155)
+                                  : const Color(0xFFCBD5E1),
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -3072,7 +3470,12 @@ class _RideLocationScreenState
                         Expanded(
                           child: ListView(
                             controller: scrollController,
-                            padding: EdgeInsets.fromLTRB(16, 8, 16, 24 + Insets.bottom(context)),
+                            padding: EdgeInsets.fromLTRB(
+                              16,
+                              8,
+                              16,
+                              24 + Insets.bottom(context),
+                            ),
                             children: [
                               // 1. Interactive editable address details (shows full address)
                               InkWell(
@@ -3081,14 +3484,20 @@ class _RideLocationScreenState
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: isDark ? const Color(0xFF131929) : Colors.white,
+                                    color: isDark
+                                        ? const Color(0xFF131929)
+                                        : Colors.white,
                                     borderRadius: BorderRadius.circular(24),
                                     border: Border.all(
-                                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                                      color: isDark
+                                          ? const Color(0xFF1E293B)
+                                          : const Color(0xFFE2E8F0),
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
+                                        color: Colors.black.withValues(
+                                          alpha: isDark ? 0.15 : 0.04,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 2),
                                       ),
@@ -3098,31 +3507,50 @@ class _RideLocationScreenState
                                     children: [
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Text(
                                                   'ROUTE DETAILS',
                                                   style: TextStyle(
                                                     fontSize: 10,
                                                     fontWeight: FontWeight.w800,
-                                                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                    color: isDark
+                                                        ? const Color(
+                                                            0xFF94A3B8,
+                                                          )
+                                                        : const Color(
+                                                            0xFF64748B,
+                                                          ),
                                                     letterSpacing: 0.8,
                                                   ),
                                                 ),
                                                 Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4,
+                                                      ),
                                                   decoration: BoxDecoration(
-                                                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                                                    borderRadius: BorderRadius.circular(8),
+                                                    color: const Color(
+                                                      0xFF10B981,
+                                                    ).withValues(alpha: 0.15),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
                                                   ),
                                                   child: Text(
                                                     '${distanceKmVal.toStringAsFixed(1)} km • ${durationMinVal.toStringAsFixed(0)} mins',
                                                     style: const TextStyle(
                                                       fontSize: 10,
-                                                      fontWeight: FontWeight.w800,
+                                                      fontWeight:
+                                                          FontWeight.w800,
                                                       color: Color(0xFF10B981),
                                                     ),
                                                   ),
@@ -3130,27 +3558,46 @@ class _RideLocationScreenState
                                               ],
                                             ),
                                             const SizedBox(height: 14),
-                                            
+
                                             // Pickup address row
                                             Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Container(
-                                                  margin: const EdgeInsets.only(top: 3),
-                                                  height: 10, width: 10,
-                                                  decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
+                                                  margin: const EdgeInsets.only(
+                                                    top: 3,
+                                                  ),
+                                                  height: 10,
+                                                  width: 10,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                        color: Color(
+                                                          0xFF10B981,
+                                                        ),
+                                                        shape: BoxShape.circle,
+                                                      ),
                                                 ),
                                                 const SizedBox(width: 12),
                                                 Expanded(
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
                                                         'Pickup Location',
                                                         style: TextStyle(
                                                           fontSize: 9,
-                                                          fontWeight: FontWeight.w900,
-                                                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                          fontWeight:
+                                                              FontWeight.w900,
+                                                          color: isDark
+                                                              ? const Color(
+                                                                  0xFF94A3B8,
+                                                                )
+                                                              : const Color(
+                                                                  0xFF64748B,
+                                                                ),
                                                         ),
                                                       ),
                                                       const SizedBox(height: 2),
@@ -3158,8 +3605,13 @@ class _RideLocationScreenState
                                                         pickupController.text,
                                                         style: TextStyle(
                                                           fontSize: 13,
-                                                          fontWeight: FontWeight.w700,
-                                                          color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          color: isDark
+                                                              ? Colors.white
+                                                              : const Color(
+                                                                  0xFF1E293B,
+                                                                ),
                                                         ),
                                                       ),
                                                     ],
@@ -3167,47 +3619,78 @@ class _RideLocationScreenState
                                                 ),
                                               ],
                                             ),
-                                            
+
                                             // Dotted vertical line connector
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Container(
-                                                margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4),
+                                                margin: const EdgeInsets.only(
+                                                  left: 4,
+                                                  top: 4,
+                                                  bottom: 4,
+                                                ),
                                                 width: 1.5,
                                                 height: 16,
-                                                color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                                                color: isDark
+                                                    ? const Color(0xFF334155)
+                                                    : const Color(0xFFCBD5E1),
                                               ),
                                             ),
 
                                             // Drop address row
                                             Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Container(
-                                                  margin: const EdgeInsets.only(top: 3),
-                                                  height: 10, width: 10,
-                                                  decoration: const BoxDecoration(color: Color(0xFFEF4444), shape: BoxShape.circle),
+                                                  margin: const EdgeInsets.only(
+                                                    top: 3,
+                                                  ),
+                                                  height: 10,
+                                                  width: 10,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                        color: Color(
+                                                          0xFFEF4444,
+                                                        ),
+                                                        shape: BoxShape.circle,
+                                                      ),
                                                 ),
                                                 const SizedBox(width: 12),
                                                 Expanded(
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
                                                         'Drop Location',
                                                         style: TextStyle(
                                                           fontSize: 9,
-                                                          fontWeight: FontWeight.w900,
-                                                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                          fontWeight:
+                                                              FontWeight.w900,
+                                                          color: isDark
+                                                              ? const Color(
+                                                                  0xFF94A3B8,
+                                                                )
+                                                              : const Color(
+                                                                  0xFF64748B,
+                                                                ),
                                                         ),
                                                       ),
                                                       const SizedBox(height: 2),
                                                       Text(
-                                                        destinationController.text,
+                                                        destinationController
+                                                            .text,
                                                         style: TextStyle(
                                                           fontSize: 13,
-                                                          fontWeight: FontWeight.w700,
-                                                          color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          color: isDark
+                                                              ? Colors.white
+                                                              : const Color(
+                                                                  0xFF1E293B,
+                                                                ),
                                                         ),
                                                       ),
                                                     ],
@@ -3249,53 +3732,123 @@ class _RideLocationScreenState
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF1E293B),
                                 ),
                               ),
                               const SizedBox(height: 14),
 
                               // Vehicle Selector list (Horizontal previous layout style)
-                              if (!hasPricing)
-                                const SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
+                              if (!hasPricing &&
+                                  (pricingController.loading || loadingRoute))
+                                SizedBox(
+                                  height: 138,
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 280, child: VehiclePricingSkeletonCard()),
-                                      SizedBox(width: 280, child: VehiclePricingSkeletonCard()),
-                                      SizedBox(width: 280, child: VehiclePricingSkeletonCard()),
+                                      for (final _ in [0, 1, 2])
+                                        Padding(
+                                          padding: EdgeInsets.only(right: 14),
+                                          child: SizedBox(
+                                            width: 76,
+                                            child: Column(
+                                              children: [
+                                                AppSkeletonCard(
+                                                  width: 72,
+                                                  height: 72,
+                                                  borderRadius: 16,
+                                                ),
+                                                SizedBox(height: 8),
+                                                AppSkeletonCard(
+                                                  width: 40,
+                                                  height: 12,
+                                                  borderRadius: 4,
+                                                ),
+                                                SizedBox(height: 5),
+                                                AppSkeletonCard(
+                                                  width: 45,
+                                                  height: 12,
+                                                  borderRadius: 4,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 )
+                              else if (!hasPricing)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Unable to load ride pricing. Please retry.',
+                                    ),
+                                    TextButton(
+                                      onPressed: distanceMeters > 0
+                                          ? _fetchPricing
+                                          : _calculateRoute,
+                                      child: Text(
+                                        distanceMeters > 0
+                                            ? 'Retry pricing'
+                                            : 'Retry route',
+                                      ),
+                                    ),
+                                  ],
+                                )
                               else
-                                SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    children: [
-                                      if (pricingData.containsKey('bike'))
-                                        _buildVehicleItem(
-                                          vehicle: 'bike',
-                                          title: 'Bike',
-                                          fare: double.tryParse(pricingData['bike']?['final_fare']?.toString() ?? '') ?? 0.0,
-                                          selected: selectedVehicle == 'bike',
-                                          onTap: () => _selectVehicle('bike'),
-                                        ),
-                                      if (pricingData.containsKey('auto'))
-                                        _buildVehicleItem(
-                                          vehicle: 'auto',
-                                          title: 'Auto',
-                                          fare: double.tryParse(pricingData['auto']?['final_fare']?.toString() ?? '') ?? 0.0,
-                                          selected: selectedVehicle == 'auto',
-                                          onTap: () => _selectVehicle('auto'),
-                                        ),
-                                      if (pricingData.containsKey('cab'))
-                                        _buildVehicleItem(
-                                          vehicle: 'cab',
-                                          title: 'Cab',
-                                          fare: double.tryParse(pricingData['cab']?['final_fare']?.toString() ?? '') ?? 0.0,
-                                          selected: selectedVehicle == 'cab',
-                                          onTap: () => _selectVehicle('cab'),
-                                        ),
-                                    ],
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    minHeight: 138,
+                                  ),
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: [
+                                        if (pricingData.containsKey('bike'))
+                                          _buildVehicleItem(
+                                            vehicle: 'bike',
+                                            title: 'Bike',
+                                            fare:
+                                                double.tryParse(
+                                                  pricingData['bike']?['final_fare']
+                                                          ?.toString() ??
+                                                      '',
+                                                ) ??
+                                                0.0,
+                                            selected: selectedVehicle == 'bike',
+                                            onTap: () => _selectVehicle('bike'),
+                                          ),
+                                        if (pricingData.containsKey('auto'))
+                                          _buildVehicleItem(
+                                            vehicle: 'auto',
+                                            title: 'Auto',
+                                            fare:
+                                                double.tryParse(
+                                                  pricingData['auto']?['final_fare']
+                                                          ?.toString() ??
+                                                      '',
+                                                ) ??
+                                                0.0,
+                                            selected: selectedVehicle == 'auto',
+                                            onTap: () => _selectVehicle('auto'),
+                                          ),
+                                        if (pricingData.containsKey('cab'))
+                                          _buildVehicleItem(
+                                            vehicle: 'cab',
+                                            title: 'Cab',
+                                            fare:
+                                                double.tryParse(
+                                                  pricingData['cab']?['final_fare']
+                                                          ?.toString() ??
+                                                      '',
+                                                ) ??
+                                                0.0,
+                                            selected: selectedVehicle == 'cab',
+                                            onTap: () => _selectVehicle('cab'),
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               const SizedBox(height: 24),
@@ -3305,18 +3858,22 @@ class _RideLocationScreenState
                                 width: double.infinity,
                                 height: 56,
                                 child: ElevatedButton(
-                                  onPressed: (selectedVehicle == null || creatingOrder || waitingForPayment)
-                                      ? null
-                                      : _createOrder,
+                                  onPressed: _canBook ? _createOrder : null,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF10B981),
-                                    disabledBackgroundColor: const Color(0xFF10B981).withValues(alpha: 0.5),
+                                    disabledBackgroundColor: const Color(
+                                      0xFF10B981,
+                                    ).withValues(alpha: 0.5),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(18),
                                     ),
                                     elevation: 4,
-                                    shadowColor: const Color(0xFF10B981).withValues(alpha: 0.35),
-                                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                                    shadowColor: const Color(
+                                      0xFF10B981,
+                                    ).withValues(alpha: 0.35),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                    ),
                                   ),
                                   child: (creatingOrder || waitingForPayment)
                                       ? const SizedBox(
@@ -3328,7 +3885,8 @@ class _RideLocationScreenState
                                           ),
                                         )
                                       : const Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             Text(
                                               'Book Ride Now',
@@ -3364,8 +3922,10 @@ class _RideLocationScreenState
 
   Widget _buildMockMapFallback(bool isDark) {
     final mapBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9);
-    final lineColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03);
-    
+    final lineColor = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.03);
+
     return Container(
       color: mapBg,
       child: Stack(
@@ -3376,15 +3936,16 @@ class _RideLocationScreenState
               painter: _ScreenMapGridPainter(lineColor: lineColor),
             ),
           ),
-          
+
           // Draw mock route line if both coordinates are present
-          if (pickupLat != null && pickupLng != null && destinationLat != null && destinationLng != null)
+          if (pickupLat != null &&
+              pickupLng != null &&
+              destinationLat != null &&
+              destinationLng != null)
             Positioned.fill(
-              child: CustomPaint(
-                painter: _MockRoutePainter(isDark: isDark),
-              ),
+              child: CustomPaint(painter: _MockRoutePainter(isDark: isDark)),
             ),
-            
+
           // Pickup Marker
           if (pickupLat != null && pickupLng != null)
             Align(
@@ -3395,19 +3956,33 @@ class _RideLocationScreenState
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF10B981),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text('Pickup', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Pickup',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    const Icon(Icons.location_on_rounded, color: Color(0xFF10B981), size: 24),
+                    const Icon(
+                      Icons.location_on_rounded,
+                      color: Color(0xFF10B981),
+                      size: 24,
+                    ),
                   ],
                 ),
               ),
             ),
-            
+
           // Destination Marker
           if (destinationLat != null && destinationLng != null)
             Align(
@@ -3418,14 +3993,28 @@ class _RideLocationScreenState
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFEF4444),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text('Dropoff', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Dropoff',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    const Icon(Icons.location_on_rounded, color: Color(0xFFEF4444), size: 24),
+                    const Icon(
+                      Icons.location_on_rounded,
+                      color: Color(0xFFEF4444),
+                      size: 24,
+                    ),
                   ],
                 ),
               ),
@@ -3439,10 +4028,14 @@ class _RideLocationScreenState
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.9) : Colors.white.withValues(alpha: 0.9),
+                color: isDark
+                    ? const Color(0xFF0F172A).withValues(alpha: 0.9)
+                    : Colors.white.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : const Color(0xFFE2E8F0),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -3518,7 +4111,7 @@ class _MockRoutePainter extends CustomPainter {
     final path = Path();
     final start = Offset(size.width / 2 - 40, size.height / 2 - 20);
     final end = Offset(size.width / 2 + 40, size.height / 2 + 20);
-    
+
     path.moveTo(start.dx, start.dy);
     path.quadraticBezierTo(
       (start.dx + end.dx) / 2 - 20,

@@ -1,0 +1,769 @@
+{
+  "fixture_riders": 25,
+  "order": "AB,BA alternated over six batches",
+  "warmup_excluded_per_actor_phase_batch": 1,
+  "summary": [
+    {
+      "actor": 1,
+      "before": {
+        "median_ms": 5.252,
+        "min_ms": 1.904,
+        "max_ms": 10.785,
+        "samples": 24
+      },
+      "after": {
+        "median_ms": 3.3015,
+        "min_ms": 1.473,
+        "max_ms": 8.876,
+        "samples": 24
+      }
+    },
+    {
+      "actor": 5,
+      "before": {
+        "median_ms": 7.5969999999999995,
+        "min_ms": 2.774,
+        "max_ms": 12.75,
+        "samples": 24
+      },
+      "after": {
+        "median_ms": 2.8635,
+        "min_ms": 1.373,
+        "max_ms": 7.442,
+        "samples": 24
+      }
+    },
+    {
+      "actor": 999,
+      "before": {
+        "median_ms": 6.801500000000001,
+        "min_ms": 1.806,
+        "max_ms": 11.718,
+        "samples": 24
+      },
+      "after": {
+        "median_ms": 2.194,
+        "min_ms": 1.348,
+        "max_ms": 10.477,
+        "samples": 24
+      }
+    }
+  ],
+  "raw": [
+    {
+      "batch": 0,
+      "phase": "before",
+      "actor": 1,
+      "execution_ms": [
+        2.26,
+        8.954,
+        8.279,
+        9.557
+      ],
+      "planning_ms": [
+        6.04,
+        13.341,
+        27.762,
+        40.45
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 0,
+      "phase": "before",
+      "actor": 5,
+      "execution_ms": [
+        2.774,
+        8.04,
+        5.912,
+        6.224
+      ],
+      "planning_ms": [
+        27.185,
+        26.317,
+        6.901,
+        23.096
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 0,
+      "phase": "before",
+      "actor": 999,
+      "execution_ms": [
+        5.195,
+        8.925,
+        6.196,
+        2.118
+      ],
+      "planning_ms": [
+        12.266,
+        38.466,
+        32.539,
+        15.807
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 0,
+      "phase": "after",
+      "actor": 1,
+      "execution_ms": [
+        4.317,
+        2.941,
+        2.669,
+        3.741
+      ],
+      "planning_ms": [
+        17.439,
+        11.131,
+        10.474,
+        19.876
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 0,
+      "phase": "after",
+      "actor": 5,
+      "execution_ms": [
+        2.282,
+        2.738,
+        2.368,
+        1.76
+      ],
+      "planning_ms": [
+        13.165,
+        9.873,
+        12.642,
+        8.168
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 0,
+      "phase": "after",
+      "actor": 999,
+      "execution_ms": [
+        1.383,
+        2.127,
+        1.797,
+        1.811
+      ],
+      "planning_ms": [
+        6.44,
+        6.491,
+        6.681,
+        8.36
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 1,
+      "phase": "after",
+      "actor": 1,
+      "execution_ms": [
+        1.603,
+        1.644,
+        6.976,
+        2.671
+      ],
+      "planning_ms": [
+        6.715,
+        5.947,
+        8.335,
+        16.47
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 1,
+      "phase": "after",
+      "actor": 5,
+      "execution_ms": [
+        5.834,
+        3.304,
+        1.503,
+        5.211
+      ],
+      "planning_ms": [
+        16.824,
+        17.368,
+        7.548,
+        17.83
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 1,
+      "phase": "after",
+      "actor": 999,
+      "execution_ms": [
+        5.889,
+        8.552,
+        2.018,
+        9.811
+      ],
+      "planning_ms": [
+        32.71,
+        30.111,
+        26.656,
+        18.38
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 1,
+      "phase": "before",
+      "actor": 1,
+      "execution_ms": [
+        5.855,
+        3.285,
+        2.186,
+        2.17
+      ],
+      "planning_ms": [
+        16.046,
+        13.127,
+        6.5,
+        13.129
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 1,
+      "phase": "before",
+      "actor": 5,
+      "execution_ms": [
+        6.882,
+        10.477,
+        12.75,
+        9.292
+      ],
+      "planning_ms": [
+        21.83,
+        38.457,
+        40.159,
+        24.536
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 1,
+      "phase": "before",
+      "actor": 999,
+      "execution_ms": [
+        9.455,
+        6.852,
+        7.803,
+        11.154
+      ],
+      "planning_ms": [
+        36.468,
+        18.284,
+        12.016,
+        23.314
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 2,
+      "phase": "before",
+      "actor": 1,
+      "execution_ms": [
+        9.85,
+        10.785,
+        9.143,
+        4.661
+      ],
+      "planning_ms": [
+        33.66,
+        36.356,
+        25.95,
+        25.506
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 2,
+      "phase": "before",
+      "actor": 5,
+      "execution_ms": [
+        12.047,
+        10.421,
+        10.168,
+        8.957
+      ],
+      "planning_ms": [
+        45.422,
+        30.645,
+        35.509,
+        16.096
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 2,
+      "phase": "before",
+      "actor": 999,
+      "execution_ms": [
+        2.343,
+        11.039,
+        1.806,
+        8.074
+      ],
+      "planning_ms": [
+        26.392,
+        23.608,
+        13.094,
+        27.877
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 2,
+      "phase": "after",
+      "actor": 1,
+      "execution_ms": [
+        8.876,
+        2.222,
+        5.052,
+        2.503
+      ],
+      "planning_ms": [
+        27.814,
+        29.288,
+        22.038,
+        23.078
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 2,
+      "phase": "after",
+      "actor": 5,
+      "execution_ms": [
+        2.236,
+        1.845,
+        1.496,
+        3.273
+      ],
+      "planning_ms": [
+        28.727,
+        11.78,
+        20.786,
+        10.717
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 2,
+      "phase": "after",
+      "actor": 999,
+      "execution_ms": [
+        1.536,
+        1.484,
+        4.933,
+        10.477
+      ],
+      "planning_ms": [
+        9.583,
+        7.331,
+        13.4,
+        29.861
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 3,
+      "phase": "after",
+      "actor": 1,
+      "execution_ms": [
+        3.163,
+        7.752,
+        3.44,
+        6.526
+      ],
+      "planning_ms": [
+        29.72,
+        17.837,
+        20.166,
+        21.641
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 3,
+      "phase": "after",
+      "actor": 5,
+      "execution_ms": [
+        4.154,
+        2.939,
+        2.585,
+        6.938
+      ],
+      "planning_ms": [
+        19.528,
+        15.028,
+        17.497,
+        24.532
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 3,
+      "phase": "after",
+      "actor": 999,
+      "execution_ms": [
+        7.458,
+        6.554,
+        2.048,
+        5.554
+      ],
+      "planning_ms": [
+        33.081,
+        30.266,
+        6.194,
+        16.744
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 3,
+      "phase": "before",
+      "actor": 1,
+      "execution_ms": [
+        2.018,
+        5.895,
+        5.377,
+        8.509
+      ],
+      "planning_ms": [
+        20.739,
+        21.026,
+        11.078,
+        22.932
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 3,
+      "phase": "before",
+      "actor": 5,
+      "execution_ms": [
+        3.192,
+        5.965,
+        5.283,
+        5.337
+      ],
+      "planning_ms": [
+        6.572,
+        15.465,
+        23.779,
+        26.411
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 3,
+      "phase": "before",
+      "actor": 999,
+      "execution_ms": [
+        8.994,
+        6.894,
+        2.335,
+        7.277
+      ],
+      "planning_ms": [
+        23.318,
+        22.028,
+        9.345,
+        12.539
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 4,
+      "phase": "before",
+      "actor": 1,
+      "execution_ms": [
+        2.539,
+        1.976,
+        3.24,
+        6.764
+      ],
+      "planning_ms": [
+        27.326,
+        16.625,
+        10.016,
+        15.591
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 4,
+      "phase": "before",
+      "actor": 5,
+      "execution_ms": [
+        7.154,
+        4.659,
+        8.859,
+        4.652
+      ],
+      "planning_ms": [
+        29.905,
+        25.915,
+        20.244,
+        25.982
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 4,
+      "phase": "before",
+      "actor": 999,
+      "execution_ms": [
+        3.723,
+        6.34,
+        3.829,
+        3.85
+      ],
+      "planning_ms": [
+        8.337,
+        13.574,
+        20.332,
+        10.918
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 4,
+      "phase": "after",
+      "actor": 1,
+      "execution_ms": [
+        5.009,
+        1.473,
+        4.004,
+        1.891
+      ],
+      "planning_ms": [
+        12.013,
+        11.151,
+        6.9,
+        8.812
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 4,
+      "phase": "after",
+      "actor": 5,
+      "execution_ms": [
+        2.788,
+        1.677,
+        3.16,
+        7.442
+      ],
+      "planning_ms": [
+        14.955,
+        9.273,
+        9.39,
+        38.589
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 4,
+      "phase": "after",
+      "actor": 999,
+      "execution_ms": [
+        2.261,
+        1.838,
+        1.348,
+        2.046
+      ],
+      "planning_ms": [
+        16.107,
+        13.687,
+        9.103,
+        11.879
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 5,
+      "phase": "after",
+      "actor": 1,
+      "execution_ms": [
+        4.698,
+        3.074,
+        3.96,
+        1.495
+      ],
+      "planning_ms": [
+        20.878,
+        17.857,
+        11.664,
+        14.805
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 5,
+      "phase": "after",
+      "actor": 5,
+      "execution_ms": [
+        4.388,
+        1.373,
+        3.797,
+        5.521
+      ],
+      "planning_ms": [
+        16.808,
+        8.332,
+        8.855,
+        22.446
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 5,
+      "phase": "after",
+      "actor": 999,
+      "execution_ms": [
+        1.772,
+        6.697,
+        7.678,
+        5.686
+      ],
+      "planning_ms": [
+        10.951,
+        18.874,
+        27.774,
+        30.078
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 5,
+      "phase": "before",
+      "actor": 1,
+      "execution_ms": [
+        9.768,
+        1.904,
+        4.629,
+        5.127
+      ],
+      "planning_ms": [
+        13.468,
+        12.979,
+        20.53,
+        11.548
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 5,
+      "phase": "before",
+      "actor": 5,
+      "execution_ms": [
+        9.114,
+        8.462,
+        5.573,
+        8.158
+      ],
+      "planning_ms": [
+        25.152,
+        24.767,
+        28.695,
+        28.202
+      ],
+      "output_rows": 13
+    },
+    {
+      "batch": 5,
+      "phase": "before",
+      "actor": 999,
+      "execution_ms": [
+        4.52,
+        8.675,
+        6.751,
+        11.718
+      ],
+      "planning_ms": [
+        9.2,
+        22.135,
+        31.452,
+        34.16
+      ],
+      "output_rows": 13
+    }
+  ],
+  "concurrent_actor_reads": [
+    [
+      1,
+      25
+    ],
+    [
+      5,
+      1
+    ],
+    [
+      999,
+      0
+    ],
+    [
+      3,
+      25
+    ],
+    [
+      1,
+      25
+    ],
+    [
+      5,
+      1
+    ],
+    [
+      999,
+      0
+    ],
+    [
+      3,
+      25
+    ],
+    [
+      1,
+      25
+    ],
+    [
+      5,
+      1
+    ],
+    [
+      999,
+      0
+    ],
+    [
+      3,
+      25
+    ],
+    [
+      1,
+      25
+    ],
+    [
+      5,
+      1
+    ],
+    [
+      999,
+      0
+    ],
+    [
+      3,
+      25
+    ]
+  ],
+  "concurrency_pass": true
+}

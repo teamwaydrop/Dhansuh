@@ -1,0 +1,10 @@
+{
+  "reference_apk_sha256": "0f9f687603a103878fb76b8ef1082b6e9bb42daa07037494cf3f02f277fb7904",
+  "reference_build": 55,
+  "reported_device_build": 55,
+  "device_hash_obtained": false,
+  "frame_export": "disabled in release by kReleaseMode; no device samples supplied",
+  "new_config_fix_in_build55": false,
+  "current_config_before_sha256": "82b3ed9867dcd3577f72e87884e4a6b6cc590f812a759f777c8649359933ed44",
+  "provenance_limit": "Build/signature record and chronological source context; no full AOT source-map attestation or handset artifact hash."
+}

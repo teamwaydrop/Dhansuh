@@ -1,0 +1,760 @@
+{
+  "date": "2026-11-01",
+  "project": "yvwpchffctiagevpqgwy",
+  "productionReadOnly": true,
+  "apiWindow": "24 hours preceding collection; aggregate logs only",
+  "api": [
+    {
+      "endpoint": "/rest/v1/users",
+      "mean_function_ms": null,
+      "mean_origin_ms": 40.85,
+      "mean_response_bytes": 29,
+      "mean_upstream_ms": 22.37,
+      "method": "GET",
+      "p95_origin_ms": 84,
+      "requests": 27,
+      "source": "edge_logs",
+      "status": "200"
+    },
+    {
+      "endpoint": "/functions/v1/send-push-notification",
+      "mean_function_ms": 2265.48,
+      "mean_origin_ms": null,
+      "mean_response_bytes": 133,
+      "mean_upstream_ms": 2343.14,
+      "method": "POST",
+      "p95_origin_ms": null,
+      "requests": 23,
+      "source": "function_edge_logs",
+      "status": "200"
+    },
+    {
+      "endpoint": "/rest/v1/production_config",
+      "mean_function_ms": null,
+      "mean_origin_ms": 684.5,
+      "mean_response_bytes": null,
+      "mean_upstream_ms": 429.6,
+      "method": "GET",
+      "p95_origin_ms": 1146,
+      "requests": 20,
+      "source": "edge_logs",
+      "status": "200"
+    },
+    {
+      "endpoint": "/rest/v1/orders",
+      "mean_function_ms": null,
+      "mean_origin_ms": 88.9,
+      "mean_response_bytes": 2,
+      "mean_upstream_ms": 41.9,
+      "method": "GET",
+      "p95_origin_ms": 287,
+      "requests": 10,
+      "source": "edge_logs",
+      "status": "200"
+    },
+    {
+      "endpoint": "/rest/v1/notifications",
+      "mean_function_ms": null,
+      "mean_origin_ms": 22.88,
+      "mean_response_bytes": null,
+      "mean_upstream_ms": 13.38,
+      "method": "PATCH",
+      "p95_origin_ms": 40,
+      "requests": 8,
+      "source": "edge_logs",
+      "status": "204"
+    },
+    {
+      "endpoint": "/rest/v1/rider_kyc",
+      "mean_function_ms": null,
+      "mean_origin_ms": 49.5,
+      "mean_response_bytes": 48,
+      "mean_upstream_ms": 28.38,
+      "method": "GET",
+      "p95_origin_ms": 107,
+      "requests": 8,
+      "source": "edge_logs",
+      "status": "200"
+    },
+    {
+      "endpoint": "/rest/v1/riders",
+      "mean_function_ms": null,
+      "mean_origin_ms": 27.25,
+      "mean_response_bytes": 2,
+      "mean_upstream_ms": 7.75,
+      "method": "GET",
+      "p95_origin_ms": 41,
+      "requests": 4,
+      "source": "edge_logs",
+      "status": "200"
+    },
+    {
+      "endpoint": "/rest/v1/notifications",
+      "mean_function_ms": null,
+      "mean_origin_ms": 50,
+      "mean_response_bytes": 2,
+      "mean_upstream_ms": 20,
+      "method": "GET",
+      "p95_origin_ms": 50,
+      "requests": 1,
+      "source": "edge_logs",
+      "status": "200"
+    }
+  ],
+  "configRoleBreakdown": [
+    {
+      "role": "authenticated",
+      "client": "flutter",
+      "n": 1,
+      "originMs": 794,
+      "upstreamMs": 747,
+      "gapMs": 47
+    },
+    {
+      "role": "unknown",
+      "client": "js",
+      "n": 19,
+      "originMs": 678.74,
+      "upstreamMs": 412.89,
+      "gapMs": 265.84
+    }
+  ],
+  "sqlStatsSince": "2026-05-07T11:50:14.71209+05:30",
+  "sqlStatsAreCumulative": true,
+  "apiStatementStats": [
+    {
+      "role": "service_role",
+      "queryid": "7500410470614416398",
+      "calls": 3257,
+      "mean_exec_ms": "2.361",
+      "total_exec_ms": "7689.1",
+      "shared_blks_hit": 5873,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"production_config\".* FROM \"public\".\"production_config\" WHERE  \"public\".\"production_config\".\"is_active\" = $1   LIMIT $2 OFFSET $3 )  SELECT $4::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t)->$5, $6) AS body, nullif(current_setting($7, $8), $9) AS response_headers, nullif(current_setting($10, $11), $12) AS response_status, $13 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "authenticated",
+      "queryid": "3009413018500335724",
+      "calls": 189,
+      "mean_exec_ms": "2.235",
+      "total_exec_ms": "422.4",
+      "shared_blks_hit": 459,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"production_config\".* FROM \"public\".\"production_config\" WHERE  \"public\".\"production_config\".\"is_active\" = $1   LIMIT $2 OFFSET $3 )  SELECT $4::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $5) AS body, nullif(current_setting($6, $7), $8) AS response_headers, nullif(current_setting($9, $10), $11) AS response_status, $12 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "anon",
+      "queryid": "3009413018500335724",
+      "calls": 102,
+      "mean_exec_ms": "1.754",
+      "total_exec_ms": "178.9",
+      "shared_blks_hit": 312,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"production_config\".* FROM \"public\".\"production_config\" WHERE  \"public\".\"production_config\".\"is_active\" = $1   LIMIT $2 OFFSET $3 )  SELECT $4::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $5) AS body, nullif(current_setting($6, $7), $8) AS response_headers, nullif(current_setting($9, $10), $11) AS response_status, $12 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "service_role",
+      "queryid": "3531596451195834799",
+      "calls": 481,
+      "mean_exec_ms": "0.265",
+      "total_exec_ms": "127.4",
+      "shared_blks_hit": 484,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"production_config\".\"extra_flags\" FROM \"public\".\"production_config\" WHERE  \"public\".\"production_config\".\"is_active\" = $1   LIMIT $2 OFFSET $3 )  SELECT $4::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $5) AS body, nullif(current_setting($6, $7), $8) AS response_headers, nullif(current_setting($9, $10), $11) AS response_status, $12 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "anon",
+      "queryid": "1778849723443420905",
+      "calls": 3,
+      "mean_exec_ms": "2.007",
+      "total_exec_ms": "6.0",
+      "shared_blks_hit": 12,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"production_config\".\"updated_at\" FROM \"public\".\"production_config\" WHERE  \"public\".\"production_config\".\"is_active\" = $1   LIMIT $2 OFFSET $3 )  SELECT $4::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $5) AS body, nullif(current_setting($6, $7), $8) AS response_headers, nullif(current_setting($9, $10), $11) AS response_status, $12 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "anon",
+      "queryid": "4291646606635822258",
+      "calls": 1,
+      "mean_exec_ms": "1.318",
+      "total_exec_ms": "1.3",
+      "shared_blks_hit": 4,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"production_config\".\"intercity_enabled\", \"public\".\"production_config\".\"updated_at\" FROM \"public\".\"production_config\" WHERE  \"public\".\"production_config\".\"is_active\" = $1   LIMIT $2 OFFSET $3 )  SELECT $4::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $5) AS body, nullif(current_setting($6, $7), $8) AS response_headers, nullif(current_setting($9, $10), $11) AS response_status, $12 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "anon",
+      "queryid": "-4020679561411525059",
+      "calls": 1,
+      "mean_exec_ms": "1.185",
+      "total_exec_ms": "1.2",
+      "shared_blks_hit": 4,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"production_config\".\"intercity_enabled\", \"public\".\"production_config\".\"ride_booking_enabled\", \"public\".\"production_config\".\"local_rides_enabled\", \"public\".\"production_config\".\"parcel_enabled\", \"public\".\"production_config\".\"payments_enabled\", \"public\".\"production_config\".\"subscriptions_enabled\", \"public\".\"production_config\".\"notifications_enabled\", \"public\".\"production_config\".\"updated_at\" FROM \"public\".\"production_config\" WHERE  \"public\".\"production_config\".\"is_active\" = $1   LIMIT $2 OFFSET $3 )  SELECT $4::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $5) AS body, nullif(current_setting($6, $7), $8) AS response_headers, nullif(current_setting($9, $10), $11) AS response_status, $12 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "anon",
+      "queryid": "8419309518286850076",
+      "calls": 1,
+      "mean_exec_ms": "0.058",
+      "total_exec_ms": "0.1",
+      "shared_blks_hit": 4,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"production_config\".\"minimum_android_version\", \"public\".\"production_config\".\"maintenance_mode\", \"public\".\"production_config\".\"force_update\", \"public\".\"production_config\".\"is_active\" FROM \"public\".\"production_config\" WHERE  \"public\".\"production_config\".\"is_active\" = $1   LIMIT $2 OFFSET $3 )  SELECT $4::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $5) AS body, nullif(current_setting($6, $7), $8) AS response_headers, nullif(current_setting($9, $10), $11) AS response_status, $12 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "authenticated",
+      "queryid": "5508167732040855196",
+      "calls": 25917,
+      "mean_exec_ms": "79.452",
+      "total_exec_ms": "2059148.7",
+      "shared_blks_hit": 3536150,
+      "shared_blks_read": 3,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS (UPDATE \"public\".\"riders\" SET \"current_heading\" = \"pgrst_body\".\"current_heading\", \"current_lat\" = \"pgrst_body\".\"current_lat\", \"current_lng\" = \"pgrst_body\".\"current_lng\", \"last_active_at\" = \"pgrst_body\".\"last_active_at\", \"last_location_updated_at\" = \"pgrst_body\".\"last_location_updated_at\", \"updated_at\" = \"pgrst_body\".\"updated_at\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"current_heading\", \"current_lat\", \"current_lng\", \"last_active_at\", \"last_location_updated_at\", \"updated_at\" FROM json_to_record(pgrst_payload.json_data) AS _(\"current_heading\" double precision, \"current_lat\" double precision, \"current_lng\" double precision, \"last_active_at\" timestamp with time zone, \"last_location_updated_at\" timestamp with time zone, \"updated_at\" timestamp with time zone) ) pgrst_body  WHERE  \"public\".\"riders\".\"user_id\" = $2 AND  \"public\".\"riders\".\"account_status\" = $3 RETURNING $4) SELECT $5 AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, $6::text AS body, nullif(current_setting($7, $8), $9) AS response_headers, nullif(current_setting($10, $11), $12) AS response_status, $13 AS response_inserted FROM (SELECT * FROM pgrst_source) _postgrest_t"
+    },
+    {
+      "role": "authenticated",
+      "queryid": "2437111727167673324",
+      "calls": 6142,
+      "mean_exec_ms": "228.459",
+      "total_exec_ms": "1403197.4",
+      "shared_blks_hit": 685633,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS (SELECT \"pgrst_call\".* FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"p_order_id\", \"p_pickup_lat\", \"p_pickup_lng\", \"p_radius_km\", \"p_limit\" FROM json_to_record(pgrst_payload.json_data) AS _(\"p_order_id\" uuid, \"p_pickup_lat\" double precision, \"p_pickup_lng\" double precision, \"p_radius_km\" double precision, \"p_limit\" integer) LIMIT $4) pgrst_body , LATERAL \"public\".\"find_nearby_riders\"(\"p_order_id\" := pgrst_body.\"p_order_id\", \"p_pickup_lat\" := pgrst_body.\"p_pickup_lat\", \"p_pickup_lng\" := pgrst_body.\"p_pickup_lng\", \"p_radius_km\" := pgrst_body.\"p_radius_km\", \"p_limit\" := pgrst_body.\"p_limit\") pgrst_call) SELECT $5::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $6) AS body, nullif(current_setting($7, $8), $9) AS response_headers, nullif(current_setting($10, $11), $12) AS response_status, $13 AS response_inserted FROM (SELECT \"record\".* FROM \"pgrst_source\" AS \"record\"   LIMIT $2 OFFSET $3) _postgrest_t"
+    },
+    {
+      "role": "authenticated",
+      "queryid": "5846091339726854667",
+      "calls": 12748,
+      "mean_exec_ms": "97.355",
+      "total_exec_ms": "1241084.6",
+      "shared_blks_hit": 1221304,
+      "shared_blks_read": 5,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"notifications\".\"id\" FROM \"public\".\"notifications\" WHERE  \"public\".\"notifications\".\"user_id\" = $1 AND  \"public\".\"notifications\".\"is_read\" = $2   LIMIT $3 OFFSET $4 )  SELECT $5::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $6) AS body, nullif(current_setting($7, $8), $9) AS response_headers, nullif(current_setting($10, $11), $12) AS response_status, $13 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "authenticated",
+      "queryid": "2528889472724619450",
+      "calls": 26147,
+      "mean_exec_ms": "30.147",
+      "total_exec_ms": "788244.0",
+      "shared_blks_hit": 4892608,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"rider_assignments\".*, row_to_json(\"rider_assignments_orders_1\".*)::jsonb AS \"orders\" FROM \"public\".\"rider_assignments\" LEFT JOIN LATERAL ( SELECT \"orders_1\".*, row_to_json(\"orders_users_2\".*)::jsonb AS \"users\" FROM \"public\".\"orders\" AS \"orders_1\" LEFT JOIN LATERAL ( SELECT \"users_2\".\"full_name\", \"users_2\".\"phone\", \"users_2\".\"user_code\" FROM \"public\".\"users\" AS \"users_2\" WHERE \"users_2\".\"id\" = \"orders_1\".\"user_id\"   LIMIT $1 OFFSET $2 ) AS \"orders_users_2\" ON $9 WHERE \"orders_1\".\"id\" = \"public\".\"rider_assignments\".\"order_id\"   LIMIT $3 OFFSET $4 ) AS \"rider_assignments_orders_1\" ON $10 WHERE  \"public\".\"rider_assignments\".\"rider_id\" = $5 AND  \"public\".\"rider_assignments\".\"assignment_status\" = $6   LIMIT $7 OFFSET $8 )  SELECT $11::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $12) AS body, nullif(current_setting($13, $14), $15) AS response_headers, nullif(current_setting($16, $17), $18) AS response_status, $19 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "authenticated",
+      "queryid": "-2348125702200215735",
+      "calls": 11102,
+      "mean_exec_ms": "62.328",
+      "total_exec_ms": "691960.6",
+      "shared_blks_hit": 1681228,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"orders\".*, row_to_json(\"orders_rider_1\".*)::jsonb AS \"rider\", COALESCE( \"orders_rider_reviews_1\".\"orders_rider_reviews_1\", $12) AS \"rider_reviews\" FROM \"public\".\"orders\" LEFT JOIN LATERAL ( SELECT \"riders_1\".\"id\", \"riders_1\".\"rating\", row_to_json(\"riders_rider_kyc_2\".*)::jsonb AS \"rider_kyc\", row_to_json(\"riders_users_2\".*)::jsonb AS \"users\" FROM \"public\".\"riders\" AS \"riders_1\" LEFT JOIN LATERAL ( SELECT \"rider_kyc_2\".\"full_name\", \"rider_kyc_2\".\"vehicle_number\", \"rider_kyc_2\".\"vehicle_type\", \"rider_kyc_2\".\"rider_image\" FROM \"public\".\"rider_kyc\" AS \"rider_kyc_2\" WHERE \"rider_kyc_2\".\"id\" = \"riders_1\".\"kyc_id\"   LIMIT $1 OFFSET $2 ) AS \"riders_rider_kyc_2\" ON $13  LEFT JOIN LATERAL ( SELECT \"users_2\".\"full_name\", \"users_2\".\"phone\", \"users_2\".\"user_code\" FROM \"public\".\"users\" AS \"users_2\" WHERE \"users_2\".\"id\" = \"riders_1\".\"user_id\"   LIMIT $3 OFFSET $4 ) AS \"riders_users_2\" ON $14 WHERE \"riders_1\".\"id\" = \"public\".\"orders\".\"rider_id\"   LIMIT $5 OFFSET $6 ) AS \"orders_rider_1\" ON $15  LEFT JOIN LATERAL ( SELECT json_agg(\"orders_rider_reviews_1\")::jsonb AS \"orders_rider_reviews_1\" FROM (SELECT \"rider_reviews_1\".\"id\", \"rider_reviews_1\".\"rating\", \"rider_reviews_1\".\"comment\" FROM \"public\".\"rider_reviews\" AS \"rider_reviews_1\" WHERE \"rider_reviews_1\".\"order_id\" = \"public\".\"orders\".\"id\"   LIMIT $7 OFFSET $8 ) AS \"orders_rider_reviews_1\" ) AS \"orders_rider_reviews_1\" ON $16 WHERE  \"public\".\"orders\".\"user_id\" = $9  ORDER BY \"public\".\"orders\".\"created_at\" DESC NULLS LAST LIMIT $10 OFFSET $11 )  SELECT $17::bigint AS total_result_set, pg_catalog.count"
+    },
+    {
+      "role": "authenticated",
+      "queryid": "-3365582674323823020",
+      "calls": 111213,
+      "mean_exec_ms": "4.916",
+      "total_exec_ms": "546761.9",
+      "shared_blks_hit": 759800,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"riders\".\"id\", \"public\".\"riders\".\"current_lat\", \"public\".\"riders\".\"current_lng\", \"public\".\"riders\".\"current_heading\", \"public\".\"riders\".\"account_status\", \"public\".\"riders\".\"user_id\", row_to_json(\"riders_rider_kyc_1\".*)::jsonb AS \"rider_kyc\" FROM \"public\".\"riders\" INNER JOIN LATERAL ( SELECT \"rider_kyc_1\".\"kyc_status\", \"rider_kyc_1\".\"activation_status\", \"rider_kyc_1\".\"vehicle_type\" FROM \"public\".\"rider_kyc\" AS \"rider_kyc_1\" WHERE  \"rider_kyc_1\".\"kyc_status\" = $1 AND  \"rider_kyc_1\".\"activation_status\" = $2 AND \"rider_kyc_1\".\"id\" = \"public\".\"riders\".\"kyc_id\"   LIMIT $3 OFFSET $4 ) AS \"riders_rider_kyc_1\" ON $8 WHERE  \"public\".\"riders\".\"account_status\" = $5 AND NOT \"public\".\"riders\".\"current_lat\" IS NULL AND NOT \"public\".\"riders\".\"current_lng\" IS NULL   LIMIT $6 OFFSET $7 )  SELECT $9::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $10) AS body, nullif(current_setting($11, $12), $13) AS response_headers, nullif(current_setting($14, $15), $16) AS response_status, $17 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "service_role",
+      "queryid": "2437111727167673324",
+      "calls": 9066,
+      "mean_exec_ms": "59.089",
+      "total_exec_ms": "535701.5",
+      "shared_blks_hit": 1059455,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS (SELECT \"pgrst_call\".* FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"p_order_id\", \"p_pickup_lat\", \"p_pickup_lng\", \"p_radius_km\", \"p_limit\" FROM json_to_record(pgrst_payload.json_data) AS _(\"p_order_id\" uuid, \"p_pickup_lat\" double precision, \"p_pickup_lng\" double precision, \"p_radius_km\" double precision, \"p_limit\" integer) LIMIT $4) pgrst_body , LATERAL \"public\".\"find_nearby_riders\"(\"p_order_id\" := pgrst_body.\"p_order_id\", \"p_pickup_lat\" := pgrst_body.\"p_pickup_lat\", \"p_pickup_lng\" := pgrst_body.\"p_pickup_lng\", \"p_radius_km\" := pgrst_body.\"p_radius_km\", \"p_limit\" := pgrst_body.\"p_limit\") pgrst_call) SELECT $5::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $6) AS body, nullif(current_setting($7, $8), $9) AS response_headers, nullif(current_setting($10, $11), $12) AS response_status, $13 AS response_inserted FROM (SELECT \"record\".* FROM \"pgrst_source\" AS \"record\"   LIMIT $2 OFFSET $3) _postgrest_t"
+    },
+    {
+      "role": "authenticated",
+      "queryid": "-2816268979868663457",
+      "calls": 12253,
+      "mean_exec_ms": "35.373",
+      "total_exec_ms": "433421.4",
+      "shared_blks_hit": 297070,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"orders\".* FROM \"public\".\"orders\" WHERE  \"public\".\"orders\".\"user_id\" = $1 AND  \"public\".\"orders\".\"order_status\" = ANY ($2)   ORDER BY \"public\".\"orders\".\"created_at\" DESC NULLS LAST LIMIT $3 OFFSET $4 )  SELECT $5::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $6) AS body, nullif(current_setting($7, $8), $9) AS response_headers, nullif(current_setting($10, $11), $12) AS response_status, $13 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    },
+    {
+      "role": "authenticated",
+      "queryid": "128068586915329997",
+      "calls": 11252,
+      "mean_exec_ms": "32.098",
+      "total_exec_ms": "361169.8",
+      "shared_blks_hit": 856437,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"orders\".\"id\", \"public\".\"orders\".\"order_code\", \"public\".\"orders\".\"order_status\", \"public\".\"orders\".\"order_type\", \"public\".\"orders\".\"vehicle_type\", \"public\".\"orders\".\"created_at\", \"public\".\"orders\".\"completed_at\", \"public\".\"orders\".\"cancelled_at\", \"public\".\"orders\".\"pickup_address\", \"public\".\"orders\".\"destination_address\", \"public\".\"orders\".\"destination_city\", \"public\".\"orders\".\"pickup_lat\", \"public\".\"orders\".\"pickup_lng\", \"public\".\"orders\".\"destination_lat\", \"public\".\"orders\".\"destination_lng\", \"public\".\"orders\".\"distance_meters\", \"public\".\"orders\".\"time_taken_seconds\", \"public\".\"orders\".\"receiver_name\", \"public\".\"orders\".\"receiver_phone\", \"public\".\"orders\".\"parcel_type\", \"public\".\"orders\".\"weight_category\", \"public\".\"orders\".\"special_instructions\", \"public\".\"orders\".\"final_fare\", \"public\".\"orders\".\"current_fare\", \"public\".\"orders\".\"boost_amount\", \"public\".\"orders\".\"fare_payment_method\", \"public\".\"orders\".\"payment_mode\", \"public\".\"orders\".\"payment_status\", \"public\".\"orders\".\"cancel_reason\", \"public\".\"orders\".\"gst_amount\", \"public\".\"orders\".\"gst_percentage\", \"public\".\"orders\".\"commission_amount\", \"public\".\"orders\".\"commission_percentage\", \"public\".\"orders\".\"rider_earning\", \"public\".\"orders\".\"subscription_commission_waived\", \"public\".\"orders\".\"rider_id\", \"public\".\"orders\".\"user_id\" FROM \"public\".\"orders\" WHERE  \"public\".\"orders\".\"user_id\" = $1 AND  \"public\".\"orders\".\"order_status\" = ANY ($2)  AND  \"public\".\"orders\".\"order_type\" = ANY ($3)   ORDER BY \"public\".\"orders\".\"created_at\" DESC NULLS LAST, \"public\".\"orders\".\"id\" DESC NULLS LAST LI"
+    },
+    {
+      "role": "authenticated",
+      "queryid": "1398457896680916250",
+      "calls": 13840,
+      "mean_exec_ms": "25.645",
+      "total_exec_ms": "354931.7",
+      "shared_blks_hit": 549623,
+      "shared_blks_read": 0,
+      "temp_blks_written": 0,
+      "query": "WITH pgrst_source AS ( SELECT \"public\".\"orders\".*, row_to_json(\"orders_users_1\".*)::jsonb AS \"users\" FROM \"public\".\"orders\" LEFT JOIN LATERAL ( SELECT \"users_1\".\"full_name\", \"users_1\".\"gender\", \"users_1\".\"profile_photo_url\" FROM \"public\".\"users\" AS \"users_1\" WHERE \"users_1\".\"id\" = \"public\".\"orders\".\"user_id\"   LIMIT $1 OFFSET $2 ) AS \"orders_users_1\" ON $7 WHERE  \"public\".\"orders\".\"rider_id\" = $3 AND  \"public\".\"orders\".\"order_status\" = ANY ($4)    LIMIT $5 OFFSET $6 )  SELECT $8::bigint AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, coalesce(json_agg(_postgrest_t), $9) AS body, nullif(current_setting($10, $11), $12) AS response_headers, nullif(current_setting($13, $14), $15) AS response_status, $16 AS response_inserted FROM ( SELECT * FROM pgrst_source ) _postgrest_t"
+    }
+  ],
+  "currentCatalog": {
+    "helpers": [
+      {
+        "signature": "check_is_order_candidate_rider(uuid,uuid)",
+        "definition": "CREATE OR REPLACE FUNCTION public.check_is_order_candidate_rider(p_order_id uuid, p_user_id uuid)\n RETURNS boolean\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n    SELECT EXISTS (\n        SELECT 1 FROM public.rider_assignments ra\n        INNER JOIN public.riders r ON r.id = ra.rider_id\n        WHERE ra.order_id = p_order_id AND r.user_id = p_user_id\n    );\n$function$\n"
+      },
+      {
+        "signature": "is_admin()",
+        "definition": "CREATE OR REPLACE FUNCTION public.is_admin()\n RETURNS boolean\n LANGUAGE sql\n STABLE\n SET search_path TO 'public'\nAS $function$\n  SELECT EXISTS (\n    SELECT 1 FROM public.admins\n    WHERE email = auth.email() AND is_active = true\n  );\n$function$\n"
+      },
+      {
+        "signature": "rider_is_on_active_trip(uuid)",
+        "definition": "CREATE OR REPLACE FUNCTION public.rider_is_on_active_trip(p_rider_id uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE\n SET search_path TO 'public'\nAS $function$\n    SELECT EXISTS (\n        SELECT 1\n        FROM public.orders o\n        WHERE o.rider_id = p_rider_id\n          AND (\n                o.order_status::text IN ('rider_arrived', 'picked_up', 'rider_at_drop', 'ongoing', 'payment_pending')\n                OR (\n                    o.order_status::text = 'accepted'\n                    AND (\n                        public.get_required_service_mode(o.order_type::text, o.distance_meters) = 'local'\n                        OR o.trip_started_at IS NOT NULL\n                    )\n                )\n              )\n    );\n$function$\n"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "intercity_requests_pkey",
+        "table": "intercity_requests",
+        "definition": "CREATE UNIQUE INDEX intercity_requests_pkey ON public.intercity_requests USING btree (id)"
+      },
+      {
+        "name": "idx_intercity_requests_one_active_per_order_traveller_plan",
+        "table": "intercity_requests",
+        "definition": "CREATE UNIQUE INDEX idx_intercity_requests_one_active_per_order_traveller_plan ON public.intercity_requests USING btree (parcel_id, traveller_id, route_id) WHERE (status <> ALL (ARRAY['cancelled'::text, 'rejected'::text, 'expired'::text, 'completed'::text]))"
+      },
+      {
+        "name": "idx_intercity_requests_route_id",
+        "table": "intercity_requests",
+        "definition": "CREATE INDEX idx_intercity_requests_route_id ON public.intercity_requests USING btree (route_id)"
+      },
+      {
+        "name": "idx_intercity_requests_sender_id",
+        "table": "intercity_requests",
+        "definition": "CREATE INDEX idx_intercity_requests_sender_id ON public.intercity_requests USING btree (sender_id)"
+      },
+      {
+        "name": "idx_intercity_requests_traveller_id",
+        "table": "intercity_requests",
+        "definition": "CREATE INDEX idx_intercity_requests_traveller_id ON public.intercity_requests USING btree (traveller_id)"
+      },
+      {
+        "name": "idx_notifications_user_id_is_read",
+        "table": "notifications",
+        "definition": "CREATE INDEX idx_notifications_user_id_is_read ON public.notifications USING btree (user_id, is_read)"
+      },
+      {
+        "name": "idx_notifications_user_id_created_at",
+        "table": "notifications",
+        "definition": "CREATE INDEX idx_notifications_user_id_created_at ON public.notifications USING btree (user_id, created_at DESC)"
+      },
+      {
+        "name": "notifications_pkey",
+        "table": "notifications",
+        "definition": "CREATE UNIQUE INDEX notifications_pkey ON public.notifications USING btree (id)"
+      },
+      {
+        "name": "orders_pkey",
+        "table": "orders",
+        "definition": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)"
+      },
+      {
+        "name": "idx_orders_user_id",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_user_id ON public.orders USING btree (user_id)"
+      },
+      {
+        "name": "idx_orders_rider_id",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_rider_id ON public.orders USING btree (rider_id)"
+      },
+      {
+        "name": "idx_orders_order_type",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_order_type ON public.orders USING btree (order_type)"
+      },
+      {
+        "name": "idx_orders_order_code",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_order_code ON public.orders USING btree (order_code)"
+      },
+      {
+        "name": "idx_orders_payment_id",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_payment_id ON public.orders USING btree (payment_id)"
+      },
+      {
+        "name": "idx_orders_pricing_config_id",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_pricing_config_id ON public.orders USING btree (pricing_config_id)"
+      },
+      {
+        "name": "idx_orders_pickup_location",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_pickup_location ON public.orders USING btree (pickup_lat, pickup_lng)"
+      },
+      {
+        "name": "idx_orders_destination_location",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_destination_location ON public.orders USING btree (destination_lat, destination_lng)"
+      },
+      {
+        "name": "idx_orders_vehicle_type",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_vehicle_type ON public.orders USING btree (vehicle_type)"
+      },
+      {
+        "name": "idx_orders_order_status",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_order_status ON public.orders USING btree (order_status)"
+      },
+      {
+        "name": "idx_orders_payment_status",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_payment_status ON public.orders USING btree (payment_status)"
+      },
+      {
+        "name": "idx_orders_searching_created_at",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_searching_created_at ON public.orders USING btree (created_at) WHERE (order_status = 'searching'::order_status_enum)"
+      },
+      {
+        "name": "orders_order_code_key",
+        "table": "orders",
+        "definition": "CREATE UNIQUE INDEX orders_order_code_key ON public.orders USING btree (order_code)"
+      },
+      {
+        "name": "idx_orders_user_idempotency_key",
+        "table": "orders",
+        "definition": "CREATE UNIQUE INDEX idx_orders_user_idempotency_key ON public.orders USING btree (user_id, idempotency_key) WHERE (idempotency_key IS NOT NULL)"
+      },
+      {
+        "name": "idx_orders_search_expires_at",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_search_expires_at ON public.orders USING btree (search_expires_at)"
+      },
+      {
+        "name": "idx_orders_created_at",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_created_at ON public.orders USING btree (created_at DESC)"
+      },
+      {
+        "name": "idx_orders_created_device_record_id",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_created_device_record_id ON public.orders USING btree (created_device_record_id)"
+      },
+      {
+        "name": "idx_orders_user_created_id",
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_user_created_id ON public.orders USING btree (user_id, created_at DESC, id DESC)"
+      },
+      {
+        "name": "idx_production_config_updated_by_admin_id",
+        "table": "production_config",
+        "definition": "CREATE INDEX idx_production_config_updated_by_admin_id ON public.production_config USING btree (updated_by_admin_id)"
+      },
+      {
+        "name": "production_config_pkey",
+        "table": "production_config",
+        "definition": "CREATE UNIQUE INDEX production_config_pkey ON public.production_config USING btree (id)"
+      },
+      {
+        "name": "production_config_config_code_key",
+        "table": "production_config",
+        "definition": "CREATE UNIQUE INDEX production_config_config_code_key ON public.production_config USING btree (config_code)"
+      },
+      {
+        "name": "uq_production_config_active",
+        "table": "production_config",
+        "definition": "CREATE UNIQUE INDEX uq_production_config_active ON public.production_config USING btree (is_active) WHERE is_active"
+      },
+      {
+        "name": "rider_kyc_pkey",
+        "table": "rider_kyc",
+        "definition": "CREATE UNIQUE INDEX rider_kyc_pkey ON public.rider_kyc USING btree (id)"
+      },
+      {
+        "name": "idx_rider_kyc_user_id",
+        "table": "rider_kyc",
+        "definition": "CREATE INDEX idx_rider_kyc_user_id ON public.rider_kyc USING btree (user_id)"
+      },
+      {
+        "name": "idx_rider_kyc_handled_by_admin_id",
+        "table": "rider_kyc",
+        "definition": "CREATE INDEX idx_rider_kyc_handled_by_admin_id ON public.rider_kyc USING btree (handled_by_admin_id)"
+      },
+      {
+        "name": "idx_rider_kyc_kyc_status",
+        "table": "rider_kyc",
+        "definition": "CREATE INDEX idx_rider_kyc_kyc_status ON public.rider_kyc USING btree (kyc_status)"
+      },
+      {
+        "name": "idx_rider_kyc_activation_status",
+        "table": "rider_kyc",
+        "definition": "CREATE INDEX idx_rider_kyc_activation_status ON public.rider_kyc USING btree (activation_status)"
+      },
+      {
+        "name": "idx_rider_kyc_created_at",
+        "table": "rider_kyc",
+        "definition": "CREATE INDEX idx_rider_kyc_created_at ON public.rider_kyc USING btree (created_at DESC)"
+      },
+      {
+        "name": "rider_locations_pkey",
+        "table": "rider_locations",
+        "definition": "CREATE UNIQUE INDEX rider_locations_pkey ON public.rider_locations USING btree (rider_id)"
+      },
+      {
+        "name": "idx_riders_account_status_service_mode",
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_account_status_service_mode ON public.riders USING btree (account_status, service_mode) INCLUDE (current_lat, current_lng, user_id, last_location_updated_at)"
+      },
+      {
+        "name": "riders_pkey",
+        "table": "riders",
+        "definition": "CREATE UNIQUE INDEX riders_pkey ON public.riders USING btree (id)"
+      },
+      {
+        "name": "riders_kyc_id_key",
+        "table": "riders",
+        "definition": "CREATE UNIQUE INDEX riders_kyc_id_key ON public.riders USING btree (kyc_id)"
+      },
+      {
+        "name": "riders_user_id_key",
+        "table": "riders",
+        "definition": "CREATE UNIQUE INDEX riders_user_id_key ON public.riders USING btree (user_id)"
+      },
+      {
+        "name": "idx_riders_user_id",
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_user_id ON public.riders USING btree (user_id)"
+      },
+      {
+        "name": "idx_riders_kyc_id",
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_kyc_id ON public.riders USING btree (kyc_id)"
+      },
+      {
+        "name": "idx_riders_subscription_active",
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_subscription_active ON public.riders USING btree (subscription_active)"
+      },
+      {
+        "name": "idx_riders_account_status",
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_account_status ON public.riders USING btree (account_status)"
+      },
+      {
+        "name": "idx_riders_government_tax_due_balance",
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_government_tax_due_balance ON public.riders USING btree (government_tax_due_balance)"
+      },
+      {
+        "name": "idx_riders_service_mode",
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_service_mode ON public.riders USING btree (service_mode) WHERE (account_status = 'online'::rider_account_status_enum)"
+      },
+      {
+        "name": "idx_riders_location_updated",
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_location_updated ON public.riders USING btree (last_location_updated_at DESC)"
+      },
+      {
+        "name": "idx_riders_created_at",
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_created_at ON public.riders USING btree (created_at DESC)"
+      },
+      {
+        "name": "idx_riders_online_coords",
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_online_coords ON public.riders USING btree (current_lat, current_lng) WHERE (account_status = 'online'::rider_account_status_enum)"
+      },
+      {
+        "name": "users_pkey",
+        "table": "users",
+        "definition": "CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)"
+      },
+      {
+        "name": "users_phone_key",
+        "table": "users",
+        "definition": "CREATE UNIQUE INDEX users_phone_key ON public.users USING btree (phone)"
+      },
+      {
+        "name": "users_user_code_key",
+        "table": "users",
+        "definition": "CREATE UNIQUE INDEX users_user_code_key ON public.users USING btree (user_code)"
+      }
+    ],
+    "triggers": [
+      {
+        "name": "trg_rider_locations_near_destination_check",
+        "table": "rider_locations",
+        "definition": "CREATE TRIGGER trg_rider_locations_near_destination_check AFTER UPDATE OF current_lat, current_lng ON rider_locations FOR EACH ROW EXECUTE FUNCTION check_rider_near_destination_from_rider_locations()"
+      },
+      {
+        "name": "on_rider_status_change",
+        "table": "riders",
+        "definition": "CREATE TRIGGER on_rider_status_change AFTER UPDATE OF account_status ON riders FOR EACH ROW EXECUTE FUNCTION handle_rider_status_change()"
+      },
+      {
+        "name": "protect_rider_financial_columns_trigger",
+        "table": "riders",
+        "definition": "CREATE TRIGGER protect_rider_financial_columns_trigger BEFORE UPDATE ON riders FOR EACH ROW EXECUTE FUNCTION protect_rider_financial_columns()"
+      },
+      {
+        "name": "trg_riders_gps_bridge_to_rider_locations",
+        "table": "riders",
+        "definition": "CREATE TRIGGER trg_riders_gps_bridge_to_rider_locations AFTER UPDATE OF current_lat, current_lng ON riders FOR EACH ROW WHEN (old.current_lat IS DISTINCT FROM new.current_lat OR old.current_lng IS DISTINCT FROM new.current_lng OR old.current_heading IS DISTINCT FROM new.current_heading OR old.last_location_updated_at IS DISTINCT FROM new.last_location_updated_at OR old.last_active_at IS DISTINCT FROM new.last_active_at) EXECUTE FUNCTION sync_riders_gps_to_rider_locations()"
+      },
+      {
+        "name": "trigger_assign_nearby_orders",
+        "table": "riders",
+        "definition": "CREATE TRIGGER trigger_assign_nearby_orders AFTER UPDATE OF account_status ON riders FOR EACH ROW WHEN (new.account_status = 'online'::rider_account_status_enum AND old.account_status IS DISTINCT FROM 'online'::rider_account_status_enum) EXECUTE FUNCTION assign_nearby_searching_orders_to_rider()"
+      },
+      {
+        "name": "trigger_prevent_service_mode_switch_during_active_order",
+        "table": "riders",
+        "definition": "CREATE TRIGGER trigger_prevent_service_mode_switch_during_active_order BEFORE UPDATE OF service_mode ON riders FOR EACH ROW EXECUTE FUNCTION prevent_service_mode_switch_during_active_order()"
+      },
+      {
+        "name": "trigger_rider_wallet_balance_update",
+        "table": "riders",
+        "definition": "CREATE TRIGGER trigger_rider_wallet_balance_update AFTER UPDATE OF wallet_balance ON riders FOR EACH ROW EXECUTE FUNCTION on_rider_wallet_balance_update()"
+      }
+    ],
+    "function_hashes": [
+      {
+        "md5": "444701b2f06a4dc8f49be3ddd9cd564b",
+        "signature": "assign_nearby_searching_orders_core(uuid,uuid,double precision,double precision,partner_service_mode_enum)"
+      },
+      {
+        "md5": "219a25e17c65bd99d4290791e9fa5cd6",
+        "signature": "check_rider_near_destination_from_rider_locations()"
+      },
+      {
+        "md5": "3eb2e46c08b3d5af5a14ed1b39115aa7",
+        "signature": "find_nearby_riders(uuid,double precision,double precision,double precision,integer,uuid[])"
+      },
+      {
+        "md5": "9e41419b14ef5ab492aa76a0c475641c",
+        "signature": "on_rider_location_near_destination()"
+      },
+      {
+        "md5": "fed68d68ff41d65164ba29e055ceabdd",
+        "signature": "redispatch_freed_riders()"
+      },
+      {
+        "md5": "b486cd2e7650778ba2a41fe3eac5ea0a",
+        "signature": "redispatch_stalled_searching_orders()"
+      },
+      {
+        "md5": "ea981f395e41e606ca73a5e82df2ac18",
+        "signature": "sync_riders_gps_to_rider_locations()"
+      }
+    ]
+  },
+  "configPlan": {
+    "role": "authenticated",
+    "planningMs": 3.066,
+    "executionMs": 2.622,
+    "rows": 1,
+    "sharedHitBlocks": 1,
+    "sharedReadBlocks": 0,
+    "sharedWrittenBlocks": 0,
+    "jsonBytes": 744
+  },
+  "proximityEstimatedPlan": {
+    "dummyRider": true,
+    "executed": false,
+    "index": "idx_orders_order_status",
+    "estimatedTotalCost": 2.38
+  },
+  "health": {
+    "clientConnections": 4,
+    "maxConnections": 60,
+    "blockedSessions": 0,
+    "waitingLocks": 0,
+    "trackFunctions": "none",
+    "trackIoTiming": "off",
+    "cronLast100Runs": {
+      "allSucceeded": true,
+      "meanPerJobMsRange": [
+        5.22,
+        52.42
+      ]
+    },
+    "riders": {
+      "estimatedLive": 25,
+      "updates": 32274,
+      "hotUpdates": 2943
+    },
+    "riderLocations": {
+      "estimatedLive": 23,
+      "updates": 354,
+      "hotUpdates": 354
+    },
+    "orders": {
+      "estimatedLive": 1195,
+      "bytes": 2605056
+    },
+    "notifications": {
+      "estimatedLive": 5576
+    },
+    "wal": {
+      "bytes": 1252323176,
+      "records": 3322261,
+      "statsSince": "2026-05-01T02:47:45.546667+05:30",
+      "rateNotMeasured": true
+    },
+    "cpuAndMemory": "Not exposed by available read-only tools"
+  },
+  "sourceFreshness": {
+    "matchingAndGpsFunctionHashesMatchPreviousCatalog": true,
+    "push": {
+      "deployedVersion": 24,
+      "deployedMatchesLocal": true,
+      "sha256": "ca2171c1216b6e03c1bede1702e80957800fcccfd5d0af119e465d78f263d0d4"
+    }
+  },
+  "indexScans": {
+    "idx_riders_user_id": 143830,
+    "idx_riders_kyc_id": 145,
+    "riders_user_id_key": 7,
+    "riders_kyc_id_key": 0,
+    "idx_riders_location_updated": 14516,
+    "idx_riders_online_coords": 599,
+    "idx_riders_account_status_service_mode": 402,
+    "idx_orders_rider_id": 1705803,
+    "idx_notifications_user_id_is_read": 9955
+  },
+  "limitations": [
+    "SQL/API samples are different time windows, not a per-request subtraction experiment.",
+    "No current matching RPC in sampled API logs; historical mean cannot prove present latency.",
+    "No production matching, dispatch, payment, payout, GPS update or trigger benchmark was invoked.",
+    "KYC/payment/payout had no invocations in the sampled function-edge-log window.",
+    "One pg_stat_statements query was corrected for a PG17 column name; initial broad filtering included DDL and was replaced with application statement filtering."
+  ]
+}

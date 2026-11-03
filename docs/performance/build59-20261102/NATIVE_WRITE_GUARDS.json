@@ -1,0 +1,20 @@
+{
+  "engine": "PostgreSQL 17.11 on x86_64-windows, compiled by msvc-19.44.35229, 64-bit",
+  "host": "127.0.0.1",
+  "port": 54329,
+  "synthetic_only": true,
+  "groups": {
+    "already_read_no_trigger_or_timestamp_write": "pass",
+    "unread_effect_once": "pass",
+    "legacy_null_effect_once": "pass",
+    "other_owner_untouched": "pass",
+    "mode_correct_null_and_partial_repair": "pass",
+    "actual_lock_overlap_rechecks_predicate_one_winner": "pass"
+  },
+  "passed": 6,
+  "failed": 0,
+  "actual_concurrent_lock_overlap_observed": true,
+  "fixture_schema_removed": true,
+  "managed_supabase_integration": false,
+  "production_latency_or_wal_measurement": false
+}

@@ -1,0 +1,64 @@
+{
+  "production": {
+    "writes": 0,
+    "deployments": 0,
+    "paid_resources": 0,
+    "projects_created": 0,
+    "inspection": "Storage policy and photo-column metadata only"
+  },
+  "flutter_full": {
+    "passed": 2204,
+    "skipped_existing_live": 10,
+    "failed": 0,
+    "delta": "11 new cases: five immutable proof upload, six verification ownership"
+  },
+  "focused_flutter": {
+    "passed": 37,
+    "failed": 0
+  },
+  "analyzer_changed_six_files": {
+    "errors": 0,
+    "warnings": 0,
+    "existing_infos": 6,
+    "exit_code": 1
+  },
+  "deno": {
+    "helper_body_pricing_corridor": {
+      "passed": 71,
+      "failed": 0
+    },
+    "legacy_compatible_photo": {
+      "passed": 10,
+      "failed": 0
+    },
+    "v75_pricing_differential": {
+      "passed": 4,
+      "failed": 0
+    },
+    "atomic_photo_actual_handler_native_rpc": {
+      "passed": 6,
+      "failed": 0
+    },
+    "coordinated_dispatch_push_actual_handler_native_rpc": {
+      "passed": 15,
+      "failed": 0
+    }
+  },
+  "native_groups": {
+    "dispatch_push": 17,
+    "chat_policy_trigger": 14,
+    "photo_atomic": 9,
+    "final_failures": 0
+  },
+  "intermediate_failures": [
+    "one overlapping native/Edge fixture run discarded; clean sequential runs passed",
+    "one whitespace-sensitive source-contract assertion failed after formatter; whitespace-insensitive guard retained and final full run passed",
+    "atomic photo harness caught captured legacy timer number/Timeout type mismatch; candidate has type-only ReturnType annotation and passing typed tests"
+  ],
+  "production_release": {
+    "combined_sql": "NO-GO pending managed integration and writer drain",
+    "combined_edge": "NO-GO pending managed integration and writer drain",
+    "apk": "signed local Build60 test candidate; no install/publish/device timing"
+  },
+  "original_incident_initiating_cause": "unproven"
+}

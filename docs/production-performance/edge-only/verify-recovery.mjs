@@ -1,0 +1,11 @@
+import fs from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import {stripTypeScriptTypes} from 'node:module';
+import {createHash} from 'node:crypto';
+const here=new URL('./',import.meta.url), sha=s=>createHash('sha256').update(s).digest('hex');
+const original=await fs.readFile(new URL('../acceptance/recovery-v60/functions/accept-order/index.ts',here),'utf8');
+const fixed=await fs.readFile(new URL('recovery-compatible/functions/accept-order/index.ts',here),'utf8');
+assert.equal(sha(original),'521fd8533d8a6d0fde15ccf9ceb211a8c631e3822f82c7f324b9e629736c9dfc');
+assert.equal(fixed,original.replace('let finalAssignment = assignment;','let finalAssignment: Record<string, unknown> | null = assignment;'));
+const options={mode:'transform',sourceMap:false};assert.equal(stripTypeScriptTypes(original,options),stripTypeScriptTypes(fixed,options));
+console.log('PASS: captured v60 unchanged; reconstruction is type-only; erased JavaScript identical.');

@@ -25,7 +25,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:waydrop/features/local_parcels/services/parcel_upload_service.dart';
 import 'package:waydrop/features/local_parcels/booking/screens/parcel_booking_screen.dart';
 import 'package:waydrop/features/local_parcels/booking/screens/parcel_location_screen.dart';
-import 'package:waydrop/modules/payments/controllers/pricing_controller.dart';
 
 class ParcelDetailsScreen extends StatefulWidget {
   final String orderType; // 'local_parcel' or 'intercity_parcel'
@@ -83,13 +82,11 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
   double _selectedWeight = 5.0; // Default: 5.0 kg
   bool _declaredNoHarmfulItems = false;
 
-  PricingController? _pricingController;
-  double _estimatedFare = 0.0;
-  bool _loadingFare = false;
 
   final List<File> _selectedImages = [];
   final ImagePicker _picker = ImagePicker();
   bool _imageUploading = false;
+  bool _imageUploadUnconfirmed = false;
   List<String> _uploadedUrls = [];
   List<Map<String, String>> _recentContacts = [];
 
@@ -154,50 +151,6 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
     }
 
     _fetchRecentContacts();
-    if (_pickupAddress != null) {
-      _fetchPricingLive();
-    }
-  }
-
-  Future<void> _fetchPricingLive() async {
-    if (_pickupAddress == null || _pickupLat == null || _pickupLng == null) return;
-    setState(() {
-      _loadingFare = true;
-    });
-    try {
-      _pricingController ??= PricingController();
-      final double distanceKm = (_totalDistanceMeters ?? 0.0) / 1000;
-      await _pricingController!.fetchMultiplePricing(
-        orderType: widget.orderType,
-        distanceKm: distanceKm,
-        pickupAddress: _pickupAddress!,
-        maxBoostAmount: 0.0,
-        weightCategory: _selectedWeight.round().toString(),
-        pickupLat: _pickupLat,
-        pickupLng: _pickupLng,
-      );
-      if (mounted) {
-        setState(() {
-          final pricingData = _pricingController!.pricingData;
-          final defaultVehicle = _selectedWeight >= 10.0 ? 'auto' : 'bike';
-          if (pricingData.containsKey(defaultVehicle)) {
-            _estimatedFare = double.tryParse(pricingData[defaultVehicle]?['final_fare']?.toString() ?? '') ?? 0.0;
-          } else if (pricingData.isNotEmpty) {
-            _estimatedFare = double.tryParse(pricingData.values.first['final_fare']?.toString() ?? '') ?? 0.0;
-          } else {
-            _estimatedFare = 0.0;
-          }
-        });
-      }
-    } catch (e) {
-      debugPrint('LIVE FARE FETCH ERROR => $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _loadingFare = false;
-        });
-      }
-    }
   }
 
   Future<void> _fetchRecentContacts() async {
@@ -247,30 +200,31 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
   ];
 
   Future<void> _uploadSelectedImages(List<File> files) async {
-    setState(() {
-      _imageUploading = true;
-    });
+    if (!mounted || _imageUploading) return;
+    setState(() { _imageUploading = true; });
     try {
-      final urls = await ParcelUploadService.uploadImages(files);
-      if (urls.isNotEmpty) {
-        setState(() {
-          _uploadedUrls.addAll(urls);
-        });
-      }
-    } catch (e) {
-      debugPrint('UPLOAD ERROR => $e');
-      _showSnackBar('Failed to upload package photo: $e. Please try again.');
+      // Reconcile the complete selection; previously completed items are read,
+      // not re-uploaded. Failed batches must not lose their successful objects.
+      final urls = await ParcelUploadService.uploadImages(List<File>.of(_selectedImages));
+      if (!mounted) return;
       setState(() {
-        _selectedImages.removeWhere((file) => files.contains(file));
+        _uploadedUrls = urls;
+        _imageUploadUnconfirmed = false;
       });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _uploadedUrls = [];
+        _imageUploadUnconfirmed = true;
+      });
+      _showSnackBar('Photo upload could not be confirmed. Your photos are kept. Tap Check / retry photos.');
     } finally {
-      setState(() {
-        _imageUploading = false;
-      });
+      if (mounted) setState(() { _imageUploading = false; });
     }
   }
 
   Future<void> _pickFromCamera() async {
+    if (_imageUploading) return;
     if (_selectedImages.length >= 5) {
       _showSnackBar('You can attach a maximum of 5 photos.');
       return;
@@ -282,6 +236,7 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
         maxWidth: 1024,
         maxHeight: 1024,
       );
+      if (!mounted) return;
       if (image != null) {
         final file = File(image.path);
         setState(() {
@@ -295,6 +250,7 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
   }
 
   Future<void> _pickFromGallery() async {
+    if (_imageUploading) return;
     if (_selectedImages.length >= 5) {
       _showSnackBar('You can attach a maximum of 5 photos.');
       return;
@@ -305,6 +261,7 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
         maxWidth: 1024,
         maxHeight: 1024,
       );
+      if (!mounted) return;
       if (images.isNotEmpty) {
         final List<File> files = [];
         for (var image in images) {
@@ -327,8 +284,10 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
   }
 
   void _removeSelectedImage(int index) {
+    if (_imageUploading) return;
     setState(() {
       _selectedImages.removeAt(index);
+      if (_selectedImages.isEmpty) _imageUploadUnconfirmed = false;
       if (_uploadedUrls.length > index) {
         _uploadedUrls.removeAt(index);
       }
@@ -506,7 +465,6 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
         _durationSeconds = result['durationSeconds'];
         _routePoints = List<Map<String, dynamic>>.from(result['routePoints']);
       });
-      _fetchPricingLive();
     }
   }
 
@@ -533,8 +491,8 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
       return;
     }
 
-    if (_uploadedUrls.isEmpty) {
-      _showSnackBar('Photo upload in progress or failed. Please re-attach.');
+    if (_imageUploadUnconfirmed || _uploadedUrls.length != _selectedImages.length) {
+      _showSnackBar('Tap Check / retry photos to confirm every selected photo.');
       return;
     }
 
@@ -678,7 +636,6 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
     _nameController.dispose();
     _phoneController.dispose();
     _instructionsController.dispose();
-    _pricingController?.dispose();
     super.dispose();
   }
 
@@ -1180,6 +1137,12 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
                                 ),
                             ],
                           ),
+                          if (_imageUploadUnconfirmed && !_imageUploading)
+                            TextButton.icon(
+                              onPressed: () => _uploadSelectedImages(List<File>.of(_selectedImages)),
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Check / retry photos'),
+                            ),
                           if (_imageUploading) ...[
                             const SizedBox(height: 8),
                             Row(

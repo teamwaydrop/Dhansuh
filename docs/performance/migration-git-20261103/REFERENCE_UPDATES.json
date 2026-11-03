@@ -1,0 +1,28 @@
+{
+  "mapping": {
+    "supabase/migrations/20260731000000_delete_account_archive_and_anonymization.sql": "docs/migration-review/superseded-local-history/20260731000000_delete_account_archive_and_anonymization.sql",
+    "supabase/migrations/20260731000001_fix_deletion_retention_cascades.sql": "docs/migration-review/superseded-local-history/20260731000001_fix_deletion_retention_cascades.sql",
+    "supabase/migrations/20260731000002_fix_compliance_views_rls_bypass.sql": "docs/migration-review/superseded-local-history/20260731000002_fix_compliance_views_rls_bypass.sql",
+    "supabase/migrations/20260731000003_prevent_duplicate_rider_kyc_rows.sql": "docs/migration-review/superseded-local-history/20260731000003_prevent_duplicate_rider_kyc_rows.sql",
+    "supabase/migrations/20260801000000_kyc_upload_storage_policies_and_cleanup.sql": "docs/migration-review/superseded-local-history/20260801000000_kyc_upload_storage_policies_and_cleanup.sql",
+    "supabase/migrations/20260801000001_add_order_chat_messages_index.sql": "docs/migration-review/superseded-local-history/20260801000001_add_order_chat_messages_index.sql",
+    "supabase/migrations/20260907000000_phase10d_add_unindexed_fk_indexes.sql": "supabase/migrations/20260907205806_20260907000000_phase10d_add_unindexed_fk_indexes.sql",
+    "supabase/migrations/20260907000001_phase10d_rls_initplan_wrap_auth_calls.sql": "supabase/migrations/20260907210055_20260907000001_phase10d_rls_initplan_wrap_auth_calls.sql",
+    "supabase/migrations/20260908000000_redispatch_cron_advisory_locks.sql": "docs/migration-review/retired-timestamp-aliases/20260908000000_redispatch_cron_advisory_locks.sql",
+    "supabase/migrations/20261026000000_remove_legacy_find_nearby_riders_overload.sql": "docs/migration-review/not-applied/20261026000000_remove_legacy_find_nearby_riders_overload.sql",
+    "supabase/migrations/20261102044001_waydrop_dispatch_fencing_and_delivery_outbox.sql": "docs/migration-review/not-applied/20261102044001_waydrop_dispatch_fencing_and_delivery_outbox.sql"
+  },
+  "updated_files": [
+    "test/find_nearby_riders_overload_regression_test.dart",
+    "test/local_dispatch_latency_regression_test.dart",
+    "test/local_order_delivery_regression_test.dart",
+    "test/local_ride_driver_distance_regression_test.dart",
+    "test/redispatch_cron_advisory_lock_regression_test.dart",
+    "test/rider_kyc_submission_reliability_regression_test.dart",
+    "docs/performance/build-report.mjs",
+    "docs/performance/WAYDROP_BLOCKER_RESOLUTION_REPORT.md",
+    "docs/performance/WAYDROP_PERFORMANCE_FIX_REPORT.md",
+    "docs/performance/WAYDROP_PRODUCTION_DEPLOYMENT_CHECKLIST.md",
+    "docs/performance/blocker-resolution/native_test.py"
+  ]
+}

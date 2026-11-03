@@ -1,0 +1,310 @@
+
+> test
+> node --experimental-strip-types --test *.test.mjs
+
+TAP version 13
+# (node:5728) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:5728) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/karth/Desktop/appclad/supabase/functions/_shared/production_config_cache.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\karth\\package.json.
+# Subtest: actual pricing helper recognizes every existing per-km alias in precedence order
+ok 1 - actual pricing helper recognizes every existing per-km alias in precedence order
+  ---
+  duration_ms: 2.8059
+  ...
+# Subtest: actual fare engine preserves minimum, slab and weight charges
+ok 2 - actual fare engine preserves minimum, slab and weight charges
+  ---
+  duration_ms: 2.618
+  ...
+# Subtest: actual response builder preserves rounded payable total and unrounded commission calculation
+ok 3 - actual response builder preserves rounded payable total and unrounded commission calculation
+  ---
+  duration_ms: 10.8048
+  ...
+# Subtest: actual phone helper normalizes country prefix and never invents a real customer number
+ok 4 - actual phone helper normalizes country prefix and never invents a real customer number
+  ---
+  duration_ms: 7.0886
+  ...
+# Subtest: execute the shipped create-order flag gate for all service types without any order writes
+ok 5 - execute the shipped create-order flag gate for all service types without any order writes
+  ---
+  duration_ms: 10.091
+  ...
+# Subtest: SQL authorization proposals against isolated PostgreSQL
+    # Subtest: baseline: own profile INSERT could assign admin
+    ok 1 - baseline: own profile INSERT could assign admin
+      ---
+      duration_ms: 17.2393
+      ...
+    # Subtest: baseline: private view was readable by anon
+    ok 2 - baseline: private view was readable by anon
+      ---
+      duration_ms: 6.9639
+      ...
+    # Subtest: baseline: own KYC decisions were mutable
+    ok 3 - baseline: own KYC decisions were mutable
+      ---
+      duration_ms: 9.6682
+      ...
+    # Subtest: baseline: client could insert active payout status
+    ok 4 - baseline: client could insert active payout status
+      ---
+      duration_ms: 5.4308
+      ...
+    # Subtest: baseline: promo caller could query another account audience
+    ok 5 - baseline: promo caller could query another account audience
+      ---
+      duration_ms: 15.2088
+      ...
+    # Subtest: proposal remains rollback-by-default
+    ok 6 - proposal remains rollback-by-default
+      ---
+      duration_ms: 25.9255
+      ...
+    # Subtest: deny profile INSERT role='admin'
+    ok 7 - deny profile INSERT role='admin'
+      ---
+      duration_ms: 9.5598
+      ...
+    # Subtest: deny profile INSERT role='support'
+    ok 8 - deny profile INSERT role='support'
+      ---
+      duration_ms: 6.1935
+      ...
+    # Subtest: deny profile INSERT is_developer=true
+    ok 9 - deny profile INSERT is_developer=true
+      ---
+      duration_ms: 10.1498
+      ...
+    # Subtest: deny profile INSERT is_suspended=true
+    ok 10 - deny profile INSERT is_suspended=true
+      ---
+      duration_ms: 8.7699
+      ...
+    # Subtest: allow ordinary own profile creation and editing
+    ok 11 - allow ordinary own profile creation and editing
+      ---
+      duration_ms: 24.876
+      ...
+    # Subtest: deny profile UPDATE role
+    ok 12 - deny profile UPDATE role
+      ---
+      duration_ms: 17.4321
+      ...
+    # Subtest: deny profile UPDATE is_developer
+    ok 13 - deny profile UPDATE is_developer
+      ---
+      duration_ms: 13.9945
+      ...
+    # Subtest: deny profile UPDATE is_suspended
+    ok 14 - deny profile UPDATE is_suspended
+      ---
+      duration_ms: 7.272
+      ...
+    # Subtest: deny profile ownership reassignment via inherited UPDATE WITH CHECK
+    ok 15 - deny profile ownership reassignment via inherited UPDATE WITH CHECK
+      ---
+      duration_ms: 15.9823
+      ...
+    # Subtest: cross-account profile read/write affects no rows
+    ok 16 - cross-account profile read/write affects no rows
+      ---
+      duration_ms: 17.4093
+      ...
+    # Subtest: deny owner KYC decision UPDATE kyc_status='approved'
+    ok 17 - deny owner KYC decision UPDATE kyc_status='approved'
+      ---
+      duration_ms: 13.5048
+      ...
+    # Subtest: deny owner KYC decision UPDATE activation_status='active'
+    ok 18 - deny owner KYC decision UPDATE activation_status='active'
+      ---
+      duration_ms: 3.3758
+      ...
+    # Subtest: deny owner KYC decision UPDATE blocked_until=now()
+    ok 19 - deny owner KYC decision UPDATE blocked_until=now()
+      ---
+      duration_ms: 2.9295
+      ...
+    # Subtest: deny owner KYC decision UPDATE rejection_reason='client decision'
+    ok 20 - deny owner KYC decision UPDATE rejection_reason='client decision'
+      ---
+      duration_ms: 3.0023
+      ...
+    # Subtest: deny forged approved KYC INSERT
+    ok 21 - deny forged approved KYC INSERT
+      ---
+      duration_ms: 1.9756
+      ...
+    # Subtest: allow pending KYC INSERT and ordinary document/profile edits
+    ok 22 - allow pending KYC INSERT and ordinary document/profile edits
+      ---
+      duration_ms: 3.9613
+      ...
+    # Subtest: deny explicit null kyc_status on KYC INSERT
+    ok 23 - deny explicit null kyc_status on KYC INSERT
+      ---
+      duration_ms: 1.7645
+      ...
+    # Subtest: deny explicit null activation_status on KYC INSERT
+    ok 24 - deny explicit null activation_status on KYC INSERT
+      ---
+      duration_ms: 1.5411
+      ...
+    # Subtest: authorized existing staff KYC review remains possible
+    ok 25 - authorized existing staff KYC review remains possible
+      ---
+      duration_ms: 4.6057
+      ...
+    # Subtest: suspended staff cannot use the KYC decision exception
+    ok 26 - suspended staff cannot use the KYC decision exception
+      ---
+      duration_ms: 3.7633
+      ...
+    # Subtest: cross-account KYC write affects no rows
+    ok 27 - cross-account KYC write affects no rows
+      ---
+      duration_ms: 1.9561
+      ...
+    # Subtest: deny fabricated active payout INSERT
+    ok 28 - deny fabricated active payout INSERT
+      ---
+      duration_ms: 2.3421
+      ...
+    # Subtest: allow pending payout setup
+    ok 29 - allow pending payout setup
+      ---
+      duration_ms: 5.178
+      ...
+    # Subtest: deny anon SELECT parcel_compliance_view
+    ok 30 - deny anon SELECT parcel_compliance_view
+      ---
+      duration_ms: 2.3689
+      ...
+    # Subtest: deny authenticated SELECT parcel_compliance_view
+    ok 31 - deny authenticated SELECT parcel_compliance_view
+      ---
+      duration_ms: 1.5174
+      ...
+    # Subtest: allow service-role SELECT parcel_compliance_view
+    ok 32 - allow service-role SELECT parcel_compliance_view
+      ---
+      duration_ms: 2.218
+      ...
+    # Subtest: deny anon SELECT parcel_security_timeline_view
+    ok 33 - deny anon SELECT parcel_security_timeline_view
+      ---
+      duration_ms: 2.1955
+      ...
+    # Subtest: deny authenticated SELECT parcel_security_timeline_view
+    ok 34 - deny authenticated SELECT parcel_security_timeline_view
+      ---
+      duration_ms: 1.5356
+      ...
+    # Subtest: allow service-role SELECT parcel_security_timeline_view
+    ok 35 - allow service-role SELECT parcel_security_timeline_view
+      ---
+      duration_ms: 5.8617
+      ...
+    # Subtest: ACL: expire_stale_searching_orders() is server-only
+    ok 36 - ACL: expire_stale_searching_orders() is server-only
+      ---
+      duration_ms: 1.9251
+      ...
+    # Subtest: ACL: redispatch_stalled_searching_orders() is server-only
+    ok 37 - ACL: redispatch_stalled_searching_orders() is server-only
+      ---
+      duration_ms: 2.5291
+      ...
+    # Subtest: ACL: expire_stale_active_orders() is server-only
+    ok 38 - ACL: expire_stale_active_orders() is server-only
+      ---
+      duration_ms: 2.5039
+      ...
+    # Subtest: ACL: expire_stale_intercity_requests() is server-only
+    ok 39 - ACL: expire_stale_intercity_requests() is server-only
+      ---
+      duration_ms: 1.8369
+      ...
+    # Subtest: ACL: redispatch_freed_riders() is server-only
+    ok 40 - ACL: redispatch_freed_riders() is server-only
+      ---
+      duration_ms: 1.3771
+      ...
+    # Subtest: ACL: assign_new_order_to_nearby_online_riders_core(uuid) is server-only
+    ok 41 - ACL: assign_new_order_to_nearby_online_riders_core(uuid) is server-only
+      ---
+      duration_ms: 0.7966
+      ...
+    # Subtest: ACL: send_order_status_notifications_core(uuid,text,text,text,integer,text,text,uuid,uuid,text,text) is server-only
+    ok 42 - ACL: send_order_status_notifications_core(uuid,text,text,text,integer,text,text,uuid,uuid,text,text) is server-only
+      ---
+      duration_ms: 1.5591
+      ...
+    # Subtest: anon invocation of internal RPC is denied before its body runs
+    ok 43 - anon invocation of internal RPC is denied before its body runs
+      ---
+      duration_ms: 3.942
+      ...
+    # Subtest: server invocation of internal RPC remains allowed (ACL fixture body only)
+    ok 44 - server invocation of internal RPC remains allowed (ACL fixture body only)
+      ---
+      duration_ms: 3.9958
+      ...
+    # Subtest: promo same-user positive calculation preserves 10 percent discount
+    ok 45 - promo same-user positive calculation preserves 10 percent discount
+      ---
+      duration_ms: 5.7559
+      ...
+    # Subtest: promo another-user identity is denied
+    ok 46 - promo another-user identity is denied
+      ---
+      duration_ms: 2.0678
+      ...
+    # Subtest: promo missing identity is denied
+    ok 47 - promo missing identity is denied
+      ---
+      duration_ms: 2.7311
+      ...
+    # Subtest: promo null target identity is denied
+    ok 48 - promo null target identity is denied
+      ---
+      duration_ms: 2.2647
+      ...
+    # Subtest: promo anon EXECUTE is denied
+    ok 49 - promo anon EXECUTE is denied
+      ---
+      duration_ms: 3.4515
+      ...
+    # Subtest: server promo pricing can evaluate the actual order owner
+    ok 50 - server promo pricing can evaluate the actual order owner
+      ---
+      duration_ms: 4.5075
+      ...
+    # Subtest: service role can assign roles, approve KYC and activate provider-confirmed payout
+    ok 51 - service role can assign roles, approve KYC and activate provider-confirmed payout
+      ---
+      duration_ms: 6.0192
+      ...
+    # Subtest: all seven changed definer paths are pinned
+    ok 52 - all seven changed definer paths are pinned
+      ---
+      duration_ms: 3.381
+      ...
+    1..52
+ok 6 - SQL authorization proposals against isolated PostgreSQL
+  ---
+  duration_ms: 2536.0096
+  ...
+1..6
+# tests 58
+# suites 0
+# pass 58
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4076.9403

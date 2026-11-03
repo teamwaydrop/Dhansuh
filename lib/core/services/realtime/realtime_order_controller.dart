@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/models/transport_order.dart';
 import 'package:waydrop/core/services/realtime/realtime_manager.dart';
@@ -8,9 +8,21 @@ import 'package:waydrop/core/services/network/poll_backoff.dart';
 
 /// Clean state controller to isolate real-time database feeds (orders and riders)
 /// from the UI layer. Exposes updates via ValueNotifier.
-class RealtimeOrderController {
+class RealtimeOrderController with WidgetsBindingObserver {
   final String orderId;
-  final supabase = Supabase.instance.client;
+  final SupabaseClient supabase;
+  final RealtimeManager _realtime;
+  final DateTime Function() _now;
+  Future<void>? _startFuture;
+  final Map<String, Future<void>> _riderFetches = {};
+  final Set<String> _riderRefreshQueued = {};
+  Future<void>? _userNameFetch;
+  String? _userNameUserId;
+  bool _userNameLoaded = false;
+  int _orderRevision = 0;
+  Future<void>? _orderRequest;
+  bool _orderReadQueued = false;
+  bool _appResumed = true;
 
   final ValueNotifier<TransportOrder?> orderNotifier = ValueNotifier<TransportOrder?>(null);
   final ValueNotifier<Map<String, double>?> riderLocationNotifier = ValueNotifier<Map<String, double>?>(null);
@@ -20,12 +32,6 @@ class RealtimeOrderController {
 
   String? _orderSubId;
   String? _riderSubId;
-  // PHASE A (A3): the rider's live GPS now streams from the lean public.rider_locations
-  // table (REPLICA IDENTITY DEFAULT, 1 index) instead of the fat public.riders row
-  // (REPLICA IDENTITY FULL, 33 cols, 13 indexes). The _riderSubId channel above is kept
-  // ONLY for mid-ride rider profile changes (rating / rider_kyc_id); its callback no
-  // longer reads coordinates. See _subscribeRider below.
-  String? _riderLocationSubId;
   String? _currentRiderId;
   Timer? _pollingTimer;
   DateTime? _lastRealtimeDeliveryAt;
@@ -44,6 +50,7 @@ class RealtimeOrderController {
   // problem in rider_orders_screen.dart's fetchSearchingOrders().
   bool _refreshInFlight = false;
   bool _refreshQueued = false;
+  bool _queuedOrderFetch = false;
 
   // Egress fix: fetchOrder()/fetchLiveOrderState() both swallow their own errors
   // internally (existing try/catch/debugPrint pattern, never rethrows), so failure is
@@ -52,10 +59,21 @@ class RealtimeOrderController {
   // _refreshOrderAndLiveState() -- see the polling timer below.
   final PollBackoff _pollBackoff = PollBackoff();
 
-  RealtimeOrderController({required this.orderId});
+  RealtimeOrderController({required this.orderId, SupabaseClient? client, RealtimeManager? realtime, DateTime Function()? now})
+      : supabase = client ?? Supabase.instance.client,
+        _realtime = realtime ?? RealtimeManager.instance,
+        _now = now ?? DateTime.now;
 
   /// Starts the state merging and real-time subscription lifecycle
-  Future<void> start() async {
+  Future<void> start() {
+    if (_isDisposed) return Future<void>.value();
+    return _startFuture ??= _start();
+  }
+
+  Future<void> _start() async {
+    WidgetsBinding.instance.addObserver(this);
+    _appResumed = WidgetsBinding.instance.lifecycleState == null ||
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
     await fetchOrder();
     if (_isDisposed) return;
     // Fetch live state in background asynchronously to prevent screen loading delays. Skipped for
@@ -63,11 +81,11 @@ class RealtimeOrderController {
     // _refreshOrderAndLiveState below) -- there is no live rider ETA to show for a finished ride.
     final loadedOrder = orderNotifier.value;
     if (loadedOrder == null || !(loadedOrder.isCompleted || loadedOrder.isCancelled)) {
-      fetchLiveOrderState();
+      unawaited(_refreshOrderAndLiveState(includeOrderFetch: false));
     }
     // The two fetches above already cover the initial poll -- mark it done so the timer below
     // waits its own full interval before firing again, instead of re-fetching immediately.
-    _lastPollFetchAt = DateTime.now();
+    _lastPollFetchAt = _now();
     _subscribeOrder();
 
     // Polling timer: queries live order status and details as a safety backup
@@ -80,18 +98,20 @@ class RealtimeOrderController {
         return;
       }
 
+      if (!_appResumed) return;
+
       // Realtime-health gate: while the WebSocket has delivered an update
       // recently, the poll is a pure duplicate -- skip it entirely (zero
       // polling while realtime is healthy). It stays as the safety fallback
       // the moment realtime goes stale (WS drop/backoff).
       final lastDelivery = _lastRealtimeDeliveryAt;
       if (lastDelivery != null &&
-          DateTime.now().difference(lastDelivery) <
+          _now().difference(lastDelivery) <
               const Duration(seconds: 15)) {
         return;
       }
 
-      final now = DateTime.now();
+      final now = _now();
       final interval = _refreshInterval(
         staleness: lastDelivery == null ? Duration.zero : now.difference(lastDelivery),
         status: orderNotifier.value?.orderStatus,
@@ -109,7 +129,7 @@ class RealtimeOrderController {
       debugPrint(
         '[TRACE_CANCEL] RealtimeOrderController pollingTimer tick=${timer.tick} '
         'order=$orderId (fallback fetch, realtime may be stale, interval=${interval.inSeconds}s) '
-        'epoch=${DateTime.now().millisecondsSinceEpoch}',
+        'epoch=${_now().millisecondsSinceEpoch}',
       );
       await _refreshOrderAndLiveState();
     });
@@ -154,8 +174,8 @@ class RealtimeOrderController {
   /// single queued follow-up instead of running a second concurrent fetch (Performance Roadmap
   /// Task 3) -- both callers share this SAME guard, so a realtime-triggered fetchLiveOrderState()
   /// and a timer-triggered full pair can never run concurrently against each other either. A queued
-  /// follow-up always re-runs the full pair (the safer default) regardless of what the coalesced
-  /// trigger actually needed.
+  /// follow-up reads orders only if at least one queued caller needed that read; payload-only
+  /// realtime events retain their live-enrichment-only refresh.
   Future<void> _refreshOrderAndLiveState({bool includeOrderFetch = true}) async {
     if (_isDisposed) return;
     // WayDrop Ola egress reduction (2026-08-22): once the order has reached a terminal state,
@@ -171,6 +191,7 @@ class RealtimeOrderController {
     }
     if (_refreshInFlight) {
       _refreshQueued = true;
+      _queuedOrderFetch = _queuedOrderFetch || includeOrderFetch;
       return;
     }
     _refreshInFlight = true;
@@ -182,8 +203,10 @@ class RealtimeOrderController {
       _refreshInFlight = false;
       if (_refreshQueued) {
         _refreshQueued = false;
+        final includeQueuedOrder = _queuedOrderFetch;
+        _queuedOrderFetch = false;
         if (!_isDisposed) {
-          unawaited(_refreshOrderAndLiveState());
+          unawaited(_refreshOrderAndLiveState(includeOrderFetch: includeQueuedOrder));
         }
       }
     }
@@ -200,7 +223,7 @@ class RealtimeOrderController {
     debugPrint(
       '[TRACE_CANCEL] RealtimeOrderController._applyOrderData order=$orderId '
       'status=${transportOrder.orderStatus} isCancelled=${transportOrder.isCancelled} '
-      'isCompleted=${transportOrder.isCompleted} epoch=${DateTime.now().millisecondsSinceEpoch}',
+      'isCompleted=${transportOrder.isCompleted} epoch=${_now().millisecondsSinceEpoch}',
     );
     orderNotifier.value = transportOrder;
 
@@ -226,6 +249,28 @@ class RealtimeOrderController {
   // every realtime UPDATE this same order later receives already ships the complete row
   // regardless of what this one-time initial fetch selects.
   Future<void> fetchOrder() async {
+    if (_isDisposed) return;
+    _orderReadQueued = true;
+    final existing = _orderRequest;
+    if (existing != null) return existing;
+    final request = _drainOrderReads();
+    _orderRequest = request;
+    try {
+      await request;
+    } finally {
+      if (identical(_orderRequest, request)) _orderRequest = null;
+    }
+  }
+
+  Future<void> _drainOrderReads() async {
+    do {
+      _orderReadQueued = false;
+      await _queryOrder();
+    } while (_orderReadQueued && !_isDisposed);
+  }
+
+  Future<void> _queryOrder() async {
+    final revision = _orderRevision;
     try {
       final response = await supabase
           .from('orders')
@@ -233,7 +278,7 @@ class RealtimeOrderController {
           .eq('id', orderId)
           .maybeSingle();
 
-      if (_isDisposed) return;
+      if (_isDisposed || revision != _orderRevision) return;
       if (response == null) {
         orderNotifier.value = null;
         _pollBackoff.recordSuccess();
@@ -249,7 +294,23 @@ class RealtimeOrderController {
     }
   }
 
-  Future<void> _fetchUserName(String userId) async {
+  Future<void> _fetchUserName(String userId) {
+    if (_userNameUserId == userId) {
+      if (_userNameLoaded) return Future<void>.value();
+      final existing = _userNameFetch;
+      if (existing != null) return existing;
+    }
+    _userNameUserId = userId;
+    _userNameLoaded = false;
+    late final Future<void> request;
+    request = _queryUserName(userId).whenComplete(() {
+      if (identical(_userNameFetch, request)) _userNameFetch = null;
+    });
+    _userNameFetch = request;
+    return request;
+  }
+
+  Future<void> _queryUserName(String userId) async {
     try {
       final res = await supabase
           .from('users')
@@ -257,6 +318,8 @@ class RealtimeOrderController {
           .eq('id', userId)
           .single();
       if (_isDisposed) return;
+      if (_userNameUserId != userId) return;
+      _userNameLoaded = true;
       userNameNotifier.value = res['full_name']?.toString() ?? '';
     } catch (e) {
       debugPrint('Error fetching user name in RealtimeOrderController: $e');
@@ -323,7 +386,7 @@ class RealtimeOrderController {
               final lng = double.tryParse(location['longitude']?.toString() ?? '');
               final heading = double.tryParse(location['heading']?.toString() ?? '') ?? 0.0;
               if (lat != null && lng != null && !_isDisposed) {
-                riderLocationNotifier.value = {'lat': lat, 'lng': lng, 'heading': heading};
+                _setRiderLocation(lat, lng, heading);
               }
             }
           }
@@ -339,13 +402,35 @@ class RealtimeOrderController {
   }
 
   /// Fetches rider's profile and initial position — joins riders + rider_kyc + users
-  Future<void> _fetchRider(String riderId) async {
+  Future<void> _fetchRider(String riderId, {bool refresh = false}) {
+    final existing = _riderFetches[riderId];
+    if (existing != null) {
+      if (refresh) _riderRefreshQueued.add(riderId);
+      return existing;
+    }
+    final request = () async {
+      try {
+        do {
+          _riderRefreshQueued.remove(riderId);
+          await _queryRider(riderId);
+        } while (_riderRefreshQueued.contains(riderId) && !_isDisposed && _currentRiderId == riderId);
+      } finally {
+        _riderFetches.remove(riderId);
+        _riderRefreshQueued.remove(riderId);
+      }
+    }();
+    _riderFetches[riderId] = request;
+    return request;
+  }
+
+  Future<void> _queryRider(String riderId) async {
     try {
       final response = await supabase
           .from('riders')
           .select('''
             id,
             user_id,
+            kyc_id,
             rating,
             total_orders,
             total_completed_orders,
@@ -388,6 +473,8 @@ class RealtimeOrderController {
       } catch (e) {
         debugPrint('Error fetching rider reliability view in controller: $e');
       }
+
+      if (_isDisposed || (_currentRiderId != null && _currentRiderId != riderId)) return;
 
       // Flatten nested joins into the top-level map so the UI
       // can use simple keys: 'name', 'vehicle_number', 'rating', 'phone' etc.
@@ -456,35 +543,9 @@ class RealtimeOrderController {
       flat.remove('users');
 
       flat['id'] = riderId;
-
-      // PHASE A (A3): live GPS — PRIMARY public.rider_locations, FALLBACK the
-      // riders.current_* values already selected above. One isolated point read
-      // (rider_id = PK); if the row is missing / has no usable coordinates / the
-      // query fails, `flat` keeps the riders.* values it already holds — i.e.
-      // exactly the pre-A3 behaviour. RLS on rider_locations allows this read
-      // while the passenger has an active order assigned to this rider.
-      try {
-        final riderLocationRow = await supabase
-            .from('rider_locations')
-            .select('current_lat, current_lng, current_heading')
-            .eq('rider_id', riderId)
-            .maybeSingle();
-        if (!_isDisposed &&
-            riderLocationRow != null &&
-            riderLocationRow['current_lat'] != null &&
-            riderLocationRow['current_lng'] != null) {
-          flat['current_lat'] = riderLocationRow['current_lat'];
-          flat['current_lng'] = riderLocationRow['current_lng'];
-          flat['current_heading'] = riderLocationRow['current_heading'];
-        }
-      } catch (e) {
-        if (!_isDisposed) {
-          debugPrint('REALTIME RIDER LOCATION (rider_locations) FETCH ERROR => $e');
-        }
-      }
-
       if (_isDisposed) return;
-      // Database profile is the absolute source of truth. Always set it.
+      // A reassigned rider must not be replaced by an old in-flight lookup.
+      if (_currentRiderId != null && _currentRiderId != riderId) return;
       riderNotifier.value = flat;
       _updateRiderLocation(flat);
     } catch (e) {
@@ -501,17 +562,20 @@ class RealtimeOrderController {
     final lng = double.tryParse(riderData['current_lng']?.toString() ?? '');
     final heading = double.tryParse(riderData['current_heading']?.toString() ?? '') ?? 0.0;
     if (lat != null && lng != null) {
-      riderLocationNotifier.value = {
-        'lat': lat,
-        'lng': lng,
-        'heading': heading,
-      };
+      _setRiderLocation(lat, lng, heading);
     }
+  }
+
+  void _setRiderLocation(double lat, double lng, double heading) {
+    if (_isDisposed) return;
+    final previous = riderLocationNotifier.value;
+    if (previous?['lat'] == lat && previous?['lng'] == lng && previous?['heading'] == heading) return;
+    riderLocationNotifier.value = {'lat': lat, 'lng': lng, 'heading': heading};
   }
 
   /// Registers order database listeners
   void _subscribeOrder() {
-    _orderSubId = RealtimeManager.instance.subscribe(
+    _orderSubId = _realtime.subscribe(
       channelName: 'realtime-order-$orderId',
       table: 'orders',
       owner: 'RealtimeOrderController',
@@ -520,46 +584,32 @@ class RealtimeOrderController {
       filterValue: orderId,
       callback: (payload) async {
         if (_isDisposed) return;
-        _lastRealtimeDeliveryAt = DateTime.now();
+        _lastRealtimeDeliveryAt = _now();
         debugPrint(
           '[TRACE_CANCEL] RealtimeOrderController._subscribeOrder postgres_changes fired '
           'order=$orderId newStatus=${payload.newRecord['order_status']} '
-          'epoch=${DateTime.now().millisecondsSinceEpoch}',
+          'epoch=${_now().millisecondsSinceEpoch}',
         );
         // P2 fix: payload.newRecord IS the fresh order row -- apply it directly instead of
         // re-fetching the identical data via fetchOrder(). This happens synchronously (no network
         // wait), so order-status changes are reflected immediately regardless of the coalescing
         // below. Only fetchLiveOrderState() (rider/ETA/signed-URL enrichment) still needs a network
         // round trip here.
+        ++_orderRevision;
         _applyOrderData(payload.newRecord);
+        if (!_appResumed) return;
         await _refreshOrderAndLiveState(includeOrderFetch: false);
       },
     );
   }
 
-  /// Registers rider database listeners.
-  ///
-  /// PHASE A (A3): this now opens TWO pooled channels for the assigned rider:
-  ///   1. `realtime-rider-loc-<id>` on public.rider_locations (filter rider_id) —
-  ///      the high-frequency live GPS feed. rider_locations is the lean table
-  ///      (REPLICA IDENTITY DEFAULT, PK-only index) kept in sync with riders by
-  ///      the A1 DB bridge trigger; the Flutter writer's riders GPS cadence was
-  ///      also widened in A3, so this is the authoritative fresh position source.
-  ///   2. `realtime-rider-<id>` on public.riders (filter id) — kept ONLY to catch
-  ///      a mid-ride rider profile change (rating / rider_kyc_id). Its callback no
-  ///      longer touches coordinates, so it does not matter that a throttled
-  ///      riders GPS write also lands on it.
+  /// Registers rider database listeners
   void _subscribeRider(String riderId) {
     if (_isDisposed) return;
     if (_currentRiderId == riderId && _riderSubId != null) return;
     if (_riderSubId != null) {
-      RealtimeManager.instance.unsubscribe('realtime-rider-$_currentRiderId', _riderSubId!);
+      _realtime.unsubscribe('realtime-rider-$_currentRiderId', _riderSubId!);
       _riderSubId = null;
-    }
-    if (_riderLocationSubId != null) {
-      RealtimeManager.instance
-          .unsubscribe('realtime-rider-loc-$_currentRiderId', _riderLocationSubId!);
-      _riderLocationSubId = null;
     }
 
     // RESET PREVIOUS RIDER STATE ONLY IF DIFFERENT AND NOT PRE-FETCHED
@@ -571,30 +621,7 @@ class RealtimeOrderController {
       }
     }
 
-    // 1. LIVE GPS — public.rider_locations (lean, high-frequency)
-    _riderLocationSubId = RealtimeManager.instance.subscribe(
-      channelName: 'realtime-rider-loc-$riderId',
-      table: 'rider_locations',
-      owner: 'RealtimeOrderController',
-      event: PostgresChangeEvent.update,
-      filterColumn: 'rider_id',
-      filterValue: riderId,
-      callback: (payload) async {
-        if (_isDisposed) return;
-        _lastRealtimeDeliveryAt = DateTime.now();
-        debugPrint('REALTIME RIDER LOCATION UPDATE RECEIVED');
-        final newRecord = payload.newRecord;
-        final lat = double.tryParse(newRecord['current_lat']?.toString() ?? '');
-        final lng = double.tryParse(newRecord['current_lng']?.toString() ?? '');
-        final heading = double.tryParse(newRecord['current_heading']?.toString() ?? '') ?? 0.0;
-        if (lat != null && lng != null && !_isDisposed) {
-          riderLocationNotifier.value = {'lat': lat, 'lng': lng, 'heading': heading};
-        }
-      },
-    );
-
-    // 2. PROFILE CHANGES — public.riders (rating / KYC only, no coordinates)
-    _riderSubId = RealtimeManager.instance.subscribe(
+    _riderSubId = _realtime.subscribe(
       channelName: 'realtime-rider-$riderId',
       table: 'riders',
       owner: 'RealtimeOrderController',
@@ -603,36 +630,50 @@ class RealtimeOrderController {
       filterValue: riderId,
       callback: (payload) async {
         if (_isDisposed) return;
-        _lastRealtimeDeliveryAt = DateTime.now();
+        _lastRealtimeDeliveryAt = _now();
+        debugPrint('REALTIME RIDER LOCATION UPDATE RECEIVED');
         final newRecord = payload.newRecord;
+        final lat = double.tryParse(newRecord['current_lat']?.toString() ?? '');
+        final lng = double.tryParse(newRecord['current_lng']?.toString() ?? '');
+        final heading = double.tryParse(newRecord['current_heading']?.toString() ?? '') ?? 0.0;
+        if (lat != null && lng != null && !_isDisposed) {
+          _setRiderLocation(lat, lng, heading);
+        }
+
         if (riderNotifier.value != null && !_isDisposed) {
           final oldVal = riderNotifier.value!;
           final ratingChanged = newRecord['rating']?.toString() != oldVal['rating']?.toString();
-          final kycChanged = newRecord['rider_kyc_id']?.toString() != oldVal['rider_kyc_id']?.toString();
+          final kycChanged = newRecord['kyc_id']?.toString() != oldVal['kyc_id']?.toString();
           if (ratingChanged || kycChanged) {
-            await _fetchRider(riderId);
+            await _fetchRider(riderId, refresh: true);
           }
         }
       },
     );
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final wasResumed = _appResumed;
+    _appResumed = state == AppLifecycleState.resumed;
+    if (_appResumed && !wasResumed && !_isDisposed) {
+      unawaited(_refreshOrderAndLiveState());
+    }
+  }
+
   /// Clean teardown of Supabase streams to avoid leaks
   void dispose() {
+    if (_isDisposed) return;
     _isDisposed = true;
+    WidgetsBinding.instance.removeObserver(this);
     _pollingTimer?.cancel();
     if (_orderSubId != null) {
-      RealtimeManager.instance.unsubscribe('realtime-order-$orderId', _orderSubId!);
+      _realtime.unsubscribe('realtime-order-$orderId', _orderSubId!);
       _orderSubId = null;
     }
     if (_riderSubId != null && _currentRiderId != null) {
-      RealtimeManager.instance.unsubscribe('realtime-rider-$_currentRiderId', _riderSubId!);
+      _realtime.unsubscribe('realtime-rider-$_currentRiderId', _riderSubId!);
       _riderSubId = null;
-    }
-    if (_riderLocationSubId != null && _currentRiderId != null) {
-      RealtimeManager.instance
-          .unsubscribe('realtime-rider-loc-$_currentRiderId', _riderLocationSubId!);
-      _riderLocationSubId = null;
     }
     orderNotifier.dispose();
     riderLocationNotifier.dispose();

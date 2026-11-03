@@ -1,0 +1,13 @@
+{
+  "source": "../local-tests/fixture-source.json (previous read-only sanitized definitions)",
+  "acceptedWritesFromClientPolicies": false,
+  "riderClientAllowedStatuses": [
+    "sent",
+    "expired"
+  ],
+  "passengerClientAllowedStatuses": [
+    "accepted_by_user",
+    "rejected"
+  ],
+  "limit": "Does not inventory all privileged external writers or prove current managed execution. Old v60 invocations must be drained; no global unique constraint is added."
+}

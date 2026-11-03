@@ -1,0 +1,50 @@
+{
+  "full_flutter": {
+    "passed": 2216,
+    "skipped_existing_live_opt_in": 10,
+    "failed": 0,
+    "delta": "+12 actual-screen widget cases from prior2204"
+  },
+  "focused": {
+    "passed": 56,
+    "failed": 0
+  },
+  "analyzer_changed_four_files": {
+    "errors": 0,
+    "warnings": 0,
+    "existing_infos": 6,
+    "exit_code": 1
+  },
+  "native_or_managed_business_tests": "Not rerun; no SQL/Edge implementation change this turn. Prior backend gates unchanged.",
+  "measurements": {
+    "local_order_intercity_metadata_requests": {
+      "before": 1,
+      "after": 0
+    },
+    "explicit_intercity_and_existing_long_ride_metadata_requests": {
+      "before": 1,
+      "after": 1
+    },
+    "initial_failed_order_plus_two_immediate_retry_callbacks": {
+      "initial_requests": 1,
+      "retry_requests": 1
+    },
+    "confirmed_proof_ui": "No longer waits for held refresh; confirmed state preserved on failure/stale read"
+  },
+  "production": {
+    "writes": 0,
+    "deployments": 0,
+    "queries": "two short read-only activity aggregates; no broad logs/business scans",
+    "resource_onset_cause": "unproven",
+    "browser_inventory": {
+      "apps": 0,
+      "browsers": 0
+    }
+  },
+  "apk": "artifacts/waydrop-1.0.0-build61.apk",
+  "remaining_gates": [
+    "Actual-device journeys and measurements",
+    "Existing managed Auth/full-trigger/provider and coordinated backend writer-drain gates",
+    "Host resource and Storage/pool onset evidence"
+  ]
+}

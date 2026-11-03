@@ -1,0 +1,149 @@
+--- completion-seed.before.dart
++++ lib/core/providers/initial_data_provider.dart
+@@ -20,6 +20,7 @@
+   final Map<String, dynamic>? rider;
+   final double? todayEarnings;
+   final DateTime fetchedAt;
++  final Set<String> _consumedBy = {};
+ 
+   InitialRiderData({
+     this.rider,
+@@ -27,9 +28,19 @@
+     DateTime? fetchedAt,
+   }) : fetchedAt = fetchedAt ?? DateTime.now();
+ 
+-  bool isUsableFor(String? userId, {DateTime? now}) => userId != null &&
+-      rider?['user_id'] == userId &&
+-      (now ?? DateTime.now()).difference(fetchedAt) < const Duration(seconds: 5);
++  bool isUsableFor(String? userId, {DateTime? now}) {
++    final age = (now ?? DateTime.now()).difference(fetchedAt);
++    return userId != null && rider?['user_id'] == userId &&
++        !age.isNegative && age < const Duration(seconds: 5);
++  }
++
++  // Each successful entry check publishes a new seed. Reuse it once per
++  // consumer, while refusing to reuse an old seed on another screen recreation.
++  // This is display-read reuse, never an alternative to RiderAccessService.
++  bool consumeFor(String consumer, String? userId, {DateTime? now}) {
++    if (!isUsableFor(userId, now: now)) return false;
++    return _consumedBy.add(consumer);
++  }
+ }
+ 
+ final initialUserDataProvider = StateProvider<InitialUserData?>((ref) => null);
+
+--- completion-home.before.dart
++++ lib/features/rider/home/rider_home_tab.dart
+@@ -214,18 +214,8 @@
+     }
+   }
+ 
+-  // R1 FIX #3 (consistency pass): initialRiderDataProvider is a StateProvider written exactly
+-  // once, at true app cold start, and never cleared -- so `initialData != null` alone stays true
+-  // forever, including on every mid-session RiderHomeTab recreation (returnToLocalRideHome()'s
+-  // pushAndRemoveUntil rebuilds RiderMainNavigationScreen and, with it, a brand-new
+-  // _RiderHomeTabState). Without this flag, every recreation would keep reusing the original
+-  // cold-start snapshot indefinitely instead of re-fetching. `static` survives individual State
+-  // disposal but not a process restart, so this is false exactly once per app launch and true for
+-  // every subsequent _RiderHomeTabState construction within that same process. Scoped to this
+-  // class only -- intentionally independent of RiderMainNavigationScreen's, RiderOrdersScreen's,
+-  // RiderEarningsTab's, and RiderProfileTab's own identically-shaped flags.
+-  static bool _hasConsumedColdStartSeed = false;
+-
++  // Fresh entry checks publish a new seed on every guarded navigation. Its
++  // per-consumer marker distinguishes that response from an already-used seed.
+   @override
+   void initState() {
+     super.initState();
+@@ -247,13 +237,10 @@
+       ),
+     ));
+     final initialData = ref.read(initialRiderDataProvider);
+-    // R1 FIX #3 (consistency pass): the seed is only trusted on a true cold start -- present AND
+-    // not yet consumed this process. A mid-session recreation finds _hasConsumedColdStartSeed
+-    // already true and falls through to the unconditional live fetch below, exactly like every
+-    // other loadRider() caller.
+-    final seedUsable = initialData != null && initialData.isUsableFor(supabase.auth.currentUser?.id) && !_hasConsumedColdStartSeed;
++    // Consume the newly validated response once. Recreating Home without a new
++    // response must still fetch live data; an old process flag cannot tell these apart.
++    final seedUsable = initialData != null && initialData.consumeFor('RiderHomeTab', supabase.auth.currentUser?.id);
+     if (seedUsable) {
+-      _hasConsumedColdStartSeed = true;
+       rider = initialData.rider;
+       isOnline = rider?['account_status'] == 'online';
+       todayEarnings = initialData.todayEarnings ?? 0;
+
+--- completion-nav.before.dart
++++ lib/features/rider/navigation/rider_main_navigation_screen.dart
+@@ -46,41 +46,16 @@
+   String? _serviceModeSubId;
+   String? _serviceModeSubChannel;
+ 
+-  // R1 FIX #2: distinguishes a true cold-start mount (initialRiderDataProvider's snapshot is
+-  // guaranteed fresh -- fetched by AppStartScreen moments earlier in the same navigation
+-  // transition) from a mid-session recreation (returnToLocalRideHome()'s pushAndRemoveUntil,
+-  // see below -- the same never-refreshed snapshot would otherwise be stale there). `static`
+-  // survives individual State disposal but not a process restart, so this is false exactly once
+-  // per app launch and true for every subsequent _RiderDashboardState construction
+-  // within that same process. Scoped to this class only -- intentionally NOT shared with
+-  // RiderHomeTab's own seed read, so neither can cause the other to skip its check.
+-  static bool _hasConsumedColdStartSeed = false;
+-
+   @override
+   void initState() {
+     super.initState();
+     _index = widget.initialIndex.clamp(0, 3);
+-    // BUG FIX (Orders tab disappearing after a local ride completes): initialRiderDataProvider is
+-    // written exactly once, at cold app start (app_start_screen.dart), and never refreshed. This
+-    // screen is recreated from scratch -- not just rebuilt -- every time a local ride completes
+-    // (returnToLocalRideHome()'s pushAndRemoveUntil), so seeding _serviceMode from that snapshot
+-    // and trusting it as final silently reverted any service-mode change made mid-session (e.g.
+-    // choosing "Local City Partner" after the snapshot was taken), wrongly hiding the Orders tab
+-    // (_isIntercity gates it) until the next realtime service_mode UPDATE happened to arrive.
+-    // Used here ONLY as an optimistic value for the very first frame; _loadServiceMode() below
+-    // always runs a live re-fetch right after and is the single place that (re)subscribes to
+-    // realtime updates -- mirrors the exact stale-snapshot-then-live-refresh pattern
+-    // RiderHomeTab.initState() already uses correctly for this same provider.
+-    //
+-    // R1 FIX #2: on a TRUE cold start (seed present AND not yet consumed this process), the seed
+-    // is trusted and the live query below is skipped entirely -- safe because nothing can have
+-    // changed server-side between AppStartScreen's fetch and this mount. On a mid-session
+-    // recreation, _hasConsumedColdStartSeed is already true, so this falls through to the
+-    // existing live re-fetch below, completely unchanged from before this fix.
++    // The entry guard has just published a fresh rider response. Reuse it once
++    // for this consumer; later recreations of the same seed still fetch live data.
++    final initialData = ref.read(initialRiderDataProvider);
+     final initialRider = ref.read(initialRiderDataProvider)?.rider;
+     bool seedUsable = false;
+-    if (initialRider != null && ref.read(initialRiderDataProvider)!.isUsableFor(supabase.auth.currentUser?.id) && !_hasConsumedColdStartSeed) {
+-      _hasConsumedColdStartSeed = true;
++    if (initialRider != null && initialData != null && initialData.consumeFor('RiderDashboard', supabase.auth.currentUser?.id)) {
+       _serviceMode = PartnerServiceMode.fromDb(initialRider['service_mode']);
+       _riderId = initialRider['id']?.toString();
+       seedUsable = _riderId != null;
+
+--- completion-entry.before.dart
++++ lib/features/rider/onboarding/screens/rider_entry_handler.dart
+@@ -86,11 +86,18 @@
+   Widget build(BuildContext context) {
+     if (loading) {
+       return const Scaffold(
+-        backgroundColor: Colors.white,
++        backgroundColor: Color(0xFF0B0F19),
+         body: Center(
+-          child: CircularProgressIndicator(
+-            color: Color(0xFF10B981),
+-            strokeWidth: 2,
++          child: Column(
++            mainAxisSize: MainAxisSize.min,
++            children: [
++              CircularProgressIndicator(
++                color: Color(0xFFC5FF30),
++                strokeWidth: 2,
++              ),
++              SizedBox(height: 16),
++              Text('Checking partner access…', style: TextStyle(color: Colors.white70)),
++            ],
+           ),
+         ),
+       );

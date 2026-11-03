@@ -1,3 +1,4 @@
+import 'package:waydrop/core/services/diagnostics/performance_trace.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:waydrop/modules/notifications/services/notification_service.dart';
@@ -46,7 +47,9 @@ class _NotificationsInboxScreenState extends State<NotificationsInboxScreen> {
     }
   }
 
-  Future<void> _load() async {
+  Future<void> _load() => PerformanceTrace.measure('notifications', () => _loadMeasured());
+
+  Future<void> _loadMeasured() async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
       setState(() => _loading = false);

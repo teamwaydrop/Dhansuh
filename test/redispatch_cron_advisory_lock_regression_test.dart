@@ -25,7 +25,7 @@ String _read(String path) => File(path).readAsStringSync();
 
 void main() {
   final migration = _read(
-    'supabase/migrations/20260908000000_redispatch_cron_advisory_locks.sql',
+    'docs/migration-review/retired-timestamp-aliases/20260908000000_redispatch_cron_advisory_locks.sql',
   );
 
   // SQL with every `-- ...` comment line stripped, so assertions about what the migration actually

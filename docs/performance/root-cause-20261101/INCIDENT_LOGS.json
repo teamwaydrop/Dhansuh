@@ -1,0 +1,2049 @@
+{
+  "window_utc": [
+    "2026-11-01T16:22:00Z",
+    "2026-11-01T16:34:00Z"
+  ],
+  "method": "Read-only unified logs; selected database/PostgREST/Realtime fields; no request bodies, JWTs, user IDs or remote IPs retained",
+  "rows": [
+    {
+      "timestamp": "2026-11-01T16:22:00.002000",
+      "source": "postgres_logs",
+      "message": "cron job 5 starting: SELECT public.redispatch_stalled_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034252",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:22:00.002 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:22:00.004000",
+      "source": "postgres_logs",
+      "message": "cron job 1 starting: SELECT public.expire_stale_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034253",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:22:00.004 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:22:00.039000",
+      "source": "postgres_logs",
+      "message": "cron job 1 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034254",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:22:00.039 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:22:00.040000",
+      "source": "postgres_logs",
+      "message": "cron job 5 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034255",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:22:00.040 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.203000",
+      "source": "realtime_logs",
+      "message": "Realtime.Tenants.Connect.GetTenant executed in 125 ms",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.392000",
+      "source": "realtime_logs",
+      "message": "Realtime.Tenants.Connect.CheckConnection executed in 189 ms",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.392000",
+      "source": "realtime_logs",
+      "message": "Realtime.Tenants.Connect.ReconcileMigrations executed in 0 ms",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.393000",
+      "source": "realtime_logs",
+      "message": "Tenant yvwpchffctiagevpqgwy is initializing: :\"realtime@2406:da1a:f3c:4501:b0dd:d6ef:f71f:5cc1\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.393000",
+      "source": "realtime_logs",
+      "message": "Creating partitions for realtime.messages",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.393000",
+      "source": "realtime_logs",
+      "message": "Realtime.Tenants.Connect.RegisterProcess executed in 0 ms",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.490000",
+      "source": "realtime_logs",
+      "message": "Initializing connection with the status: %Realtime.Tenants.ReplicationConnection{\n  tenant_id: \"yvwpchffctiagevpqgwy\",\n  opts: [],\n  step: :disconnected,\n  publication_name: \"supabase_realtime_messages_publication\",\n  replication_slot_name: \"supabase_realtime_messages_replication_slot_2_148_1_3932dc7\",\n  output_plugin: \"pgoutput\",\n  proto_version: 2,\n  relations: %{},\n  buffer: [],\n  monitored_pid: #PID<0.181133490.6>,\n  latency_committed_at: nil,\n  query_timeout: 240000,\n  pg_version: nil\n}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.548000",
+      "source": "postgres_logs",
+      "message": "logical decoding found consistent point at 11F/1903EA38",
+      "attributes": {
+        "parsed.application_name": "realtime_rls",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "SELECT",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "807922",
+        "parsed.query": "select\n        case when not exists (\n          select 1\n          from pg_replication_slots\n          where slot_name = $1\n        )\n        then (\n          select 1 from pg_create_logical_replication_slot(slot_name => $1, plugin => 'wal2json', temporary => true)\n        )\n        else 1\n        end;",
+        "parsed.query_id": "-968257996675475524",
+        "parsed.session_id": "6ae7672c.c53f2",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:22:04 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:22:04.548 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "supabase_admin",
+        "parsed.virtual_transaction_id": "39/157754"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.549000",
+      "source": "realtime_logs",
+      "message": "Checking if replication slot supabase_realtime_messages_replication_slot_2_148_1_3932dc7 exists",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.555000",
+      "source": "realtime_logs",
+      "message": "Check publication supabase_realtime_messages_publication for table realtime.messages exists",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.556000",
+      "source": "realtime_logs",
+      "message": "Publication supabase_realtime_messages_publication exists, validating contents",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.568000",
+      "source": "realtime_logs",
+      "message": "Create replication slot supabase_realtime_messages_replication_slot_2_148_1_3932dc7 using plugin pgoutput",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.587000",
+      "source": "postgres_logs",
+      "message": "logical decoding found consistent point at 11F/1903EC18",
+      "attributes": {
+        "parsed.application_name": "realtime_replication_connection",
+        "parsed.backend_type": "walsender",
+        "parsed.command_tag": "START_REPLICATION",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "807926",
+        "parsed.query": "START_REPLICATION SLOT supabase_realtime_messages_replication_slot_2_148_1_3932dc7 LOGICAL 0/0 (proto_version '2', publication_names 'supabase_realtime_messages_publication', binary 'true')",
+        "parsed.query_id": "0",
+        "parsed.session_id": "6ae7672c.c53f6",
+        "parsed.session_line_num": "3",
+        "parsed.session_start_time": "2026-11-01 16:22:04 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:22:04.587 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "supabase_admin",
+        "parsed.virtual_transaction_id": "73/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.587000",
+      "source": "postgres_logs",
+      "message": "logical decoding found consistent point at 11F/1903EC18",
+      "attributes": {
+        "parsed.application_name": "realtime_replication_connection",
+        "parsed.backend_type": "walsender",
+        "parsed.command_tag": "CREATE_REPLICATION_SLOT",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "807926",
+        "parsed.query": "CREATE_REPLICATION_SLOT supabase_realtime_messages_replication_slot_2_148_1_3932dc7 TEMPORARY LOGICAL pgoutput NOEXPORT_SNAPSHOT",
+        "parsed.query_id": "0",
+        "parsed.session_id": "6ae7672c.c53f6",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:22:04 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:22:04.587 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "supabase_admin",
+        "parsed.virtual_transaction_id": "73/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.587000",
+      "source": "postgres_logs",
+      "message": "starting logical decoding for slot \"supabase_realtime_messages_replication_slot_2_148_1_3932dc7\"",
+      "attributes": {
+        "parsed.application_name": "realtime_replication_connection",
+        "parsed.backend_type": "walsender",
+        "parsed.command_tag": "START_REPLICATION",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "807926",
+        "parsed.query": "START_REPLICATION SLOT supabase_realtime_messages_replication_slot_2_148_1_3932dc7 LOGICAL 0/0 (proto_version '2', publication_names 'supabase_realtime_messages_publication', binary 'true')",
+        "parsed.query_id": "0",
+        "parsed.session_id": "6ae7672c.c53f6",
+        "parsed.session_line_num": "2",
+        "parsed.session_start_time": "2026-11-01 16:22:04 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:22:04.587 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "supabase_admin",
+        "parsed.virtual_transaction_id": "73/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:22:04.593000",
+      "source": "realtime_logs",
+      "message": "#PID<0.112572230.6> Starting stream replication for slot supabase_realtime_messages_replication_slot_2_148_1_3932dc7 using publication supabase_realtime_messages_publication and protocol version 2",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:22:39.973000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034256",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:22:39.973 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:22:40.047000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034257",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:22:40.047 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:23:00.002000",
+      "source": "postgres_logs",
+      "message": "cron job 5 starting: SELECT public.redispatch_stalled_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034258",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:23:00.002 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:23:00.155000",
+      "source": "postgres_logs",
+      "message": "cron job 5 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034259",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:23:00.155 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:23:11.712500",
+      "source": "postgrest_logs",
+      "message": "Warp server error: Thread killed by timeout manager",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:23:11.735636",
+      "source": "postgrest_logs",
+      "message": "Warp server error: Thread killed by timeout manager",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:23:11.735636",
+      "source": "postgrest_logs",
+      "message": "Warp server error: Thread killed by timeout manager",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:23:25.039000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034260",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:23:25.039 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:23:25.109000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034261",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:23:25.109 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:23:41.726567",
+      "source": "postgrest_logs",
+      "message": "Warp server error: Thread killed by timeout manager",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:24:00.130000",
+      "source": "postgres_logs",
+      "message": "cron job 5 starting: SELECT public.redispatch_stalled_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034262",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:24:00.130 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:24:00.189000",
+      "source": "postgres_logs",
+      "message": "cron job 1 starting: SELECT public.expire_stale_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034263",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:24:00.189 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:24:00.573000",
+      "source": "postgres_logs",
+      "message": "cron job 1 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034264",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:24:00.573 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:24:00.662000",
+      "source": "postgres_logs",
+      "message": "cron job 5 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034265",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:24:00.662 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:24:10.104000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034266",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:24:10.104 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:24:10.148000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034267",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:24:10.148 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:24:41.739831",
+      "source": "postgrest_logs",
+      "message": "Warp server error: Thread killed by timeout manager",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:24:55.129000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034268",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:24:55.129 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:24:55.390000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034269",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:24:55.390 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:24:59.761000",
+      "source": "postgres_logs",
+      "message": "duplicate key value violates unique constraint \"unique_order_rider_assignment\"",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "SELECT",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "807951",
+        "parsed.query": "WITH pgrst_source AS (INSERT INTO \"public\".\"order_assignment_logs\"(\"assignment_round\", \"assignment_status\", \"estimated_pickup_time_min\", \"order_id\", \"rider_distance_km\", \"rider_id\", \"sent_at\") SELECT \"pgrst_body\".\"assignment_round\", \"pgrst_body\".\"assignment_status\", \"pgrst_body\".\"estimated_pickup_time_min\", \"pgrst_body\".\"order_id\", \"pgrst_body\".\"rider_distance_km\", \"pgrst_body\".\"rider_id\", \"pgrst_body\".\"sent_at\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"assignment_round\", \"assignment_status\", \"estimated_pickup_time_min\", \"order_id\", \"rider_distance_km\", \"rider_id\", \"sent_at\" FROM json_to_recordset(pgrst_payload.json_data) AS _(\"assignment_round\" integer, \"assignment_status\" public.intercity_assignment_status_enum, \"estimated_pickup_time_min\" integer, \"order_id\" uuid, \"rider_distance_km\" numeric, \"rider_id\" uuid, \"sent_at\" timestamp with time zone) ) pgrst_body  RETURNING 1) SELECT '' AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, ''::text AS body, nullif(current_setting('response.headers', true), '') AS response_headers, nullif(current_setting('response.status', true), '') AS response_status, '' AS response_inserted FROM (SELECT * FROM pgrst_source) _postgrest_t",
+        "parsed.query_id": "1522541149186356356",
+        "parsed.session_id": "6ae7675c.c540f",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:22:52 UTC",
+        "parsed.sql_state_code": "23505",
+        "parsed.timestamp": "2026-11-01 16:24:59.761 UTC",
+        "parsed.transaction_id": "2865586",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "51/134048"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:25:36.261000",
+      "source": "postgres_logs",
+      "message": "checkpoint starting: time",
+      "attributes": {
+        "parsed.backend_type": "checkpointer",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3942",
+        "parsed.query_id": "0",
+        "parsed.session_id": "69fc2f73.f66",
+        "parsed.session_line_num": "59843",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:25:36.261 UTC",
+        "parsed.transaction_id": "0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:25:40.527000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034274",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:25:40.527 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:25:40.913000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034275",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:25:40.913 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:26:00.117000",
+      "source": "postgres_logs",
+      "message": "cron job 5 starting: SELECT public.redispatch_stalled_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034276",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:26:00.117 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:26:00.171000",
+      "source": "postgres_logs",
+      "message": "cron job 1 starting: SELECT public.expire_stale_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034277",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:26:00.171 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:26:00.497000",
+      "source": "postgres_logs",
+      "message": "cron job 1 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034278",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:26:00.497 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:26:00.550000",
+      "source": "postgres_logs",
+      "message": "cron job 5 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034279",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:26:00.550 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:26:05.245000",
+      "source": "postgres_logs",
+      "message": "checkpoint complete: wrote 288 buffers (1.0%); 0 WAL file(s) added, 0 removed, 2 recycled; write=28.919 s, sync=0.010 s, total=28.989 s; sync files=157, longest=0.003 s, average=0.001 s; distance=33306 kB, estimate=47562 kB; lsn=11F/1B0CE370, redo lsn=11F/1B086C58",
+      "attributes": {
+        "parsed.backend_type": "checkpointer",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3942",
+        "parsed.query_id": "0",
+        "parsed.session_id": "69fc2f73.f66",
+        "parsed.session_line_num": "59844",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:26:05.245 UTC",
+        "parsed.transaction_id": "0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:26:25.929000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034280",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:26:25.929 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:26:26.292000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034281",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:26:26.292 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:27:00.437000",
+      "source": "postgres_logs",
+      "message": "cron job 5 starting: SELECT public.redispatch_stalled_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034282",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:27:00.437 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:27:01.308000",
+      "source": "postgres_logs",
+      "message": "cron job 5 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034283",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:27:01.308 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:27:11.243000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034284",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:27:11.243 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:27:11.476000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034285",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:27:11.476 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:27:56.590000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034286",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:27:56.590 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:27:56.935000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034287",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:27:56.935 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:28:00.004000",
+      "source": "postgres_logs",
+      "message": "cron job 5 starting: SELECT public.redispatch_stalled_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034288",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:28:00.004 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:28:00.031000",
+      "source": "postgres_logs",
+      "message": "cron job 1 starting: SELECT public.expire_stale_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034289",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:28:00.031 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:28:00.335000",
+      "source": "postgres_logs",
+      "message": "cron job 1 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034290",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:28:00.335 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:28:00.420000",
+      "source": "postgres_logs",
+      "message": "cron job 5 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034291",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:28:00.420 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:28:42.045000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034292",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:28:42.045 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:28:45.167000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034293",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:28:45.167 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:29:00.418000",
+      "source": "postgres_logs",
+      "message": "cron job 5 starting: SELECT public.redispatch_stalled_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034294",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:29:00.418 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:29:02.152000",
+      "source": "postgres_logs",
+      "message": "cron job 5 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034295",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:29:02.152 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:29:29.523000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034296",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:29:29.523 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:29:29.908000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034297",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:29:29.908 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:00.127000",
+      "source": "postgres_logs",
+      "message": "cron job 6 starting: SELECT public.expire_stale_active_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034298",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:00.127 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:00.186000",
+      "source": "postgres_logs",
+      "message": "cron job 5 starting: SELECT public.redispatch_stalled_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034299",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:00.186 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:00.190000",
+      "source": "postgres_logs",
+      "message": "cron job 1 starting: SELECT public.expire_stale_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034300",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:00.190 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:00.195000",
+      "source": "postgres_logs",
+      "message": "cron job 3 starting: SELECT public.expire_stale_intercity_requests();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034301",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:00.195 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:00.199000",
+      "source": "postgres_logs",
+      "message": "cron job 10 starting: SELECT public.retry_pending_order_completion_side_effects();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034302",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:00.199 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:00.526000",
+      "source": "postgres_logs",
+      "message": "cron job 6 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034303",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:00.526 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:00.532000",
+      "source": "postgres_logs",
+      "message": "cron job 10 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034304",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:00.532 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:00.540000",
+      "source": "postgres_logs",
+      "message": "cron job 3 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034305",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:00.540 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:00.543000",
+      "source": "postgres_logs",
+      "message": "cron job 1 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034306",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:00.543 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:00.634000",
+      "source": "postgres_logs",
+      "message": "cron job 5 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034307",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:00.634 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:14.923000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034308",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:14.923 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:15.300000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034309",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:15.300 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:30:36.377000",
+      "source": "postgres_logs",
+      "message": "checkpoint starting: time",
+      "attributes": {
+        "parsed.backend_type": "checkpointer",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3942",
+        "parsed.query_id": "0",
+        "parsed.session_id": "69fc2f73.f66",
+        "parsed.session_line_num": "59845",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:30:36.377 UTC",
+        "parsed.transaction_id": "0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:31:01.855000",
+      "source": "postgres_logs",
+      "message": "cron job 5 starting: SELECT public.redispatch_stalled_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034310",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:31:01.855 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:31:02.287000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034311",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:31:02.287 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:31:05.213000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034312",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:31:05.213 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:31:06.381000",
+      "source": "postgres_logs",
+      "message": "cron job 5 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034313",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:31:06.381 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:31:11.933841",
+      "source": "postgrest_logs",
+      "message": "Warp server error: Thread killed by timeout manager",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:31:24.727000",
+      "source": "postgres_logs",
+      "message": "checkpoint complete: wrote 419 buffers (1.5%); 0 WAL file(s) added, 0 removed, 2 recycled; write=48.273 s, sync=0.013 s, total=48.351 s; sync files=141, longest=0.003 s, average=0.001 s; distance=48984 kB, estimate=48984 kB; lsn=11F/1E0BC7D8, redo lsn=11F/1E05CD00",
+      "attributes": {
+        "parsed.backend_type": "checkpointer",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3942",
+        "parsed.query_id": "0",
+        "parsed.session_id": "69fc2f73.f66",
+        "parsed.session_line_num": "59846",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:31:24.727 UTC",
+        "parsed.transaction_id": "0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:31:50.798000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034314",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:31:50.798 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:31:52.018000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034315",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:31:52.018 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:00.065000",
+      "source": "postgres_logs",
+      "message": "cron job 5 starting: SELECT public.redispatch_stalled_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034316",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:32:00.065 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:00.400000",
+      "source": "postgres_logs",
+      "message": "cron job 1 starting: SELECT public.expire_stale_searching_orders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034317",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:32:00.400 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:03.944000",
+      "source": "postgres_logs",
+      "message": "cron job 1 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034318",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:32:03.944 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:05.423000",
+      "source": "postgres_logs",
+      "message": "cron job 5 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034319",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:32:05.423 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:21.439292",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - service_role [01/Nov/2026:16:32:19 +0000] \"GET /production_config?select=*&is_active=eq.true HTTP/1.1\" 504 111 \"\" \"Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:25.819754",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:19 +0000] \"HEAD /notifications?user_id=eq.8e4189fc-1c26-42ff-b767-ba0c3380f68e&is_read=eq.false HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:25.819754",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:21 +0000] \"HEAD /notifications?user_id=eq.5fa5abd8-96ef-4f8b-9f0d-0584f29fb446&is_read=eq.false HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:25.819754",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"PGRST003\",\"details\":null,\"hint\":null,\"message\":\"Timed out acquiring connection from connection pool.\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:25.819754",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:24 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:25.819754",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - service_role [01/Nov/2026:16:32:24 +0000] \"GET /production_config?select=*&is_active=eq.true HTTP/1.1\" 504 111 \"\" \"Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:25.819754",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - service_role [01/Nov/2026:16:32:19 +0000] \"GET /users?select=pref_order_notifications%2Cpref_chat_notifications%2Cpref_rating_notifications%2Cpref_admin_notifications%2Corder_notification_mode&id=eq.5fa5abd8-96ef-4f8b-9f0d-0584f29fb446 HTTP/1.1\" 504 111 \"\" \"Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:29.922000",
+      "source": "postgres_logs",
+      "message": "canceling statement due to statement timeout",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "BIND",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "807951",
+        "parsed.query": "WITH pgrst_source AS (INSERT INTO \"public\".\"order_chat_messages\"(\"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\") SELECT \"pgrst_body\".\"created_at\", \"pgrst_body\".\"is_support\", \"pgrst_body\".\"message\", \"pgrst_body\".\"order_id\", \"pgrst_body\".\"rider_id\", \"pgrst_body\".\"sender_id\", \"pgrst_body\".\"sender_type\", \"pgrst_body\".\"user_id\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\" FROM json_to_record(pgrst_payload.json_data) AS _(\"created_at\" timestamp with time zone, \"is_support\" boolean, \"message\" text, \"order_id\" uuid, \"rider_id\" uuid, \"sender_id\" uuid, \"sender_type\" text, \"user_id\" uuid) ) pgrst_body  RETURNING \"public\".\"order_chat_messages\".\"created_at\", \"public\".\"order_chat_messages\".\"id\", \"public\".\"order_chat_messages\".\"message\", \"public\".\"order_chat_messages\".\"message_type\", \"public\".\"order_chat_messages\".\"sender_id\", \"public\".\"order_chat_messages\".\"sender_type\") SELECT '' AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, coalesce(json_agg(_postgrest_t)->0, 'null') AS body, nullif(current_setting('response.headers', true), '') AS response_headers, nullif(current_setting('response.status', true), '') AS response_status, '' AS response_inserted FROM (SELECT \"order_chat_messages\".\"id\", \"order_chat_messages\".\"sender_id\", \"order_chat_messages\".\"sender_type\", \"order_chat_messages\".\"message\", \"order_chat_messages\".\"message_type\", \"order_chat_messages\".\"created_at\" FROM \"pgrst_source\" AS \"order_chat_messages\"   ) _postgrest_t",
+        "parsed.query_id": "-7777277464788977126",
+        "parsed.session_id": "6ae7675c.c540f",
+        "parsed.session_line_num": "2",
+        "parsed.session_start_time": "2026-11-01 16:22:52 UTC",
+        "parsed.sql_state_code": "57014",
+        "parsed.timestamp": "2026-11-01 16:32:29.922 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "51/134291"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:32.507000",
+      "source": "postgres_logs",
+      "message": "canceling statement due to statement timeout",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "SELECT",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "808639",
+        "parsed.query": "WITH pgrst_source AS (INSERT INTO \"public\".\"order_chat_messages\"(\"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\") SELECT \"pgrst_body\".\"created_at\", \"pgrst_body\".\"is_support\", \"pgrst_body\".\"message\", \"pgrst_body\".\"order_id\", \"pgrst_body\".\"rider_id\", \"pgrst_body\".\"sender_id\", \"pgrst_body\".\"sender_type\", \"pgrst_body\".\"user_id\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\" FROM json_to_record(pgrst_payload.json_data) AS _(\"created_at\" timestamp with time zone, \"is_support\" boolean, \"message\" text, \"order_id\" uuid, \"rider_id\" uuid, \"sender_id\" uuid, \"sender_type\" text, \"user_id\" uuid) ) pgrst_body  RETURNING \"public\".\"order_chat_messages\".\"created_at\", \"public\".\"order_chat_messages\".\"id\", \"public\".\"order_chat_messages\".\"message\", \"public\".\"order_chat_messages\".\"message_type\", \"public\".\"order_chat_messages\".\"sender_id\", \"public\".\"order_chat_messages\".\"sender_type\") SELECT '' AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, coalesce(json_agg(_postgrest_t)->0, 'null') AS body, nullif(current_setting('response.headers', true), '') AS response_headers, nullif(current_setting('response.status', true), '') AS response_status, '' AS response_inserted FROM (SELECT \"order_chat_messages\".\"id\", \"order_chat_messages\".\"sender_id\", \"order_chat_messages\".\"sender_type\", \"order_chat_messages\".\"message\", \"order_chat_messages\".\"message_type\", \"order_chat_messages\".\"created_at\" FROM \"pgrst_source\" AS \"order_chat_messages\"   ) _postgrest_t",
+        "parsed.query_id": "-7777277464788977126",
+        "parsed.session_id": "6ae767e0.c56bf",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:25:04 UTC",
+        "parsed.sql_state_code": "57014",
+        "parsed.timestamp": "2026-11-01 16:32:32.507 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "41/1106206"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:33.115207",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:32 +0000] \"GET /users?select=full_name&id=eq.5fa5abd8-96ef-4f8b-9f0d-0584f29fb446 HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:33.572816",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:33.603196",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:32 +0000] \"GET /users?select=full_name&id=eq.5fa5abd8-96ef-4f8b-9f0d-0584f29fb446 HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:33.663000",
+      "source": "postgres_logs",
+      "message": "duration: 13798.532 ms  plan:\nQuery Text: SELECT wal->>'type' as type,\n       wal->>'schema' as schema,\n       wal->>'table' as table,\n       COALESCE(wal->>'columns', '[]') as columns,\n       COALESCE(wal->>'record', '{}') as record,\n       COALESCE(wal->>'old_record', '{}') as old_record,\n       wal->>'commit_timestamp' as commit_timestamp,\n       subscription_ids,\n       errors,\n       slot_changes_count\nFROM realtime.list_changes($1, $2, $3, $4)\n\nQuery Parameters: $1 = 'supabase_realtime', $2 = 'supabase_realtime_replication_slot_2_148_1_3932dc7', $3 = '100', $4 = '1048576'\nFunction Scan on list_changes  (cost=0.25..27.75 rows=1000 width=296)",
+      "attributes": {
+        "parsed.application_name": "realtime_rls",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "SELECT",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "807922",
+        "parsed.query_id": "-7357843485416638959",
+        "parsed.session_id": "6ae7672c.c53f2",
+        "parsed.session_line_num": "2",
+        "parsed.session_start_time": "2026-11-01 16:22:04 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:32:33.663 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "supabase_admin",
+        "parsed.virtual_transaction_id": "39/159069"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:33.784156",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"PGRST003\",\"details\":null,\"hint\":null,\"message\":\"Timed out acquiring connection from connection pool.\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:33.844559",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:32 +0000] \"HEAD /notifications?user_id=eq.8e4189fc-1c26-42ff-b767-ba0c3380f68e&is_read=eq.false HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:34.065128",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:32 +0000] \"GET /riders?select=id&user_id=eq.5fa5abd8-96ef-4f8b-9f0d-0584f29fb446 HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:34.104000",
+      "source": "postgres_logs",
+      "message": "canceling statement due to statement timeout",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "SELECT",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "808628",
+        "parsed.query_id": "-7777277464788977126",
+        "parsed.session_id": "6ae767c4.c56b4",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:24:36 UTC",
+        "parsed.sql_state_code": "57014",
+        "parsed.timestamp": "2026-11-01 16:32:34.104 UTC",
+        "parsed.transaction_id": "2866632",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "43/147261"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:34.306173",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:32 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 500 100 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:36.307000",
+      "source": "postgres_logs",
+      "message": "canceling statement due to statement timeout",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "BIND",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "808629",
+        "parsed.query_id": "-7777277464788977126",
+        "parsed.session_id": "6ae767c5.c56b5",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:24:37 UTC",
+        "parsed.sql_state_code": "57014",
+        "parsed.timestamp": "2026-11-01 16:32:36.307 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "21/124448"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:37.017000",
+      "source": "postgres_logs",
+      "message": "canceling statement due to statement timeout",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "BIND",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "807952",
+        "parsed.query_id": "-7777277464788977126",
+        "parsed.session_id": "6ae7675c.c5410",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:22:52 UTC",
+        "parsed.sql_state_code": "57014",
+        "parsed.timestamp": "2026-11-01 16:32:37.017 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "25/145746"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:38.113000",
+      "source": "postgres_logs",
+      "message": "canceling statement due to statement timeout",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "BIND",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "808682",
+        "parsed.query_id": "-7777277464788977126",
+        "parsed.session_id": "6ae7683f.c56ea",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:26:39 UTC",
+        "parsed.sql_state_code": "57014",
+        "parsed.timestamp": "2026-11-01 16:32:38.113 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "9/155297"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:38.837000",
+      "source": "postgres_logs",
+      "message": "canceling statement due to statement timeout",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "BIND",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "808641",
+        "parsed.query_id": "-7777277464788977126",
+        "parsed.session_id": "6ae767e0.c56c1",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:25:04 UTC",
+        "parsed.sql_state_code": "57014",
+        "parsed.timestamp": "2026-11-01 16:32:38.837 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "10/165573"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:47.612696",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}01/Nov/2026:16:32:41 +0000: {\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}01/Nov/2026:16:32:41 +0000: {\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}01/Nov/2026:16:32:41 +0000: {\"code\":\"PGRST003\",\"details\":null,\"hint\":null,\"message\":\"Timed out acquiring connection from connection pool.\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:48.327239",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:46 +0000] \"HEAD /notifications?user_id=eq.8e4189fc-1c26-42ff-b767-ba0c3380f68e&is_read=eq.false HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:48.483154",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:46 +0000] \"GET /riders?select=id&user_id=eq.5fa5abd8-96ef-4f8b-9f0d-0584f29fb446 HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:48.594669",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - service_role [01/Nov/2026:16:32:46 +0000] \"GET /production_config?select=*&is_active=eq.true HTTP/1.1\" 504 111 \"\" \"Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:48.614099",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:46 +0000] \"GET /orders?select=%2A&id=eq.9aedccc7-8f06-4b2b-b729-46fd92968f69 HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:48.614473",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - service_role [01/Nov/2026:16:32:46 +0000] \"GET /production_config?select=*&is_active=eq.true HTTP/1.1\" 504 111 \"\" \"Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.77.8; ref=yvwpchffctiagevpqgwy)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:48.619218",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:46 +0000] \"HEAD /notifications?user_id=eq.5fa5abd8-96ef-4f8b-9f0d-0584f29fb446&is_read=eq.false HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:48.689000",
+      "source": "postgres_logs",
+      "message": "cron job 7 job startup timeout",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034321",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:32:48.689 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:48.894207",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:46 +0000] \"HEAD /notifications?user_id=eq.8e4189fc-1c26-42ff-b767-ba0c3380f68e&is_read=eq.false HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:48.898112",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:46 +0000] \"GET /rider_kyc?select=id%2Cblocked_until%2Ckyc_status&user_id=eq.5fa5abd8-96ef-4f8b-9f0d-0584f29fb446 HTTP/1.1\" 504 111 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:49.131296",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:48 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 500 100 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:49.329475",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:50.372828",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:51.394578",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:48 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 500 100 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:51.541786",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:50 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 500 100 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:52.773972",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:50 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 500 100 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:52.805876",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:50 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 500 100 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:55.466000",
+      "source": "postgres_logs",
+      "message": "canceling statement due to statement timeout",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "BIND",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "807950",
+        "parsed.query_id": "-7777277464788977126",
+        "parsed.session_id": "6ae7675c.c540e",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:22:52 UTC",
+        "parsed.sql_state_code": "57014",
+        "parsed.timestamp": "2026-11-01 16:32:55.466 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "2/153230"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:32:56.131866",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:56.678424",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:56.678424",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:56 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 500 100 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:56.678424",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"PGRST003\",\"details\":null,\"hint\":null,\"message\":\"Timed out acquiring connection from connection pool.\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:32:56.678424",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:32:56 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 500 100 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:33:00.404000",
+      "source": "postgres_logs",
+      "message": "canceling statement due to statement timeout",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "BIND",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "808644",
+        "parsed.query_id": "-7777277464788977126",
+        "parsed.session_id": "6ae767e0.c56c4",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:25:04 UTC",
+        "parsed.sql_state_code": "57014",
+        "parsed.timestamp": "2026-11-01 16:33:00.404 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "58/134644"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:33:01.561352",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:33:01.639409",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:33:01 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 500 100 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:33:18.290000",
+      "source": "postgres_logs",
+      "message": "cron job 5 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034323",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:33:18.290 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:33:22.987000",
+      "source": "postgres_logs",
+      "message": "cron job 7 starting: SELECT public.redispatch_freed_riders();",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034324",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:33:22.987 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:33:27.609000",
+      "source": "postgres_logs",
+      "message": "cron job 7 completed: 1 row",
+      "attributes": {
+        "parsed.backend_type": "pg_cron launcher",
+        "parsed.error_severity": "LOG",
+        "parsed.process_id": "3949",
+        "parsed.query_id": "2515330828828522208",
+        "parsed.session_id": "69fc2f73.f6d",
+        "parsed.session_line_num": "1034325",
+        "parsed.session_start_time": "2026-05-07 06:21:39 UTC",
+        "parsed.sql_state_code": "00000",
+        "parsed.timestamp": "2026-11-01 16:33:27.609 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.virtual_transaction_id": "67/0"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:33:28.326000",
+      "source": "postgres_logs",
+      "message": "canceling statement due to statement timeout",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "SELECT",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "808828",
+        "parsed.query_id": "-7777277464788977126",
+        "parsed.session_id": "6ae769ae.c577c",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:32:46 UTC",
+        "parsed.sql_state_code": "57014",
+        "parsed.timestamp": "2026-11-01 16:33:28.326 UTC",
+        "parsed.transaction_id": "2866679",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "45/135504"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:33:28.659310",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:33:28.717854",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:33:28 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 500 100 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:33:31.557000",
+      "source": "postgres_logs",
+      "message": "canceling statement due to statement timeout",
+      "attributes": {
+        "parsed.application_name": "postgrest",
+        "parsed.backend_type": "client backend",
+        "parsed.command_tag": "SELECT",
+        "parsed.database_name": "postgres",
+        "parsed.error_severity": "ERROR",
+        "parsed.process_id": "808640",
+        "parsed.query": "WITH pgrst_source AS (INSERT INTO \"public\".\"order_chat_messages\"(\"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\") SELECT \"pgrst_body\".\"created_at\", \"pgrst_body\".\"is_support\", \"pgrst_body\".\"message\", \"pgrst_body\".\"order_id\", \"pgrst_body\".\"rider_id\", \"pgrst_body\".\"sender_id\", \"pgrst_body\".\"sender_type\", \"pgrst_body\".\"user_id\" FROM (SELECT $1 AS json_data) pgrst_payload, LATERAL (SELECT \"created_at\", \"is_support\", \"message\", \"order_id\", \"rider_id\", \"sender_id\", \"sender_type\", \"user_id\" FROM json_to_record(pgrst_payload.json_data) AS _(\"created_at\" timestamp with time zone, \"is_support\" boolean, \"message\" text, \"order_id\" uuid, \"rider_id\" uuid, \"sender_id\" uuid, \"sender_type\" text, \"user_id\" uuid) ) pgrst_body  RETURNING \"public\".\"order_chat_messages\".\"created_at\", \"public\".\"order_chat_messages\".\"id\", \"public\".\"order_chat_messages\".\"message\", \"public\".\"order_chat_messages\".\"message_type\", \"public\".\"order_chat_messages\".\"sender_id\", \"public\".\"order_chat_messages\".\"sender_type\") SELECT '' AS total_result_set, pg_catalog.count(_postgrest_t) AS page_total, array[]::text[] AS header, coalesce(json_agg(_postgrest_t)->0, 'null') AS body, nullif(current_setting('response.headers', true), '') AS response_headers, nullif(current_setting('response.status', true), '') AS response_status, '' AS response_inserted FROM (SELECT \"order_chat_messages\".\"id\", \"order_chat_messages\".\"sender_id\", \"order_chat_messages\".\"sender_type\", \"order_chat_messages\".\"message\", \"order_chat_messages\".\"message_type\", \"order_chat_messages\".\"created_at\" FROM \"pgrst_source\" AS \"order_chat_messages\"   ) _postgrest_t",
+        "parsed.query_id": "-7777277464788977126",
+        "parsed.session_id": "6ae767e0.c56c0",
+        "parsed.session_line_num": "1",
+        "parsed.session_start_time": "2026-11-01 16:25:04 UTC",
+        "parsed.sql_state_code": "57014",
+        "parsed.timestamp": "2026-11-01 16:33:31.557 UTC",
+        "parsed.transaction_id": "0",
+        "parsed.user_name": "authenticator",
+        "parsed.virtual_transaction_id": "36/159191"
+      }
+    },
+    {
+      "timestamp": "2026-11-01T16:33:31.780449",
+      "source": "postgrest_logs",
+      "message": "{\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:33:31.802403",
+      "source": "postgrest_logs",
+      "message": "127.0.0.1 - authenticated [01/Nov/2026:16:33:31 +0000] \"POST /order_chat_messages?select=id%2Csender_id%2Csender_type%2Cmessage%2Cmessage_type%2Ccreated_at HTTP/1.1\" 500 100 \"\" \"Dart/3.11 (dart:io)\"",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:33:43.685734",
+      "source": "postgrest_logs",
+      "message": "Warp server error: Thread killed by timeout manager",
+      "attributes": {}
+    },
+    {
+      "timestamp": "2026-11-01T16:33:43.708661",
+      "source": "postgrest_logs",
+      "message": "Warp server error: Thread killed by timeout manager01/Nov/2026:16:33:43 +0000: Warp server error: Thread killed by timeout manager",
+      "attributes": {}
+    }
+  ]
+}

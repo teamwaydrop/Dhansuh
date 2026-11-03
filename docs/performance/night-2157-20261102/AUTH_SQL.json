@@ -1,0 +1,14 @@
+{
+  "window_start_utc": "2026-11-02T16:27:00Z",
+  "window_end_utc": "2026-11-02T16:33:30Z",
+  "sql": "SELECT queryid::text,query,calls,mean_exec_time,max_exec_time FROM extensions.pg_stat_statements WHERE queryid=8074250554804319433",
+  "rows": [
+    {
+      "queryid": "8074250554804319433",
+      "query": "SELECT users.aud, users.banned_until, users.confirmation_sent_at, users.confirmation_token, users.confirmed_at, users.created_at, users.deleted_at, users.email, users.email_change, users.email_change_confirm_status, users.email_change_sent_at, users.email_change_token_current, users.email_change_token_new, users.email_confirmed_at, users.encrypted_password, users.id, users.instance_id, users.invited_at, users.is_anonymous, users.is_sso_user, users.last_sign_in_at, users.phone, users.phone_change, users.phone_change_sent_at, users.phone_change_token, users.phone_confirmed_at, users.raw_app_meta_data, users.raw_user_meta_data, users.reauthentication_sent_at, users.reauthentication_token, users.recovery_sent_at, users.recovery_token, users.role, users.updated_at FROM users AS users WHERE instance_id = $1 and id = $2 LIMIT $3",
+      "calls": 57068,
+      "mean_exec_time": 4.11251605524991,
+      "max_exec_time": 1328.089501
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { fetchWithTimeout } from "../_shared/http.ts";
 import { getProductionConfig, isFeatureEnabled } from "../_shared/production_config_cache.ts";
+import { resolveCashfreeCustomerPhone } from "../_shared/customer_phone.ts";
 
 // =====================================================
 // CORS
@@ -102,6 +103,34 @@ serve(async (req) => {
     }
 
     const user = authData.user;
+
+    // =================================================
+    // CASHFREE CUSTOMER PHONE
+    // -------------------------------------------------
+    // The caller of create-payment is always the person who pays (passenger for a fare,
+    // rider for tax_due / cod_settlement / subscription), so the Cashfree customer is
+    // this user. Resolve their real verified number from auth.users.phone (mirrored to
+    // public.users.phone) instead of the old `user.phone ?? "9999999999"` literal, which
+    // showed "+91 9999999999" in Cashfree checkout for every account whose phone wasn't
+    // populated on the JWT. The reviewer bypass account (is_anonymous) legitimately has no
+    // phone and keeps the test number; a real user with no phone anywhere is rejected
+    // rather than given an invented number.
+    // =================================================
+
+    const resolvedPhone = await resolveCashfreeCustomerPhone(supabaseAdmin, user.id);
+
+    if (resolvedPhone.phone === null) {
+      return new Response(
+        JSON.stringify({
+          error: "phone_number_missing",
+          message:
+            "No verified phone number is on file for this account. Please sign out and sign in again with your phone number before making a payment.",
+        }),
+        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const customerPhone = resolvedPhone.phone;
 
     // =================================================
     // BODY
@@ -683,7 +712,7 @@ serve(async (req) => {
         customer_id: user.id,
         customer_name: user.user_metadata?.full_name ?? "WayDropX User",
         customer_email: user.email ?? "support@waydropx.com",
-        customer_phone: user.phone ?? "9999999999",
+        customer_phone: customerPhone,
       },
     };
 

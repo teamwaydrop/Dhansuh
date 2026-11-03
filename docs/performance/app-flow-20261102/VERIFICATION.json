@@ -1,0 +1,61 @@
+{
+  "date_ist": "2026-11-02",
+  "production_reads": 0,
+  "production_writes": 0,
+  "deployments": 0,
+  "apk_built": false,
+  "paid_resources": 0,
+  "baseline_first_two_widget_cases": {
+    "pass": 1,
+    "expected_failure": 1,
+    "meaningful_failure": "SkeletonLoader remains while only earnings response is withheld"
+  },
+  "new_widget_cases": {
+    "pass": 5,
+    "failed": 0
+  },
+  "full_flutter": {
+    "passed": 2128,
+    "failed": 0,
+    "previous": 2123,
+    "added": 5
+  },
+  "targeted_analyzer": {
+    "errors": 0,
+    "warnings": 0,
+    "infos": 0,
+    "exit_code": 0
+  },
+  "measurement": "Core Home and assignment reconciliation proceed before the withheld earnings response; no measured handset latency gain or total SQL workload reduction.",
+  "logs": {
+    "home-critical-before.log": {
+      "path": ".dart_tool\\waydrop-local-runtime\\home-critical-before.log",
+      "sha256": "aac4c56a700e44f001a2dd97ec62bfe5a27fc5521683863201e3af9479c00303",
+      "marker_verified": "+1 -1: Some tests failed."
+    },
+    "home-critical-five.log": {
+      "path": ".dart_tool\\waydrop-local-runtime\\home-critical-five.log",
+      "sha256": "f7713ac8215a724154eead51a0abd7d55a21df0292871ad877c00be9e19ee1aa",
+      "marker_verified": "+5: All tests passed!"
+    },
+    "home-critical-full-flutter.log": {
+      "path": ".dart_tool\\waydrop-local-runtime\\home-critical-full-flutter.log",
+      "sha256": "859918f4f716fa8e3a4537e06d264b23238884b755af2ad9b61c02ea51bdfe9a",
+      "marker_verified": "+2128: All tests passed!"
+    },
+    "home-critical-analyze.log": {
+      "path": ".dart_tool\\waydrop-local-runtime\\home-critical-analyze.log",
+      "sha256": "804430dc8e09d4b331e7f7f2f91d2228f8a41b0373e2057dcdb527d8b67b66d8",
+      "marker_verified": "No issues found!"
+    }
+  },
+  "implementation_and_reports": {
+    "lib/features/rider/home/rider_home_tab.dart": "f067f0a72aff4b484a2e160b596dd42e7d3d7e59812a33da6dea95430fa70f64",
+    "test/rider_home_critical_path_test.dart": "0fda6097a4055817a791cea65d17ca168585ff9c63fab4097f22a169e9859f66",
+    "docs/performance/WAYDROP_APP_FLOW_OPTIMIZATION.md": "8c8cd13af97a0a41c340ba7ebd3c3caa3dced5dff1bc05e2beb07d2743d8aa9a",
+    "docs/performance/WAYDROP_PERFORMANCE_FIX_REPORT.md": "d11083e7b952f4f1ae0f2f85fdef025cf7638ee2a6263fb438d54702c2884ccb"
+  },
+  "preserved": "KYC/eligibility, atomic acceptance/payments, GPS, Realtime, gross-fare/local-day calculations, existing single-flight and prior fixes",
+  "release": "Flutter local candidate only; new APK/device comparison required. Combined SQL/Edge gates unchanged.",
+  "incident_root_cause_established": false
+}

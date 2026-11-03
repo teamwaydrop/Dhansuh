@@ -1,0 +1,110 @@
+--- rider_home.before.dart
++++ lib/features/rider/home/rider_home_tab.dart
+@@ -56,6 +56,8 @@
+   final supabase = Supabase.instance.client;
+   Map<String, dynamic>? rider;
+   double todayEarnings = 0.0;
++  bool _earningsLoading = false;
++  bool _earningsUnavailable = false;
+   // Item 4: a traveller can have several concurrently active intercity passengers under one
+   // travel plan (each their own `orders` row, same rider_id) -- this must be a list, not a single
+   // nullable order, or every entry past the first silently disappears from Rider Home.
+@@ -185,6 +187,31 @@
+     }
+     _lastEarningsFetchAt = DateTime.now();
+     return total;
++  }
++
++  // Earnings is display-only. Never hold the Home loader, assignment setup or
++  // location reconciliation behind this secondary query. Keep the existing
++  // single-flight query and ignore responses after disposal/account changes.
++  Future<void> _refreshHomeEarnings(String riderId) async {
++    final userId = supabase.auth.currentUser?.id;
++    bool ownsView() =>
++        mounted &&
++        supabase.auth.currentUser?.id == userId &&
++        rider?['id']?.toString() == riderId;
++    if (!ownsView()) return;
++    setState(() {
++      _earningsLoading = true;
++      _earningsUnavailable = false;
++    });
++    try {
++      final value = await _fetchTodayEarnings(riderId);
++      if (ownsView()) setState(() => todayEarnings = value);
++    } catch (_) {
++      if (ownsView()) setState(() => _earningsUnavailable = true);
++      debugPrint('Home earnings unavailable; core Home remains usable.');
++    } finally {
++      if (ownsView()) setState(() => _earningsLoading = false);
++    }
+   }
+ 
+   // R1 FIX #3 (consistency pass): initialRiderDataProvider is a StateProvider written exactly
+@@ -240,9 +267,7 @@
+     // doing a full live fetch exactly as before.
+     loadRider(skipQuery: seedUsable);
+     if (seedUsable && initialData.todayEarnings == null && rider != null) {
+-      _fetchTodayEarnings(rider!['id'].toString()).then((value) {
+-        if (mounted) setState(() => todayEarnings = value);
+-      }).catchError((Object error) { debugPrint('Deferred earnings failed'); });
++      unawaited(_refreshHomeEarnings(rider!['id'].toString()));
+     }
+     WidgetsBinding.instance.addObserver(this);
+     _startSilentRefreshTimer();
+@@ -410,35 +435,27 @@
+             .maybeSingle().timeout(const Duration(seconds: 8));
+         if (!mounted) return;
+ 
+-        double calculatedTodayEarnings = 0.0;
+         if (data != null) {
+           final kyc = data['rider_kyc!riders_kyc_id_fkey'] ?? data['rider_kyc'];
+           if (kyc is Map) {
+             data['full_name'] = kyc['full_name'];
+             data['rider_image'] = kyc['rider_image'];
+           }
+-
+-          final lastFetch = _lastEarningsFetchAt;
+-          if (lastFetch != null && DateTime.now().difference(lastFetch) < _earningsFetchDedupeWindow) {
+-            // subscribeRider's own riders-row realtime callback already refreshed this within the
+-            // dedupe window (same underlying completion event) -- reuse it instead of re-querying.
+-            calculatedTodayEarnings = todayEarnings;
+-          } else {
+-            try {
+-              calculatedTodayEarnings = await _fetchTodayEarnings(data['id'].toString());
+-            } catch (err) {
+-              debugPrint('Error calculating today earnings in loadRider: $err');
+-            }
+-          }
+         }
+ 
+         if (!mounted) return;
+         setState(() {
+           rider = data;
+           isOnline = rider?['account_status'] == 'online';
+-          todayEarnings = calculatedTodayEarnings;
++          if (data == null) todayEarnings = 0.0;
+           loading = false;
+         });
++        final lastFetch = _lastEarningsFetchAt;
++        if (data != null &&
++            (lastFetch == null ||
++                DateTime.now().difference(lastFetch) >= _earningsFetchDedupeWindow)) {
++          unawaited(_refreshHomeEarnings(data['id'].toString()));
++        }
+       }
+       if (rider != null) {
+         subscribeRider(rider!['id']);
+@@ -3846,7 +3863,11 @@
+                       ),
+                       const SizedBox(height: 2),
+                       Text(
+-                        '₹${_fmt(today)}',
++                        _earningsLoading
++                            ? 'Loading…'
++                            : _earningsUnavailable
++                                ? 'Unavailable'
++                                : '₹${_fmt(today)}',
+                         style: const TextStyle(
+                           fontSize: 22,
+                           fontWeight: FontWeight.w900,

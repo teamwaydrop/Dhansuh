@@ -1,0 +1,45 @@
+{
+  "productionConnected": false,
+  "tests": [
+    {
+      "name": "restricted login uses existing service-role grants, not superuser",
+      "status": "PASS"
+    },
+    {
+      "name": "real SDK Auth endpoint denies missing, forged and expired sessions without writes",
+      "status": "PASS"
+    },
+    {
+      "name": "real SDK REST plus restricted direct transaction: one winner and losing 409",
+      "status": "PASS"
+    },
+    {
+      "name": "network winner retries emit no duplicate events; wrong actor cannot claim rider",
+      "status": "PASS"
+    },
+    {
+      "name": "actual PostgREST JWT and financial RLS reject forged/direct financial writes",
+      "status": "PASS"
+    },
+    {
+      "name": "missing service-role membership fails closed without partial writes",
+      "status": "PASS"
+    },
+    {
+      "name": "real row-lock timeout returns retryable 503, no writes, later retry succeeds",
+      "status": "PASS"
+    },
+    {
+      "name": "terminated transaction connection never reports success; fresh retry succeeds",
+      "status": "PASS"
+    }
+  ],
+  "requests": {
+    "auth": 11,
+    "rest": 18
+  },
+  "limitations": [
+    "Synthetic local Auth verifier, not managed GoTrue.",
+    "Local plaintext loopback transport; hosted TLS, Realtime, pg_net/Vault, global rollout and real notification delivery remain untested."
+  ]
+}

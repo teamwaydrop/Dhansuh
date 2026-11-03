@@ -1,0 +1,116 @@
+[
+  {
+    "file": "lib/modules/chat/services/chat_message_delivery.dart",
+    "line": 15,
+    "function": "ChatMessageDelivery",
+    "change": "Stable UUID, one outstanding account write, pending-send joining, scope-checked duplicate recovery and 8/16/32/64/120s backoff"
+  },
+  {
+    "file": "lib/modules/chat/screens/order_chat_screen.dart",
+    "line": 1253,
+    "function": "_sendMessage",
+    "change": "Durable outbox before POST; no non-cancelling eight-second INSERT timeout; preserve send guards and optimistic UI"
+  },
+  {
+    "file": "lib/modules/chat/screens/order_chat_screen.dart",
+    "line": 195,
+    "function": "_syncOfflineQueue",
+    "change": "Persist legacy UUID before replay, acknowledge against fresh queue, keep failures, merge realtime/REST bubbles"
+  },
+  {
+    "file": "lib/modules/chat/screens/order_chat_screen.dart",
+    "line": 140,
+    "function": "_startSyncTimer / didChangeAppLifecycleState",
+    "change": "Stop background/disposed replay timers; remove unrelated Google DNS prerequisite"
+  },
+  {
+    "file": "lib/features/user/home/home_tab.dart",
+    "line": 695,
+    "function": "_load / _loadMeasured",
+    "change": "Order events reuse account-scoped display profiles for <30s; full/manual/resume loads revalidate; retain true in-flight read lane"
+  },
+  {
+    "file": "lib/features/user/home/home_tab.dart",
+    "line": 1065,
+    "function": "_subscribeActiveOrders",
+    "change": "Keep same-account subscription; order events request orders-only refresh"
+  },
+  {
+    "file": "lib/features/user/home/home_tab.dart",
+    "line": 221,
+    "function": "_startSilentRefreshTimer",
+    "change": "Pause covered-route passive polling; dirty/failed refresh still gets bounded fallback despite continuing realtime"
+  },
+  {
+    "file": "lib/features/user/home/profile_refresh_window.dart",
+    "line": 3,
+    "function": "reuseFor / recordSuccess",
+    "change": "Account/age-bound display reuse; never an authorization cache"
+  },
+  {
+    "file": "lib/modules/notifications/services/notification_badge_service.dart",
+    "line": 47,
+    "function": "_refreshOnce / startListening / stopListening",
+    "change": "Hold count lane until HTTP ends; filter metadata-only changes using observed read state; clear observations on account change or failed count"
+  },
+  {
+    "file": "lib/modules/notifications/services/notification_count_events.dart",
+    "line": 3,
+    "function": "needsRefresh",
+    "change": "Bounded 256-row observations; unknown, INSERT, DELETE and read transitions reconcile"
+  },
+  {
+    "file": "lib/core/services/diagnostics/api_metrics_client.dart",
+    "line": 25,
+    "function": "send / _measureBody",
+    "change": "Development/profile numeric HTTP header/body completion timing and collection-level counts"
+  },
+  {
+    "file": "lib/core/services/diagnostics/performance_trace.dart",
+    "line": 7,
+    "function": "measure / record / startFrames",
+    "change": "Separate bounded screen/API/retry and build/raster samples; disabled in release"
+  },
+  {
+    "file": "lib/core/services/realtime/realtime_manager.dart",
+    "line": 279,
+    "function": "Postgres callback",
+    "change": "Numeric commit-to-receive age; includes client/server clock skew"
+  },
+  {
+    "file": "lib/main.dart",
+    "line": 49,
+    "function": "main",
+    "change": "Register development/profile frame timings"
+  },
+  {
+    "file": "lib/app_start_screen.dart",
+    "line": 89,
+    "function": "checkUserFlow",
+    "change": "Startup span only; Auth, suspension, maintenance and KYC gates preserved"
+  },
+  {
+    "file": "lib/features/rider/home/rider_home_tab.dart",
+    "line": 376,
+    "function": "_loadRiderOnce",
+    "change": "Rider Home span only; GPS and essential order listeners preserved"
+  },
+  {
+    "file": "lib/features/rider/orders/rider_orders_screen.dart",
+    "line": 791,
+    "function": "fetchSearchingOrders",
+    "change": "Rider Orders span only; dispatch and atomic acceptance preserved"
+  },
+  {
+    "file": "lib/features/local_rides/tracking/screens/ride_tracking_screen.dart",
+    "line": 180,
+    "function": "initialize",
+    "change": "Ride Tracking initialization span only"
+  },
+  {
+    "file": "lib/modules/notifications/screens/notifications_inbox_screen.dart",
+    "line": 50,
+    "function": "_load",
+    "change": "Notifications inbox load span only"
+  }
+]

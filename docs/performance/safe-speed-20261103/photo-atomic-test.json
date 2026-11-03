@@ -1,0 +1,1 @@
+{"compilerOptions":{"lib":["deno.window","dom","dom.iterable"],"useUnknownInCatchVariables":false},"imports":{"https://deno.land/std@0.168.0/http/server.ts":"../edge-load-20261103/photo_server_mock.ts","https://esm.sh/@supabase/supabase-js@2":"../edge-load-20261103/photo_client_mock.ts"}}

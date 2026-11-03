@@ -1,0 +1,80 @@
+{
+  "window_utc": [
+    "2026-11-03T04:24:00Z",
+    "2026-11-03T04:34:00Z"
+  ],
+  "evidence": {
+    "result": [
+      {
+        "http5xx": 0,
+        "max_ms": 0,
+        "n": 4,
+        "source": "auth_audit_logs",
+        "timeout_records": 0
+      },
+      {
+        "http5xx": 0,
+        "max_ms": 0,
+        "n": 131,
+        "source": "auth_logs",
+        "timeout_records": 0
+      },
+      {
+        "http5xx": 0,
+        "max_ms": 19991,
+        "n": 2098,
+        "source": "edge_logs",
+        "timeout_records": 0
+      },
+      {
+        "http5xx": 0,
+        "max_ms": 20643,
+        "n": 226,
+        "source": "function_edge_logs",
+        "timeout_records": 0
+      },
+      {
+        "http5xx": 0,
+        "max_ms": 0,
+        "n": 954,
+        "source": "function_logs",
+        "timeout_records": 0
+      },
+      {
+        "http5xx": 0,
+        "max_ms": 0,
+        "n": 111,
+        "source": "pgbouncer_logs",
+        "timeout_records": 0
+      },
+      {
+        "http5xx": 0,
+        "max_ms": 0,
+        "n": 71,
+        "source": "postgres_logs",
+        "timeout_records": 0
+      },
+      {
+        "http5xx": 0,
+        "max_ms": 0,
+        "n": 12,
+        "source": "postgrest_logs",
+        "timeout_records": 5
+      },
+      {
+        "http5xx": 0,
+        "max_ms": 0,
+        "n": 12,
+        "source": "realtime_logs",
+        "timeout_records": 1
+      },
+      {
+        "http5xx": 0,
+        "max_ms": 0,
+        "n": 59,
+        "source": "storage_logs",
+        "timeout_records": 0
+      }
+    ]
+  }
+}

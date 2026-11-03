@@ -1,6 +1,6 @@
+import 'package:waydrop/core/services/diagnostics/performance_trace.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:waydrop/core/services/realtime/realtime_manager.dart';
+import 'package:waydrop/modules/chat/services/chat_message_delivery.dart';
+import 'package:waydrop/modules/chat/services/chat_message_merge.dart';
 import 'package:waydrop/features/intercity/shared/services/intercity_matching_service.dart';
 import 'package:waydrop/shared/helpers/fare_presentation_helper.dart';
 import 'package:waydrop/shared/widgets/app_snackbar.dart';
@@ -39,8 +41,11 @@ List<Map<String, dynamic>> mergeSentMessage(
     if (tempIdx != -1) result.removeAt(tempIdx);
   } else if (tempIdx != -1) {
     result[tempIdx] = Map<String, dynamic>.from(inserted);
+  } else {
+    // A delayed history response may have replaced the optimistic bubble.
+    result.add(Map<String, dynamic>.from(inserted));
   }
-  return result;
+  return mergeChatMessages(result, const []);
 }
 
 class OrderChatScreen extends StatefulWidget {
@@ -62,13 +67,14 @@ class OrderChatScreen extends StatefulWidget {
   @override
   State<OrderChatScreen> createState() => _OrderChatScreenState();
 }
-class _OrderChatScreenState extends State<OrderChatScreen> {
+class _OrderChatScreenState extends State<OrderChatScreen> with WidgetsBindingObserver {
   final supabase = Supabase.instance.client;
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<Map<String, dynamic>> _messages = [];
   bool _loading = true;
-  RealtimeChannel? _chatChannel;
+  String? _chatSubscriptionId;
+  String? _chatChannelName;
   String? _currentUserId;
   String? _chatUserId; // The client user ID involved in the support session
   String _senderType = 'user';
@@ -80,11 +86,12 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
   // "before accepted" guard and the message insert's rider_id both still work correctly.
   String? _resolvedRiderId;
   String? get _effectiveRiderId => widget.riderId ?? _resolvedRiderId;
-  RealtimeChannel? _requestChannel;
   bool _orderPanelExpanded = false;
   
   Timer? _syncTimer;
   bool _syncing = false;
+  Future<void>? _historyInFlight;
+  bool _historyQueued = false;
 
   static const Color primaryLime = Color(0xFFC5FF30);
   static const Color textGray = Color(0xFF94A3B8);
@@ -93,6 +100,7 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _currentUserId = supabase.auth.currentUser?.id;
     _initializeChat();
     _checkAndStartSync();
@@ -100,13 +108,11 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
 
   @override
   void dispose() {
-    if (_chatChannel != null) {
-      supabase.removeChannel(_chatChannel!);
-      _chatChannel = null;
-    }
-    if (_requestChannel != null) {
-      supabase.removeChannel(_requestChannel!);
-      _requestChannel = null;
+    WidgetsBinding.instance.removeObserver(this);
+    if (_chatSubscriptionId != null && _chatChannelName != null) {
+      RealtimeManager.instance.unsubscribe(_chatChannelName!, _chatSubscriptionId!);
+      _chatSubscriptionId = null;
+      _chatChannelName = null;
     }
     if (_requestSubId != null) {
       RealtimeManager.instance.unsubscribe('intercity-request-${widget.orderId}-$_effectiveRiderId', _requestSubId!);
@@ -138,20 +144,29 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
   }
 
   void _startSyncTimer() {
+    if (!mounted || (WidgetsBinding.instance.lifecycleState != null &&
+        WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed)) {
+      return;
+    }
     if (_syncTimer != null && _syncTimer!.isActive) return;
     _syncTimer = Timer.periodic(const Duration(seconds: 8), (_) => _syncOfflineQueue());
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkAndStartSync();
+      if (_chatSubscriptionId != null) unawaited(_fetchMessages());
+    } else {
+      _syncTimer?.cancel();
+    }
+  }
+
   Future<void> _queueOfflineMessage(Map<String, dynamic> msg) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final key = _getOfflineQueueKey();
-      final currentQueueJson = prefs.getStringList(key) ?? [];
-      currentQueueJson.add(jsonEncode(msg));
-      await prefs.setStringList(key, currentQueueJson);
+    final prefs = await SharedPreferences.getInstance();
+    await ChatMessageDelivery.enqueue(prefs, _getOfflineQueueKey(), msg);
+    if (mounted && WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
       _startSyncTimer();
-    } catch (e) {
-      debugPrint('QUEUE OFFLINE MESSAGE ERROR => $e');
     }
   }
 
@@ -162,20 +177,12 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
       final currentQueueJson = prefs.getStringList(key) ?? [];
       final offlineMsgs = currentQueueJson
           .map((item) => jsonDecode(item) as Map<String, dynamic>)
+          .where((message) => message['sender_id'] == _currentUserId)
           .toList();
 
-      if (mounted && offlineMsgs.isNotEmpty) {
+      if (mounted && supabase.auth.currentUser?.id == _currentUserId && offlineMsgs.isNotEmpty) {
         setState(() {
-          for (var offlineMsg in offlineMsgs) {
-            final id = offlineMsg['id'];
-            _messages.removeWhere((m) => m['id'] == id);
-            _messages.add(offlineMsg);
-          }
-          _messages.sort((a, b) {
-            final aTime = DateTime.parse(a['created_at']);
-            final bTime = DateTime.parse(b['created_at']);
-            return aTime.compareTo(bTime);
-          });
+          _messages = mergeChatMessages(_messages, offlineMsgs);
         });
       }
     } catch (e) {
@@ -184,102 +191,69 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
   }
 
   Future<void> _syncOfflineQueue() async {
-    if (_syncing || _currentUserId == null || _chatUserId == null) return;
+    if (_syncing || _currentUserId == null || _chatUserId == null ||
+        supabase.auth.currentUser?.id != _currentUserId ||
+        !ChatMessageDelivery.instance.canAttempt(_currentUserId!)) {
+      return;
+    }
     _syncing = true;
     try {
       final prefs = await SharedPreferences.getInstance();
       final key = _getOfflineQueueKey();
-      final currentQueueJson = prefs.getStringList(key) ?? [];
-      if (currentQueueJson.isEmpty) {
-        _syncTimer?.cancel();
-        _syncing = false;
-        return;
-      }
-
-      final hasInternet = await _checkInternetConnection();
-      if (!hasInternet) {
-        _syncing = false;
-        return;
-      }
-
-      final List<String> remainingQueue = [];
-      final List<Map<String, dynamic>> syncedMessages = [];
-
-      for (final itemJson in currentQueueJson) {
-        final msgMap = jsonDecode(itemJson) as Map<String, dynamic>;
-        try {
-          final sendData = Map<String, dynamic>.from(msgMap);
-          final tempId = sendData['id'];
-          sendData.remove('id');
-          sendData.remove('is_offline');
-
-          // Egress fix: narrowed to the same field set the main history query (below) and
-          // _messages rendering already use -- the inserted row has more columns (order_id,
-          // rider_id, user_id, is_offline, ...) but nothing downstream of this insert reads them.
-          final inserted = await supabase
-              .from('order_chat_messages')
-              .insert(sendData)
-              .select('id, sender_id, sender_type, message, message_type, created_at')
-              .single();
-
-          syncedMessages.add({
-            'tempId': tempId,
-            'inserted': Map<String, dynamic>.from(inserted),
-          });
-        } catch (e) {
-          debugPrint('SYNC INDIVIDUAL MESSAGE ERROR => $e');
-          final isNetworkErr = e.toString().contains('SocketException') ||
-                               e.toString().contains('ClientException') ||
-                               e.toString().contains('Failed host lookup');
-          if (isNetworkErr) {
-            remainingQueue.addAll(currentQueueJson.sublist(currentQueueJson.indexOf(itemJson)));
-            break;
-          }
+      final pending = prefs.getStringList(key) ?? [];
+      for (final item in pending) {
+        if (!mounted || supabase.auth.currentUser?.id != _currentUserId ||
+            (WidgetsBinding.instance.lifecycleState != null &&
+             WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed)) {
+          break;
         }
-      }
-
-      await prefs.setStringList(key, remainingQueue);
-
-      if (mounted && syncedMessages.isNotEmpty) {
-        setState(() {
-          for (var syncItem in syncedMessages) {
-            final tempId = syncItem['tempId'];
-            final inserted = syncItem['inserted'];
-            final idx = _messages.indexWhere((m) => m['id'] == tempId);
-            if (idx != -1) {
-              _messages[idx] = inserted;
-            } else {
-              _messages.add(inserted);
+        final message = ChatMessageDelivery.prepare(jsonDecode(item) as Map<String, dynamic>);
+        // Preserve another account's entries without blocking this account's outbox.
+        if (message['sender_id'] != _currentUserId) continue;
+        await ChatMessageDelivery.replaceQueued(prefs, key, message);
+        if (!mounted || supabase.auth.currentUser?.id != _currentUserId ||
+            (WidgetsBinding.instance.lifecycleState != null &&
+             WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed)) {
+          break;
+        }
+        try {
+          final inserted = await ChatMessageDelivery.instance.send(message);
+          await ChatMessageDelivery.acknowledge(prefs, key, message['id']);
+          if (mounted && supabase.auth.currentUser?.id == _currentUserId) {
+            setState(() {
+              _messages = mergeSentMessage(_messages, message['id'].toString(), inserted);
+            });
+          }
+        } catch (error) {
+          // Retain every unsent message. Permanent failures require user action.
+          if (!ChatMessageDelivery.retryable(error)) {
+            _syncTimer?.cancel();
+            if (mounted) {
+              showAppSnackBar(context,
+                'A saved message could not be sent. Please reopen chat to retry.',
+                type: SnackBarType.info);
             }
           }
-          _messages.sort((a, b) {
-            final aTime = DateTime.parse(a['created_at']);
-            final bTime = DateTime.parse(b['created_at']);
-            return aTime.compareTo(bTime);
-          });
-        });
+          break;
+        }
       }
-
-      if (remainingQueue.isEmpty) {
+      if ((prefs.getStringList(key) ?? []).isEmpty) {
         _syncTimer?.cancel();
       }
-    } catch (e) {
-      debugPrint('SYNC OFFLINE QUEUE ERROR => $e');
+    } catch (_) {
+      _syncTimer?.cancel();
+      if (mounted) {
+        showAppSnackBar(context, 'Saved messages could not be loaded. Please reopen chat.',
+            type: SnackBarType.info);
+      }
     } finally {
       _syncing = false;
     }
   }
 
-  Future<bool> _checkInternetConnection() async {
-    try {
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 3));
-      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-    } catch (_) {
-      return false;
-    }
-  }
-  Future<void> _initializeChat() async {
+  Future<void> _initializeChat() => PerformanceTrace.measure('chat', () => _initializeChatMeasured());
+
+  Future<void> _initializeChatMeasured() async {
     if (_currentUserId == null) return;
     // Determine chat user ID and sender type
     try {
@@ -301,7 +275,9 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
       debugPrint('LOAD PROFILE ROLE ERROR => $e');
       _chatUserId = _currentUserId;
     }
+    if (!mounted || supabase.auth.currentUser?.id != _currentUserId) return;
     await _fetchMessages();
+    if (!mounted || supabase.auth.currentUser?.id != _currentUserId) return;
     // Auto-init support message when opened from an order
     if (widget.isSupport && widget.orderId.isNotEmpty) {
       final hasSentOrderInfo = _messages.any((m) => m['message']?.toString().contains(widget.orderId) ?? false);
@@ -312,7 +288,7 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
               .select('order_status, final_fare, current_fare, users(phone)')
               .eq('id', widget.orderId)
               .maybeSingle();
-          if (orderRes != null) {
+          if (orderRes != null && mounted && supabase.auth.currentUser?.id == _currentUserId) {
             final status = orderRes['order_status']?.toString() ?? 'searching';
             final fare = orderRes['final_fare'] ?? orderRes['current_fare'] ?? 0;
             final userMap = orderRes['users'] as Map<String, dynamic>?;
@@ -327,15 +303,8 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
               'is_support': true,
               'order_id': widget.orderId,
             });
-            // Insert agent welcoming message from 'support' sender
-            await supabase.from('order_chat_messages').insert({
-              'sender_id': '00000000-0000-0000-0000-000000000000', // System support UUID
-              'sender_type': 'support',
-              'message': 'How can I help you with this order today?',
-              'user_id': _chatUserId,
-              'is_support': true,
-              'order_id': widget.orderId,
-            });
+            // Agent messages must be sent by an authenticated agent or trusted
+            // server, never inserted by a passenger with a forged sender UUID.
             // Re-fetch messages locally to render instantly
             await _fetchMessages();
           }
@@ -344,7 +313,7 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
         }
       }
     }
-    if (!mounted) return;
+    if (!mounted || supabase.auth.currentUser?.id != _currentUserId) return;
     _subscribeChat();
     _loadOrderDetails();
     _loadIntercityRequest();
@@ -1190,7 +1159,29 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
       ),
     );
   }
-  Future<void> _fetchMessages() async {
+  Future<void> _fetchMessages() {
+    if (!mounted || supabase.auth.currentUser?.id != _currentUserId) return Future.value();
+    _historyQueued = true;
+    final active = _historyInFlight;
+    if (active != null) return active;
+    final operation = _drainHistory();
+    _historyInFlight = operation;
+    return operation.whenComplete(() {
+      if (identical(_historyInFlight, operation)) _historyInFlight = null;
+    });
+  }
+
+  Future<void> _drainHistory() async {
+    do {
+      _historyQueued = false;
+      if (!await _fetchMessagesOnce()) {
+        _historyQueued = false;
+        break;
+      }
+    } while (_historyQueued && mounted && supabase.auth.currentUser?.id == _currentUserId);
+  }
+
+  Future<bool> _fetchMessagesOnce() async {
     try {
       // R14 perf fix: narrowed from a bare select() (every column) to exactly the fields this
       // screen ever reads off a fetched message row -- verified via a full grep of every
@@ -1214,17 +1205,18 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
         }
       }
       final res = await query.order('created_at', ascending: true);
-      if (mounted) {
+      if (mounted && supabase.auth.currentUser?.id == _currentUserId) {
         setState(() {
-          _messages = List<Map<String, dynamic>>.from(res);
+          _messages = mergeChatMessages(_messages, List<Map<String, dynamic>>.from(res));
           _loading = false;
         });
         await _loadOfflineMessagesIntoList();
         _scrollToBottom();
       }
+      return true;
     } catch (e) {
-      debugPrint('FETCH MESSAGES ERROR => $e');
-      if (mounted) {
+      debugPrint('Chat history unavailable');
+      if (mounted && supabase.auth.currentUser?.id == _currentUserId) {
         setState(() {
           _loading = false;
         });
@@ -1237,30 +1229,27 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
       if (isNetworkErr) {
         _startSyncTimer();
       }
+      return false;
     }
   }
   void _subscribeChat() {
-    var channelName = widget.isSupport
+    final channelName = widget.isSupport
         ? 'support-chat-$_chatUserId'
         : 'order-chat-${widget.orderId}-${widget.riderId}';
-    _chatChannel = supabase
-        .channel(channelName)
-        .onPostgresChanges(
-          event: PostgresChangeEvent.all,
-          schema: 'public',
-          table: 'order_chat_messages',
-          filter: widget.isSupport
-              ? PostgresChangeFilter(
-                  type: PostgresChangeFilterType.eq,
-                  column: 'user_id',
-                  value: _chatUserId!,
-                )
-              : PostgresChangeFilter(
-                  type: PostgresChangeFilterType.eq,
-                  column: 'order_id',
-                  value: widget.orderId,
-                ),
-          callback: (payload) {
+    _chatChannelName = channelName;
+    _chatSubscriptionId = RealtimeManager.instance.subscribe(
+      channelName: channelName,
+      table: 'order_chat_messages',
+      owner: 'OrderChatScreen_Messages',
+      // Updates/deletes were already no-ops in this callback (existing IDs are skipped and delete
+      // payloads have no newRecord). Subscribe only to inserts, the one event that changes this UI.
+      event: PostgresChangeEvent.insert,
+      filterColumn: widget.isSupport ? 'user_id' : 'order_id',
+      filterValue: widget.isSupport ? _chatUserId! : widget.orderId,
+      // Changes are not replayed across a socket gap. Reconcile once the join
+      // succeeds, including the gap between the initial history read and join.
+      onSubscribed: () => unawaited(_fetchMessages()),
+      callback: (payload) {
             final newMsg = payload.newRecord;
             if (newMsg.isEmpty) return;
             // In order negotiation, make sure rider matches too
@@ -1271,19 +1260,14 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
             if (widget.isSupport && newMsg['is_support'] != true) {
               return;
             }
-            if (mounted) {
+            if (mounted && supabase.auth.currentUser?.id == _currentUserId) {
               setState(() {
-                final id = newMsg['id']?.toString();
-                final exists = _messages.any((m) => m['id']?.toString() == id);
-                if (!exists) {
-                  _messages.add(Map<String, dynamic>.from(newMsg));
-                }
+                _messages = mergeChatMessages(_messages, [Map<String, dynamic>.from(newMsg)]);
               });
               _scrollToBottom();
             }
-          },
-        )
-        .subscribe();
+      },
+    );
   }
   // Chat is scoped to a single ride: once that ride has ended, it must stop accepting new
   // messages so a finished ride's thread can never be mistaken for (or reused as) the next
@@ -1317,9 +1301,11 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
     if (text.isEmpty || _currentUserId == null || _chatUserId == null) return;
     _messageController.clear();
 
-    final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
+    final stableId = ChatMessageDelivery.newMessageId();
+    final tempId = 'temp_$stableId';
     final insertData = {
       'id': tempId,
+      'client_message_id': stableId,
       'sender_id': _currentUserId,
       'sender_type': _senderType,
       'message': text,
@@ -1343,18 +1329,12 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
     }
 
     try {
-      final sendData = Map<String, dynamic>.from(insertData);
-      sendData.remove('id');
-      sendData.remove('is_offline');
-
-      // Egress fix: same narrowing as the offline-queue sync insert above -- only the fields
-      // _messages rendering actually reads.
-      final inserted = await supabase
-          .from('order_chat_messages')
-          .insert(sendData)
-          .select('id, sender_id, sender_type, message, message_type, created_at')
-          .single()
-          .timeout(const Duration(seconds: 8));
+      final prefs = await SharedPreferences.getInstance();
+      final queueKey = _getOfflineQueueKey();
+      // Persist before POST; Future.timeout does not cancel an INSERT.
+      await ChatMessageDelivery.enqueue(prefs, queueKey, insertData);
+      final inserted = await ChatMessageDelivery.instance.send(insertData);
+      await ChatMessageDelivery.acknowledge(prefs, queueKey, tempId);
 
       if (mounted) {
         setState(() {
@@ -1363,16 +1343,11 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
       }
     } catch (e) {
       debugPrint('SEND MESSAGE ERROR => $e');
-      final isNetworkErr = e.toString().contains('SocketException') ||
-                           e.toString().contains('ClientException') ||
-                           e.toString().contains('Failed host lookup') ||
-                           e.toString().contains('Timeout') ||
-                           e.toString().contains('Network') ||
-                           e.toString().contains('connection');
-
-      if (isNetworkErr) {
+      if (ChatMessageDelivery.retryable(e)) {
         await _queueOfflineMessage(insertData);
       } else {
+        final prefs = await SharedPreferences.getInstance();
+        await ChatMessageDelivery.acknowledge(prefs, _getOfflineQueueKey(), tempId);
         if (mounted) {
           setState(() {
             _messages.removeWhere((m) => m['id'] == tempId);
@@ -1391,7 +1366,7 @@ class _OrderChatScreenState extends State<OrderChatScreen> {
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Failed to send message: $e'),
+                content: const Text('Could not send this message. Please try again.'),
                 backgroundColor: Colors.red,
               ),
             );

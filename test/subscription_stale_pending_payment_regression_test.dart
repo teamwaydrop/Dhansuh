@@ -156,7 +156,9 @@ void main() {
     });
 
     test('customer_phone mapping is untouched by this fix', () {
-      expect(createPayment.contains('customer_phone: user.phone ?? "9999999999",'), isTrue);
+      expect(createPayment.contains('resolveCashfreeCustomerPhone(supabaseAdmin, user.id)'), isTrue);
+      expect(createPayment.contains('customer_phone: customerPhone'), isTrue);
+      expect(createPayment.contains('customer_phone: user.phone ??'), isFalse);
     });
   });
 }

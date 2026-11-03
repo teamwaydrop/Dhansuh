@@ -1,0 +1,18 @@
+{
+  "passed_groups": 9,
+  "failed": 0,
+  "groups": [
+    "atomic success, exact replay and zero coordinates",
+    "eight simultaneous callers produce one set of effects",
+    "foreign actor denied with zero effects",
+    "failure at each of four durable transitions rolls back everything",
+    "legacy partial result fails closed without automatic repair",
+    "assignment replacement locks out waiting old-rider proof",
+    "crash after effects before commit rolls back; retry recovers once",
+    "service-only ACL",
+    "dropoff proof does not set pickup completion flag"
+  ],
+  "fixture": "waydrop_photo_atomic_test",
+  "managed_auth_and_triggers": false,
+  "production": false
+}

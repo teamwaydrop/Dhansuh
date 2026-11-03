@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-01",
+  "project": "yvwpchffctiagevpqgwy",
+  "productionReadOnly": true,
+  "productionMutations": 0,
+  "releaseArtifactHashesVerified": 5,
+  "currentAcceptanceEdge": {
+    "version": 60,
+    "verify_jwt": false,
+    "bundleIdentifier": "9e6101aa857a902aefaa82d64d066f845e506e18e60f34441f85a4dc08af9f01",
+    "sourceMatchesCapturedV60": true,
+    "sourceSha256": "521fd8533d8a6d0fde15ccf9ceb211a8c631e3822f82c7f324b9e629736c9dfc"
+  },
+  "backupAvailability": {
+    "status": "PENDING",
+    "reason": "Available MCP operations and project metadata expose no backup inventory or restore-point verification operation."
+  },
+  "historicalEdgeRollback": {
+    "status": "PENDING",
+    "reason": "Current deployed source/version can be retrieved; historical version inventory, old hosted bundles and restore/redeploy proof are not exposed by available read-only tools."
+  }
+}

@@ -15,7 +15,8 @@ import 'package:flutter_test/flutter_test.dart';
 String _read(String path) => File(path).readAsStringSync();
 
 void main() {
-  final calculatePricing = _read('supabase/functions/calculate-order-pricing/index.ts');
+  final calculatePricingEndpoint = _read('supabase/functions/calculate-order-pricing/index.ts');
+  final calculatePricing = _read('supabase/functions/calculate-order-pricing/pricing-calculations.ts');
   final fareGuardMigration = _read('supabase/migrations/20260728000000_fix_intercity_parcel_pricing_and_fare_guard.sql');
   final postTravelPlan = _read('lib/features/rider/travel_plans/screens/post_travel_plan_screen.dart');
   final intercityBooking = _read('lib/features/intercity/parcels/booking/intercity_booking_screen.dart');
@@ -27,7 +28,10 @@ void main() {
       expect(calculatePricing.contains('rules.per_km_rate'), isTrue);
       // Kept as the LAST fallback after the pre-existing aliases, so no currently-working row
       // (which already resolves via after_base_per_km/per_km_charge/per_km) changes behavior.
-      final line = calculatePricing.split('\n').firstWhere((l) => l.contains('const perKmCharge ='));
+      expect(calculatePricingEndpoint.contains('from "./pricing-calculations.ts"'), isTrue);
+      expect(calculatePricingEndpoint.contains('calculateFare(rules, rawDistance'), isTrue);
+      final start = calculatePricing.indexOf('const perKmCharge =');
+      final line = calculatePricing.substring(start, calculatePricing.indexOf(';', start));
       expect(line.indexOf('rules.after_base_per_km'), lessThan(line.indexOf('rules.per_km_rate')));
       expect(line.indexOf('rules.per_km_charge'), lessThan(line.indexOf('rules.per_km_rate')));
     });

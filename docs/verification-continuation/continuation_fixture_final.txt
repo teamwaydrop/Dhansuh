@@ -1,0 +1,21 @@
+00:00 +0: loading C:/Users/karth/Desktop/appclad/test/create_order_surgical_phase1_regression_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: 0. The current create-order file preserves the tracked pre-control implementation the tracked baseline file contains no Phase 1 code (the fixture is pre-control source, not the patched working copy)
+00:00 +1: 0. The current create-order file preserves the tracked pre-control implementation the current file is tracked baseline + exactly 36 added lines, 0 removed, 0 changed elsewhere (one import plus the 35-line control insertion)
+00:00 +2: A-F. Mirrored gate logic: real behavioral coverage of every required case A. all flags true (or omitted -- defaults true) -> every order type proceeds (local ride, local parcel, intercity ride, intercity parcel)
+00:00 +3: A-F. Mirrored gate logic: real behavioral coverage of every required case B. local_rides_enabled=false -> local ride (order_type=ride) rejected
+00:00 +4: A-F. Mirrored gate logic: real behavioral coverage of every required case C. ride_booking_enabled=false -> local ride (order_type=ride) rejected
+00:00 +5: A-F. Mirrored gate logic: real behavioral coverage of every required case D. parcel_enabled=false -> local parcel (order_type=local_parcel) rejected
+00:00 +6: A-F. Mirrored gate logic: real behavioral coverage of every required case E. intercity_enabled=false -> intercity ride (order_type=intercity_ride) rejected
+00:00 +7: A-F. Mirrored gate logic: real behavioral coverage of every required case F. intercity_enabled=false -> intercity parcel (order_type=intercity_parcel) rejected
+00:00 +8: A-F. Mirrored gate logic: real behavioral coverage of every required case parcel_enabled/intercity_enabled are fully independent -- disabling one never affects the other
+00:00 +9: A-F. Mirrored gate logic: real behavioral coverage of every required case batch_delivery/food_delivery/grocery_delivery are never gated by any Phase 1 flag (no flag was requested for them)
+00:00 +10: A-F. Mirrored gate logic: real behavioral coverage of every required case the mirror above matches the real surgical source exactly (order_type branches, flag keys, and the 503/FEATURE_DISABLED rejection)
+00:00 +11: A-F. Mirrored gate logic: real behavioral coverage of every required case the check runs after AUTH and after order_type is known, before any DB write (order INSERT, pricing calc, device/promo/OTP logging all happen later in the file)
+00:00 +12: G. Existing pricing, devices, OTP and vehicle behavior is preserved verified bike/auto parcel selection already in the baseline remains
+00:00 +13: G. Existing pricing, devices, OTP and vehicle behavior is preserved existing parallel device/promo/OTP work remains rather than being reverted
+00:00 +14: G. Existing pricing, devices, OTP and vehicle behavior is preserved existing whole-rupee promo rounding is preserved
+00:00 +15: G. Existing pricing, devices, OTP and vehicle behavior is preserved removing only the config import and control insertion reproduces the immutable baseline
+00:00 +16: G. Existing pricing, devices, OTP and vehicle behavior is preserved all payment, financial, device, OTP and dispatch fields remain present
+00:00 +17: (tearDownAll)
+00:00 +17: All tests passed!

@@ -1,0 +1,797 @@
+{
+  "query": "SELECT jsonb_build_object(\n'policies',(SELECT jsonb_agg(jsonb_build_object('schema',schemaname,'table',tablename,'name',policyname,'roles',roles,'command',cmd,'permissive',permissive,'qual',qual,'check',with_check)) FROM pg_policies WHERE schemaname='public' AND tablename IN('admins','orders','intercity_requests','riders','rider_kyc','users','rider_assignments')),\n'table_security',(SELECT jsonb_agg(jsonb_build_object('table',relname,'rls',relrowsecurity,'force_rls',relforcerowsecurity,'acl',relacl::text)) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname IN('admins','orders','intercity_requests','riders','rider_kyc','users','rider_assignments')),\n'functions',(SELECT jsonb_agg(jsonb_build_object('schema',n.nspname,'name',p.proname,'definition',pg_get_functiondef(p.oid),'acl',proacl::text)) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE (n.nspname='public' AND p.proname IN('is_admin','check_is_order_candidate_rider')) OR(n.nspname='auth' AND p.proname IN('uid','email','role'))),\n'indexes',(SELECT jsonb_agg(jsonb_build_object('table',tablename,'definition',indexdef)) FROM pg_indexes WHERE schemaname='public' AND tablename IN('admins','orders','intercity_requests','riders','rider_kyc','users','rider_assignments'))\n) AS evidence",
+  "evidence": {
+    "indexes": [
+      {
+        "table": "admins",
+        "definition": "CREATE UNIQUE INDEX admins_pkey ON public.admins USING btree (id)"
+      },
+      {
+        "table": "admins",
+        "definition": "CREATE UNIQUE INDEX admins_admin_code_key ON public.admins USING btree (admin_code)"
+      },
+      {
+        "table": "admins",
+        "definition": "CREATE UNIQUE INDEX admins_phone_key ON public.admins USING btree (phone)"
+      },
+      {
+        "table": "admins",
+        "definition": "CREATE UNIQUE INDEX admins_email_key ON public.admins USING btree (email)"
+      },
+      {
+        "table": "intercity_requests",
+        "definition": "CREATE UNIQUE INDEX intercity_requests_pkey ON public.intercity_requests USING btree (id)"
+      },
+      {
+        "table": "intercity_requests",
+        "definition": "CREATE UNIQUE INDEX idx_intercity_requests_one_active_per_order_traveller_plan ON public.intercity_requests USING btree (parcel_id, traveller_id, route_id) WHERE (status <> ALL (ARRAY['cancelled'::text, 'rejected'::text, 'expired'::text, 'completed'::text]))"
+      },
+      {
+        "table": "intercity_requests",
+        "definition": "CREATE INDEX idx_intercity_requests_route_id ON public.intercity_requests USING btree (route_id)"
+      },
+      {
+        "table": "intercity_requests",
+        "definition": "CREATE INDEX idx_intercity_requests_sender_id ON public.intercity_requests USING btree (sender_id)"
+      },
+      {
+        "table": "intercity_requests",
+        "definition": "CREATE INDEX idx_intercity_requests_traveller_id ON public.intercity_requests USING btree (traveller_id)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_user_id ON public.orders USING btree (user_id)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_rider_id ON public.orders USING btree (rider_id)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_order_type ON public.orders USING btree (order_type)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_order_code ON public.orders USING btree (order_code)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_payment_id ON public.orders USING btree (payment_id)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_pricing_config_id ON public.orders USING btree (pricing_config_id)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_pickup_location ON public.orders USING btree (pickup_lat, pickup_lng)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_destination_location ON public.orders USING btree (destination_lat, destination_lng)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_vehicle_type ON public.orders USING btree (vehicle_type)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_order_status ON public.orders USING btree (order_status)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_payment_status ON public.orders USING btree (payment_status)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_searching_created_at ON public.orders USING btree (created_at) WHERE (order_status = 'searching'::order_status_enum)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE UNIQUE INDEX orders_order_code_key ON public.orders USING btree (order_code)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE UNIQUE INDEX idx_orders_user_idempotency_key ON public.orders USING btree (user_id, idempotency_key) WHERE (idempotency_key IS NOT NULL)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_search_expires_at ON public.orders USING btree (search_expires_at)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_created_at ON public.orders USING btree (created_at DESC)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_created_device_record_id ON public.orders USING btree (created_device_record_id)"
+      },
+      {
+        "table": "orders",
+        "definition": "CREATE INDEX idx_orders_user_created_id ON public.orders USING btree (user_id, created_at DESC, id DESC)"
+      },
+      {
+        "table": "rider_assignments",
+        "definition": "CREATE INDEX idx_rider_assignments_status ON public.rider_assignments USING btree (assignment_status)"
+      },
+      {
+        "table": "rider_assignments",
+        "definition": "CREATE INDEX idx_rider_assignments_sent_expires_at ON public.rider_assignments USING btree (expires_at) WHERE (assignment_status = 'sent'::intercity_assignment_status_enum)"
+      },
+      {
+        "table": "rider_assignments",
+        "definition": "CREATE UNIQUE INDEX rider_assignments_pkey ON public.rider_assignments USING btree (id)"
+      },
+      {
+        "table": "rider_assignments",
+        "definition": "CREATE INDEX idx_rider_assignments_order_id ON public.rider_assignments USING btree (order_id)"
+      },
+      {
+        "table": "rider_assignments",
+        "definition": "CREATE INDEX idx_rider_assignments_rider_id ON public.rider_assignments USING btree (rider_id)"
+      },
+      {
+        "table": "rider_assignments",
+        "definition": "CREATE INDEX idx_rider_assignments_round ON public.rider_assignments USING btree (assignment_round)"
+      },
+      {
+        "table": "rider_assignments",
+        "definition": "CREATE INDEX idx_rider_assignments_expires_at ON public.rider_assignments USING btree (expires_at DESC)"
+      },
+      {
+        "table": "rider_assignments",
+        "definition": "CREATE UNIQUE INDEX rider_assignments_order_id_rider_id_key ON public.rider_assignments USING btree (order_id, rider_id)"
+      },
+      {
+        "table": "rider_kyc",
+        "definition": "CREATE UNIQUE INDEX rider_kyc_pkey ON public.rider_kyc USING btree (id)"
+      },
+      {
+        "table": "rider_kyc",
+        "definition": "CREATE INDEX idx_rider_kyc_user_id ON public.rider_kyc USING btree (user_id)"
+      },
+      {
+        "table": "rider_kyc",
+        "definition": "CREATE INDEX idx_rider_kyc_handled_by_admin_id ON public.rider_kyc USING btree (handled_by_admin_id)"
+      },
+      {
+        "table": "rider_kyc",
+        "definition": "CREATE INDEX idx_rider_kyc_kyc_status ON public.rider_kyc USING btree (kyc_status)"
+      },
+      {
+        "table": "rider_kyc",
+        "definition": "CREATE INDEX idx_rider_kyc_activation_status ON public.rider_kyc USING btree (activation_status)"
+      },
+      {
+        "table": "rider_kyc",
+        "definition": "CREATE INDEX idx_rider_kyc_created_at ON public.rider_kyc USING btree (created_at DESC)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_account_status_service_mode ON public.riders USING btree (account_status, service_mode) INCLUDE (current_lat, current_lng, user_id, last_location_updated_at)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE UNIQUE INDEX riders_pkey ON public.riders USING btree (id)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE UNIQUE INDEX riders_kyc_id_key ON public.riders USING btree (kyc_id)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE UNIQUE INDEX riders_user_id_key ON public.riders USING btree (user_id)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_user_id ON public.riders USING btree (user_id)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_kyc_id ON public.riders USING btree (kyc_id)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_subscription_active ON public.riders USING btree (subscription_active)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_account_status ON public.riders USING btree (account_status)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_government_tax_due_balance ON public.riders USING btree (government_tax_due_balance)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_service_mode ON public.riders USING btree (service_mode) WHERE (account_status = 'online'::rider_account_status_enum)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_location_updated ON public.riders USING btree (last_location_updated_at DESC)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_created_at ON public.riders USING btree (created_at DESC)"
+      },
+      {
+        "table": "riders",
+        "definition": "CREATE INDEX idx_riders_online_coords ON public.riders USING btree (current_lat, current_lng) WHERE (account_status = 'online'::rider_account_status_enum)"
+      },
+      {
+        "table": "users",
+        "definition": "CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)"
+      },
+      {
+        "table": "users",
+        "definition": "CREATE UNIQUE INDEX users_phone_key ON public.users USING btree (phone)"
+      },
+      {
+        "table": "users",
+        "definition": "CREATE UNIQUE INDEX users_user_code_key ON public.users USING btree (user_code)"
+      }
+    ],
+    "policies": [
+      {
+        "name": "admins_self_select",
+        "qual": "(email = ( SELECT auth.email() AS email))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "admins",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow request participants to create requests",
+        "qual": null,
+        "check": "(((sender_id = ( SELECT auth.uid() AS uid)) OR (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = intercity_requests.traveller_id) AND (r.user_id = ( SELECT auth.uid() AS uid)) AND (r.service_mode = 'intercity'::partner_service_mode_enum))))) AND (status = ANY (ARRAY['request_sent'::text, 'discussion_started'::text])) AND (sender_confirmed = false) AND (traveller_confirmed = false))",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "intercity_requests",
+        "schema": "public",
+        "command": "INSERT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow request participants to update safe fields",
+        "qual": "((sender_id = ( SELECT auth.uid() AS uid)) OR (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = intercity_requests.traveller_id) AND (r.user_id = ( SELECT auth.uid() AS uid)) AND (r.service_mode = 'intercity'::partner_service_mode_enum)))))",
+        "check": "(((sender_id = ( SELECT auth.uid() AS uid)) OR (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = intercity_requests.traveller_id) AND (r.user_id = ( SELECT auth.uid() AS uid)) AND (r.service_mode = 'intercity'::partner_service_mode_enum))))) AND (status = ANY (ARRAY['request_sent'::text, 'discussion_started'::text, 'in_progress'::text, 'paid'::text])) AND (sender_confirmed = false) AND (traveller_confirmed = false))",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "intercity_requests",
+        "schema": "public",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow request participants to view requests",
+        "qual": "((sender_id = ( SELECT auth.uid() AS uid)) OR (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = intercity_requests.traveller_id) AND (r.user_id = ( SELECT auth.uid() AS uid))))))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "intercity_requests",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "admin_can_select_intercity_requests",
+        "qual": "is_admin()",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "intercity_requests",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow passengers and assigned riders to update orders",
+        "qual": "((( SELECT auth.uid() AS uid) = user_id) OR (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = orders.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid))))))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "orders",
+        "schema": "public",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow travellers to browse searching intercity orders",
+        "qual": "((order_status = 'searching'::order_status_enum) AND ((order_type)::text ~~ 'intercity%'::text))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "orders",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow travellers to view orders tied to active intercity reques",
+        "qual": "(EXISTS ( SELECT 1\n   FROM (intercity_requests ir\n     JOIN riders r ON ((r.id = ir.traveller_id)))\n  WHERE ((ir.parcel_id = orders.id) AND (r.user_id = ( SELECT auth.uid() AS uid)) AND (ir.status <> ALL (ARRAY['cancelled'::text, 'rejected'::text, 'expired'::text])))))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "orders",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow users to view their own or assigned orders",
+        "qual": "((( SELECT auth.uid() AS uid) = user_id) OR (EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = orders.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid))))) OR check_is_order_candidate_rider(id, ( SELECT auth.uid() AS uid)))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "orders",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Deny direct client orders insert (service-role only)",
+        "qual": null,
+        "check": "false",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "orders",
+        "schema": "public",
+        "command": "INSERT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "admin_can_select_orders",
+        "qual": "is_admin()",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "orders",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "user_can_update_own_order",
+        "qual": "((( SELECT auth.uid() AS uid) = user_id) AND (order_status = 'searching'::order_status_enum))",
+        "check": "(( SELECT auth.uid() AS uid) = user_id)",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "orders",
+        "schema": "public",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow passengers to insert assignments for their own orders",
+        "qual": null,
+        "check": "(check_is_order_passenger_for_intercity(order_id, ( SELECT auth.uid() AS uid)) AND (assignment_status = ANY (ARRAY['accepted_by_user'::intercity_assignment_status_enum, 'rejected'::intercity_assignment_status_enum])))",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_assignments",
+        "schema": "public",
+        "command": "INSERT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow passengers to update assignments for their own orders",
+        "qual": "check_is_order_passenger_for_intercity(order_id, ( SELECT auth.uid() AS uid))",
+        "check": "(check_is_order_passenger_for_intercity(order_id, ( SELECT auth.uid() AS uid)) AND (assignment_status = ANY (ARRAY['accepted_by_user'::intercity_assignment_status_enum, 'rejected'::intercity_assignment_status_enum])))",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_assignments",
+        "schema": "public",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow passengers to view assignments for their own orders",
+        "qual": "check_is_order_passenger(order_id, ( SELECT auth.uid() AS uid))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_assignments",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow riders to insert their own assignments",
+        "qual": null,
+        "check": "((EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = rider_assignments.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid))))) AND (assignment_status = ANY (ARRAY['sent'::intercity_assignment_status_enum, 'expired'::intercity_assignment_status_enum])))",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_assignments",
+        "schema": "public",
+        "command": "INSERT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow riders to update their own assignments",
+        "qual": "(EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = rider_assignments.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid)))))",
+        "check": "((EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = rider_assignments.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid))))) AND (assignment_status = ANY (ARRAY['sent'::intercity_assignment_status_enum, 'expired'::intercity_assignment_status_enum])))",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_assignments",
+        "schema": "public",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow riders to view their own assignments",
+        "qual": "(EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = rider_assignments.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid)))))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_assignments",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Riders can view own assignments",
+        "qual": "(EXISTS ( SELECT 1\n   FROM riders r\n  WHERE ((r.id = rider_assignments.rider_id) AND (r.user_id = ( SELECT auth.uid() AS uid)))))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_assignments",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Riders can insert own KYC",
+        "qual": null,
+        "check": "(( SELECT auth.uid() AS uid) = user_id)",
+        "roles": [
+          "public"
+        ],
+        "table": "rider_kyc",
+        "schema": "public",
+        "command": "INSERT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Riders can view own KYC",
+        "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+        "check": null,
+        "roles": [
+          "public"
+        ],
+        "table": "rider_kyc",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Riders view own KYC or admin support view any",
+        "qual": "((( SELECT auth.uid() AS uid) = user_id) OR (EXISTS ( SELECT 1\n   FROM users u\n  WHERE ((u.id = ( SELECT auth.uid() AS uid)) AND ((u.role = 'admin'::text) OR (u.role = 'support'::text))))))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_kyc",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Users can create own kyc",
+        "qual": null,
+        "check": "(( SELECT auth.uid() AS uid) = user_id)",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_kyc",
+        "schema": "public",
+        "command": "INSERT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Users can update own kyc",
+        "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_kyc",
+        "schema": "public",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Users can view own kyc",
+        "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_kyc",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "admin_can_select_rider_kyc",
+        "qual": "is_admin()",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_kyc",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "admin_can_update_rider_kyc",
+        "qual": "is_admin()",
+        "check": "is_admin()",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "rider_kyc",
+        "schema": "public",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow authenticated users to view online riders",
+        "qual": "((account_status = 'online'::rider_account_status_enum) OR (( SELECT auth.uid() AS uid) = user_id))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "riders",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow riders to update their own profile",
+        "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+        "check": "(( SELECT auth.uid() AS uid) = user_id)",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "riders",
+        "schema": "public",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Riders can update own rider profile",
+        "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+        "check": null,
+        "roles": [
+          "public"
+        ],
+        "table": "riders",
+        "schema": "public",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Riders can view own rider profile",
+        "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+        "check": null,
+        "roles": [
+          "public"
+        ],
+        "table": "riders",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Users can view own rider profile",
+        "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "riders",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "admin_can_select_riders",
+        "qual": "is_admin()",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "riders",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "admin_can_update_riders",
+        "qual": "is_admin()",
+        "check": "is_admin()",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "riders",
+        "schema": "public",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow travellers to view profile of searching intercity passeng",
+        "qual": "(EXISTS ( SELECT 1\n   FROM orders o\n  WHERE ((o.user_id = users.id) AND (o.order_status = 'searching'::order_status_enum) AND ((o.order_type)::text ~~ 'intercity%'::text))))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "users",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Allow travellers to view sender profile for active intercity re",
+        "qual": "(EXISTS ( SELECT 1\n   FROM (intercity_requests ir\n     JOIN riders r ON ((r.id = ir.traveller_id)))\n  WHERE ((ir.sender_id = users.id) AND (r.user_id = ( SELECT auth.uid() AS uid)) AND (ir.status <> ALL (ARRAY['cancelled'::text, 'rejected'::text, 'expired'::text])))))",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "users",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Users can insert own profile",
+        "qual": null,
+        "check": "(( SELECT auth.uid() AS uid) = id)",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "users",
+        "schema": "public",
+        "command": "INSERT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Users can update own profile",
+        "qual": "(( SELECT auth.uid() AS uid) = id)",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "users",
+        "schema": "public",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Users can view own profile",
+        "qual": "(( SELECT auth.uid() AS uid) = id)",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "users",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "admin_can_select_users",
+        "qual": "is_admin()",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "users",
+        "schema": "public",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      }
+    ],
+    "functions": [
+      {
+        "acl": "{=X/supabase_auth_admin,supabase_auth_admin=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}",
+        "name": "uid",
+        "schema": "auth",
+        "definition": "CREATE OR REPLACE FUNCTION auth.uid()\n RETURNS uuid\n LANGUAGE sql\n STABLE\nAS $function$\n  select \n  coalesce(\n    nullif(current_setting('request.jwt.claim.sub', true), ''),\n    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')\n  )::uuid\n$function$\n"
+      },
+      {
+        "acl": "{=X/supabase_auth_admin,supabase_auth_admin=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}",
+        "name": "role",
+        "schema": "auth",
+        "definition": "CREATE OR REPLACE FUNCTION auth.role()\n RETURNS text\n LANGUAGE sql\n STABLE\nAS $function$\n  select \n  coalesce(\n    nullif(current_setting('request.jwt.claim.role', true), ''),\n    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role')\n  )::text\n$function$\n"
+      },
+      {
+        "acl": "{=X/supabase_auth_admin,supabase_auth_admin=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}",
+        "name": "email",
+        "schema": "auth",
+        "definition": "CREATE OR REPLACE FUNCTION auth.email()\n RETURNS text\n LANGUAGE sql\n STABLE\nAS $function$\n  select \n  coalesce(\n    nullif(current_setting('request.jwt.claim.email', true), ''),\n    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'email')\n  )::text\n$function$\n"
+      },
+      {
+        "acl": null,
+        "name": "check_is_order_candidate_rider",
+        "schema": "public",
+        "definition": "CREATE OR REPLACE FUNCTION public.check_is_order_candidate_rider(p_order_id uuid, p_user_id uuid)\n RETURNS boolean\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n    SELECT EXISTS (\n        SELECT 1 FROM public.rider_assignments ra\n        INNER JOIN public.riders r ON r.id = ra.rider_id\n        WHERE ra.order_id = p_order_id AND r.user_id = p_user_id\n    );\n$function$\n"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,authenticated=X/postgres}",
+        "name": "is_admin",
+        "schema": "public",
+        "definition": "CREATE OR REPLACE FUNCTION public.is_admin()\n RETURNS boolean\n LANGUAGE sql\n STABLE\n SET search_path TO 'public'\nAS $function$\n  SELECT EXISTS (\n    SELECT 1 FROM public.admins\n    WHERE email = auth.email() AND is_active = true\n  );\n$function$\n"
+      }
+    ],
+    "table_security": [
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=Dxtm/postgres,authenticated=rDxtm/postgres,service_role=arwDxtm/postgres}",
+        "rls": true,
+        "table": "admins",
+        "force_rls": false
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=Dxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "table": "intercity_requests",
+        "force_rls": false
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=Dxtm/postgres,authenticated=arwDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "table": "orders",
+        "force_rls": false
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=Dxtm/postgres,authenticated=arwDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "table": "rider_assignments",
+        "force_rls": false
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=Dxtm/postgres,authenticated=rwDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "table": "rider_kyc",
+        "force_rls": false
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=Dxtm/postgres,authenticated=rwDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "table": "riders",
+        "force_rls": false
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,authenticated=arwDxtm/postgres,service_role=rDxtm/postgres,anon=r/postgres}",
+        "rls": true,
+        "table": "users",
+        "force_rls": false
+      }
+    ]
+  }
+}

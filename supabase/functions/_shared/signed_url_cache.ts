@@ -10,6 +10,7 @@ const SIGN_EXPIRY_SECONDS = 21600;
 const TTL_MS = 5.5 * 60 * 60 * 1000; // 5.5h -- comfortably under the 6h real expiry.
 
 const cache = new Map<string, { url: string; cachedAt: number }>();
+const inFlight = new Map<string, Promise<string | null>>();
 
 export async function getSignedRiderImageUrl(
   // deno-lint-ignore no-explicit-any
@@ -21,13 +22,21 @@ export async function getSignedRiderImageUrl(
     return cached.url;
   }
 
-  const { data: signedData } = await supabaseAdmin.storage
-    .from("rider_kyc")
-    .createSignedUrl(storagePath, SIGN_EXPIRY_SECONDS);
-
-  const url = signedData?.signedUrl ?? null;
-  if (url) {
-    cache.set(storagePath, { url, cachedAt: Date.now() });
+  let pending = inFlight.get(storagePath);
+  if (!pending) {
+    pending = Promise.resolve().then(async () => {
+      const { data: signedData } = await supabaseAdmin.storage
+        .from("rider_kyc")
+        .createSignedUrl(storagePath, SIGN_EXPIRY_SECONDS);
+      const url = signedData?.signedUrl ?? null;
+      if (url) cache.set(storagePath, { url, cachedAt: Date.now() });
+      return url;
+    });
+    inFlight.set(storagePath, pending);
   }
-  return url;
+  try {
+    return await pending;
+  } finally {
+    if (inFlight.get(storagePath) === pending) inFlight.delete(storagePath);
+  }
 }

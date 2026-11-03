@@ -1,3 +1,5 @@
+import 'package:waydrop/core/services/realtime/rider_update_filter.dart';
+import 'package:waydrop/core/services/diagnostics/performance_trace.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -245,7 +247,7 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
           // absent from the seed (its rider_kyc embed doesn't request vehicle_type), which is
           // harmless: vehicleType is never read anywhere in this screen (grepped exhaustively).
           final seedRider = providerContainer.read(initialRiderDataProvider)?.rider;
-          if (seedRider != null && seedRider['id'] != null && !_hasConsumedColdStartSeed) {
+          if (seedRider != null && seedRider['id'] != null && providerContainer.read(initialRiderDataProvider)!.isUsableFor(user.id) && !_hasConsumedColdStartSeed) {
             _hasConsumedColdStartSeed = true;
             riderId = seedRider['id']?.toString();
             isRiderOnline = seedRider['account_status'] == 'online';
@@ -384,14 +386,10 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
         // P8 FIX #6.1: skip setState()/fetchSearchingOrders() entirely for a `riders` UPDATE
         // confined to GPS heartbeat columns -- mirrors RiderHomeTab.subscribeRider()'s
         // isLocationOnlyUpdate gate exactly, including its conservative fallback: if oldRecord is
-        // empty (no diff available), every key in `first` counts as "changed", so this still
+        // empty or incomplete (diff unavailable), every key in `first` counts as "changed", so this still
         // falls through to the existing unconditional behavior below instead of silently skipping.
         final oldRecord = payload.oldRecord;
-        final isLocationOnlyUpdate = oldRecord.isNotEmpty &&
-            first.keys.every((key) =>
-                !oldRecord.containsKey(key) ||
-                oldRecord[key] == first[key] ||
-                _locationHeartbeatFields.contains(key));
+        final isLocationOnlyUpdate = isLocationOnlyRiderUpdate(oldRecord, first, _locationHeartbeatFields);
         if (isLocationOnlyUpdate) {
           debugPrint('[INSTR] ${DateTime.now().toIso8601String()} listenRiderStatus() SKIPPED setState -- location-only update');
           return;
@@ -787,7 +785,9 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
   // =========================================================
   // REALTIME STREAMING OF SEARCHING ORDERS
   // =========================================================
-  Future<void> fetchSearchingOrders() async {
+  Future<void> fetchSearchingOrders() => PerformanceTrace.measure('rider_orders', () => fetchSearchingOrdersMeasured());
+
+  Future<void> fetchSearchingOrdersMeasured() async {
     debugPrint('[INSTR] ${DateTime.now().toIso8601String()} fetchSearchingOrders() CALLED (riderId=$riderId, fetchInFlight=$_fetchInFlight)');
     if (riderId == null) return;
     // [PERF] Phase 8A: re-entrancy guard -- never run two fetches concurrently.

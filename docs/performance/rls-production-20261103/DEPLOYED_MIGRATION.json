@@ -1,0 +1,21 @@
+{
+  "project_id": "yvwpchffctiagevpqgwy",
+  "migration": {
+    "version": "20261103162805",
+    "name": "waydrop_cache_admin_rls_checks_per_statement"
+  },
+  "success": true,
+  "policies_changed": 4,
+  "other_policies_helpers_grants_unchanged": true,
+  "new_supabase_projects": 0,
+  "local_fixture_stopped": true,
+  "native_groups": 6,
+  "concurrent_identity_reads": 16,
+  "original_rollback_checks": 3,
+  "exact_migration_tests": 5,
+  "live_anon_checks_before": 4,
+  "live_anon_checks_after": 4,
+  "edge_smoke_checks_after": 5,
+  "full_authenticated_managed_integration_performed": false,
+  "coordinated_protocol_deployed": false
+}

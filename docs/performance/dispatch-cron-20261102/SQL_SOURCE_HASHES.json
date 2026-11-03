@@ -1,0 +1,14 @@
+{
+  "redispatch_stalled_searching_orders": {
+    "before_sha256": "66a2039137a6205429337f98a4ca69e530883bca9febc7d35d08cd6a1bce1f87",
+    "candidate_sha256": "b59ba364abc1bf204b1d060981e761f2e847f578a6e79950065af6a05be2acdb"
+  },
+  "assign_nearby_searching_orders_core": {
+    "before_sha256": "6bb42dc720a7da26e5bb345e22170ff468c25b7eb98a5191b5b7792b29a0c9ec",
+    "candidate_sha256": "53ed4f902211f46645631c1dde241804d840ac13b308d718afc54d8d11a42944"
+  },
+  "redispatch_freed_riders": {
+    "before_sha256": "a4270a85b25f1787b070c3adc3d8eaf6f789ff7ca78b0b2b3e3fd3b37cd0e500",
+    "candidate_sha256": "0358dd1c381a9fb0b88a9869f96124ec4f91376fbbf152f475a3d230f60449d0"
+  }
+}

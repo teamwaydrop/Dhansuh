@@ -1,0 +1,89 @@
+{
+  "window_start_utc": "2026-11-02T16:27:00Z",
+  "window_end_utc": "2026-11-02T16:33:30Z",
+  "sql": "SELECT source,CASE WHEN source='function_edge_logs' THEN log_attributes['request.pathname'] ELSE log_attributes['path'] END AS endpoint,count() AS n,max(toFloat64OrZero(if(source='function_edge_logs',log_attributes['execution_time_ms'],log_attributes['duration']))) AS max_duration_native,countIf(toInt32OrZero(if(source='function_edge_logs',log_attributes['response.status_code'],log_attributes['status']))>=500) AS http5xx,min(timestamp) AS first_record FROM logs WHERE source IN('function_edge_logs','auth_logs') GROUP BY source,endpoint ORDER BY max_duration_native DESC LIMIT 25",
+  "rows": {
+    "result": [
+      {
+        "endpoint": "/",
+        "first_record": "2026-11-02T16:27:04.000000",
+        "http5xx": 1,
+        "max_duration_native": 10031834234,
+        "n": 91,
+        "source": "auth_logs"
+      },
+      {
+        "endpoint": "/functions/v1/start-dispatch",
+        "first_record": "2026-11-02T16:28:02.386000",
+        "http5xx": 0,
+        "max_duration_native": 50114,
+        "n": 5,
+        "source": "function_edge_logs"
+      },
+      {
+        "endpoint": "/functions/v1/update-order-status",
+        "first_record": "2026-11-02T16:28:03.860000",
+        "http5xx": 0,
+        "max_duration_native": 26507,
+        "n": 20,
+        "source": "function_edge_logs"
+      },
+      {
+        "endpoint": "/functions/v1/send-push-notification",
+        "first_record": "2026-11-02T16:27:59.717000",
+        "http5xx": 0,
+        "max_duration_native": 24351,
+        "n": 40,
+        "source": "function_edge_logs"
+      },
+      {
+        "endpoint": "/functions/v1/get-live-order-status",
+        "first_record": "2026-11-02T16:27:59.754000",
+        "http5xx": 0,
+        "max_duration_native": 22785,
+        "n": 43,
+        "source": "function_edge_logs"
+      },
+      {
+        "endpoint": "/functions/v1/calculate-order-pricing",
+        "first_record": "2026-11-02T16:27:56.828000",
+        "http5xx": 0,
+        "max_duration_native": 1851,
+        "n": 28,
+        "source": "function_edge_logs"
+      },
+      {
+        "endpoint": "/functions/v1/create-order",
+        "first_record": "2026-11-02T16:27:58.869000",
+        "http5xx": 0,
+        "max_duration_native": 1224,
+        "n": 5,
+        "source": "function_edge_logs"
+      },
+      {
+        "endpoint": "/functions/v1/accept-order",
+        "first_record": "2026-11-02T16:28:02.232000",
+        "http5xx": 1,
+        "max_duration_native": 868,
+        "n": 6,
+        "source": "function_edge_logs"
+      },
+      {
+        "endpoint": "/functions/v1/create-rider-withdrawal",
+        "first_record": "2026-11-02T16:27:40.867000",
+        "http5xx": 0,
+        "max_duration_native": 413,
+        "n": 1,
+        "source": "function_edge_logs"
+      },
+      {
+        "endpoint": "/functions/v1/sms-hook",
+        "first_record": "2026-11-02T16:28:04.724000",
+        "http5xx": 0,
+        "max_duration_native": 240,
+        "n": 1,
+        "source": "function_edge_logs"
+      }
+    ]
+  }
+}

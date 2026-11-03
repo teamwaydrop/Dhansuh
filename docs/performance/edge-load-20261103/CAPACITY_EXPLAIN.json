@@ -1,0 +1,84 @@
+[
+  {
+    "QUERY PLAN": [
+      {
+        "Plan": {
+          "Node Type": "Nested Loop",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Join Type": "Left",
+          "Startup Cost": 2.51,
+          "Total Cost": 4.79,
+          "Plan Rows": 1,
+          "Plan Width": 84,
+          "Inner Unique": true,
+          "Join Filter": "(o.rider_id = tp.rider_id)",
+          "Plans": [
+            {
+              "Node Type": "Index Scan",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Scan Direction": "Forward",
+              "Index Name": "rider_travel_plans_pkey",
+              "Relation Name": "rider_travel_plans",
+              "Alias": "tp",
+              "Startup Cost": 0.14,
+              "Total Cost": 2.36,
+              "Plan Rows": 1,
+              "Plan Width": 36,
+              "Index Cond": "(id = '00000000-0000-4000-8000-000000000000'::uuid)"
+            },
+            {
+              "Node Type": "Aggregate",
+              "Strategy": "Sorted",
+              "Partial Mode": "Simple",
+              "Parent Relationship": "Inner",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 2.37,
+              "Total Cost": 2.4,
+              "Plan Rows": 1,
+              "Plan Width": 48,
+              "Group Key": [
+                "o.rider_id"
+              ],
+              "Plans": [
+                {
+                  "Node Type": "Sort",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Startup Cost": 2.37,
+                  "Total Cost": 2.37,
+                  "Plan Rows": 1,
+                  "Plan Width": 23,
+                  "Sort Key": [
+                    "o.rider_id"
+                  ],
+                  "Plans": [
+                    {
+                      "Node Type": "Index Scan",
+                      "Parent Relationship": "Outer",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Scan Direction": "Forward",
+                      "Index Name": "idx_orders_order_status",
+                      "Relation Name": "orders",
+                      "Alias": "o",
+                      "Startup Cost": 0.15,
+                      "Total Cost": 2.36,
+                      "Plan Rows": 1,
+                      "Plan Width": 23,
+                      "Index Cond": "(order_status = ANY ('{accepted,rider_arrived,picked_up,ongoing,rider_at_drop}'::order_status_enum[]))"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

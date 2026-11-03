@@ -1,0 +1,297 @@
+{
+  "supabase/migrations/20261102044001_waydrop_dispatch_fencing_and_delivery_outbox.sql": {
+    "lines": 386,
+    "declarations": [
+      {
+        "line": 3,
+        "declaration": "CREATE SCHEMA IF NOT EXISTS waydrop_internal;"
+      },
+      {
+        "line": 5,
+        "declaration": "CREATE TABLE waydrop_internal.runtime ("
+      },
+      {
+        "line": 11,
+        "declaration": "CREATE TABLE waydrop_internal.dispatch_jobs ("
+      },
+      {
+        "line": 23,
+        "declaration": "CREATE FUNCTION waydrop_internal.require_enabled() RETURNS void LANGUAGE plpgsql"
+      },
+      {
+        "line": 33,
+        "declaration": "CREATE FUNCTION public.dispatch_eligibility(p_order_id uuid,p_rider_id uuid,p_phase text)"
+      },
+      {
+        "line": 75,
+        "declaration": "CREATE FUNCTION waydrop_internal.kick_dispatch(p_order_id uuid) RETURNS boolean"
+      },
+      {
+        "line": 95,
+        "declaration": "CREATE FUNCTION public.request_order_dispatch(p_order_id uuid) RETURNS jsonb"
+      },
+      {
+        "line": 110,
+        "declaration": "CREATE FUNCTION public.claim_order_dispatch(p_order_id uuid) RETURNS jsonb"
+      },
+      {
+        "line": 133,
+        "declaration": "CREATE FUNCTION public.step_order_dispatch(p_order_id uuid,p_token uuid) RETURNS jsonb"
+      },
+      {
+        "line": 214,
+        "declaration": "CREATE FUNCTION public.release_order_dispatch(p_order_id uuid,p_token uuid) RETURNS boolean"
+      },
+      {
+        "line": 229,
+        "declaration": "CREATE TABLE waydrop_internal.notification_jobs ("
+      },
+      {
+        "line": 235,
+        "declaration": "CREATE TABLE waydrop_internal.notification_devices ("
+      },
+      {
+        "line": 247,
+        "declaration": "CREATE FUNCTION waydrop_internal.refresh_notification(p_id uuid) RETURNS void LANGUAGE plpgsql SET search_path=pg_catalog,public AS $$"
+      },
+      {
+        "line": 264,
+        "declaration": "CREATE FUNCTION waydrop_internal.kick_notification(p_id uuid) RETURNS boolean LANGUAGE plpgsql SET search_path=pg_catalog,public AS $$"
+      },
+      {
+        "line": 282,
+        "declaration": "CREATE FUNCTION public.claim_notification_delivery(p_id uuid,p_actor uuid DEFAULT NULL) RETURNS jsonb"
+      },
+      {
+        "line": 319,
+        "declaration": "CREATE FUNCTION public.begin_notification_device(p_id uuid,p_device uuid,p_registered timestamptz,p_token uuid) RETURNS boolean"
+      },
+      {
+        "line": 336,
+        "declaration": "CREATE FUNCTION public.finish_notification_device(p_id uuid,p_device uuid,p_registered timestamptz,p_token uuid,p_result text,p_retry_after integer DEFAULT 0) RETURNS boolean"
+      },
+      {
+        "line": 359,
+        "declaration": "CREATE FUNCTION public.recover_waydrop_work(p_limit integer DEFAULT 50) RETURNS jsonb"
+      }
+    ]
+  },
+  "docs/performance/blocker-resolution/CUTOVER.candidate.sql": {
+    "lines": 229,
+    "declarations": [
+      {
+        "line": 25,
+        "declaration": "CREATE FUNCTION public.find_nearby_riders(p_order_id uuid,p_pickup_lat double precision,p_pickup_lng double precision,p_radius_km double precision,p_limit integer,p_excluded_rider_ids uuid[] DEFAULT '{}'::uuid[])"
+      },
+      {
+        "line": 40,
+        "declaration": "CREATE FUNCTION public.accept_intercity_request(p_request_id uuid,p_rider_user_id uuid) RETURNS jsonb"
+      },
+      {
+        "line": 60,
+        "declaration": "CREATE OR REPLACE FUNCTION waydrop_internal.guard_order_dispatch() RETURNS trigger"
+      },
+      {
+        "line": 78,
+        "declaration": "CREATE TRIGGER waydrop_guard_order_dispatch BEFORE UPDATE ON public.orders"
+      },
+      {
+        "line": 81,
+        "declaration": "CREATE OR REPLACE FUNCTION waydrop_internal.guard_assignment_dispatch() RETURNS trigger"
+      },
+      {
+        "line": 108,
+        "declaration": "CREATE TRIGGER waydrop_guard_assignment_dispatch BEFORE INSERT OR UPDATE ON public.rider_assignments"
+      },
+      {
+        "line": 113,
+        "declaration": "CREATE FUNCTION waydrop_internal.serialize_kyc_eligibility() RETURNS trigger"
+      },
+      {
+        "line": 118,
+        "declaration": "CREATE TRIGGER waydrop_serialize_kyc_eligibility BEFORE UPDATE OF kyc_status,activation_status,blocked_until,vehicle_type ON public.rider_kyc"
+      },
+      {
+        "line": 123,
+        "declaration": "CREATE OR REPLACE FUNCTION public.assign_new_order_to_nearby_online_riders_core(p_order_id uuid) RETURNS void"
+      },
+      {
+        "line": 127,
+        "declaration": "CREATE OR REPLACE FUNCTION public.assign_new_order_to_nearby_online_riders() RETURNS trigger"
+      },
+      {
+        "line": 131,
+        "declaration": "CREATE OR REPLACE FUNCTION public.assign_nearby_searching_orders_core(p_rider_id uuid,p_rider_user_id uuid,p_current_lat double precision,p_current_lng double precision,p_service_mode public.partner_service_mode_enum) RETURNS void"
+      },
+      {
+        "line": 149,
+        "declaration": "CREATE OR REPLACE FUNCTION public.assign_nearby_searching_orders_to_rider() RETURNS trigger"
+      },
+      {
+        "line": 156,
+        "declaration": "CREATE OR REPLACE FUNCTION public.assign_nearby_searching_orders_on_rider_freed() RETURNS trigger"
+      },
+      {
+        "line": 165,
+        "declaration": "CREATE TRIGGER trigger_assign_nearby_orders_on_rider_freed AFTER UPDATE OF order_status ON public.orders FOR EACH ROW"
+      },
+      {
+        "line": 170,
+        "declaration": "CREATE OR REPLACE FUNCTION public.redispatch_stalled_searching_orders() RETURNS void"
+      },
+      {
+        "line": 180,
+        "declaration": "CREATE OR REPLACE FUNCTION public.redispatch_freed_riders() RETURNS void"
+      },
+      {
+        "line": 191,
+        "declaration": "CREATE FUNCTION waydrop_internal.version_device_registration() RETURNS trigger"
+      },
+      {
+        "line": 200,
+        "declaration": "CREATE TRIGGER waydrop_version_device_registration BEFORE INSERT OR UPDATE ON public.user_device_tokens"
+      },
+      {
+        "line": 202,
+        "declaration": "CREATE OR REPLACE FUNCTION public.on_notification_insert() RETURNS trigger"
+      },
+      {
+        "line": 207,
+        "declaration": "CREATE OR REPLACE FUNCTION public.deliver_push_notification_http_fnc(p_user_id uuid,p_title text,p_body text,p_data jsonb) RETURNS void"
+      },
+      {
+        "line": 215,
+        "declaration": "CREATE OR REPLACE FUNCTION public.send_push_notification_fnc(p_user_id uuid,p_title text,p_body text,p_data jsonb) RETURNS void"
+      }
+    ]
+  },
+  "supabase/functions/start-dispatch/index.ts": {
+    "lines": 125,
+    "declarations": [
+      {
+        "line": 12,
+        "declaration": "serve(async (req) => {"
+      }
+    ]
+  },
+  "supabase/functions/start-dispatch/durable_dispatch.ts": {
+    "lines": 39,
+    "declarations": [
+      {
+        "line": 3,
+        "declaration": "export async function dispatchRpc(client: Client, name: string, args: Record<string, unknown>) {"
+      },
+      {
+        "line": 10,
+        "declaration": "export async function runDurableDispatch(client: Client, orderId: string, options: {"
+      }
+    ]
+  },
+  "supabase/functions/send-push-notification/index.ts": {
+    "lines": 233,
+    "declarations": [
+      {
+        "line": 13,
+        "declaration": "function pemToDer(pem: string): Uint8Array {"
+      },
+      {
+        "line": 40,
+        "declaration": "async function getAccessToken(clientEmail: string, privateKey: string): Promise<string> {"
+      },
+      {
+        "line": 109,
+        "declaration": "serve(async (req) => {"
+      }
+    ]
+  },
+  "supabase/functions/send-push-notification/delivery_result.ts": {
+    "lines": 28,
+    "declarations": [
+      {
+        "line": 3,
+        "declaration": "export function deliveryOutcome(status: number, text: string): DeliveryOutcome {"
+      },
+      {
+        "line": 10,
+        "declaration": "export function retryAfter(value: string|null, now=Date.now()): number {"
+      },
+      {
+        "line": 15,
+        "declaration": "export function notificationAllowed(type: string,data: Record<string,unknown>,pref: Record<string,any>|null): boolean {"
+      }
+    ]
+  },
+  "supabase/functions/send-push-notification/fcm_result.ts": {
+    "lines": 16,
+    "declarations": [
+      {
+        "line": 2,
+        "declaration": "export function fcmErrorCode(text: string): string {"
+      }
+    ]
+  },
+  "supabase/functions/_shared/http.ts": {
+    "lines": 67,
+    "declarations": [
+      {
+        "line": 13,
+        "declaration": "export async function fetchWithTimeout("
+      },
+      {
+        "line": 28,
+        "declaration": "export async function fetchBufferedWithTimeout(input: string | URL | Request, init: RequestInit = {}, timeoutMs = 15000): Promise<Response> {"
+      },
+      {
+        "line": 41,
+        "declaration": "export function isTimeoutError(error: unknown): boolean {"
+      },
+      {
+        "line": 49,
+        "declaration": "export async function withTimeout<T>("
+      }
+    ]
+  },
+  "supabase/functions/_shared/production_config_cache.ts": {
+    "lines": 80,
+    "declarations": [
+      {
+        "line": 32,
+        "declaration": "export async function getProductionConfig("
+      },
+      {
+        "line": 72,
+        "declaration": "export function isFeatureEnabled("
+      }
+    ]
+  },
+  "supabase/functions/accept-order/index.ts": {
+    "lines": 162,
+    "declarations": [
+      {
+        "line": 18,
+        "declaration": "serve(async (req) => {"
+      }
+    ]
+  },
+  "supabase/functions/accept-order/atomic_acceptance.ts": {
+    "lines": 58,
+    "declarations": [
+      {
+        "line": 7,
+        "declaration": "export function createAcceptanceExecutor(databaseUrl: string, projectUrl: string) {"
+      },
+      {
+        "line": 49,
+        "declaration": "export async function acceptOrderAtomically(orderId: string, riderId: string, actorId: string) {"
+      },
+      {
+        "line": 58,
+        "declaration": "export async function closeAcceptanceExecutor() { const current = executor; executor = undefined; if (current) await current.close(); }"
+      }
+    ]
+  },
+  "supabase/functions/accept-order/acceptance_sql.ts": {
+    "lines": 2,
+    "declarations": []
+  }
+}

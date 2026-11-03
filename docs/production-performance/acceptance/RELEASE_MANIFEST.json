@@ -1,0 +1,27 @@
+{
+  "status": "LOCAL_VERIFIED_PRODUCTION_NOT_APPROVED",
+  "localPgGetFunctionDefMd5": "fda16ff66c2f17b4350ae33d39e5db6c",
+  "indexDefinition": "CREATE UNIQUE INDEX rider_assignments_one_accepted_per_order ON public.rider_assignments USING btree (order_id) WHERE (assignment_status = 'accepted'::intercity_assignment_status_enum)",
+  "files": [
+    {
+      "file": "docs/production-performance/acceptance/01_atomic_acceptance.sql",
+      "sha256": "392f7356cc561656af87873b2d79c4cb15dad3253678c2e3e7094c893dc49392"
+    },
+    {
+      "file": "docs/production-performance/acceptance/01_atomic_acceptance.deploy.sql",
+      "sha256": "685be6f72dda17fd07e15d66da6b4e0a42ed9ddbf4d6de0c0d19f5dc948fa677"
+    },
+    {
+      "file": "docs/production-performance/acceptance/02_rollback_atomic_acceptance.sql",
+      "sha256": "fc11fca6a54a7879bdcfc4848bd9ad6981ad33f268d551da65347454bb82441b"
+    },
+    {
+      "file": "docs/production-performance/acceptance/03_disable_atomic_rpc.sql",
+      "sha256": "84547e667a87495af202d5319e92ee0361d8222bb37dc1b31d5dcf881106a0b0"
+    },
+    {
+      "file": "supabase/functions/accept-order/index.ts",
+      "sha256": "c226fa3913507c0d1735a2d1197bd154d1856624a5f5655bc764083a1b22115b"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "changed": [
+    "lib/core/services/diagnostics/performance_trace.dart",
+    "lib/features/local_rides/booking/screens/ride_location_screen.dart",
+    "lib/modules/payments/controllers/pricing_controller.dart",
+    "pubspec.yaml"
+  ],
+  "added": [
+    "lib/core/services/diagnostics/choose_route_timing.dart"
+  ],
+  "removed": [],
+  "unchanged": 178
+}

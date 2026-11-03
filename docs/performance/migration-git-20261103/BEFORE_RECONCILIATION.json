@@ -1,0 +1,164 @@
+{
+  "remote_count": 291,
+  "local_count": 270,
+  "missing_local": [
+    {
+      "version": "20260907205806",
+      "name": "20260907000000_phase10d_add_unindexed_fk_indexes"
+    },
+    {
+      "version": "20260907210055",
+      "name": "20260907000001_phase10d_rls_initplan_wrap_auth_calls"
+    },
+    {
+      "version": "20260908162927",
+      "name": "20260908000000_redispatch_cron_advisory_locks"
+    },
+    {
+      "version": "20260908163009",
+      "name": "20260908000001_perf_riders_online_coords_composite_index"
+    },
+    {
+      "version": "20260908163137",
+      "name": "20260908000002_perf_slow_redispatch_cron_frequency"
+    },
+    {
+      "version": "20260908170238",
+      "name": "20260908000003_add_rider_assignments_accepted_rejected_at"
+    },
+    {
+      "version": "20260908191620",
+      "name": "20260908000004_phase2blite_async_noncritical_completion_side_effects"
+    },
+    {
+      "version": "20260908214030",
+      "name": "20260908000005_phaseA1_rider_locations_foundation"
+    },
+    {
+      "version": "20260908223623",
+      "name": "phaseA4_near_destination_gps_source_to_rider_locations"
+    },
+    {
+      "version": "20260909082941",
+      "name": "phaseC_realtime_surface_reduction"
+    },
+    {
+      "version": "20260909100956",
+      "name": "pre_pro_realtime_amplifier_cleanup"
+    },
+    {
+      "version": "20260909115502",
+      "name": "fix_police_sos_logs_rls"
+    },
+    {
+      "version": "20260909115600",
+      "name": "admin_kyc_review_workflow"
+    },
+    {
+      "version": "20260909115640",
+      "name": "government_tax_month_end_report"
+    },
+    {
+      "version": "20260909115758",
+      "name": "lawful_disclosure_workflow"
+    },
+    {
+      "version": "20260909121113",
+      "name": "harden_normalize_in_phone_10_search_path"
+    },
+    {
+      "version": "20260909144234",
+      "name": "fix_parcel_security_logs_rls"
+    },
+    {
+      "version": "20260909144538",
+      "name": "lawful_disclosure_report_function"
+    },
+    {
+      "version": "20260909144619",
+      "name": "report_government_tax_remittance"
+    },
+    {
+      "version": "20260909153853",
+      "name": "police_disclosure_tabular_reports"
+    },
+    {
+      "version": "20260909155102",
+      "name": "police_last_trip_scope_sos_to_order"
+    },
+    {
+      "version": "20260909160523",
+      "name": "report_section_9_5_month_end"
+    },
+    {
+      "version": "20260909160706",
+      "name": "report_section_9_5_month_end_fix_int_casts"
+    },
+    {
+      "version": "20260909161645",
+      "name": "police_person_details_aadhaar_no_doc_paths"
+    },
+    {
+      "version": "20260911160335",
+      "name": "local_search_duration_420sec"
+    },
+    {
+      "version": "20260911162109",
+      "name": "round3_trigger_before_local_expiry"
+    }
+  ],
+  "local_not_applied": [
+    {
+      "version": "20260907000000",
+      "file": "20260907000000_phase10d_add_unindexed_fk_indexes.sql"
+    },
+    {
+      "version": "20260907000001",
+      "file": "20260907000001_phase10d_rls_initplan_wrap_auth_calls.sql"
+    },
+    {
+      "version": "20260908000000",
+      "file": "20260908000000_redispatch_cron_advisory_locks.sql"
+    },
+    {
+      "version": "20261026000000",
+      "file": "20261026000000_remove_legacy_find_nearby_riders_overload.sql"
+    },
+    {
+      "version": "20261102044001",
+      "file": "20261102044001_waydrop_dispatch_fencing_and_delivery_outbox.sql"
+    }
+  ],
+  "name_mismatches": [
+    {
+      "version": "20260731000000",
+      "local": "20260731000000_delete_account_archive_and_anonymization.sql",
+      "remote_name": "fix_rider_kyc_pii_exposure"
+    },
+    {
+      "version": "20260731000001",
+      "local": "20260731000001_fix_deletion_retention_cascades.sql",
+      "remote_name": "deny_direct_orders_insert"
+    },
+    {
+      "version": "20260731000002",
+      "local": "20260731000002_fix_compliance_views_rls_bypass.sql",
+      "remote_name": "fix_parcel_online_payment_wallet_credit"
+    },
+    {
+      "version": "20260731000003",
+      "local": "20260731000003_prevent_duplicate_rider_kyc_rows.sql",
+      "remote_name": "fix_chat_stale_rider_assignment_access"
+    },
+    {
+      "version": "20260801000000",
+      "local": "20260801000000_kyc_upload_storage_policies_and_cleanup.sql",
+      "remote_name": "fix_role_escalation_search_path"
+    },
+    {
+      "version": "20260801000001",
+      "local": "20260801000001_add_order_chat_messages_index.sql",
+      "remote_name": "fix_intercity_accept_notification_dedup"
+    }
+  ]
+}

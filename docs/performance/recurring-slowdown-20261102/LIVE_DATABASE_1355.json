@@ -1,0 +1,239 @@
+{
+  "snapshot": {
+    "flags": [
+      {
+        "rides": true,
+        "maintenance": false,
+        "notifications": true
+      }
+    ],
+    "activity": [
+      {
+        "app": "postgres_exporter",
+        "pid": 3006625,
+        "role": "supabase_admin",
+        "type": "client backend",
+        "wait": "ClientRead",
+        "state": "idle",
+        "blockers": [],
+        "wait_type": "Client",
+        "xact_start": null,
+        "query_start": "2026-11-02T13:55:41.719029+05:30",
+        "backend_start": "2026-09-08T16:32:41.908327+05:30",
+        "query_fingerprint": "dd31532b33f88a85249734a44015a31e"
+      },
+      {
+        "app": "other",
+        "pid": 137460,
+        "role": "supabase_admin",
+        "type": "client backend",
+        "wait": "ClientRead",
+        "state": "idle",
+        "blockers": [],
+        "wait_type": "Client",
+        "xact_start": null,
+        "query_start": "2026-11-02T04:10:24.035126+05:30",
+        "backend_start": "2026-10-27T03:44:29.061782+05:30",
+        "query_fingerprint": "9217c50c2a7938a8f81ae4808dc184f4"
+      },
+      {
+        "app": "postgrest",
+        "pid": 1647801,
+        "role": "authenticator",
+        "type": "client backend",
+        "wait": "ClientRead",
+        "state": "idle",
+        "blockers": [],
+        "wait_type": "Client",
+        "xact_start": null,
+        "query_start": "2026-08-28T21:04:11.269716+05:30",
+        "backend_start": "2026-08-28T21:04:11.029406+05:30",
+        "query_fingerprint": "bd588c0604d867a60f412b86c3d32373"
+      },
+      {
+        "app": "postgrest",
+        "pid": 887255,
+        "role": "authenticator",
+        "type": "client backend",
+        "wait": "ClientRead",
+        "state": "idle",
+        "blockers": [],
+        "wait_type": "Client",
+        "xact_start": null,
+        "query_start": "2026-11-02T13:51:17.73706+05:30",
+        "backend_start": "2026-11-02T13:51:16.028746+05:30",
+        "query_fingerprint": "1d0ba376e273b9d622641124d8c59264"
+      },
+      {
+        "app": "other",
+        "pid": 3946,
+        "role": null,
+        "type": "autovacuum launcher",
+        "wait": "AutovacuumMain",
+        "state": null,
+        "blockers": [],
+        "wait_type": "Activity",
+        "xact_start": null,
+        "query_start": null,
+        "backend_start": "2026-05-07T11:51:39.247188+05:30",
+        "query_fingerprint": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      {
+        "app": "other",
+        "pid": 3950,
+        "role": "supabase_admin",
+        "type": "logical replication launcher",
+        "wait": "LogicalLauncherMain",
+        "state": null,
+        "blockers": [],
+        "wait_type": "Activity",
+        "xact_start": null,
+        "query_start": null,
+        "backend_start": "2026-05-07T11:51:39.249747+05:30",
+        "query_fingerprint": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      {
+        "app": "pg_cron scheduler",
+        "pid": 3949,
+        "role": "supabase_admin",
+        "type": "pg_cron launcher",
+        "wait": "Extension",
+        "state": null,
+        "blockers": [],
+        "wait_type": "Extension",
+        "xact_start": null,
+        "query_start": null,
+        "backend_start": "2026-05-07T11:51:39.249206+05:30",
+        "query_fingerprint": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      {
+        "app": "other",
+        "pid": 3049442,
+        "role": "postgres",
+        "type": "pg_net 0.20.0 worker",
+        "wait": "Extension",
+        "state": null,
+        "blockers": [],
+        "wait_type": "Extension",
+        "xact_start": null,
+        "query_start": null,
+        "backend_start": "2026-08-05T15:04:32.349596+05:30",
+        "query_fingerprint": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      {
+        "app": "other",
+        "pid": 3942,
+        "role": null,
+        "type": "checkpointer",
+        "wait": "CheckpointerMain",
+        "state": null,
+        "blockers": [],
+        "wait_type": "Activity",
+        "xact_start": null,
+        "query_start": null,
+        "backend_start": "2026-05-07T11:51:39.210137+05:30",
+        "query_fingerprint": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      {
+        "app": "other",
+        "pid": 3943,
+        "role": null,
+        "type": "background writer",
+        "wait": "BgwriterHibernate",
+        "state": null,
+        "blockers": [],
+        "wait_type": "Activity",
+        "xact_start": null,
+        "query_start": null,
+        "backend_start": "2026-05-07T11:51:39.21061+05:30",
+        "query_fingerprint": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      {
+        "app": "other",
+        "pid": 3945,
+        "role": null,
+        "type": "walwriter",
+        "wait": "WalWriterMain",
+        "state": null,
+        "blockers": [],
+        "wait_type": "Activity",
+        "xact_start": null,
+        "query_start": null,
+        "backend_start": "2026-05-07T11:51:39.246201+05:30",
+        "query_fingerprint": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      {
+        "app": "other",
+        "pid": 3947,
+        "role": null,
+        "type": "archiver",
+        "wait": "ArchiverMain",
+        "state": null,
+        "blockers": [],
+        "wait_type": "Activity",
+        "xact_start": null,
+        "query_start": null,
+        "backend_start": "2026-05-07T11:51:39.248346+05:30",
+        "query_fingerprint": "d41d8cd98f00b204e9800998ecf8427e"
+      }
+    ],
+    "observed_at": "2026-11-02T13:55:58.150278+05:30",
+    "new_protocol": {
+      "durable_push_exists": false,
+      "step_dispatch_exists": false,
+      "claim_dispatch_exists": false
+    },
+    "max_connections": "60",
+    "postmaster_start": "2026-05-07T11:51:39.205612+05:30",
+    "dispatch_settings": [
+      {
+        "active": true,
+        "batch_1": 5,
+        "batch_2": 8,
+        "batch_3": 12,
+        "max_search_sec": 420,
+        "location_stale_sec": 30,
+        "response_timeout_sec": 120
+      }
+    ]
+  },
+  "edge_versions": [
+    {
+      "slug": "start-dispatch",
+      "version": 72,
+      "status": "ACTIVE",
+      "updated_at": 1786252484624
+    },
+    {
+      "slug": "create-order",
+      "version": 78,
+      "status": "ACTIVE",
+      "updated_at": 1789123143300
+    },
+    {
+      "slug": "accept-order",
+      "version": 60,
+      "status": "ACTIVE",
+      "updated_at": 1787626143152
+    },
+    {
+      "slug": "cancel-order",
+      "version": 37,
+      "status": "ACTIVE",
+      "updated_at": 1786252484624
+    },
+    {
+      "slug": "send-push-notification",
+      "version": 24,
+      "status": "ACTIVE",
+      "updated_at": 1787592020358
+    },
+    {
+      "slug": "reject-order",
+      "version": 18,
+      "status": "ACTIVE",
+      "updated_at": 1784123006649
+    }
+  ],
+  "query_ids_omitted": "JSON numeric precision is not relied on for 64-bit query IDs; query fingerprints retained."
+}

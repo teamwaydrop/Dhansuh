@@ -1,0 +1,60 @@
+{
+  "build": {
+    "exit_code": 0,
+    "elapsed_seconds": 593.42,
+    "version": "1.0.0+57",
+    "command": [
+      "flutter",
+      "build",
+      "apk",
+      "--release",
+      "--build-name=1.0.0",
+      "--build-number=57",
+      "--dart-define-from-file=.env"
+    ],
+    "production_changes": 0
+  },
+  "new_apk": {
+    "package": "com.waydrop.app",
+    "version_code": "57",
+    "version_name": "1.0.0",
+    "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+    "apk_sha256": "34eabf5b60753137d8e7cfaf22ea29ec194b3329f7c7a5c1d0bc03e21a83e8dd",
+    "bytes": 87819759
+  },
+  "reference_build56": {
+    "package": "com.waydrop.app",
+    "version_code": "56",
+    "version_name": "1.0.0",
+    "signer_sha256": "825bef84eaefbf8feeec4708ae6710b72e97120a22daa743f84c44f9e855c1d9",
+    "apk_sha256": "b6e5bdbfbeb74338a52f284e80a6e1272bb1d7f842b21da2edd2ae66c95bf559",
+    "bytes": 87819759
+  },
+  "same_signer": true,
+  "plaintext_env_asset_absent": true,
+  "artifact": "artifacts/waydrop-1.0.0-build57.apk",
+  "installed": false,
+  "published": false,
+  "phone_performance_measured": false,
+  "aot_library_comparison": [
+    {
+      "entry": "lib/arm64-v8a/libapp.so",
+      "build56_sha256": "a24a041ebf093af65e06088b192a460f8661ce25fe3297c933b7dcb4a8db82b7",
+      "build57_sha256": "fafe03fdc923ac31efda3b81caefebd0f4263a385266ea0e9d6db0ebbea663c9",
+      "changed": true
+    },
+    {
+      "entry": "lib/armeabi-v7a/libapp.so",
+      "build56_sha256": "d4dcc6a377746e7e5f6d67638a52d6fe661d65b19e3a3b3942c34038468ec4fb",
+      "build57_sha256": "b28fe10c3bd266d6d728861e0da7f29290c9023468c7519b658bc46acf58cac5",
+      "changed": true
+    },
+    {
+      "entry": "lib/x86_64/libapp.so",
+      "build56_sha256": "435171642c8c1487351b2f4af9a6fa6be0098cbc8424b325c1d780f82266e486",
+      "build57_sha256": "626b39de5c079bd3e35ce04a08d726d44264bf0fdd9f6f8ce2009b89cd89c573",
+      "changed": true
+    }
+  ],
+  "aot_provenance_limit": "AOT libraries differ from Build56; not a source-map attestation or handset artifact hash."
+}

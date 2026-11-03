@@ -40,8 +40,11 @@ CREATE TABLE IF NOT EXISTS public.rider_withdrawal_events (
 
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_rider_withdrawals_rider_id ON public.rider_withdrawals (rider_id);
+
 CREATE INDEX IF NOT EXISTS idx_rider_withdrawals_user_id ON public.rider_withdrawals (user_id);
+
 CREATE INDEX IF NOT EXISTS idx_rider_withdrawals_transfer_id ON public.rider_withdrawals (transfer_id);
+
 CREATE INDEX IF NOT EXISTS idx_rider_withdrawal_events_withdrawal_id ON public.rider_withdrawal_events (withdrawal_id);
 
 -- Trigger function to automatically update updated_at
@@ -55,6 +58,7 @@ $$ LANGUAGE plpgsql;
 
 -- Create trigger on rider_withdrawals
 DROP TRIGGER IF EXISTS set_updated_at ON public.rider_withdrawals;
+
 CREATE TRIGGER set_updated_at
 BEFORE UPDATE ON public.rider_withdrawals
 FOR EACH ROW
@@ -105,6 +109,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Create trigger on rider_withdrawals
 DROP TRIGGER IF EXISTS log_withdrawal_event ON public.rider_withdrawals;
+
 CREATE TRIGGER log_withdrawal_event
 AFTER INSERT OR UPDATE ON public.rider_withdrawals
 FOR EACH ROW
@@ -202,12 +207,25 @@ DECLARE
     v_amount numeric;
     v_status public.rider_withdrawal_status_enum;
 BEGIN
-    -- Fetch and lock the withdrawal record
+    -- First get the rider_id (simple read, no lock to determine which rider to lock)
+    SELECT rider_id INTO v_rider_id
+    FROM public.rider_withdrawals
+    WHERE id = p_withdrawal_id;
+
+    IF v_rider_id IS NULL THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Withdrawal record not found');
+    END IF;
+
+    -- Lock rider first (consistent ordering with initiate_withdrawal to prevent deadlocks)
+    PERFORM id FROM public.riders WHERE id = v_rider_id FOR UPDATE;
+
+    -- Now lock the withdrawal record
     SELECT rider_id, amount, status INTO v_rider_id, v_amount, v_status
     FROM public.rider_withdrawals
     WHERE id = p_withdrawal_id
     FOR UPDATE;
 
+    -- Re-check if the withdrawal still exists after acquiring locks
     IF v_rider_id IS NULL THEN
         RETURN jsonb_build_object('success', false, 'message', 'Withdrawal record not found');
     END IF;
@@ -223,10 +241,7 @@ BEGIN
         cashfree_response = p_error_response
     WHERE id = p_withdrawal_id;
 
-    -- Lock rider row for update
-    PERFORM id FROM public.riders WHERE id = v_rider_id FOR UPDATE;
-
-    -- Refund rider's wallet balance
+    -- Rider is already locked above; refund rider's wallet balance
     UPDATE public.riders
     SET wallet_balance = wallet_balance + v_amount
     WHERE id = v_rider_id;
@@ -256,12 +271,25 @@ BEGIN
         RETURN jsonb_build_object('success', false, 'message', 'Invalid status to complete withdrawal');
     END;
 
-    -- Fetch and lock the withdrawal record
+    -- First get the rider_id (simple read, no lock to determine which rider to lock)
+    SELECT rider_id INTO v_rider_id
+    FROM public.rider_withdrawals
+    WHERE id = p_withdrawal_id;
+
+    IF v_rider_id IS NULL THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Withdrawal record not found');
+    END IF;
+
+    -- Lock rider first (consistent ordering with initiate_withdrawal to prevent deadlocks)
+    PERFORM id FROM public.riders WHERE id = v_rider_id FOR UPDATE;
+
+    -- Now lock the withdrawal record
     SELECT rider_id, amount, status INTO v_rider_id, v_amount, v_current_status
     FROM public.rider_withdrawals
     WHERE id = p_withdrawal_id
     FOR UPDATE;
 
+    -- Re-check if the withdrawal still exists after acquiring locks
     IF v_rider_id IS NULL THEN
         RETURN jsonb_build_object('success', false, 'message', 'Withdrawal record not found');
     END IF;
@@ -283,11 +311,8 @@ BEGIN
         cashfree_response = p_response
     WHERE id = p_withdrawal_id;
 
-    -- Refund rider's wallet balance if status resolved to failed
+    -- Rider is already locked above; refund rider's wallet balance if status resolved to failed
     IF v_new_status = 'failed'::public.rider_withdrawal_status_enum THEN
-        -- Lock rider row for update
-        PERFORM id FROM public.riders WHERE id = v_rider_id FOR UPDATE;
-
         UPDATE public.riders
         SET wallet_balance = wallet_balance + v_amount
         WHERE id = v_rider_id;
@@ -299,10 +324,12 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Enable Row Level Security (RLS) on rider_withdrawals and events tables
 ALTER TABLE public.rider_withdrawals ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE public.rider_withdrawal_events ENABLE ROW LEVEL SECURITY;
 
 -- Select policy: riders can view their own withdrawals
 DROP POLICY IF EXISTS "Riders can view their own withdrawals" ON public.rider_withdrawals;
+
 CREATE POLICY "Riders can view their own withdrawals"
 ON public.rider_withdrawals
 FOR SELECT
@@ -311,6 +338,7 @@ USING (auth.uid() = user_id);
 
 -- Select policy: riders can view their own withdrawal events
 DROP POLICY IF EXISTS "Riders can view their own withdrawal events" ON public.rider_withdrawal_events;
+
 CREATE POLICY "Riders can view their own withdrawal events"
 ON public.rider_withdrawal_events
 FOR SELECT
@@ -324,10 +352,14 @@ USING (
 
 -- Revoke execute permissions on SECURITY DEFINER functions from PUBLIC (anon/authenticated)
 REVOKE EXECUTE ON FUNCTION public.initiate_withdrawal(numeric, uuid) FROM PUBLIC;
+
 REVOKE EXECUTE ON FUNCTION public.fail_withdrawal(uuid, jsonb) FROM PUBLIC;
+
 REVOKE EXECUTE ON FUNCTION public.complete_withdrawal(uuid, text, text, jsonb) FROM PUBLIC;
 
 -- Grant execute permissions specifically to service_role and postgres
 GRANT EXECUTE ON FUNCTION public.initiate_withdrawal(numeric, uuid) TO service_role, postgres;
+
 GRANT EXECUTE ON FUNCTION public.fail_withdrawal(uuid, jsonb) TO service_role, postgres;
+
 GRANT EXECUTE ON FUNCTION public.complete_withdrawal(uuid, text, text, jsonb) TO service_role, postgres;

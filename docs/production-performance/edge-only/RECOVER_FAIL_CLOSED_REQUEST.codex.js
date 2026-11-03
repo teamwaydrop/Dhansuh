@@ -1,0 +1,13 @@
+// PREPARED ONLY. Requires explicit production authority and release gates.
+await tools.mcp__codex_apps__supabase_deploy_edge_function({
+  "project_id": "yvwpchffctiagevpqgwy",
+  "name": "accept-order",
+  "entrypoint_path": "functions/accept-order/index.ts",
+  "verify_jwt": false,
+  "files": [
+    {
+      "name": "functions/accept-order/index.ts",
+      "content": "// Emergency availability rollback: no imports, secrets, reads or writes.\nDeno.serve((request: Request) => {\n  const headers = {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Retry-After':'30'};\n  return request.method === 'OPTIONS' ? new Response('ok',{headers}) : Response.json({success:false,retryable:true,message:'Acceptance is temporarily unavailable. Please retry.'},{status:503,headers});\n});\n"
+    }
+  ]
+});

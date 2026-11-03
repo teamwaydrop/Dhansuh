@@ -1,0 +1,216 @@
+[
+  {
+    "name": "captured 40-policy baseline and candidate preserve nine actor rowsets",
+    "status": "PASS",
+    "details": {
+      "actors": 9,
+      "rowset_comparisons": 57,
+      "changed_policies": [
+        "users.admin_can_select_users",
+        "orders.admin_can_select_orders",
+        "riders.admin_can_select_riders",
+        "rider_kyc.admin_can_select_rider_kyc"
+      ],
+      "explicit_positive_negative_assertions": 11
+    }
+  },
+  {
+    "name": "anon table grant denials unchanged",
+    "status": "PASS",
+    "details": {
+      "before": [
+        "riders",
+        "rider_kyc",
+        "orders",
+        "admins"
+      ],
+      "after": [
+        "riders",
+        "rider_kyc",
+        "orders",
+        "admins"
+      ]
+    }
+  },
+  {
+    "name": "UPDATE target rowsets unchanged",
+    "status": "PASS",
+    "details": {
+      "actor_table_update_comparisons": 18,
+      "transactions_rolled_back": 36
+    }
+  },
+  {
+    "name": "prepared statement identity changes and admin revocation",
+    "status": "PASS",
+    "details": {
+      "prepared_statement_actor_counts": [
+        "25",
+        "1",
+        "25"
+      ],
+      "admin_revocation_next_statement": true
+    }
+  },
+  {
+    "name": "drift guards, dry-run rollback and restoration",
+    "status": "PASS",
+    "details": {
+      "default_rollback": true,
+      "policy_drift_blocks": true,
+      "function_drift_blocks": true,
+      "no_partial_apply": true,
+      "restore_original": true
+    }
+  },
+  {
+    "name": "local actual RLS plans/timings/helper calls at 25 and 250 riders",
+    "status": "PASS",
+    "details": [
+      {
+        "riders": 25,
+        "phase": "before",
+        "actor": 1,
+        "execution_ms_median": 6.507,
+        "execution_ms_min": 2.434,
+        "execution_ms_max": 15.518,
+        "planning_ms_median": 30.415,
+        "is_admin_calls_total_9_queries": 342,
+        "plan_nodes": 50,
+        "actual_output_rows": 13
+      },
+      {
+        "riders": 25,
+        "phase": "before",
+        "actor": 5,
+        "execution_ms_median": 4.541,
+        "execution_ms_min": 1.86,
+        "execution_ms_max": 6.226,
+        "planning_ms_median": 11.305,
+        "is_admin_calls_total_9_queries": 342,
+        "plan_nodes": 50,
+        "actual_output_rows": 13
+      },
+      {
+        "riders": 25,
+        "phase": "before",
+        "actor": 999,
+        "execution_ms_median": 4.814,
+        "execution_ms_min": 2.627,
+        "execution_ms_max": 9.696,
+        "planning_ms_median": 17.096,
+        "is_admin_calls_total_9_queries": 342,
+        "plan_nodes": 50,
+        "actual_output_rows": 13
+      },
+      {
+        "riders": 25,
+        "phase": "after",
+        "actor": 1,
+        "execution_ms_median": 4.329,
+        "execution_ms_min": 1.358,
+        "execution_ms_max": 5.544,
+        "planning_ms_median": 16.375,
+        "is_admin_calls_total_9_queries": 18,
+        "plan_nodes": 59,
+        "actual_output_rows": 13
+      },
+      {
+        "riders": 25,
+        "phase": "after",
+        "actor": 5,
+        "execution_ms_median": 5.455,
+        "execution_ms_min": 3.849,
+        "execution_ms_max": 9.266,
+        "planning_ms_median": 20.752,
+        "is_admin_calls_total_9_queries": 18,
+        "plan_nodes": 59,
+        "actual_output_rows": 13
+      },
+      {
+        "riders": 25,
+        "phase": "after",
+        "actor": 999,
+        "execution_ms_median": 1.975,
+        "execution_ms_min": 1.548,
+        "execution_ms_max": 4.296,
+        "planning_ms_median": 9.727,
+        "is_admin_calls_total_9_queries": 18,
+        "plan_nodes": 59,
+        "actual_output_rows": 13
+      },
+      {
+        "riders": 250,
+        "phase": "before",
+        "actor": 1,
+        "execution_ms_median": 8.846,
+        "execution_ms_min": 5.205,
+        "execution_ms_max": 21.234,
+        "planning_ms_median": 15.918,
+        "is_admin_calls_total_9_queries": 1341,
+        "plan_nodes": 50,
+        "actual_output_rows": 50
+      },
+      {
+        "riders": 250,
+        "phase": "before",
+        "actor": 5,
+        "execution_ms_median": 5.854,
+        "execution_ms_min": 2.985,
+        "execution_ms_max": 11.374,
+        "planning_ms_median": 13.378,
+        "is_admin_calls_total_9_queries": 1341,
+        "plan_nodes": 50,
+        "actual_output_rows": 50
+      },
+      {
+        "riders": 250,
+        "phase": "before",
+        "actor": 999,
+        "execution_ms_median": 14.132,
+        "execution_ms_min": 5.454,
+        "execution_ms_max": 18.471,
+        "planning_ms_median": 19.362,
+        "is_admin_calls_total_9_queries": 1341,
+        "plan_nodes": 50,
+        "actual_output_rows": 50
+      },
+      {
+        "riders": 250,
+        "phase": "after",
+        "actor": 1,
+        "execution_ms_median": 6.413,
+        "execution_ms_min": 1.463,
+        "execution_ms_max": 10.552,
+        "planning_ms_median": 18.774,
+        "is_admin_calls_total_9_queries": 18,
+        "plan_nodes": 59,
+        "actual_output_rows": 50
+      },
+      {
+        "riders": 250,
+        "phase": "after",
+        "actor": 5,
+        "execution_ms_median": 2.551,
+        "execution_ms_min": 1.475,
+        "execution_ms_max": 6.6,
+        "planning_ms_median": 22.59,
+        "is_admin_calls_total_9_queries": 18,
+        "plan_nodes": 59,
+        "actual_output_rows": 50
+      },
+      {
+        "riders": 250,
+        "phase": "after",
+        "actor": 999,
+        "execution_ms_median": 5.504,
+        "execution_ms_min": 2.735,
+        "execution_ms_max": 9.415,
+        "planning_ms_median": 19.294,
+        "is_admin_calls_total_9_queries": 18,
+        "plan_nodes": 59,
+        "actual_output_rows": 50
+      }
+    ]
+  }
+]

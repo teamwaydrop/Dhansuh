@@ -1,0 +1,24 @@
+{
+  "sql": "SELECT timestamp,\nlog_attributes['res.statusCode'] AS status,log_attributes['req.method'] AS method,log_attributes['operation'] AS operation,\nlog_attributes['error.code'] AS error_code,\nCASE WHEN positionCaseInsensitive(log_attributes['error.message'],'statement timeout')>0 THEN 'statement_timeout' WHEN positionCaseInsensitive(log_attributes['error.message'],'acquire')>0 THEN 'pool_acquisition' WHEN positionCaseInsensitive(log_attributes['error.message'],'timeout')>0 THEN 'timeout' ELSE 'other' END AS error_class,\nextract(log_attributes['error.raw'],'(57014|DatabaseTimeout|database_timeout|ETIMEDOUT|ECONNRESET)') AS safe_raw_code,\narrayFilter(k->positionCaseInsensitive(k,'error')>0 OR positionCaseInsensitive(k,'duration')>0 OR positionCaseInsensitive(k,'time')>0,mapKeys(log_attributes)) AS diagnostic_fields\nFROM logs WHERE source='storage_logs' AND toInt32OrZero(log_attributes['res.statusCode'])>=500 ORDER BY timestamp LIMIT 8",
+  "rows": [
+    {
+      "diagnostic_fields": [
+        "executionTime",
+        "error.statusCode",
+        "error.name",
+        "responseTime",
+        "error.errorCode",
+        "error.stack",
+        "error.message",
+        "error.raw"
+      ],
+      "error_class": "other",
+      "error_code": "",
+      "method": "POST",
+      "operation": "storage.object.upload",
+      "safe_raw_code": "57014",
+      "status": "544",
+      "timestamp": "2026-11-02T15:29:17.721000"
+    }
+  ]
+}

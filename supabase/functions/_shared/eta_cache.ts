@@ -27,6 +27,7 @@ const TTL_MS = 20_000;
 const RACE_TIMEOUT_MS = 2_000;
 
 const cache = new Map<string, { value: EtaResult; cachedAt: number }>();
+const inFlight = new Map<string, Promise<EtaResult | null>>();
 
 export async function getEtaWithBudget(
   orderId: string,
@@ -38,18 +39,31 @@ export async function getEtaWithBudget(
     return cached.value;
   }
 
-  const freshPromise = fetchFresh()
-    .then((value) => {
-      cache.set(orderId, { value, cachedAt: Date.now() });
-      return value;
-    })
-    .catch(() => null);
+  let freshPromise = inFlight.get(orderId);
+  if (!freshPromise) {
+    freshPromise = Promise.resolve().then(fetchFresh)
+      .then((value) => {
+        cache.set(orderId, { value, cachedAt: Date.now() });
+        return value;
+      })
+      .catch(() => null)
+      .finally(() => {
+        if (inFlight.get(orderId) === freshPromise) inFlight.delete(orderId);
+      });
+    inFlight.set(orderId, freshPromise);
+  }
 
+  let timer: ReturnType<typeof setTimeout> | undefined;
   const timeoutFallback = new Promise<null>((resolve) => {
-    setTimeout(() => resolve(null), RACE_TIMEOUT_MS);
+    timer = setTimeout(() => resolve(null), RACE_TIMEOUT_MS);
   });
 
-  const raced = await Promise.race([freshPromise, timeoutFallback]);
+  let raced: EtaResult | null;
+  try {
+    raced = await Promise.race([freshPromise, timeoutFallback]);
+  } finally {
+    clearTimeout(timer);
+  }
   if (raced) return raced;
 
   // P1 fix (ETA failure must not break live ride status): the fresh lookup either failed

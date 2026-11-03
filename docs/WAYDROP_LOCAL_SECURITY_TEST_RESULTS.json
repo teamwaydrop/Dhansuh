@@ -1,0 +1,215 @@
+{
+  "engine": "PostgreSQL 18.6 (PGlite 0.5.13) on wasm32-unknown-emscripten, compiled by emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.5 (1db513782be24469589d7cb8a1f1834e9a33f271), 32-bit",
+  "productionConnected": false,
+  "scope": "Synthetic schema; actual proposed trigger/promo SQL and existing role guard. Internal RPC bodies are ACL fixtures, not dispatch/payment execution.",
+  "results": [
+    {
+      "name": "baseline: own profile INSERT could assign admin",
+      "status": "passed"
+    },
+    {
+      "name": "baseline: private view was readable by anon",
+      "status": "passed"
+    },
+    {
+      "name": "baseline: own KYC decisions were mutable",
+      "status": "passed"
+    },
+    {
+      "name": "baseline: client could insert active payout status",
+      "status": "passed"
+    },
+    {
+      "name": "baseline: promo caller could query another account audience",
+      "status": "passed"
+    },
+    {
+      "name": "proposal remains rollback-by-default",
+      "status": "passed"
+    },
+    {
+      "name": "deny profile INSERT role='admin'",
+      "status": "passed"
+    },
+    {
+      "name": "deny profile INSERT role='support'",
+      "status": "passed"
+    },
+    {
+      "name": "deny profile INSERT is_developer=true",
+      "status": "passed"
+    },
+    {
+      "name": "deny profile INSERT is_suspended=true",
+      "status": "passed"
+    },
+    {
+      "name": "allow ordinary own profile creation and editing",
+      "status": "passed"
+    },
+    {
+      "name": "deny profile UPDATE role",
+      "status": "passed"
+    },
+    {
+      "name": "deny profile UPDATE is_developer",
+      "status": "passed"
+    },
+    {
+      "name": "deny profile UPDATE is_suspended",
+      "status": "passed"
+    },
+    {
+      "name": "deny profile ownership reassignment via inherited UPDATE WITH CHECK",
+      "status": "passed"
+    },
+    {
+      "name": "cross-account profile read/write affects no rows",
+      "status": "passed"
+    },
+    {
+      "name": "deny owner KYC decision UPDATE kyc_status='approved'",
+      "status": "passed"
+    },
+    {
+      "name": "deny owner KYC decision UPDATE activation_status='active'",
+      "status": "passed"
+    },
+    {
+      "name": "deny owner KYC decision UPDATE blocked_until=now()",
+      "status": "passed"
+    },
+    {
+      "name": "deny owner KYC decision UPDATE rejection_reason='client decision'",
+      "status": "passed"
+    },
+    {
+      "name": "deny forged approved KYC INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "allow pending KYC INSERT and ordinary document/profile edits",
+      "status": "passed"
+    },
+    {
+      "name": "deny explicit null kyc_status on KYC INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "deny explicit null activation_status on KYC INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "authorized existing staff KYC review remains possible",
+      "status": "passed"
+    },
+    {
+      "name": "suspended staff cannot use the KYC decision exception",
+      "status": "passed"
+    },
+    {
+      "name": "cross-account KYC write affects no rows",
+      "status": "passed"
+    },
+    {
+      "name": "deny fabricated active payout INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "allow pending payout setup",
+      "status": "passed"
+    },
+    {
+      "name": "deny anon SELECT parcel_compliance_view",
+      "status": "passed"
+    },
+    {
+      "name": "deny authenticated SELECT parcel_compliance_view",
+      "status": "passed"
+    },
+    {
+      "name": "allow service-role SELECT parcel_compliance_view",
+      "status": "passed"
+    },
+    {
+      "name": "deny anon SELECT parcel_security_timeline_view",
+      "status": "passed"
+    },
+    {
+      "name": "deny authenticated SELECT parcel_security_timeline_view",
+      "status": "passed"
+    },
+    {
+      "name": "allow service-role SELECT parcel_security_timeline_view",
+      "status": "passed"
+    },
+    {
+      "name": "ACL: expire_stale_searching_orders() is server-only",
+      "status": "passed"
+    },
+    {
+      "name": "ACL: redispatch_stalled_searching_orders() is server-only",
+      "status": "passed"
+    },
+    {
+      "name": "ACL: expire_stale_active_orders() is server-only",
+      "status": "passed"
+    },
+    {
+      "name": "ACL: expire_stale_intercity_requests() is server-only",
+      "status": "passed"
+    },
+    {
+      "name": "ACL: redispatch_freed_riders() is server-only",
+      "status": "passed"
+    },
+    {
+      "name": "ACL: assign_new_order_to_nearby_online_riders_core(uuid) is server-only",
+      "status": "passed"
+    },
+    {
+      "name": "ACL: send_order_status_notifications_core(uuid,text,text,text,integer,text,text,uuid,uuid,text,text) is server-only",
+      "status": "passed"
+    },
+    {
+      "name": "anon invocation of internal RPC is denied before its body runs",
+      "status": "passed"
+    },
+    {
+      "name": "server invocation of internal RPC remains allowed (ACL fixture body only)",
+      "status": "passed"
+    },
+    {
+      "name": "promo same-user positive calculation preserves 10 percent discount",
+      "status": "passed"
+    },
+    {
+      "name": "promo another-user identity is denied",
+      "status": "passed"
+    },
+    {
+      "name": "promo missing identity is denied",
+      "status": "passed"
+    },
+    {
+      "name": "promo null target identity is denied",
+      "status": "passed"
+    },
+    {
+      "name": "promo anon EXECUTE is denied",
+      "status": "passed"
+    },
+    {
+      "name": "server promo pricing can evaluate the actual order owner",
+      "status": "passed"
+    },
+    {
+      "name": "service role can assign roles, approve KYC and activate provider-confirmed payout",
+      "status": "passed"
+    },
+    {
+      "name": "all seven changed definer paths are pinned",
+      "status": "passed"
+    }
+  ]
+}

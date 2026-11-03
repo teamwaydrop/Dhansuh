@@ -1,0 +1,86 @@
+{
+  "query": "SELECT source,\nCASE WHEN source='edge_logs' THEN CASE WHEN startsWith(log_attributes['request.path'],'/storage/v1/object/sign/') THEN 'signed_URL_generation' WHEN startsWith(log_attributes['request.path'],'/storage/v1/object/') THEN 'object_transfer' ELSE 'other_storage' END\nWHEN source='postgrest_logs' THEN CASE WHEN position(event_message,'PGRST003')>0 THEN 'PGRST003' WHEN position(event_message,'PGRST001')>0 THEN 'PGRST001' WHEN positionCaseInsensitive(event_message,'Thread killed by timeout manager')>0 THEN 'Warp_timeout_manager' ELSE 'other_timeout' END\nWHEN source='postgres_logs' THEN CASE WHEN positionCaseInsensitive(event_message,'pg_stat_statements')>0 THEN 'admin_pg_stat_statements' WHEN positionCaseInsensitive(event_message,'pg_stat_activity')>0 THEN 'admin_pg_stat_activity' WHEN positionCaseInsensitive(event_message,'pg_settings')>0 THEN 'admin_pg_settings' WHEN positionCaseInsensitive(event_message,'pg_catalog')>0 THEN 'admin_catalog' ELSE 'admin_other' END ELSE 'other' END AS operation,\nCASE WHEN source='edge_logs' THEN CASE WHEN startsWith(log_attributes['request.headers.user_agent'],'Dart/') THEN 'Dart' WHEN startsWith(log_attributes['request.headers.user_agent'],'Deno/') THEN 'Edge/Deno' ELSE 'other' END ELSE log_attributes['parsed.application_name'] END AS family,\ncount() AS observations,uniqExact(tuple(timestamp,event_message)) AS unique_timestamp_message_pairs,min(timestamp) AS first_observed,max(timestamp) AS last_observed,\nmax(toFloat64OrZero(log_attributes['response.origin_time'])) AS max_origin_ms,\ncountIf(positionCaseInsensitive(event_message,'statement timeout')>0) AS includes_statement_timeout_phrase\nFROM logs WHERE (source='edge_logs' AND startsWith(log_attributes['request.path'],'/storage/'))\nOR (source='postgrest_logs' AND positionCaseInsensitive(event_message,'timeout')>0)\nOR (source='postgres_logs' AND log_attributes['parsed.application_name'] IN('supabase/dashboard','mgmt-api') AND positionCaseInsensitive(event_message,'timeout')>0)\nGROUP BY source,operation,family ORDER BY source,operation,family LIMIT 30",
+  "window_utc": [
+    "2026-11-02T12:13:00Z",
+    "2026-11-02T12:25:00Z"
+  ],
+  "rows": [
+    {
+      "family": "Dart",
+      "first_observed": "2026-11-02T12:13:38.510000",
+      "includes_statement_timeout_phrase": 0,
+      "last_observed": "2026-11-02T12:23:26.907000",
+      "max_origin_ms": 685,
+      "observations": 85,
+      "operation": "signed_URL_generation",
+      "source": "edge_logs",
+      "unique_timestamp_message_pairs": 85
+    },
+    {
+      "family": "Edge/Deno",
+      "first_observed": "2026-11-02T12:13:37.626000",
+      "includes_statement_timeout_phrase": 0,
+      "last_observed": "2026-11-02T12:23:26.435000",
+      "max_origin_ms": 1767,
+      "observations": 107,
+      "operation": "signed_URL_generation",
+      "source": "edge_logs",
+      "unique_timestamp_message_pairs": 107
+    },
+    {
+      "family": "supabase/dashboard",
+      "first_observed": "2026-11-02T12:20:30.076000",
+      "includes_statement_timeout_phrase": 0,
+      "last_observed": "2026-11-02T12:20:35.216000",
+      "max_origin_ms": 0,
+      "observations": 2,
+      "operation": "admin_other",
+      "source": "postgres_logs",
+      "unique_timestamp_message_pairs": 2
+    },
+    {
+      "family": "mgmt-api",
+      "first_observed": "2026-11-02T12:20:50.576000",
+      "includes_statement_timeout_phrase": 0,
+      "last_observed": "2026-11-02T12:20:50.576000",
+      "max_origin_ms": 0,
+      "observations": 1,
+      "operation": "admin_pg_stat_statements",
+      "source": "postgres_logs",
+      "unique_timestamp_message_pairs": 1
+    },
+    {
+      "family": "supabase/dashboard",
+      "first_observed": "2026-11-02T12:20:45.451000",
+      "includes_statement_timeout_phrase": 0,
+      "last_observed": "2026-11-02T12:20:45.451000",
+      "max_origin_ms": 0,
+      "observations": 1,
+      "operation": "admin_pg_stat_statements",
+      "source": "postgres_logs",
+      "unique_timestamp_message_pairs": 1
+    },
+    {
+      "family": "",
+      "first_observed": "2026-11-02T12:19:52.354739",
+      "includes_statement_timeout_phrase": 0,
+      "last_observed": "2026-11-02T12:24:24.944660",
+      "max_origin_ms": 0,
+      "observations": 22,
+      "operation": "Warp_timeout_manager",
+      "source": "postgrest_logs",
+      "unique_timestamp_message_pairs": 6
+    },
+    {
+      "family": "",
+      "first_observed": "2026-11-02T12:20:46.656279",
+      "includes_statement_timeout_phrase": 1,
+      "last_observed": "2026-11-02T12:20:46.656279",
+      "max_origin_ms": 0,
+      "observations": 1,
+      "operation": "other_timeout",
+      "source": "postgrest_logs",
+      "unique_timestamp_message_pairs": 1
+    }
+  ]
+}

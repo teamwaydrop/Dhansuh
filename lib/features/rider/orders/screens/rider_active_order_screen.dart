@@ -34,6 +34,10 @@ import 'package:waydrop/shared/helpers/insets.dart';
 import 'package:waydrop/shared/helpers/location_display_service.dart';
 import 'package:waydrop/modules/payments/services/payment_service.dart';
 import 'package:waydrop/modules/payments/screens/payment_processing_screen.dart';
+import 'package:waydrop/features/local_parcels/services/parcel_upload_service.dart';
+import 'package:waydrop/features/rider/orders/services/rider_photo_verification_service.dart';
+import 'package:waydrop/shared/screens/connection_error_screen.dart';
+import 'package:waydrop/shared/helpers/global_error_controller.dart';
 
 const Color _primaryLime = Color(0xFFC5FF30);
 const Color _darkBg = Color(0xFF0B0F19);
@@ -92,6 +96,7 @@ class _RiderActiveOrderScreenState
   Map<String, dynamic>? order;
 
   bool loading = true;
+  bool _orderLoadFailed = false;
 
   // Single in-flight guard for updateStatus (H18): prevents a duplicate
   // update-order-status call if a swipe/tap fires again before the first
@@ -221,6 +226,8 @@ class _RiderActiveOrderScreenState
   String? optimizedGeometry;
   bool fetchingRoute = false;
   bool _isUploadingPhoto = false;
+  late final _photoVerification = RiderPhotoVerificationService(supabase);
+  int _verificationReadGeneration = 0;
   bool pickupPhotoCompleted = false;
   bool dropoffPhotoCompleted = false;
 
@@ -398,13 +405,17 @@ class _RiderActiveOrderScreenState
   // =========================================================
 
   Future<void> loadVerifications() async {
+    final owner = supabase.auth.currentUser?.id;
+    final generation = ++_verificationReadGeneration;
+    if (owner == null) return;
     try {
       final verificationsRes = await supabase
           .from('order_verifications')
           .select('verification_type, verification_status')
           .eq('order_id', widget.orderId);
 
-      if (mounted) {
+      if (mounted && supabase.auth.currentUser?.id == owner &&
+          generation == _verificationReadGeneration) {
         setState(() {
           pickupPhotoCompleted = (verificationsRes as List).any((v) =>
               v['verification_type'] == 'pickup' &&
@@ -420,62 +431,60 @@ class _RiderActiveOrderScreenState
   }
 
   Future<void> _takeVerificationPhoto(String type) async {
+    if (_isUploadingPhoto) return;
+    final owner = supabase.auth.currentUser?.id;
+    final riderId = order?['rider_id']?.toString();
+    if (owner == null || riderId == null) return;
+    bool isCurrent() => mounted && supabase.auth.currentUser?.id == owner;
     try {
+      setState(() { _isUploadingPhoto = true; });
       final picker = ImagePicker();
       final XFile? file = await picker.pickImage(
         source: ImageSource.camera,
         imageQuality: 70,
       );
-      if (file == null) return;
-
-      setState(() {
-        _isUploadingPhoto = true;
-      });
-
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final uniqueId = '${timestamp}_${timestamp % 100000}';
-      final path = 'orders/${widget.orderId}/verifications/$type/$uniqueId.jpg';
+      if (file == null || !isCurrent()) return;
 
       final fileBytes = await file.readAsBytes();
-      await supabase.storage.from('parcel_images').uploadBinary(
-        path,
-        fileBytes,
-        fileOptions: const FileOptions(
-          upsert: true,
-          contentType: 'image/jpeg',
-        ),
+      if (!isCurrent()) return;
+      // Upload and independent metadata acquisition overlap. Immutable proof
+      // objects retain raw transport ownership after a visible timeout.
+      final results = await Future.wait<Object?>([
+        ParcelUploadService.uploadVerificationBytes(fileBytes,
+            orderId: widget.orderId, photoType: type),
+        _getCurrentLocation(),
+        DeviceInfoHelper.getDeviceId(),
+      ]).timeout(const Duration(seconds: 20));
+      if (!isCurrent()) return;
+      final pos = results[1] as Position?;
+      final response = await _photoVerification.verify(
+        owner: owner,
+        orderId: widget.orderId,
+        riderId: riderId,
+        photoType: type,
+        photoUrl: results[0] as String,
+        isActive: () => mounted,
+        latitude: pos?.latitude,
+        longitude: pos?.longitude,
+        deviceId: results[2] as String?,
       );
-
-      final String publicUrl = supabase.storage
-          .from('parcel_images')
-          .getPublicUrl(path);
-
-      final pos = await _getCurrentLocation();
-      final deviceId = await DeviceInfoHelper.getDeviceId();
-
-      final response = await supabase.functions.invoke(
-        'process-verification-photo',
-        body: {
-          'order_id': widget.orderId,
-          'photo_type': type,
-          'photo_url': publicUrl,
-          'latitude': pos?.latitude,
-          'longitude': pos?.longitude,
-          'rider_id': order?['rider_id'],
-          'device_id': deviceId,
-        },
-      );
-
+      if (!isCurrent()) return;
       final data = response.data;
       if (data == null || data['success'] != true) {
-        final errMsg = data?['error'] ?? data?['message'] ?? 'Unknown error';
-        throw Exception(errMsg);
+        throw const RiderProofUnconfirmed();
       }
 
-      await loadVerifications();
-      await _maybeGenerateIntercityDeliveryOtpAfterProof(type);
+      // The successful proof response is authoritative. A display refresh or
+      // best-effort OTP generation must not keep the upload spinner alive.
+      ++_verificationReadGeneration; // invalidate reads started before commit.
+      setState(() {
+        if (type == 'pickup') pickupPhotoCompleted = true;
+        if (type == 'dropoff') dropoffPhotoCompleted = true;
+      });
+      unawaited(loadVerifications());
+      unawaited(_maybeGenerateIntercityDeliveryOtpAfterProof(type));
 
-      if (!mounted) return;
+      if (!mounted || !isCurrent()) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${type == 'pickup' ? 'Pickup' : 'Dropoff'} verification photo uploaded successfully!'),
@@ -483,7 +492,15 @@ class _RiderActiveOrderScreenState
         ),
       );
     } catch (e) {
-      if (mounted) {
+      if (!mounted) return;
+      if (isCurrent() && (e is ParcelUploadUnconfirmed ||
+          e is RiderProofUnconfirmed || e is TimeoutException)) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Photo status is unconfirmed. Check proof status before retrying.'),
+        ));
+        // Read-only reconciliation. Do not bypass or replay an uncertain write.
+        unawaited(loadVerifications());
+      } else if (isCurrent()) {
         _showBypassDialog(type, e.toString());
       }
     } finally {
@@ -1071,7 +1088,7 @@ class _RiderActiveOrderScreenState
   // =========================================================
 
   Future<void> loadOrder() async {
-
+    final owner = supabase.auth.currentUser?.id;
     try {
 
       if (widget.initialOrder != null) {
@@ -1084,16 +1101,24 @@ class _RiderActiveOrderScreenState
         order = Map<String, dynamic>.from(widget.initialOrder!);
         final passengerUserId = order?['user_id']?.toString();
         if (passengerUserId != null) {
-          try {
-            final usersRow = await supabase
-                .from('users')
-                .select('full_name, phone, user_code, gender, profile_photo_url')
-                .eq('id', passengerUserId)
-                .maybeSingle();
-            if (usersRow != null) order!['users'] = usersRow;
-          } catch (e) {
-            debugPrint('LOAD ORDER (seeded) users enrichment ERROR => $e');
-          }
+          final seededOrder = order!;
+          // Display enrichment must not delay the authoritative order or its
+          // required proof/intercity checks. Contact actions handle absent data.
+          unawaited(() async {
+            try {
+              final usersRow = await supabase
+                  .from('users')
+                  .select('full_name, phone, user_code, gender, profile_photo_url')
+                  .eq('id', passengerUserId)
+                  .maybeSingle();
+              if (usersRow != null && mounted && owner != null &&
+                  supabase.auth.currentUser?.id == owner && identical(order, seededOrder)) {
+                setState(() => seededOrder['users'] = usersRow);
+              }
+            } catch (_) {
+              debugPrint('LOAD ORDER (seeded) passenger display unavailable');
+            }
+          }());
         }
       } else {
         // Egress fix audit: deliberately left broad, not narrowed. `order` is read via 40+
@@ -1125,6 +1150,7 @@ class _RiderActiveOrderScreenState
         loadVerifications(),
         _loadIntercityRequestMeta(),
       ]);
+      if (!mounted || supabase.auth.currentUser?.id != owner) return;
 
       if (
           order?['accepted_at'] !=
@@ -1154,9 +1180,10 @@ class _RiderActiveOrderScreenState
 
     catch (e) {
 
-      debugPrint(
-        'LOAD ORDER ERROR => $e',
-      );
+      debugPrint('LOAD ORDER request failed');
+      if (mounted && supabase.auth.currentUser?.id == owner) {
+        setState(() { loading = false; _orderLoadFailed = true; });
+      }
     }
   }
 
@@ -1167,8 +1194,13 @@ class _RiderActiveOrderScreenState
   // fetched/tracked here -- intercity payment is collected from the passenger AFTER the trip
   // completes, not before, so Start Trip must never gate on it (see _startIntercityTrip below).
   Future<void> _loadIntercityRequestMeta() async {
+    // Local orders do not use travel-plan metadata. Keep the existing long-ride
+    // (>20km) business classification together with explicit intercity types.
+    if (!_isIntercityOrder) return;
+    final currentOrder = order;
+    final owner = supabase.auth.currentUser?.id;
     final riderId = order?['rider_id']?.toString();
-    if (riderId == null) return;
+    if (riderId == null || owner == null) return;
     try {
       final row = await supabase
           .from('intercity_requests')
@@ -1176,7 +1208,7 @@ class _RiderActiveOrderScreenState
           .eq('parcel_id', widget.orderId)
           .eq('traveller_id', riderId)
           .maybeSingle();
-      if (mounted) {
+      if (mounted && supabase.auth.currentUser?.id == owner && identical(order, currentOrder)) {
         setState(() {
           _intercityRouteId = row?['route_id']?.toString();
           _intercityRequestId = row?['id']?.toString();
@@ -2158,7 +2190,7 @@ class _RiderActiveOrderScreenState
         final targetStatus = currentStatus == 'rider_arrived' ? 'cancelled' : 'searching';
         success = await updateStatus(targetStatus);
       }
-      if (!mounted) return;
+      if (!mounted || !context.mounted) return;
       if (success) {
         // Pop the active order screen back to orders list safely
         try {
@@ -3226,6 +3258,17 @@ class _RiderActiveOrderScreenState
 
   @override
   Widget build(BuildContext context) {
+    if (_orderLoadFailed) {
+      return ConnectionErrorScreen(
+        errorType: ErrorType.backend,
+        errorMessage: 'Unable to load this order. Please retry.',
+        onRetry: () {
+          if (loading || supabase.auth.currentUser == null) return;
+          setState(() { loading = true; _orderLoadFailed = false; });
+          unawaited(loadOrder());
+        },
+      );
+    }
     if (loading) {
       return const SkeletonLoader();
     }

@@ -134,6 +134,7 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
   final List<File> _selectedImages = [];
   final ImagePicker _picker = ImagePicker();
   bool _imageUploading = false;
+  bool _imageUploadUnconfirmed = false;
   List<String> _uploadedUrls = [];
   List<Map<String, String>> _recentContacts = [];
 
@@ -426,30 +427,31 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
   }
 
   Future<void> _uploadSelectedImages(List<File> files) async {
-    setState(() {
-      _imageUploading = true;
-    });
+    if (!mounted || _imageUploading) return;
+    setState(() { _imageUploading = true; });
     try {
-      final urls = await ParcelUploadService.uploadImages(files);
-      if (urls.isNotEmpty) {
-        setState(() {
-          _uploadedUrls.addAll(urls);
-        });
-      }
-    } catch (e) {
-      debugPrint('UPLOAD ERROR => $e');
-      _showSnackBar('Failed to upload package photo: $e. Please try again.');
+      // Reconcile the complete selection; previously completed items are read,
+      // not re-uploaded. Failed batches must not lose their successful objects.
+      final urls = await ParcelUploadService.uploadImages(List<File>.of(_selectedImages));
+      if (!mounted) return;
       setState(() {
-        _selectedImages.removeWhere((file) => files.contains(file));
+        _uploadedUrls = urls;
+        _imageUploadUnconfirmed = false;
       });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _uploadedUrls = [];
+        _imageUploadUnconfirmed = true;
+      });
+      _showSnackBar('Photo upload could not be confirmed. Your photos are kept. Tap Check / retry photos.');
     } finally {
-      setState(() {
-        _imageUploading = false;
-      });
+      if (mounted) setState(() { _imageUploading = false; });
     }
   }
 
   Future<void> _pickFromCamera() async {
+    if (_imageUploading) return;
     if (_selectedImages.length >= 5) {
       _showSnackBar('You can attach a maximum of 5 photos.');
       return;
@@ -461,6 +463,7 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
         maxWidth: 1024,
         maxHeight: 1024,
       );
+      if (!mounted) return;
       if (image != null) {
         final file = File(image.path);
         setState(() {
@@ -474,6 +477,7 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
   }
 
   Future<void> _pickFromGallery() async {
+    if (_imageUploading) return;
     if (_selectedImages.length >= 5) {
       _showSnackBar('You can attach a maximum of 5 photos.');
       return;
@@ -484,6 +488,7 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
         maxWidth: 1024,
         maxHeight: 1024,
       );
+      if (!mounted) return;
       if (images.isNotEmpty) {
         final List<File> files = [];
         for (var image in images) {
@@ -506,8 +511,10 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
   }
 
   void _removeSelectedImage(int index) {
+    if (_imageUploading) return;
     setState(() {
       _selectedImages.removeAt(index);
+      if (_selectedImages.isEmpty) _imageUploadUnconfirmed = false;
       if (_uploadedUrls.length > index) {
         _uploadedUrls.removeAt(index);
       }
@@ -672,8 +679,8 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
       return;
     }
 
-    if (_uploadedUrls.isEmpty) {
-      _showSnackBar('Photo upload in progress or failed. Please re-attach.');
+    if (_imageUploadUnconfirmed || _uploadedUrls.length != _selectedImages.length) {
+      _showSnackBar('Tap Check / retry photos to confirm every selected photo.');
       return;
     }
 
@@ -1435,6 +1442,12 @@ class _IntercityDetailsScreenState extends State<IntercityDetailsScreen> {
                                 ),
                             ],
                           ),
+                          if (_imageUploadUnconfirmed && !_imageUploading)
+                            TextButton.icon(
+                              onPressed: () => _uploadSelectedImages(List<File>.of(_selectedImages)),
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Check / retry photos'),
+                            ),
                           if (_imageUploading) ...[
                             const SizedBox(height: 8),
                             Row(

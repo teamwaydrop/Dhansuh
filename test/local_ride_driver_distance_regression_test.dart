@@ -23,7 +23,6 @@ String _read(String path) => File(path).readAsStringSync();
 
 void main() {
   final card = _read('lib/features/rider/orders/widgets/incoming_order_card.dart');
-  final startDispatch = _read('supabase/functions/start-dispatch/index.ts');
   final findNearbyRidersRpc =
       _read('supabase/migrations/20260729000001_find_nearby_riders_security_definer_and_authz.sql');
 
@@ -38,7 +37,7 @@ void main() {
     });
 
     test('rider_assignments.distance_km really is populated by start-dispatch at assignment-creation time (no new API call needed in the widget)', () {
-      expect(startDispatch.contains('distance_km: rider.distance_km'), isTrue);
+      expect(_read('docs/migration-review/not-applied/20261102044001_waydrop_dispatch_fencing_and_delivery_outbox.sql').contains('distance_km=excluded.distance_km'), isTrue);
     });
 
     test('the underlying distance is a documented straight-line (haversine) calculation, honestly labelled -- never claimed to be road distance', () {

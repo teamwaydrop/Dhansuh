@@ -1,0 +1,69 @@
+--- passenger-loader.before.dart
++++ lib/features/user/home/home_tab.dart
+@@ -1330,8 +1330,11 @@
+   // Build method responsible for rendering the entire widget layout hierarchy on the viewport
+   Widget build(BuildContext context) {
+     final initialData = ref.watch(initialUserDataProvider);
++    // GPS may remain unavailable (permission denied, disabled service, or a
++    // failed fix). Once Home's data attempt finishes, show the existing location
++    // setup/error UI instead of keeping a full-screen skeleton indefinitely.
+     final shouldShowSkeleton =
+-        initialData == null && !LocationCacheService.isInitialized;
++        loading && initialData == null && !LocationCacheService.isInitialized;
+     if (!shouldShowSkeleton) _contentBuildCount++;
+ 
+     // Retrieve the active theme parameters (like colors, text style, dark mode) from BuildContext
+
+--- zones-singleflight.before.dart
++++ lib/core/services/location/serviceability_service.dart
+@@ -10,7 +10,7 @@
+ class ServiceabilityService {
+   static List<Map<String, dynamic>>? _cachedActiveZones;
+   static List<CachedZone>? _cachedZones;
+-  static bool _isLoadingZones = false;
++  static Future<void>? _zonesInFlight;
+   static DateTime? _lastLoadedTime;
+ 
+   static const Duration zoneCacheTtl = Duration(minutes: 15);
+@@ -23,16 +23,27 @@
+ 
+   /// Loads active pricing zones from the database to dynamically determine serviceability.
+   /// Enforces a 15-minute Cache TTL unless forceRefresh is true.
+-  static Future<void> loadActiveZones({bool forceRefresh = false}) async {
++  static Future<void> loadActiveZones({bool forceRefresh = false}) {
++    // Startup prefetch, location initialization and Home can all arrive here.
++    // Join the actual read, including a forced refresh, instead of returning
++    // "done" while the resolver is still empty or stale.
++    final existing = _zonesInFlight;
++    if (existing != null) return existing;
+     final now = DateTime.now();
+     if (_cachedActiveZones != null && 
+         !forceRefresh && 
+         _lastLoadedTime != null && 
+         now.difference(_lastLoadedTime!) < zoneCacheTtl) {
+-      return;
+-    }
+-    if (_isLoadingZones) return;
+-    _isLoadingZones = true;
++      return Future<void>.value();
++    }
++    final operation = _loadActiveZones(now).whenComplete(() {
++      _zonesInFlight = null;
++    });
++    _zonesInFlight = operation;
++    return operation;
++  }
++
++  static Future<void> _loadActiveZones(DateTime now) async {
+     try {
+       final supabase = Supabase.instance.client;
+       final response = await supabase
+@@ -94,8 +105,6 @@
+       LocationCacheService.updateServiceability();
+     } catch (e) {
+       debugPrint('Error loading active zones: $e');
+-    } finally {
+-      _isLoadingZones = false;
+     }
+   }
+ 

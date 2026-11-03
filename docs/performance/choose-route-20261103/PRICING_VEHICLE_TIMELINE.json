@@ -1,0 +1,129 @@
+{
+  "window_utc": [
+    "2026-11-03T04:24:00Z",
+    "2026-11-03T04:34:00Z"
+  ],
+  "evidence": {
+    "result": [
+      {
+        "max_ms": 1112,
+        "min_ms": 283,
+        "minute_utc": "2026-11-03T04:26:00",
+        "n": 3,
+        "vehicle": "auto"
+      },
+      {
+        "max_ms": 1439,
+        "min_ms": 145,
+        "minute_utc": "2026-11-03T04:26:00",
+        "n": 4,
+        "vehicle": "bike"
+      },
+      {
+        "max_ms": 213,
+        "min_ms": 213,
+        "minute_utc": "2026-11-03T04:26:00",
+        "n": 1,
+        "vehicle": "cab"
+      },
+      {
+        "max_ms": 364,
+        "min_ms": 364,
+        "minute_utc": "2026-11-03T04:28:00",
+        "n": 1,
+        "vehicle": "auto"
+      },
+      {
+        "max_ms": 422,
+        "min_ms": 186,
+        "minute_utc": "2026-11-03T04:28:00",
+        "n": 2,
+        "vehicle": "bike"
+      },
+      {
+        "max_ms": 192,
+        "min_ms": 160,
+        "minute_utc": "2026-11-03T04:29:00",
+        "n": 2,
+        "vehicle": "auto"
+      },
+      {
+        "max_ms": 208,
+        "min_ms": 126,
+        "minute_utc": "2026-11-03T04:29:00",
+        "n": 4,
+        "vehicle": "bike"
+      },
+      {
+        "max_ms": 463,
+        "min_ms": 144,
+        "minute_utc": "2026-11-03T04:29:00",
+        "n": 2,
+        "vehicle": "cab"
+      },
+      {
+        "max_ms": 1204,
+        "min_ms": 1204,
+        "minute_utc": "2026-11-03T04:30:00",
+        "n": 1,
+        "vehicle": "auto"
+      },
+      {
+        "max_ms": 1230,
+        "min_ms": 1099,
+        "minute_utc": "2026-11-03T04:30:00",
+        "n": 2,
+        "vehicle": "bike"
+      },
+      {
+        "max_ms": 1001,
+        "min_ms": 1001,
+        "minute_utc": "2026-11-03T04:30:00",
+        "n": 1,
+        "vehicle": "cab"
+      },
+      {
+        "max_ms": 13892,
+        "min_ms": 1661,
+        "minute_utc": "2026-11-03T04:32:00",
+        "n": 2,
+        "vehicle": "auto"
+      },
+      {
+        "max_ms": 18631,
+        "min_ms": 121,
+        "minute_utc": "2026-11-03T04:32:00",
+        "n": 3,
+        "vehicle": "bike"
+      },
+      {
+        "max_ms": 16106,
+        "min_ms": 1953,
+        "minute_utc": "2026-11-03T04:32:00",
+        "n": 2,
+        "vehicle": "cab"
+      },
+      {
+        "max_ms": 240,
+        "min_ms": 240,
+        "minute_utc": "2026-11-03T04:33:00",
+        "n": 1,
+        "vehicle": "auto"
+      },
+      {
+        "max_ms": 461,
+        "min_ms": 233,
+        "minute_utc": "2026-11-03T04:33:00",
+        "n": 2,
+        "vehicle": "bike"
+      },
+      {
+        "max_ms": 212,
+        "min_ms": 212,
+        "minute_utc": "2026-11-03T04:33:00",
+        "n": 1,
+        "vehicle": "cab"
+      }
+    ]
+  }
+}

@@ -1,0 +1,2039 @@
+[
+  {
+    "version": "20260529000000",
+    "name": "baseline_foundational_schema",
+    "statement_count": 250,
+    "bytes": 61178,
+    "normalized_md5": "8e164874299b7144a865ec1a308d004d"
+  },
+  {
+    "version": "20260530000000",
+    "name": "rider_payout_accounts",
+    "statement_count": 23,
+    "bytes": 7534,
+    "normalized_md5": "c84e5e38e0b9f0693e605d7e26aa09e9"
+  },
+  {
+    "version": "20260530000001",
+    "name": "rider_withdrawals",
+    "statement_count": 28,
+    "bytes": 13843,
+    "normalized_md5": "5f21e36ec0d417891d379af49e1dcf8c"
+  },
+  {
+    "version": "20260530000002",
+    "name": "enable_realtime",
+    "statement_count": 1,
+    "bytes": 1248,
+    "normalized_md5": "1f78f7c5b95b2330a9417a054072d3fa"
+  },
+  {
+    "version": "20260531000003",
+    "name": "fix_find_nearby_riders",
+    "statement_count": 28,
+    "bytes": 15443,
+    "normalized_md5": "80a0f7c8aeff8b8b07ca004faf76e784"
+  },
+  {
+    "version": "20260531000004",
+    "name": "rider_ratings",
+    "statement_count": 12,
+    "bytes": 3827,
+    "normalized_md5": "c28f0d2e8906ecabe517d175d18d0187"
+  },
+  {
+    "version": "20260531000005",
+    "name": "storage_policies",
+    "statement_count": 9,
+    "bytes": 1279,
+    "normalized_md5": "72248d6ced6fa61f1bd0674325735b17"
+  },
+  {
+    "version": "20260601000006",
+    "name": "convert_timestamps_to_timestamptz",
+    "statement_count": 6,
+    "bytes": 1760,
+    "normalized_md5": "b2fcea252a3cfe7c48fc69a4ce5c9e3d"
+  },
+  {
+    "version": "20260601000007",
+    "name": "rider_travel_plans",
+    "statement_count": 14,
+    "bytes": 3853,
+    "normalized_md5": "a6734ebd11f4fa30b70355fe2741e9a9"
+  },
+  {
+    "version": "20260601000008",
+    "name": "create_order_chat_messages",
+    "statement_count": 5,
+    "bytes": 2245,
+    "normalized_md5": "f02d79b8ee19ab240b4e9bb201a05028"
+  },
+  {
+    "version": "20260601000009",
+    "name": "generic_chat_and_roles",
+    "statement_count": 9,
+    "bytes": 2941,
+    "normalized_md5": "01402ed873bd8a875ef2f7b010a94eb4"
+  },
+  {
+    "version": "20260601000010",
+    "name": "grant_travel_plans_permissions",
+    "statement_count": 1,
+    "bytes": 212,
+    "normalized_md5": "36e721a584d43243766edba9fb6431d1"
+  },
+  {
+    "version": "20260601000011",
+    "name": "add_accepted_by_user_to_enum",
+    "statement_count": 1,
+    "bytes": 181,
+    "normalized_md5": "c8d89b1e7c8a39936f134c018a7835fb"
+  },
+  {
+    "version": "20260601000012",
+    "name": "rider_travel_plans_policy",
+    "statement_count": 2,
+    "bytes": 825,
+    "normalized_md5": "0d8986ed47927f4816b8a32aa408c9b6"
+  },
+  {
+    "version": "20260601000013",
+    "name": "rider_assignments_insert_policy",
+    "statement_count": 2,
+    "bytes": 407,
+    "normalized_md5": "74bca13d9a8023f892a3544f04a79970"
+  },
+  {
+    "version": "20260601000014",
+    "name": "rider_assignments_passenger_policy",
+    "statement_count": 6,
+    "bytes": 1440,
+    "normalized_md5": "f594cdd18052380f33bc49996ba6fd55"
+  },
+  {
+    "version": "20260601000015",
+    "name": "fix_orders_recursion",
+    "statement_count": 10,
+    "bytes": 2704,
+    "normalized_md5": "e0849eda54b4ec1b8a312c513d7daf94"
+  },
+  {
+    "version": "20260602000000",
+    "name": "prevent_self_matching",
+    "statement_count": 2,
+    "bytes": 10464,
+    "normalized_md5": "87a441eab856917b0a65afb87007002a"
+  },
+  {
+    "version": "20260602000001",
+    "name": "create_user_device_tokens",
+    "statement_count": 6,
+    "bytes": 1301,
+    "normalized_md5": "fe87e7a51fb71618eb3fc73bb3685cc6"
+  },
+  {
+    "version": "20260602000002",
+    "name": "create_notification_triggers",
+    "statement_count": 10,
+    "bytes": 7626,
+    "normalized_md5": "f034f05f0835261f9251ce7738e6ae94"
+  },
+  {
+    "version": "20260602000003",
+    "name": "expand_notifications_logic",
+    "statement_count": 13,
+    "bytes": 13817,
+    "normalized_md5": "483b0ad29901c172b9553caac839a99a"
+  },
+  {
+    "version": "20260602000004",
+    "name": "grant_user_device_tokens_permissions",
+    "statement_count": 1,
+    "bytes": 212,
+    "normalized_md5": "68437eafda69b814d2ce12adeb993db5"
+  },
+  {
+    "version": "20260602000005",
+    "name": "enable_pg_net",
+    "statement_count": 1,
+    "bytes": 131,
+    "normalized_md5": "5160915ad16e0adfc52f25e222ebdb61"
+  },
+  {
+    "version": "20260602000006",
+    "name": "add_user_notification_preferences",
+    "statement_count": 4,
+    "bytes": 484,
+    "normalized_md5": "9d8fa19017284c09fd4eb721a3b17f67"
+  },
+  {
+    "version": "20260603000000",
+    "name": "add_travel_date_to_orders",
+    "statement_count": 1,
+    "bytes": 120,
+    "normalized_md5": "921ae92147758d5a63ffef4bb9e5c3d5"
+  },
+  {
+    "version": "20260603000001",
+    "name": "create_intercity_requests",
+    "statement_count": 11,
+    "bytes": 8082,
+    "normalized_md5": "64314f7b743a50e5a81adbbec90fa456"
+  },
+  {
+    "version": "20260603000002",
+    "name": "add_warangal_pricing_zone",
+    "statement_count": 2,
+    "bytes": 1014,
+    "normalized_md5": "f6952e3b742d2461d64d4e46582b6bee"
+  },
+  {
+    "version": "20260603000003",
+    "name": "update_order_type_enum",
+    "statement_count": 5,
+    "bytes": 1285,
+    "normalized_md5": "598ddaf4362385e3e7d34ab5cdb097bc"
+  },
+  {
+    "version": "20260610000000",
+    "name": "update_dispatch_vehicle_weight_matching",
+    "statement_count": 2,
+    "bytes": 13058,
+    "normalized_md5": "c523502bd51f738ee439006b3de41612"
+  },
+  {
+    "version": "20260611000000",
+    "name": "add_pricing_zones_select_policy",
+    "statement_count": 3,
+    "bytes": 818,
+    "normalized_md5": "cd3ecd4eba83394d79f918f3018c2585"
+  },
+  {
+    "version": "20260611000001",
+    "name": "fix_trigger_enum",
+    "statement_count": 1,
+    "bytes": 7833,
+    "normalized_md5": "0d39ac60e42b4b648b75ffa36e776a50"
+  },
+  {
+    "version": "20260611000002",
+    "name": "prefixed_alphanumeric_codes",
+    "statement_count": 36,
+    "bytes": 12188,
+    "normalized_md5": "d1a58c8d846d1adc212f2e04018da47b"
+  },
+  {
+    "version": "20260612000000",
+    "name": "pricing_zones_geofence_constraints",
+    "statement_count": 3,
+    "bytes": 493,
+    "normalized_md5": "de5f38a9d5999475729e69ec3040e5bc"
+  },
+  {
+    "version": "20260612000001",
+    "name": "dispatch_config_dynamic_rounds",
+    "statement_count": 6,
+    "bytes": 1481,
+    "normalized_md5": "f5c1407cc306d5dc18fb89b58be4f41b"
+  },
+  {
+    "version": "20260612000002",
+    "name": "compliance_tables_and_columns",
+    "statement_count": 30,
+    "bytes": 6122,
+    "normalized_md5": "1d3bb37ebb77c5688f671dc93b90f63f"
+  },
+  {
+    "version": "20260612000003",
+    "name": "compliance_adjustments",
+    "statement_count": 31,
+    "bytes": 10149,
+    "normalized_md5": "4196cd167dc4020fd5cd3ce48de7b0bc"
+  },
+  {
+    "version": "20260612000005",
+    "name": "grant_compliance_permissions",
+    "statement_count": 8,
+    "bytes": 904,
+    "normalized_md5": "d284571593eb1e5f402e977a4d855a45"
+  },
+  {
+    "version": "20260612000006",
+    "name": "update_payment_for_enum",
+    "statement_count": 4,
+    "bytes": 842,
+    "normalized_md5": "fc2a9a4e2177779d8e22248cfdcde27f"
+  },
+  {
+    "version": "20260613000000",
+    "name": "fix_car_cab_matching",
+    "statement_count": 2,
+    "bytes": 13159,
+    "normalized_md5": "e45ea74953915f75fab10ddd5b437514"
+  },
+  {
+    "version": "20260615000000",
+    "name": "update_dispatch_timeouts",
+    "statement_count": 2,
+    "bytes": 463,
+    "normalized_md5": "545e00234132af2d04991ab00a11c279"
+  },
+  {
+    "version": "20260616000005",
+    "name": "feature_flags",
+    "statement_count": 4,
+    "bytes": 1277,
+    "normalized_md5": "a7bd177f2074700efe946eaf5a658a33"
+  },
+  {
+    "version": "20260616000006",
+    "name": "financial_audits",
+    "statement_count": 13,
+    "bytes": 4412,
+    "normalized_md5": "b93bfabe4180bd0cef06e95b39861cfa"
+  },
+  {
+    "version": "20260616000007",
+    "name": "otp_limits_rls",
+    "statement_count": 24,
+    "bytes": 6812,
+    "normalized_md5": "488a7c43d442b77b213f1cc952579a10"
+  },
+  {
+    "version": "20260616000008",
+    "name": "promos",
+    "statement_count": 23,
+    "bytes": 7702,
+    "normalized_md5": "c391bc2302f20e22f4fea499f8116902"
+  },
+  {
+    "version": "20260616000009",
+    "name": "rider_daily_activity",
+    "statement_count": 8,
+    "bytes": 4845,
+    "normalized_md5": "9fd5a31924830fd22b0dd84e540c57ac"
+  },
+  {
+    "version": "20260616000010",
+    "name": "timezone_alignment",
+    "statement_count": 2,
+    "bytes": 3411,
+    "normalized_md5": "e51080898d3df9b5a18e13ce9282319f"
+  },
+  {
+    "version": "20260616000011",
+    "name": "add_dispatch_worker_lock",
+    "statement_count": 1,
+    "bytes": 255,
+    "normalized_md5": "895f07b5e8b850d4bb24b6ecd9c2c79a"
+  },
+  {
+    "version": "20260617000000",
+    "name": "add_order_notification_mode",
+    "statement_count": 14,
+    "bytes": 5056,
+    "normalized_md5": "88df4f48b9b74c351c1b9934dc2a6185"
+  },
+  {
+    "version": "20260617000001",
+    "name": "intercity_workflow_updates",
+    "statement_count": 25,
+    "bytes": 12774,
+    "normalized_md5": "9136a66c781eb41a59fb55d098f1e625"
+  },
+  {
+    "version": "20260620000000",
+    "name": "fix_weight_category_matching_and_intercity",
+    "statement_count": 3,
+    "bytes": 14498,
+    "normalized_md5": "36a82b16aef9c768d54656aa06e989f8"
+  },
+  {
+    "version": "20260622000002",
+    "name": "smart_matching_final_production",
+    "statement_count": 14,
+    "bytes": 7463,
+    "normalized_md5": "92f8cb26b14e415aefd6c401e618198b"
+  },
+  {
+    "version": "20260622000003",
+    "name": "add_route_geometry_to_plans",
+    "statement_count": 2,
+    "bytes": 336,
+    "normalized_md5": "331f430ff51c9926cb6f989e74cbd663"
+  },
+  {
+    "version": "20260623000000",
+    "name": "suggested_dispatch_logic",
+    "statement_count": 3,
+    "bytes": 9469,
+    "normalized_md5": "85202d2b759db558212c6946819e5851"
+  },
+  {
+    "version": "20260630000000",
+    "name": "accept_intercity_request",
+    "statement_count": 2,
+    "bytes": 6498,
+    "normalized_md5": "535fab51e47a698967063241b5ec1e92"
+  },
+  {
+    "version": "20260702000000",
+    "name": "drop_feature_flags",
+    "statement_count": 1,
+    "bytes": 378,
+    "normalized_md5": "902aa34019e6edd7cec88456675c9146"
+  },
+  {
+    "version": "20260708000000",
+    "name": "fix_accept_intercity_request",
+    "statement_count": 1,
+    "bytes": 6341,
+    "normalized_md5": "a05a3fc5589122195b3331f424195370"
+  },
+  {
+    "version": "20260714000000",
+    "name": "fix_accept_intercity_chat_sender_id",
+    "statement_count": 1,
+    "bytes": 6742,
+    "normalized_md5": "29e732ce99db0b8d080828e0cb23d67a"
+  },
+  {
+    "version": "20260715000001",
+    "name": "fix_trip_share_tokens_rls",
+    "statement_count": 4,
+    "bytes": 2602,
+    "normalized_md5": "e9c288aa37d8d353784e3d3178a1605d"
+  },
+  {
+    "version": "20260715000002",
+    "name": "revoke_public_notification_rpcs",
+    "statement_count": 8,
+    "bytes": 2367,
+    "normalized_md5": "549230d795db18488276b43bbbba65ce"
+  },
+  {
+    "version": "20260715000003",
+    "name": "fix_compliance_tables_rls",
+    "statement_count": 18,
+    "bytes": 7262,
+    "normalized_md5": "edd69d0ed02c5169e0c68b217993fbdf"
+  },
+  {
+    "version": "20260716000000",
+    "name": "fix_dispatch_trigger_self_match_and_weight",
+    "statement_count": 1,
+    "bytes": 10759,
+    "normalized_md5": "af2b6c8b060e195df8df186a160bbe7a"
+  },
+  {
+    "version": "20260716000001",
+    "name": "fix_wallet_ledger_withdrawal_functions",
+    "statement_count": 3,
+    "bytes": 8913,
+    "normalized_md5": "0c2cbc94194e1e822ad32e8f92e77529"
+  },
+  {
+    "version": "20260716000002",
+    "name": "restrict_passenger_rider_assignments_to_intercity",
+    "statement_count": 5,
+    "bytes": 2455,
+    "normalized_md5": "2569111a71ca178d6266b172ef789037"
+  },
+  {
+    "version": "20260716000003",
+    "name": "restrict_chat_message_edit_delete_to_sender",
+    "statement_count": 5,
+    "bytes": 4130,
+    "normalized_md5": "50f773041970a758c65c08da58f58dc9"
+  },
+  {
+    "version": "20260716000004",
+    "name": "narrow_intercity_requests_direct_write_policy",
+    "statement_count": 6,
+    "bytes": 9540,
+    "normalized_md5": "20fcae6098bf57a03a6879ada3dc927f"
+  },
+  {
+    "version": "20260716000005",
+    "name": "prevent_role_self_escalation",
+    "statement_count": 3,
+    "bytes": 1832,
+    "normalized_md5": "4c76433002268516b67e9bfc8cb417d7"
+  },
+  {
+    "version": "20260716000006",
+    "name": "fix_promo_redemption_race_condition",
+    "statement_count": 2,
+    "bytes": 4546,
+    "normalized_md5": "28ca5edfabc2c839fa865f47e3f25ba9"
+  },
+  {
+    "version": "20260716000007",
+    "name": "harden_security_definer_search_path",
+    "statement_count": 28,
+    "bytes": 66710,
+    "normalized_md5": "113cea4f5e593db58d671b7beff94e59"
+  },
+  {
+    "version": "20260716000008",
+    "name": "enforce_travel_plan_weight_capacity",
+    "statement_count": 2,
+    "bytes": 7964,
+    "normalized_md5": "58b7ad6054f2e04fe255ff7b077e1536"
+  },
+  {
+    "version": "20260716000009",
+    "name": "remove_hardcoded_notification_credentials",
+    "statement_count": 1,
+    "bytes": 3276,
+    "normalized_md5": "3305c2b87bc2af05820c8a04a0508f38"
+  },
+  {
+    "version": "20260716000010",
+    "name": "baseline_foundational_policies_late",
+    "statement_count": 5,
+    "bytes": 2193,
+    "normalized_md5": "bbc7e09c8de88f6889ed7a2c9f404771"
+  },
+  {
+    "version": "20260716000011",
+    "name": "send_push_notification_use_service_role_key",
+    "statement_count": 1,
+    "bytes": 2468,
+    "normalized_md5": "a52ac15a16e3a04d73c2f99eebfbe6cf"
+  },
+  {
+    "version": "20260716000012",
+    "name": "restrict_chat_message_insert_to_participants",
+    "statement_count": 2,
+    "bytes": 2324,
+    "normalized_md5": "b83f75f95b6a197c8fb05d1355837457"
+  },
+  {
+    "version": "20260717000000",
+    "name": "add_rider_vehicles_table",
+    "statement_count": 7,
+    "bytes": 2618,
+    "normalized_md5": "6dbd295fb3ed9627e4198a3ef605cfc3"
+  },
+  {
+    "version": "20260717000001",
+    "name": "add_intercity_ride_pricing_config",
+    "statement_count": 1,
+    "bytes": 2485,
+    "normalized_md5": "eae617091d6d6949f75e9e5f07fa2685"
+  },
+  {
+    "version": "20260717000002",
+    "name": "lock_travel_plan_fare_at_creation",
+    "statement_count": 2,
+    "bytes": 4258,
+    "normalized_md5": "a58c94a0b7c79190ed35a9773c2672c7"
+  },
+  {
+    "version": "20260717000003",
+    "name": "add_orders_seats_requested",
+    "statement_count": 2,
+    "bytes": 1069,
+    "normalized_md5": "f5245aae90f76d697ebba1df5595b398"
+  },
+  {
+    "version": "20260717000004",
+    "name": "add_intercity_parcel_pricing_config",
+    "statement_count": 1,
+    "bytes": 2494,
+    "normalized_md5": "c97134806d69f7e2fa7b91e7cf37bf05"
+  },
+  {
+    "version": "20260717000005",
+    "name": "intercity_reject_and_double_booking_guard",
+    "statement_count": 3,
+    "bytes": 15014,
+    "normalized_md5": "bfcf27b6ce5dae65e010980ba0d12302"
+  },
+  {
+    "version": "20260717000006",
+    "name": "intercity_seat_availability_view",
+    "statement_count": 2,
+    "bytes": 1431,
+    "normalized_md5": "81bfd266bc9929911f8ee9f28b7f6b81"
+  },
+  {
+    "version": "20260717000007",
+    "name": "intercity_bidirectional_ratings",
+    "statement_count": 12,
+    "bytes": 5012,
+    "normalized_md5": "981273defcf9cc724440351ca4f42b4a"
+  },
+  {
+    "version": "20260717000008",
+    "name": "intercity_expiry_scheduling_and_notifications",
+    "statement_count": 2,
+    "bytes": 3673,
+    "normalized_md5": "faac6fcd026695ec2726c7670977e95f"
+  },
+  {
+    "version": "20260717000009",
+    "name": "intercity_notification_copy_and_near_destination",
+    "statement_count": 6,
+    "bytes": 16214,
+    "normalized_md5": "c0ea907d032604c2ec8cae2d2c593b2d"
+  },
+  {
+    "version": "20260718000000",
+    "name": "push_notification_delivery_via_vault",
+    "statement_count": 1,
+    "bytes": 2889,
+    "normalized_md5": "8fb1cfec7584659a9ce271c87c40d429"
+  },
+  {
+    "version": "20260718000001",
+    "name": "fix_order_type_enum_like_operator",
+    "statement_count": 2,
+    "bytes": 8329,
+    "normalized_md5": "d00847ff8f3d7638523faaad8dab6d1c"
+  },
+  {
+    "version": "20260718000002",
+    "name": "fix_stale_send_push_notification_fnc",
+    "statement_count": 1,
+    "bytes": 3550,
+    "normalized_md5": "24ba878d5e035c942cd1333dd40c008d"
+  },
+  {
+    "version": "20260718000003",
+    "name": "apply_intercity_rls_narrowing_and_accept_offer_hardening",
+    "statement_count": 8,
+    "bytes": 8347,
+    "normalized_md5": "4d3f74521c8676717cc705af3b905557"
+  },
+  {
+    "version": "20260718000004",
+    "name": "reapply_search_path_hardening_batch",
+    "statement_count": 13,
+    "bytes": 24159,
+    "normalized_md5": "7be2dc1fc88624c747292c4ac91187b7"
+  },
+  {
+    "version": "20260718000005",
+    "name": "apply_chat_message_edit_delete_restriction",
+    "statement_count": 9,
+    "bytes": 5167,
+    "normalized_md5": "d11d590afdbf070b4b697b472a4beaa5"
+  },
+  {
+    "version": "20260718000006",
+    "name": "fix_intercity_traveller_order_visibility",
+    "statement_count": 2,
+    "bytes": 4009,
+    "normalized_md5": "c870c5805dbe74da1678d224feed7d83"
+  },
+  {
+    "version": "20260718000007",
+    "name": "intercity_requests_status_lifecycle",
+    "statement_count": 6,
+    "bytes": 14204,
+    "normalized_md5": "2dd4942998ddddcbccbd35f01eba597d"
+  },
+  {
+    "version": "20260718000008",
+    "name": "add_partner_service_mode",
+    "statement_count": 4,
+    "bytes": 2029,
+    "normalized_md5": "95973cb754b6738ba24e5ce9506400cc"
+  },
+  {
+    "version": "20260718000009",
+    "name": "add_get_required_service_mode_fn",
+    "statement_count": 2,
+    "bytes": 1741,
+    "normalized_md5": "70dd5d8e8bfe36af639d3d926287a3bc"
+  },
+  {
+    "version": "20260718000010",
+    "name": "enforce_service_mode_in_dispatch_functions",
+    "statement_count": 2,
+    "bytes": 18906,
+    "normalized_md5": "f409f0794c18642fe1f2ed3120e527e8"
+  },
+  {
+    "version": "20260718000011",
+    "name": "add_rider_assignment_service_mode_guard_triggers",
+    "statement_count": 4,
+    "bytes": 4017,
+    "normalized_md5": "437d3bd432c314956ea453eb653932c8"
+  },
+  {
+    "version": "20260718000012",
+    "name": "restrict_travel_plans_and_intercity_requests_to_intercity_mode",
+    "statement_count": 9,
+    "bytes": 10792,
+    "normalized_md5": "1abd15de09f5302296f13de339170029"
+  },
+  {
+    "version": "20260718000013",
+    "name": "prevent_service_mode_switch_during_active_order",
+    "statement_count": 2,
+    "bytes": 1671,
+    "normalized_md5": "98d6042ebd3cd12e58ed03e6ca37c742"
+  },
+  {
+    "version": "20260720000000",
+    "name": "traveller_available_and_trip_lifecycle",
+    "statement_count": 11,
+    "bytes": 7631,
+    "normalized_md5": "0fedd93d85c49051ac221e5d37b23386"
+  },
+  {
+    "version": "20260720000001",
+    "name": "align_intercity_request_notification_copy",
+    "statement_count": 1,
+    "bytes": 7164,
+    "normalized_md5": "2a04fd569feef3f3d9d922e86b1ec966"
+  },
+  {
+    "version": "20260720000002",
+    "name": "grant_travel_matches_permissions",
+    "statement_count": 1,
+    "bytes": 679,
+    "normalized_md5": "83f277ced6c25551c1cef0ddae834652"
+  },
+  {
+    "version": "20260720000003",
+    "name": "align_trip_started_notification_copy",
+    "statement_count": 1,
+    "bytes": 7422,
+    "normalized_md5": "72e69dd27abc45bc1add2b44d427418b"
+  },
+  {
+    "version": "20260720000004",
+    "name": "intercity_trip_activity_business_logic",
+    "statement_count": 6,
+    "bytes": 24040,
+    "normalized_md5": "73ce50345fc45c4ddd54671155397f88"
+  },
+  {
+    "version": "20260721000000",
+    "name": "open_intercity_order_visibility_for_travellers",
+    "statement_count": 2,
+    "bytes": 2548,
+    "normalized_md5": "7dc7397ec616c9a8acd83c1d0db42318"
+  },
+  {
+    "version": "20260721000001",
+    "name": "fix_passenger_conflict_date_check",
+    "statement_count": 3,
+    "bytes": 11385,
+    "normalized_md5": "7a09d59e18dc69bf0dce4e11c244253c"
+  },
+  {
+    "version": "20260721000002",
+    "name": "fix_seat_race_and_add_plan_fully_booked_guard",
+    "statement_count": 4,
+    "bytes": 12126,
+    "normalized_md5": "e01f7aed7698b19cd1ab7ec77358ffe4"
+  },
+  {
+    "version": "20260721000003",
+    "name": "start_intercity_trip_for_plan",
+    "statement_count": 1,
+    "bytes": 4844,
+    "normalized_md5": "ddc5af46f96147486b603ebea657f47c"
+  },
+  {
+    "version": "20260721000004",
+    "name": "lock_service_mode_while_travel_plan_active",
+    "statement_count": 2,
+    "bytes": 4747,
+    "normalized_md5": "be016c2609a721c661debe21eb0f8ac9"
+  },
+  {
+    "version": "20260721000005",
+    "name": "start_trip_never_depends_on_payment",
+    "statement_count": 1,
+    "bytes": 5167,
+    "normalized_md5": "770285e119111bd6cd9b8a693b80d08f"
+  },
+  {
+    "version": "20260721000006",
+    "name": "add_passenger_gender_photo_and_trip_stats",
+    "statement_count": 12,
+    "bytes": 3501,
+    "normalized_md5": "ae904840ffabc0cff8c9ca0e73d718cd"
+  },
+  {
+    "version": "20260722000000",
+    "name": "upi_intent_payment_mode",
+    "statement_count": 1,
+    "bytes": 851,
+    "normalized_md5": "9279162e6e22bb8ae9238cf27cb2fd88"
+  },
+  {
+    "version": "20260722000001",
+    "name": "get_order_driver_upi_vpa_fn",
+    "statement_count": 2,
+    "bytes": 1474,
+    "normalized_md5": "259e2c7e07fd960fe785bdc93d7b5f82"
+  },
+  {
+    "version": "20260724000000",
+    "name": "add_developer_test_mode_flag",
+    "statement_count": 2,
+    "bytes": 1350,
+    "normalized_md5": "4a81963ef66fdceb990d256c6520f69f"
+  },
+  {
+    "version": "20260724000001",
+    "name": "upi_payment_pending_flow",
+    "statement_count": 1,
+    "bytes": 1152,
+    "normalized_md5": "4d8ee45a8a56b8dfdd79953f69cd8322"
+  },
+  {
+    "version": "20260724000002",
+    "name": "upi_payment_pending_flow_support",
+    "statement_count": 5,
+    "bytes": 3881,
+    "normalized_md5": "37958bbea2a548e3dd7a71f05bdfa5ce"
+  },
+  {
+    "version": "20260724000003",
+    "name": "atomic_rider_completion_credit",
+    "statement_count": 2,
+    "bytes": 1982,
+    "normalized_md5": "b404955e47227f56d7c71d2f78e2e3fa"
+  },
+  {
+    "version": "20260724000004",
+    "name": "protect_order_financial_columns",
+    "statement_count": 3,
+    "bytes": 3005,
+    "normalized_md5": "6778b8cc6b7c0edabe9460a0b0773979"
+  },
+  {
+    "version": "20260724000005",
+    "name": "canonical_fare_breakdown_and_intercity_fix",
+    "statement_count": 4,
+    "bytes": 13014,
+    "normalized_md5": "36200cfa55bb01bcb798c87ce2d12b5e"
+  },
+  {
+    "version": "20260725000000",
+    "name": "driver_fare_payment_preference",
+    "statement_count": 20,
+    "bytes": 9807,
+    "normalized_md5": "b43fd3e8d1bb3286477541fc22a75207"
+  },
+  {
+    "version": "20260725000001",
+    "name": "fare_payment_rpcs",
+    "statement_count": 7,
+    "bytes": 6655,
+    "normalized_md5": "70f57975a72a73b4bcfdac84dc99f0bc"
+  },
+  {
+    "version": "20260725000002",
+    "name": "fix_fare_payment_financial_guard_bypass",
+    "statement_count": 3,
+    "bytes": 4719,
+    "normalized_md5": "07182ce724d3f1ab7d0252d71d5bcb8d"
+  },
+  {
+    "version": "20260725000003",
+    "name": "lock_down_upi_verification",
+    "statement_count": 5,
+    "bytes": 4312,
+    "normalized_md5": "3c1ee710eb01f45fe22578e98f3e5fca"
+  },
+  {
+    "version": "20260725000004",
+    "name": "upi_verification_audit_trail",
+    "statement_count": 1,
+    "bytes": 942,
+    "normalized_md5": "6f82a5a3c42720faad03417677f1050f"
+  },
+  {
+    "version": "20260725000005",
+    "name": "final_payment_architecture",
+    "statement_count": 7,
+    "bytes": 9458,
+    "normalized_md5": "2111dc08dca043b760bc17c0dd9f145c"
+  },
+  {
+    "version": "20260725000006",
+    "name": "driver_personal_qr_upload",
+    "statement_count": 17,
+    "bytes": 7542,
+    "normalized_md5": "52d02a935065c06dc019f525c70fe75d"
+  },
+  {
+    "version": "20260725000007",
+    "name": "fix_mark_fare_payment_attempted_guard_bypass",
+    "statement_count": 1,
+    "bytes": 2571,
+    "normalized_md5": "f2018ba31c4c676479e01f0323be8f1b"
+  },
+  {
+    "version": "20260725000008",
+    "name": "drop_unused_get_order_driver_fare_payment_info",
+    "statement_count": 1,
+    "bytes": 779,
+    "normalized_md5": "1e2a89372f79849b1b822508eb388dcc"
+  },
+  {
+    "version": "20260726000000",
+    "name": "fix_chat_message_rider_assignment_order_scope",
+    "statement_count": 4,
+    "bytes": 6281,
+    "normalized_md5": "bc564ba9149b52c7b0e243881e4d2a56"
+  },
+  {
+    "version": "20260726000001",
+    "name": "fix_service_mode_lock_on_scheduled_travel_plan",
+    "statement_count": 1,
+    "bytes": 3443,
+    "normalized_md5": "dc99240a95f5d4a9e81a54e4d15932ca"
+  },
+  {
+    "version": "20260726000002",
+    "name": "subscription_plan_allowlist",
+    "statement_count": 5,
+    "bytes": 2739,
+    "normalized_md5": "e3bc7b9e1b259432f2ea6332b4d8094e"
+  },
+  {
+    "version": "20260726000003",
+    "name": "government_tax_due_schema",
+    "statement_count": 28,
+    "bytes": 11346,
+    "normalized_md5": "c66cd128da8d801c2e47012a81d13828"
+  },
+  {
+    "version": "20260726000004",
+    "name": "government_tax_due_functions",
+    "statement_count": 11,
+    "bytes": 35634,
+    "normalized_md5": "f3eb46895a0334aba76a77d714da6731"
+  },
+  {
+    "version": "20260728000000",
+    "name": "fix_intercity_parcel_pricing_and_fare_guard",
+    "statement_count": 5,
+    "bytes": 12267,
+    "normalized_md5": "7c92365bca1aedc5f4d9e549fd236687"
+  },
+  {
+    "version": "20260729000000",
+    "name": "intercity_match_notification_wording_and_dedup",
+    "statement_count": 2,
+    "bytes": 11342,
+    "normalized_md5": "8f033b6ff21cc80fae3a81170e976d94"
+  },
+  {
+    "version": "20260729000001",
+    "name": "find_nearby_riders_security_definer_and_authz",
+    "statement_count": 2,
+    "bytes": 8629,
+    "normalized_md5": "be5609cc5d10d82e98c92c484b05ca63"
+  },
+  {
+    "version": "20260729000002",
+    "name": "fix_rating_notification_direction",
+    "statement_count": 1,
+    "bytes": 4809,
+    "normalized_md5": "a2050b6250e234f541bd2f3a4538d2ce"
+  },
+  {
+    "version": "20260729000003",
+    "name": "cascade_cancel_travel_plan_dependents",
+    "statement_count": 7,
+    "bytes": 15766,
+    "normalized_md5": "23c27aecc0a50c2f002ef94b7d19389a"
+  },
+  {
+    "version": "20260730000000",
+    "name": "protect_rider_financial_columns",
+    "statement_count": 3,
+    "bytes": 2741,
+    "normalized_md5": "92abcaa9cc3a4f2f97443f34628d241e"
+  },
+  {
+    "version": "20260730000001",
+    "name": "fix_intercity_trip_notification_copy_and_dedup",
+    "statement_count": 2,
+    "bytes": 20978,
+    "normalized_md5": "a94c3f8806575221df94e880c87c24ff"
+  },
+  {
+    "version": "20260730000002",
+    "name": "protect_order_fare_columns",
+    "statement_count": 1,
+    "bytes": 5783,
+    "normalized_md5": "468d1485ea173807f9175465a5b838f0"
+  },
+  {
+    "version": "20260730000003",
+    "name": "add_notifications_indexes",
+    "statement_count": 2,
+    "bytes": 914,
+    "normalized_md5": "612e1b9a1c4acd9f30820fbd44af94a6"
+  },
+  {
+    "version": "20260730000004",
+    "name": "intercity_parcel_delivery_settlement",
+    "statement_count": 4,
+    "bytes": 16203,
+    "normalized_md5": "f4eee79187ac20e6f385e32bf2172329"
+  },
+  {
+    "version": "20260730000005",
+    "name": "intercity_delivery_otp_resend",
+    "statement_count": 2,
+    "bytes": 2704,
+    "normalized_md5": "bf6177dda10a2fc887e5c63e137682bd"
+  },
+  {
+    "version": "20260730000006",
+    "name": "confirm_intercity_search_rider",
+    "statement_count": 2,
+    "bytes": 3828,
+    "normalized_md5": "5eb46730eb8f26195886bbb12295fb22"
+  },
+  {
+    "version": "20260730000007",
+    "name": "confirm_intercity_handover",
+    "statement_count": 2,
+    "bytes": 4288,
+    "normalized_md5": "760ccecf96acacd55bf91c82bde2a42e"
+  },
+  {
+    "version": "20260730000008",
+    "name": "lock_order_status_and_otp_columns",
+    "statement_count": 8,
+    "bytes": 21053,
+    "normalized_md5": "684626529d79638604abd2b2b7bd09e3"
+  },
+  {
+    "version": "20260730000009",
+    "name": "data_deletion_requests",
+    "statement_count": 10,
+    "bytes": 2780,
+    "normalized_md5": "b56f7e00311ee2243d4caf26f32b22b4"
+  },
+  {
+    "version": "20260731000000",
+    "name": "fix_rider_kyc_pii_exposure",
+    "statement_count": 4,
+    "bytes": 2980,
+    "normalized_md5": "f847785fa77fb0c97d462c5c1e3d49f5"
+  },
+  {
+    "version": "20260731000001",
+    "name": "deny_direct_orders_insert",
+    "statement_count": 2,
+    "bytes": 1901,
+    "normalized_md5": "af0782994157e9780d9188e6221db01d"
+  },
+  {
+    "version": "20260731000002",
+    "name": "fix_parcel_online_payment_wallet_credit",
+    "statement_count": 1,
+    "bytes": 9070,
+    "normalized_md5": "34d27a63324a8f4c884c959b69cc7d3d"
+  },
+  {
+    "version": "20260731000003",
+    "name": "fix_chat_stale_rider_assignment_access",
+    "statement_count": 4,
+    "bytes": 4716,
+    "normalized_md5": "4c1f9608e1a29dd39a134a74cd6a269d"
+  },
+  {
+    "version": "20260731000004",
+    "name": "rider_kyc_bucket_private",
+    "statement_count": 13,
+    "bytes": 5546,
+    "normalized_md5": "65fab8aac202b0385f215c0030fe228b"
+  },
+  {
+    "version": "20260801000000",
+    "name": "fix_role_escalation_search_path",
+    "statement_count": 1,
+    "bytes": 1608,
+    "normalized_md5": "7c947c230dc5f1bd5b0dedbb1c3a2f87"
+  },
+  {
+    "version": "20260801000001",
+    "name": "fix_intercity_accept_notification_dedup",
+    "statement_count": 1,
+    "bytes": 11423,
+    "normalized_md5": "7bb3ef23a9b33567f75a3029aa9daa32"
+  },
+  {
+    "version": "20260801000002",
+    "name": "add_rider_reviews_rating_indexes",
+    "statement_count": 2,
+    "bytes": 1971,
+    "normalized_md5": "5528889ae3d69931c612d269214cb956"
+  },
+  {
+    "version": "20260801000003",
+    "name": "scope_order_protection_triggers_to_guarded_columns",
+    "statement_count": 6,
+    "bytes": 3633,
+    "normalized_md5": "e1b449586fcb41c53fb872db6596ca36"
+  },
+  {
+    "version": "20260801000004",
+    "name": "add_riders_dispatch_eligibility_index",
+    "statement_count": 1,
+    "bytes": 2475,
+    "normalized_md5": "e60c0915ff3f6eda9cf010c589a725b8"
+  },
+  {
+    "version": "20260801000005",
+    "name": "add_get_dispatch_round_status_rpc",
+    "statement_count": 2,
+    "bytes": 2154,
+    "normalized_md5": "5441a76cf05dbd201effe72e9571816b"
+  },
+  {
+    "version": "20260801000006",
+    "name": "set_statement_timeout_for_client_roles",
+    "statement_count": 2,
+    "bytes": 2091,
+    "normalized_md5": "540738729a039d571fe1b9d520d4fec5"
+  },
+  {
+    "version": "20260801000007",
+    "name": "incremental_rider_review_rating_aggregation",
+    "statement_count": 6,
+    "bytes": 8086,
+    "normalized_md5": "216ed9fc0879ba262347063004c1d0d5"
+  },
+  {
+    "version": "20260802000000",
+    "name": "delete_own_account",
+    "statement_count": 2,
+    "bytes": 8584,
+    "normalized_md5": "4d9148e55bc20612e2b501f4fe8f93e6"
+  },
+  {
+    "version": "20260803000000",
+    "name": "kyc_evidence_retention_on_deletion",
+    "statement_count": 13,
+    "bytes": 16530,
+    "normalized_md5": "0aa881e38fef0362459a5843e27c4200"
+  },
+  {
+    "version": "20260804000000",
+    "name": "fix_rider_kyc_public_view_gaps",
+    "statement_count": 2,
+    "bytes": 3652,
+    "normalized_md5": "d4b0892cfa6b0b2ecea586e2e0b232aa"
+  },
+  {
+    "version": "20260805000000",
+    "name": "prevent_busy_rider_local_ride_assignment",
+    "statement_count": 3,
+    "bytes": 3289,
+    "normalized_md5": "b1a0253492423a302bf52f499d0b8712"
+  },
+  {
+    "version": "20260806000000",
+    "name": "fix_intercity_parcel_start_trip_notification_wording",
+    "statement_count": 2,
+    "bytes": 18168,
+    "normalized_md5": "00a134c8d2a0419e5d7b0f15658063e9"
+  },
+  {
+    "version": "20260806000001",
+    "name": "ensure_intercity_parcel_pricing_config",
+    "statement_count": 1,
+    "bytes": 2563,
+    "normalized_md5": "24d3a9fd1ff4bdf464b5e5598d9f30b0"
+  },
+  {
+    "version": "20260806000002",
+    "name": "bound_dispatch_trigger_ttl_and_online_transition_only",
+    "statement_count": 3,
+    "bytes": 14890,
+    "normalized_md5": "5189eebac96a2a1f484f43509b1569a2"
+  },
+  {
+    "version": "20260806000003",
+    "name": "add_dispatch_staleness_partial_indexes",
+    "statement_count": 2,
+    "bytes": 1545,
+    "normalized_md5": "1f53867dc4f109127b26b01b29eb63cd"
+  },
+  {
+    "version": "20260806000004",
+    "name": "add_expire_stale_searching_orders_and_schedule",
+    "statement_count": 3,
+    "bytes": 7409,
+    "normalized_md5": "7b1c8b4e75525f701a38d21603757567"
+  },
+  {
+    "version": "20260806000005",
+    "name": "add_expired_order_notification_copy",
+    "statement_count": 1,
+    "bytes": 10476,
+    "normalized_md5": "60dff434c1bc57082f5c6164889afef6"
+  },
+  {
+    "version": "20260807000000",
+    "name": "schedule_missing_pg_cron_jobs",
+    "statement_count": 2,
+    "bytes": 6140,
+    "normalized_md5": "df14fa266c7b8842afccf643f3b760b6"
+  },
+  {
+    "version": "20260807000001",
+    "name": "add_order_chat_messages_index",
+    "statement_count": 1,
+    "bytes": 2765,
+    "normalized_md5": "403f2323c7681963ed5f2069c8fe87a0"
+  },
+  {
+    "version": "20260807000002",
+    "name": "grant_service_role_order_verifications",
+    "statement_count": 1,
+    "bytes": 4078,
+    "normalized_md5": "ce9de6461a617e482e0bc6e0a79a8aeb"
+  },
+  {
+    "version": "20260808000000",
+    "name": "reassign_orders_when_rider_freed",
+    "statement_count": 5,
+    "bytes": 17823,
+    "normalized_md5": "8269a0ed9baa45846203f63179af4352"
+  },
+  {
+    "version": "20260808000001",
+    "name": "fix_traveller_accept_confirmation_wording",
+    "statement_count": 1,
+    "bytes": 9126,
+    "normalized_md5": "23401c240f19e1a2ef0c68d0e96ee549"
+  },
+  {
+    "version": "20260808000002",
+    "name": "enforce_cod_limit_at_dispatch",
+    "statement_count": 3,
+    "bytes": 19916,
+    "normalized_md5": "065cb5d84bffd0c45cc1d145c85b4364"
+  },
+  {
+    "version": "20260808000003",
+    "name": "redispatch_stalled_searching_orders_cron",
+    "statement_count": 2,
+    "bytes": 6386,
+    "normalized_md5": "f36fd8f6aa5bf1746b669ad3f1c7ae45"
+  },
+  {
+    "version": "20260808000004",
+    "name": "add_rider_assignments_unique_order_rider",
+    "statement_count": 1,
+    "bytes": 3291,
+    "normalized_md5": "5df69a792905cd0e2dbdfb9bd3ec613e"
+  },
+  {
+    "version": "20260808000005",
+    "name": "assign_new_order_to_nearby_online_riders",
+    "statement_count": 3,
+    "bytes": 5081,
+    "normalized_md5": "c588217a68b8414fd15ece8de8d21e8c"
+  },
+  {
+    "version": "20260808000006",
+    "name": "secure_accept_intercity_request_authz",
+    "statement_count": 3,
+    "bytes": 10658,
+    "normalized_md5": "7b295a5b9bf7c9756e2d39110be72332"
+  },
+  {
+    "version": "20260808000007",
+    "name": "remove_insecure_rider_kyc_public_read_policy",
+    "statement_count": 4,
+    "bytes": 2635,
+    "normalized_md5": "3da8c74f65e5816fc49c4a2e1bcc7faf"
+  },
+  {
+    "version": "20260808000008",
+    "name": "drop_untracked_unscoped_rider_kyc_storage_policies",
+    "statement_count": 4,
+    "bytes": 2211,
+    "normalized_md5": "95e8b81d030595c944d1f196bd03f936"
+  },
+  {
+    "version": "20260808000009",
+    "name": "harden_rider_assignments_self_write_policies",
+    "statement_count": 11,
+    "bytes": 6397,
+    "normalized_md5": "8a87e16b79f930634c4128f707c7efa7"
+  },
+  {
+    "version": "20260808000010",
+    "name": "fix_withdrawal_beneficiary_status_check",
+    "statement_count": 2,
+    "bytes": 6313,
+    "normalized_md5": "49717740eb0c549590da07f60b3c9db2"
+  },
+  {
+    "version": "20260808000011",
+    "name": "cod_settlement_payment_flow",
+    "statement_count": 11,
+    "bytes": 6543,
+    "normalized_md5": "e3b74d7b22f21f657b72c0fa6cd15fc0"
+  },
+  {
+    "version": "20260808000012",
+    "name": "fix_payout_update_limit_counts_success_only",
+    "statement_count": 1,
+    "bytes": 2796,
+    "normalized_md5": "5449f2a93c352d20cca92d3fb4574c77"
+  },
+  {
+    "version": "20260808000013",
+    "name": "fix_withdrawal_transfer_id_overwrite",
+    "statement_count": 1,
+    "bytes": 6127,
+    "normalized_md5": "9b533cd731f2f7b19ed5857f0eea7993"
+  },
+  {
+    "version": "20260808000014",
+    "name": "correct_misrefunded_withdrawals_291fe5ee",
+    "statement_count": 3,
+    "bytes": 7342,
+    "normalized_md5": "b3c06550f0895bd66d58898b405e5272"
+  },
+  {
+    "version": "20260809000000",
+    "name": "clear_orphaned_dispatch_worker_locks",
+    "statement_count": 1,
+    "bytes": 4256,
+    "normalized_md5": "6a7cc6024bd05dc75a3fbd6a408e0475"
+  },
+  {
+    "version": "20260809000001",
+    "name": "async_rider_freed_rematch",
+    "statement_count": 1,
+    "bytes": 4660,
+    "normalized_md5": "19aa16d5d3e3d81eece23f5b19570d66"
+  },
+  {
+    "version": "20260809000002",
+    "name": "expire_stale_active_orders",
+    "statement_count": 2,
+    "bytes": 4890,
+    "normalized_md5": "ea2a46288884c458527bc18be061004a"
+  },
+  {
+    "version": "20260809000003",
+    "name": "temp_diagnostic_timings",
+    "statement_count": 6,
+    "bytes": 1976,
+    "normalized_md5": "2459e5618ab0ad21a42c552d0357ead0"
+  },
+  {
+    "version": "20260810000000",
+    "name": "async_order_status_notifications",
+    "statement_count": 3,
+    "bytes": 14705,
+    "normalized_md5": "244d6d2d2174ef980053baa76de8047e"
+  },
+  {
+    "version": "20260811000000",
+    "name": "client_diagnostic_timings_rls",
+    "statement_count": 3,
+    "bytes": 1249,
+    "normalized_md5": "335d477e032b84588b507e09c4b3ab22"
+  },
+  {
+    "version": "20260812000000",
+    "name": "reduce_backstop_cron_frequency",
+    "statement_count": 2,
+    "bytes": 3581,
+    "normalized_md5": "77ce093bf6d16b9997ba7f1e895993bf"
+  },
+  {
+    "version": "20260813000000",
+    "name": "atomic_order_completion_settlement",
+    "statement_count": 3,
+    "bytes": 12835,
+    "normalized_md5": "dc680d71d3c8d7967e349ca9413700fa"
+  },
+  {
+    "version": "20260814000000",
+    "name": "fix_complete_order_and_settle_enum_cast",
+    "statement_count": 3,
+    "bytes": 14193,
+    "normalized_md5": "e9e1ee2c12457032527e80e62f878745"
+  },
+  {
+    "version": "20260814000001",
+    "name": "fix_complete_intercity_parcel_delivery_enum_cast",
+    "statement_count": 2,
+    "bytes": 10967,
+    "normalized_md5": "72675460c3a3ff875b2f5d7517da800a"
+  },
+  {
+    "version": "20260815000000",
+    "name": "drop_temp_diagnostic_timings",
+    "statement_count": 2,
+    "bytes": 1377,
+    "normalized_md5": "bfc7b40da4cca6fc6814ebe425e4b1dd"
+  },
+  {
+    "version": "20260816000000",
+    "name": "add_orders_idempotency_key",
+    "statement_count": 2,
+    "bytes": 2246,
+    "normalized_md5": "54f40898e15fb0678eb65ca97ca4b075"
+  },
+  {
+    "version": "20260817000000",
+    "name": "async_new_order_nearby_rider_match",
+    "statement_count": 2,
+    "bytes": 9593,
+    "normalized_md5": "b11f9b3e860320d6a2bd2964a38e081b"
+  },
+  {
+    "version": "20260818000000",
+    "name": "scope_intercity_request_dedup_to_travel_plan",
+    "statement_count": 2,
+    "bytes": 1779,
+    "normalized_md5": "598f043288ea6fcbddcf429d8458a312"
+  },
+  {
+    "version": "20260819000000",
+    "name": "block_delete_account_during_active_order",
+    "statement_count": 2,
+    "bytes": 11368,
+    "normalized_md5": "2ed38f6c536e5c880ded4325f86b1189"
+  },
+  {
+    "version": "20260820000000",
+    "name": "fix_intercity_parcel_delivery_rider_credit_guard",
+    "statement_count": 3,
+    "bytes": 7715,
+    "normalized_md5": "d9f5897c816f6dd5ce744431396cf89c"
+  },
+  {
+    "version": "20260820000001",
+    "name": "fix_apply_order_government_tax_rider_guard_gap",
+    "statement_count": 2,
+    "bytes": 11925,
+    "normalized_md5": "e766fa914a7a9f05f4206a44deb9fb4b"
+  },
+  {
+    "version": "20260821000000",
+    "name": "local_ride_status_notification_copy",
+    "statement_count": 1,
+    "bytes": 10848,
+    "normalized_md5": "8f7d1e9f4f141540b4b380985cdc2f7f"
+  },
+  {
+    "version": "20260822000000",
+    "name": "intercity_cancellation_actor_and_notification_copy",
+    "statement_count": 5,
+    "bytes": 19252,
+    "normalized_md5": "42af656f935396ea5744dff4c4c12f08"
+  },
+  {
+    "version": "20260823000000",
+    "name": "phase3_intercity_fixes",
+    "statement_count": 6,
+    "bytes": 18327,
+    "normalized_md5": "2764cee76b62ce7377aa4d14bcd14b00"
+  },
+  {
+    "version": "20260824000000",
+    "name": "backstop_redispatch_freed_riders",
+    "statement_count": 2,
+    "bytes": 5712,
+    "normalized_md5": "d73a76c81b598204c6a328b126e58cc0"
+  },
+  {
+    "version": "20260825000000",
+    "name": "payment_pending_busy_state_fix",
+    "statement_count": 4,
+    "bytes": 12913,
+    "normalized_md5": "4bd74388e0bf5101ab70e65949a6c12f"
+  },
+  {
+    "version": "20260826000000",
+    "name": "rider_self_rematch_and_backstop_hardening",
+    "statement_count": 3,
+    "bytes": 6755,
+    "normalized_md5": "b6389f086ba2cde3175c95a3496a32cc"
+  },
+  {
+    "version": "20260827000000",
+    "name": "fix_travel_plan_seats_full_vs_inactive_message",
+    "statement_count": 1,
+    "bytes": 10762,
+    "normalized_md5": "4d8483cfbd09976d0778b80998ac6f35"
+  },
+  {
+    "version": "20260828000000",
+    "name": "block_chat_before_intercity_request_acceptance",
+    "statement_count": 3,
+    "bytes": 3349,
+    "normalized_md5": "15fb7793ac9e498bf62610d346853923"
+  },
+  {
+    "version": "20260829000000",
+    "name": "cancel_individual_accepted_intercity_request",
+    "statement_count": 2,
+    "bytes": 6596,
+    "normalized_md5": "77c7d4e3b65f233baf785443077ffdd5"
+  },
+  {
+    "version": "20260830000000",
+    "name": "intercity_parcel_payment_confirmation_step",
+    "statement_count": 3,
+    "bytes": 14216,
+    "normalized_md5": "09cd18aef5af6e0b87eaa704fd404ba6"
+  },
+  {
+    "version": "20260831000000",
+    "name": "add_passenger_rating_review_tag_values",
+    "statement_count": 12,
+    "bytes": 2942,
+    "normalized_md5": "4c2fee529791970ea14542965fbdc8bc"
+  },
+  {
+    "version": "20260901000000",
+    "name": "intercity_cancellation_reason_columns",
+    "statement_count": 4,
+    "bytes": 1549,
+    "normalized_md5": "0584f1500d00307f7823ae49d9229c34"
+  },
+  {
+    "version": "20260901000001",
+    "name": "fix_cascade_cancel_travel_plan_dependents",
+    "statement_count": 1,
+    "bytes": 5583,
+    "normalized_md5": "37790bc2a4d87c162ddf6a90feb72e37"
+  },
+  {
+    "version": "20260901000002",
+    "name": "cancel_travel_plan_by_traveller",
+    "statement_count": 2,
+    "bytes": 4855,
+    "normalized_md5": "70f5a59e361de85136e1a642ce6c5acf"
+  },
+  {
+    "version": "20260901000003",
+    "name": "cancel_intercity_request_reason_column_and_scope",
+    "statement_count": 1,
+    "bytes": 4678,
+    "normalized_md5": "40c91f1947003786119a00776ddeb827"
+  },
+  {
+    "version": "20260901000004",
+    "name": "intercity_cancellation_notification_wording",
+    "statement_count": 1,
+    "bytes": 11556,
+    "normalized_md5": "0a4ffde181f435c5794b80de1143bad2"
+  },
+  {
+    "version": "20260901000005",
+    "name": "orphaned_remote_ledger_reconciliation_stub",
+    "statement_count": 1,
+    "bytes": 891,
+    "normalized_md5": "3efee596c49cfe179ea08455aaf2b4ef"
+  },
+  {
+    "version": "20260901000006",
+    "name": "orphaned_remote_ledger_reconciliation_stub",
+    "statement_count": 1,
+    "bytes": 891,
+    "normalized_md5": "3912aad82a22e2cf5232e02c764e5efc"
+  },
+  {
+    "version": "20260901000007",
+    "name": "orphaned_remote_ledger_reconciliation_stub",
+    "statement_count": 1,
+    "bytes": 891,
+    "normalized_md5": "27167a928e50de2a66b46562185b6a60"
+  },
+  {
+    "version": "20260901000008",
+    "name": "mark_is_rider_blocked_by_cod_limit_stable",
+    "statement_count": 1,
+    "bytes": 1910,
+    "normalized_md5": "5e257bc8b144e80ce22ca7ab1fdb3e40"
+  },
+  {
+    "version": "20260901000009",
+    "name": "find_nearby_riders_single_haversine_calc",
+    "statement_count": 1,
+    "bytes": 8409,
+    "normalized_md5": "7d73022cf8a38bd7f2d80db4a4c3e09a"
+  },
+  {
+    "version": "20260901000010",
+    "name": "find_nearby_riders_excluded_rider_ids",
+    "statement_count": 1,
+    "bytes": 8057,
+    "normalized_md5": "128e282db58e70bd8ed6a01ba381aee2"
+  },
+  {
+    "version": "20260901000011",
+    "name": "find_nearby_riders_inline_tax_cod_checks",
+    "statement_count": 1,
+    "bytes": 10004,
+    "normalized_md5": "8968b41e31723c7f1e7452cac2f681ce"
+  },
+  {
+    "version": "20260901000016",
+    "name": "rider_free_trial",
+    "statement_count": 4,
+    "bytes": 8603,
+    "normalized_md5": "cfaaa39b515becf90330859e8ffb1ebb"
+  },
+  {
+    "version": "20260901000017",
+    "name": "redispatch_freed_riders_include_rider_at_drop",
+    "statement_count": 1,
+    "bytes": 3221,
+    "normalized_md5": "d84ad5cf392d6d8ef741fe84f1cd2274"
+  },
+  {
+    "version": "20260901000018",
+    "name": "whole_rupee_fare_rounding",
+    "statement_count": 3,
+    "bytes": 17831,
+    "normalized_md5": "2634163944ee1ea5df602cb579edf339"
+  },
+  {
+    "version": "20260901000019",
+    "name": "gate_free_trial_waiver_to_local_orders",
+    "statement_count": 5,
+    "bytes": 17476,
+    "normalized_md5": "3e4426aacabc5e294e0f32dbafcb26bc"
+  },
+  {
+    "version": "20260901000020",
+    "name": "intercity_assignment_push_no_local_sound",
+    "statement_count": 1,
+    "bytes": 3373,
+    "normalized_md5": "5764849c2e7de36e733c47c814338e84"
+  },
+  {
+    "version": "20260901000021",
+    "name": "intercity_ride_gov_tax_and_stale_negotiated_commission",
+    "statement_count": 5,
+    "bytes": 19931,
+    "normalized_md5": "a5fe80abd26543701288d0ee8b43b9a8"
+  },
+  {
+    "version": "20260901000022",
+    "name": "intercity_auto_commission_10_percent",
+    "statement_count": 1,
+    "bytes": 4121,
+    "normalized_md5": "e88600db45ac6ca3a8e1a54ecf6ac2d7"
+  },
+  {
+    "version": "20260901000023",
+    "name": "orders_user_history_pagination_index",
+    "statement_count": 1,
+    "bytes": 1579,
+    "normalized_md5": "5f916f465507f7f07abd0a83c375ab24"
+  },
+  {
+    "version": "20260901000024",
+    "name": "intercity_request_cancel_actor_column_and_wording",
+    "statement_count": 2,
+    "bytes": 16220,
+    "normalized_md5": "49f498069ef333ecbaa59408cc82c1ad"
+  },
+  {
+    "version": "20260901000025",
+    "name": "local_parcel_partner_notification_wording",
+    "statement_count": 2,
+    "bytes": 17143,
+    "normalized_md5": "51799d2a1a2f7cfbc791604450736f78"
+  },
+  {
+    "version": "20260901000026",
+    "name": "fix_order_assignment_logs_rollback_on_reoffer",
+    "statement_count": 1,
+    "bytes": 17615,
+    "normalized_md5": "7f2c061107bc09b0dcf3903ec7d81e61"
+  },
+  {
+    "version": "20260901000027",
+    "name": "reject_past_travel_plan_date",
+    "statement_count": 3,
+    "bytes": 2506,
+    "normalized_md5": "451e93cfe59df7447b1943ab7f6e5883"
+  },
+  {
+    "version": "20260901000028",
+    "name": "intercity_cancel_reason_in_traveller_notification",
+    "statement_count": 3,
+    "bytes": 17328,
+    "normalized_md5": "bb59ab29a453bae88342e1c823c1b9d1"
+  },
+  {
+    "version": "20260901000029",
+    "name": "travel_plan_deleted_notification_no_chat",
+    "statement_count": 1,
+    "bytes": 12483,
+    "normalized_md5": "4a0f03388b3fd7568559f1958c280c15"
+  },
+  {
+    "version": "20260901000030",
+    "name": "intercity_parcel_heading_to_pickup_wording",
+    "statement_count": 2,
+    "bytes": 24070,
+    "normalized_md5": "011b6eeef951397d20ace8edf6e36f6c"
+  },
+  {
+    "version": "20260901000031",
+    "name": "travel_plan_insert_triggers_matching_server_side",
+    "statement_count": 3,
+    "bytes": 7161,
+    "normalized_md5": "1266a0db7d1a6f4f8462aa626e5bb936"
+  },
+  {
+    "version": "20260901000032",
+    "name": "rating_notification_full_feedback",
+    "statement_count": 1,
+    "bytes": 4745,
+    "normalized_md5": "c1945aa70b9c2fa7c3a71b69f88206d4"
+  },
+  {
+    "version": "20260901000033",
+    "name": "vehicle_specific_subscription_pricing",
+    "statement_count": 6,
+    "bytes": 4448,
+    "normalized_md5": "9d1a85b40f92b7db59b8063ccb272eab"
+  },
+  {
+    "version": "20260901000034",
+    "name": "production_config",
+    "statement_count": 9,
+    "bytes": 7202,
+    "normalized_md5": "7f9bfd0df65cc619cf2e4e570242c55a"
+  },
+  {
+    "version": "20260901000035",
+    "name": "notification_failure_tracking",
+    "statement_count": 12,
+    "bytes": 30502,
+    "normalized_md5": "4c3fed1fd35b58a76cda2cefe33ffa0a"
+  },
+  {
+    "version": "20260901000036",
+    "name": "item5_trigger_notification_failure_wrapping",
+    "statement_count": 2,
+    "bytes": 17357,
+    "normalized_md5": "c36e0c49ca552663f7f780f5aec217cd"
+  },
+  {
+    "version": "20260901000037",
+    "name": "eligible_cashfree_ride_pg_charge",
+    "statement_count": 12,
+    "bytes": 20436,
+    "normalized_md5": "fb1600a140295d1a1815f488ad2cfa5a"
+  },
+  {
+    "version": "20260901000038",
+    "name": "cashfree_pg_charge_wallet_gst_separation",
+    "statement_count": 3,
+    "bytes": 14543,
+    "normalized_md5": "1ef5c7eb841b4f0b54e607eb7b6f3921"
+  },
+  {
+    "version": "20260901000039",
+    "name": "reconcile_live_cascade_cancel_travel_plan_dependents",
+    "statement_count": 1,
+    "bytes": 7797,
+    "normalized_md5": "7db13d8a629347e60cc326c5a6cdbaf2"
+  },
+  {
+    "version": "20260902000000",
+    "name": "waydrop_rewards_system",
+    "statement_count": 45,
+    "bytes": 27559,
+    "normalized_md5": "cb3535ee36ac62f300a744e9fc6e7258"
+  },
+  {
+    "version": "20260903000000",
+    "name": "reward_activation_single_use_pass",
+    "statement_count": 10,
+    "bytes": 12663,
+    "normalized_md5": "411bee47800538e5659a6a9c32d2faa9"
+  },
+  {
+    "version": "20260905000000",
+    "name": "temporarily_disable_platform_gst",
+    "statement_count": 2,
+    "bytes": 9390,
+    "normalized_md5": "565c30f74667362cdff446c91dab53ca"
+  },
+  {
+    "version": "20260905000001",
+    "name": "add_selected_route_columns",
+    "statement_count": 6,
+    "bytes": 1681,
+    "normalized_md5": "9326ed4e5ff1dea2a283eab2fea4ec32"
+  },
+  {
+    "version": "20260905000002",
+    "name": "forward_selected_route_fields_to_mode2_trigger",
+    "statement_count": 1,
+    "bytes": 5641,
+    "normalized_md5": "ffdb3bdb40464ce460169a85e41d75b8"
+  },
+  {
+    "version": "20260906000000",
+    "name": "fix_parcel_completion_travel_plan_status_sync",
+    "statement_count": 2,
+    "bytes": 11490,
+    "normalized_md5": "9d26b2e54a62c40a200915d37b47042f"
+  },
+  {
+    "version": "20260906000001",
+    "name": "revoke_public_execute_privileged_settlement_functions",
+    "statement_count": 8,
+    "bytes": 8372,
+    "normalized_md5": "999929aed737b46ad85e3d45538fb1e9"
+  },
+  {
+    "version": "20260906000002",
+    "name": "restore_users_role_self_escalation_guard",
+    "statement_count": 5,
+    "bytes": 7021,
+    "normalized_md5": "85d2f34e55477eaa492a641260a973f3"
+  },
+  {
+    "version": "20260906000003",
+    "name": "relockdown_push_notification_functions",
+    "statement_count": 10,
+    "bytes": 11570,
+    "normalized_md5": "7f63731040f00cdd6f81d0672f0e4dee"
+  },
+  {
+    "version": "20260906000004",
+    "name": "fix_intercity_parcel_live_per_km_rate_drift",
+    "statement_count": 2,
+    "bytes": 5135,
+    "normalized_md5": "55d556c24b1aa162306774f9f56b1489"
+  },
+  {
+    "version": "20260907205806",
+    "name": "20260907000000_phase10d_add_unindexed_fk_indexes",
+    "statement_count": 1,
+    "bytes": 7293,
+    "normalized_md5": "e907c418e082dc4283d48d0402a1b4a8"
+  },
+  {
+    "version": "20260907210055",
+    "name": "20260907000001_phase10d_rls_initplan_wrap_auth_calls",
+    "statement_count": 1,
+    "bytes": 9708,
+    "normalized_md5": "50eaaae63392455bc42f5190fa097e4d"
+  },
+  {
+    "version": "20260908162927",
+    "name": "20260908000000_redispatch_cron_advisory_locks",
+    "statement_count": 1,
+    "bytes": 4616,
+    "normalized_md5": "6fd9bd81f83b9ed5c74176fe69748293"
+  },
+  {
+    "version": "20260908163009",
+    "name": "20260908000001_perf_riders_online_coords_composite_index",
+    "statement_count": 1,
+    "bytes": 255,
+    "normalized_md5": "f4230407470015a26c796a2a5d912561"
+  },
+  {
+    "version": "20260908163137",
+    "name": "20260908000002_perf_slow_redispatch_cron_frequency",
+    "statement_count": 1,
+    "bytes": 269,
+    "normalized_md5": "44d3ce7fe58642d0286953c0dfe39275"
+  },
+  {
+    "version": "20260908170238",
+    "name": "20260908000003_add_rider_assignments_accepted_rejected_at",
+    "statement_count": 1,
+    "bytes": 178,
+    "normalized_md5": "061c24c8d527daf8f3596d3d8483b5a0"
+  },
+  {
+    "version": "20260908191620",
+    "name": "20260908000004_phase2blite_async_noncritical_completion_side_effects",
+    "statement_count": 1,
+    "bytes": 24120,
+    "normalized_md5": "ab101c2b49b03f061e96162a09429447"
+  },
+  {
+    "version": "20260908214030",
+    "name": "20260908000005_phaseA1_rider_locations_foundation",
+    "statement_count": 1,
+    "bytes": 14860,
+    "normalized_md5": "f09f80a755f7f0360287ac349d664b09"
+  },
+  {
+    "version": "20260908223623",
+    "name": "phaseA4_near_destination_gps_source_to_rider_locations",
+    "statement_count": 1,
+    "bytes": 13194,
+    "normalized_md5": "ed3ac3499c76659a852cbb07018a3946"
+  },
+  {
+    "version": "20260909082941",
+    "name": "phaseC_realtime_surface_reduction",
+    "statement_count": 1,
+    "bytes": 2972,
+    "normalized_md5": "0771f8c0cf87690bbda737d945ff8852"
+  },
+  {
+    "version": "20260909100956",
+    "name": "pre_pro_realtime_amplifier_cleanup",
+    "statement_count": 1,
+    "bytes": 2124,
+    "normalized_md5": "24ce513a0345a27151f8c3410ae1b83a"
+  },
+  {
+    "version": "20260909115502",
+    "name": "fix_police_sos_logs_rls",
+    "statement_count": 1,
+    "bytes": 1533,
+    "normalized_md5": "c92445be42aea027019792faa2600f6d"
+  },
+  {
+    "version": "20260909115600",
+    "name": "admin_kyc_review_workflow",
+    "statement_count": 1,
+    "bytes": 6527,
+    "normalized_md5": "eae4bfb58f63297915100d7cc9919a3d"
+  },
+  {
+    "version": "20260909115640",
+    "name": "government_tax_month_end_report",
+    "statement_count": 1,
+    "bytes": 7334,
+    "normalized_md5": "1e4bc0e23f2bcde830001dc9f501a4fb"
+  },
+  {
+    "version": "20260909115758",
+    "name": "lawful_disclosure_workflow",
+    "statement_count": 1,
+    "bytes": 12915,
+    "normalized_md5": "56685d2ff19e98940bc7d6e3bd0c0805"
+  },
+  {
+    "version": "20260909121113",
+    "name": "harden_normalize_in_phone_10_search_path",
+    "statement_count": 1,
+    "bytes": 235,
+    "normalized_md5": "0b2770bf4e0c5ec96f75c339fbffe11a"
+  },
+  {
+    "version": "20260909144234",
+    "name": "fix_parcel_security_logs_rls",
+    "statement_count": 1,
+    "bytes": 1282,
+    "normalized_md5": "ed3f4dedd74340e04a24acdd4424d0f2"
+  },
+  {
+    "version": "20260909144538",
+    "name": "lawful_disclosure_report_function",
+    "statement_count": 1,
+    "bytes": 30766,
+    "normalized_md5": "21985dcfc761a8851b9b75aa36cb52ed"
+  },
+  {
+    "version": "20260909144619",
+    "name": "report_government_tax_remittance",
+    "statement_count": 1,
+    "bytes": 9183,
+    "normalized_md5": "149ba57576bab7d5cd9c4e107b365dbf"
+  },
+  {
+    "version": "20260909153853",
+    "name": "police_disclosure_tabular_reports",
+    "statement_count": 1,
+    "bytes": 30956,
+    "normalized_md5": "2624b5fed30dd49f5ba92e6917a5aaed"
+  },
+  {
+    "version": "20260909155102",
+    "name": "police_last_trip_scope_sos_to_order",
+    "statement_count": 1,
+    "bytes": 8862,
+    "normalized_md5": "19a1f7a8e38db6733a39d9101c40085b"
+  },
+  {
+    "version": "20260909160523",
+    "name": "report_section_9_5_month_end",
+    "statement_count": 1,
+    "bytes": 11338,
+    "normalized_md5": "fd568b09efc5dad6b420de3e31f7e07d"
+  },
+  {
+    "version": "20260909160706",
+    "name": "report_section_9_5_month_end_fix_int_casts",
+    "statement_count": 1,
+    "bytes": 11353,
+    "normalized_md5": "992db20f7ebc40a2d258cd6fba8c3fc6"
+  },
+  {
+    "version": "20260909161645",
+    "name": "police_person_details_aadhaar_no_doc_paths",
+    "statement_count": 1,
+    "bytes": 4082,
+    "normalized_md5": "ad4ddf31d4dcbc0408e6ecf294eb3023"
+  },
+  {
+    "version": "20260911160335",
+    "name": "local_search_duration_420sec",
+    "statement_count": 1,
+    "bytes": 195,
+    "normalized_md5": "a2c6162276a2cd79e110f305fc56ed87"
+  },
+  {
+    "version": "20260911162109",
+    "name": "round3_trigger_before_local_expiry",
+    "statement_count": 1,
+    "bytes": 199,
+    "normalized_md5": "5f06dea90a7bbc8e442fa725ad40bb9a"
+  },
+  {
+    "version": "20261102143243",
+    "name": "waydrop_independent_dispatch_load_fixes",
+    "statement_count": 1,
+    "bytes": 17991,
+    "normalized_md5": "060210cb33993b21f4eced3ee568bea8"
+  },
+  {
+    "version": "20261102144946",
+    "name": "waydrop_internal_dispatch_rpc_acl",
+    "statement_count": 1,
+    "bytes": 3839,
+    "normalized_md5": "c0badf105b49a6c32a52ccb7b44b1a00"
+  },
+  {
+    "version": "20261103015444",
+    "name": "waydrop_skip_idle_stalled_redispatch_reads",
+    "statement_count": 1,
+    "bytes": 4805,
+    "normalized_md5": "a1757d75670f7ede02299c4f4559eefc"
+  },
+  {
+    "version": "20261103162805",
+    "name": "waydrop_cache_admin_rls_checks_per_statement",
+    "statement_count": 1,
+    "bytes": 3316,
+    "normalized_md5": "615a8ce0544584217f6b405d6312fddf"
+  }
+]

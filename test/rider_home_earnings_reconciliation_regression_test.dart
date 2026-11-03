@@ -37,7 +37,8 @@ void main() {
   final homeTab = _read('lib/features/rider/home/rider_home_tab.dart');
   final earningsTab = _read('lib/features/rider/earnings/rider_earnings_tab.dart');
 
-  final fetchFnStart = homeTab.indexOf('Future<double> _fetchTodayEarnings(String riderId) async {');
+  // The public-to-this-State helper now shares in-flight work; calculation lives here.
+  final fetchFnStart = homeTab.indexOf('Future<double> _queryTodayEarnings(String riderId) async {');
   final fetchFnEnd = homeTab.indexOf('\n  }', fetchFnStart);
 
   test('sanity: _fetchTodayEarnings anchor exists', () {

@@ -63,7 +63,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-String _read(String path) => File(path).readAsStringSync();
+// Source contracts are independent of the checkout's LF/CRLF line endings.
+String _read(String path) => File(path).readAsStringSync().replaceAll('\r\n', '\n');
 
 void main() {
   final ordersScreen = _read('lib/features/rider/orders/rider_orders_screen.dart');

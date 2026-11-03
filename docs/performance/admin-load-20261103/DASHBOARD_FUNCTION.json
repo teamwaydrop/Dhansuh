@@ -1,0 +1,15 @@
+{
+  "project": "yvwpchffctiagevpqgwy",
+  "log_window_utc": [
+    "2026-11-03T04:24:00Z",
+    "2026-11-03T04:34:00Z"
+  ],
+  "evidence": [
+    {
+      "proname": "get_dashboard_stats",
+      "arguments": "p_today timestamp with time zone",
+      "security_definer": false,
+      "definition": "CREATE OR REPLACE FUNCTION public.get_dashboard_stats(p_today timestamp with time zone)\n RETURNS json\n LANGUAGE plpgsql\n STABLE\n SET search_path TO 'public'\nAS $function$\nBEGIN\n  IF NOT public.is_admin() THEN\n    RAISE EXCEPTION 'Not authorized' USING ERRCODE = '42501';\n  END IF;\n\n  RETURN (\n    SELECT json_build_object(\n      'total_riders',       (SELECT count(*) FROM public.riders),\n      'active_riders',      (SELECT count(*) FROM public.riders WHERE account_status = 'online'),\n      'pending_kyc',        (SELECT count(*) FROM public.rider_kyc WHERE kyc_status = 'pending'),\n      'pending_withdrawals',(SELECT count(*) FROM public.rider_withdrawals WHERE status = 'pending'),\n      'today_revenue',      COALESCE((SELECT sum(final_amount) FROM public.payments WHERE payment_status = 'paid' AND created_at >= p_today), 0),\n      'total_revenue',      COALESCE((SELECT sum(final_amount) FROM public.payments WHERE payment_status = 'paid'), 0)\n    )\n  );\nEND;\n$function$\n"
+    }
+  ]
+}

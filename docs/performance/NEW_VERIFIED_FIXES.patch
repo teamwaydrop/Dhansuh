@@ -1,0 +1,63 @@
+diff --git a/lib/modules/notifications/services/notification_badge_service.dart b/lib/modules/notifications/services/notification_badge_service.dart
+index 40470ac..1a77ec7 100644
+--- a/lib/modules/notifications/services/notification_badge_service.dart
++++ b/lib/modules/notifications/services/notification_badge_service.dart
+@@ -19,6 +19,7 @@ class NotificationBadgeService {
+   String? _subscriptionId;
+   Future<void>? _refreshInFlight;
+   bool _refreshQueued = false;
++  int _refreshGeneration = 0;
+ 
+   Future<void> refresh() {
+     _refreshQueued = true;
+@@ -42,6 +43,7 @@ class NotificationBadgeService {
+   }
+ 
+   Future<void> _refreshOnce() async {
++    final generation = _refreshGeneration;
+     try {
+       final user = _supabase.auth.currentUser;
+       if (user == null) {
+@@ -57,7 +59,10 @@ class NotificationBadgeService {
+ 
+       // Ignore a response belonging to an account that signed out/switched while this request was
+       // in flight. The auth cleanup path owns resetting the badge to zero.
+-      if (_supabase.auth.currentUser?.id != user.id) return;
++      if (generation != _refreshGeneration ||
++          _supabase.auth.currentUser?.id != user.id) {
++        return;
++      }
+       providerContainer.read(unreadNotificationCountProvider.notifier).state = count;
+     } catch (e) {
+       debugPrint('NotificationBadgeService: failed to refresh unread count: $e');
+@@ -69,6 +74,7 @@ class NotificationBadgeService {
+   void startListening() {
+     final user = _supabase.auth.currentUser;
+     if (user == null || user.id == _subscribedUserId) return;
++    ++_refreshGeneration;
+ 
+     // R11 fix: the previous subscription's ID was never captured, so the OLD channel had no way
+     // to ever be unsubscribed on an account switch -- it stayed registered in RealtimeManager
+@@ -101,6 +107,7 @@ class NotificationBadgeService {
+   /// Releases the account-scoped realtime listener and clears all account-scoped state.
+   /// Safe to call repeatedly from every logout/deletion path.
+   void stopListening() {
++    ++_refreshGeneration;
+     final userId = _subscribedUserId;
+     final subscriptionId = _subscriptionId;
+ 
+
+diff --git a/supabase/functions/accept-order/index.ts b/supabase/functions/accept-order/index.ts
+index ddbe4c8..782a268 100644
+--- a/supabase/functions/accept-order/index.ts
++++ b/supabase/functions/accept-order/index.ts
+@@ -129,7 +129,7 @@ serve(async (req) => {
+       acceptance = await acceptOrderAtomically(order_id, rider_id, authData.user.id);
+     } catch (error) {
+       const code = (error as { code?: string }).code;
+-      const retryable = ["40001", "40P01", "55P03", "57014", "53300", "08006", "CONNECTION_CLOSED", "CONNECT_TIMEOUT"].includes(code ?? "");
++      const retryable = ["40001", "40P01", "55P03", "57014", "53300", "08006", "CONNECTION_CLOSED", "CONNECT_TIMEOUT", "ECONNRESET"].includes(code ?? "");
+       console.error("accept-order transaction failed", { order_id, rider_id, code });
+       return Response.json(
+         { success: false, message: retryable ? "Acceptance is busy. Please retry." : "Unable to accept order", retryable },
+

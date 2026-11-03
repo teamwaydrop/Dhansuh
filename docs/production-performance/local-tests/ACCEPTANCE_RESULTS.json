@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "responses": [
+    200,
+    409
+  ],
+  "fare": {
+    "order_status": "accepted",
+    "current_fare": 100,
+    "final_fare": 90,
+    "commission_amount": 9.52,
+    "gst_amount": 0,
+    "rider_earning": 90.48
+  },
+  "assignmentStatuses": [
+    "accepted",
+    "expired"
+  ],
+  "scope": "Atomic repository handler and fare SQL, native PG17; Auth and PostgREST transport emulated. Supabase asynchronous integrations outside the fixture are not exercised.",
+  "singleAcceptedAssignmentInvariant": {
+    "status": "PASS",
+    "expected": 1,
+    "actual": 1,
+    "reproducedWith": "Atomic handler with original and proposed matching functions.",
+    "productionImpact": "Not deployed; managed asynchronous integrations remain a deployment gate."
+  }
+}

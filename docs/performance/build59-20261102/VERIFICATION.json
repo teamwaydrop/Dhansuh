@@ -1,0 +1,132 @@
+{
+  "date_ist": "2026-11-02",
+  "scope": "local client work removal and Build59 packaging",
+  "production": {
+    "reads": 0,
+    "writes": 0,
+    "deployments": 0,
+    "paid_resources": 0,
+    "new_projects": 0
+  },
+  "tests": {
+    "write_baseline": {
+      "passed": 0,
+      "expected_failures": 5,
+      "note": "sixth NULL-state case added afterwards"
+    },
+    "write_corrected": {
+      "passed": 6,
+      "failed": 0
+    },
+    "account_baseline": {
+      "passed": 19,
+      "expected_failures": 3,
+      "note": "two credential-owner tests added afterwards"
+    },
+    "account_corrected": {
+      "passed": 24,
+      "failed": 0
+    },
+    "focused": {
+      "passed": 30,
+      "failed": 0
+    },
+    "full_flutter": {
+      "passed": 2188,
+      "failed": 0,
+      "previous": 2177,
+      "added": 11
+    },
+    "changed_file_analyzer": {
+      "errors": 0,
+      "warnings": 0,
+      "existing_infos": 1,
+      "exit_code": 1
+    },
+    "managed_write_predicate_integration_run": false,
+    "android_e2e_run": false,
+    "native_write_guards": {
+      "passed": 6,
+      "failed": 0,
+      "actual_concurrent_lock_overlap_observed": true,
+      "server_stopped_after_tests": true,
+      "synthetic_schema_removed": true,
+      "managed_supabase_integration": false,
+      "setup_note": "First start used default local port5432; no SQL executed there. Restarted on explicit loopback54329 before identity assertion and tests.",
+      "evidence": "NATIVE_WRITE_GUARDS.json"
+    }
+  },
+  "build": {
+    "exit_code": 0,
+    "elapsed_seconds": 570.44,
+    "version": "1.0.0+59",
+    "command": [
+      "flutter",
+      "build",
+      "apk",
+      "--release",
+      "--build-name=1.0.0",
+      "--build-number=59",
+      "--dart-define-from-file=.env"
+    ],
+    "production_changes": 0,
+    "artifact": "artifacts/waydrop-1.0.0-build59.apk",
+    "apk_sha256": "3135eb0e436df82b424f1d1aede201a7d72b4f4d2c1d16809a59f078196cbf1c",
+    "signature_verified": true,
+    "same_signer_as58": true,
+    "frozen_source_unchanged": true,
+    "aot_libraries_changed": 3,
+    "installed": false,
+    "published": false
+  },
+  "measurements": {
+    "http_counts": "actual pinned SDK mocked transports",
+    "row_effect_counts": "atomic WHERE-contract HTTP fixture, not PostgreSQL counters",
+    "production_latency_measured": false
+  },
+  "initiating_database_resource_cause": "unproven",
+  "backend_storage_timeout_resolved": false,
+  "release": {
+    "flutter": "conditional Android candidate",
+    "combined_sql": "NO-GO unchanged",
+    "combined_edge": "NO-GO unchanged"
+  },
+  "new_implementation_files": [
+    "lib/core/services/session/account_profile_service.dart",
+    "lib/modules/notifications/services/notification_service.dart",
+    "lib/features/rider/services/rider_status_service.dart"
+  ],
+  "new_tests": [
+    "test/redundant_write_guard_test.dart",
+    "test/startup_account_schema_regression_test.dart"
+  ],
+  "source_manifest": "FLUTTER_SOURCE_SHA256.json",
+  "source_file_count": 181,
+  "prior_local_fixes_included": [
+    "WAYDROP_APP_REQUEST_OWNERSHIP.md",
+    "WAYDROP_NOV_2_2157_2203_INCIDENT.md"
+  ],
+  "source_integrity_checked_during_packaging": true,
+  "source_files_unchanged": 181,
+  "old_build58_preserved": true,
+  "artifact_sha256": {
+    "account-overlap-after.log": "c94af99461b092071f2b541f589aabe30d987890cca1affcf33bc7170e814b54",
+    "account-overlap-before.log": "d4f5839d98864abc7c868b1d436f5db09722db9692edb01a3f9b4bd012f7afc3",
+    "account_profile_service.dart.before": "b395aea43b5194ab50a6ddeebce2a40bc9bc0798488bff5e78d86f63b33a3c19",
+    "APK_VERIFICATION.json": "eefc9fc3aae11ac49cc58c2937ad7b36f25bd31e651cfeba4c8900c1a8eb5c98",
+    "build59-build-result.json": "0568187776fc6bf2caf328671f6bfbccc9413e893e362a42c4eb9dede991e693",
+    "build59-release-sanitized.log": "a4829d02d00e089329b91dce9a0f7e57d6521b2d2a8972b9bbccf3d7c4f17423",
+    "FLUTTER_SOURCE_SHA256.json": "d4ae4cee70577e35b0d9467c89cf840b368282d5a0183ed0bf5c6c69881a3b43",
+    "LOCAL_REDUNDANT_WORK.patch": "f26ea80cd733521bcae8d4a5d6023fbf036365608c8a432509ca29b9da73e08f",
+    "NATIVE_WRITE_GUARDS.json": "14a3810d28de6c507951dd3038d41a28357f7202f8b93f37bfbb40d93000dd54",
+    "native_write_guard_test.py": "559ad3033663a5287f103b95ccbb5531671ee5bb945ce989c8c35e52a83f41f2",
+    "notification_service.dart.before": "22e263b92f741dd13e9b446ced31aeda10ae1284fa99edb30da00bc8b28b5147",
+    "redundant-analyze-final.log": "dcec83d6b782c671df51e2c5275e208b932d7cec57b91b9068cff48607483e93",
+    "redundant-focused-final.log": "b9a790f953ffaa107009eb457c6b9bafea74c9d371fd1c9db6f58418216f4411",
+    "redundant-focused.log": "2e22d23c900c6e626531223d2e29225e265a80417cbb1a40bac99a9fee0d6de5",
+    "redundant-full-final.log": "8e6971233069d32f7bdfc1c3326acb3b7b52b51d39dec7f2d31aff978cb50064",
+    "redundant-write-after.log": "463c74b16fadbb9c79e2174b9b608a9decd13b6389841e0c270be2dfec8e7d21",
+    "redundant-write-before.log": "bb51bb23b5bfc55a31a4067a01269771762c70e2197a2ee54e3c58119e726a6f",
+    "rider_status_service.dart.before": "6fc18da5e98ddad325ea452d7297550e4c376622d912f88384316a9e284f456d"
+  }
+}

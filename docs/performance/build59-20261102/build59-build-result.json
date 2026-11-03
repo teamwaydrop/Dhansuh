@@ -1,0 +1,15 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 570.44,
+  "version": "1.0.0+59",
+  "command": [
+    "flutter",
+    "build",
+    "apk",
+    "--release",
+    "--build-name=1.0.0",
+    "--build-number=59",
+    "--dart-define-from-file=.env"
+  ],
+  "production_changes": 0
+}

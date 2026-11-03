@@ -78,7 +78,7 @@ void main() {
 
     test('RiderOrdersScreen calls rider_self_rematch() on its own busy->free transition, before '
         're-fetching, without adding a new polling timer', () {
-      final start = riderOrdersScreen.indexOf('if (wasBusy && !hasActiveOrder) {');
+      final start = riderOrdersScreen.indexOf('if ((wasBusy || isFirstPollForThisInstance) && !hasActiveOrder) {');
       expect(start, greaterThan(-1));
       // P8 FIX #6.4-B: _pollActiveOrderFallback() now ends with `} catch (_) {} finally {...}`
       // instead of a bare `} catch (_) {}` immediately closing the function (added a re-entrancy
@@ -108,7 +108,7 @@ void main() {
 
     test('a failed self-rematch RPC call is non-fatal -- async trigger and cron backstop remain '
         'as fallback', () {
-      final start = riderOrdersScreen.indexOf('if (wasBusy && !hasActiveOrder) {');
+      final start = riderOrdersScreen.indexOf('if ((wasBusy || isFirstPollForThisInstance) && !hasActiveOrder) {');
       // P8 FIX #6.4-B: _pollActiveOrderFallback() now ends with `} catch (_) {} finally {...}`
       // instead of a bare `} catch (_) {}` immediately closing the function (added a re-entrancy
       // guard's cleanup/follow-up logic) -- the exact multi-line end-of-function marker this test
@@ -119,7 +119,7 @@ void main() {
       final end = riderOrdersScreen.indexOf('void startActiveOrderPollTimer() {', start);
       final body = riderOrdersScreen.substring(start, end > start ? end : start + 600);
       expect(body.contains('try {'), isTrue);
-      expect(body.contains('} catch (e) {'), isTrue);
+      expect(body.contains('} catch (e, stackTrace) {'), isTrue);
     });
   });
 

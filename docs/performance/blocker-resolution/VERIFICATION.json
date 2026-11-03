@@ -1,0 +1,161 @@
+{
+  "generated_utc": "2026-11-02T06:32:09.969302+00:00",
+  "production": {
+    "project": "yvwpchffctiagevpqgwy",
+    "metadata_sql_reads": 1,
+    "log_queries": 0,
+    "writes": 0,
+    "deployments": 0,
+    "paid_resources": 0
+  },
+  "local_engine": "PostgreSQL 17.11 / Deno 2.9.8 / Flutter 3.41.4",
+  "local_postgres_stopped": true,
+  "results": {
+    "native_groups": 17,
+    "edge_native_tests": 15,
+    "flutter_passed": 2118,
+    "failed": 0,
+    "analyzer": {
+      "errors": 0,
+      "warnings": 73,
+      "info": 384
+    },
+    "analyzer_exit": 1,
+    "focused_flutter_passed": 135,
+    "post_unused_variable_cleanup_distance_tests": 16,
+    "edge_type_checks": [
+      "start-dispatch",
+      "send-push-notification",
+      "accept-order"
+    ]
+  },
+  "baseline": {
+    "files": 660,
+    "changed_existing_files": [
+      "test/local_dispatch_latency_regression_test.dart",
+      "test/local_order_delivery_regression_test.dart",
+      "test/local_ride_driver_distance_regression_test.dart",
+      "test/phase2_intercity_notification_detail_and_chat_routing_regression_test.dart",
+      "test/production_control_system_regression_test.dart",
+      "test/send_push_notification_token_cache_regression_test.dart",
+      "supabase/functions/accept-order/acceptance_sql.ts",
+      "supabase/functions/send-push-notification/index.ts",
+      "supabase/functions/start-dispatch/index.ts",
+      "supabase/functions/_shared/http.ts"
+    ],
+    "lib_changed": [],
+    "missing": []
+  },
+  "initial_flutter_failures": [
+    "00:18 +633 -1: C:/Users/karth/Desktop/appclad/test/local_dispatch_latency_regression_test.dart: Test 2: the first dispatch iteration has no artificial sleep before it Round 1 is always included with no delay/sleep gating it [E]",
+    "00:18 +634 -2: C:/Users/karth/Desktop/appclad/test/local_dispatch_latency_regression_test.dart: Test 2: the first dispatch iteration has no artificial sleep before it the sleep/backoff only happens AFTER a full round pass, never before the first find_nearby_riders call [E]",
+    "00:18 +634 -3: C:/Users/karth/Desktop/appclad/test/local_dispatch_latency_regression_test.dart: Test 2: the first dispatch iteration has no artificial sleep before it iteration 1 reuses the already-fetched order instead of an extra DB round trip [E]",
+    "00:18 +634 -4: C:/Users/karth/Desktop/appclad/test/local_dispatch_latency_regression_test.dart: Test 3: an eligible nearby rider can receive an assignment on the first iteration Round 1 config (radius/batch size) is unconditional, not gated on iteration count [E]",
+    "00:18 +634 -5: C:/Users/karth/Desktop/appclad/test/local_dispatch_latency_regression_test.dart: Test 3: an eligible nearby rider can receive an assignment on the first iteration find_nearby_riders is called with the order pickup coordinates on every round including round 1 [E]",
+    "00:18 +634 -6: C:/Users/karth/Desktop/appclad/test/local_dispatch_latency_regression_test.dart: Test 4 & 5: early retry stays fast after a genuine no-match; later backoff stays bounded the first 3 no-match iterations retry after only 2s, not 15s [E]",
+    "00:18 +634 -7: C:/Users/karth/Desktop/appclad/test/local_dispatch_latency_regression_test.dart: Test 4 & 5: early retry stays fast after a genuine no-match; later backoff stays bounded only after several quick attempts does it fall back to the slower 15s cadence (bounded, not infinite/aggressive) [E]",
+    "00:18 +634 -8: C:/Users/karth/Desktop/appclad/test/local_dispatch_latency_regression_test.dart: Test 4 & 5: early retry stays fast after a genuine no-match; later backoff stays bounded a round that DID send assignments cools down at a different (5s) cadence than a genuine no-match [E]",
+    "00:18 +634 -9: C:/Users/karth/Desktop/appclad/test/local_dispatch_latency_regression_test.dart: Test 6: rider_assignment INSERT remains deduplicated assignments are upserted on the (order_id, rider_id) conflict target, never a plain insert [E]",
+    "00:18 +634 -10: C:/Users/karth/Desktop/appclad/test/local_dispatch_latency_regression_test.dart: Test 6: rider_assignment INSERT remains deduplicated riders already sent/accepted for this order are excluded from being re-matched in a later round [E]",
+    "00:18 +640 -11: C:/Users/karth/Desktop/appclad/test/local_order_delivery_regression_test.dart: start-dispatch: no-match retry no longer flatly waits 15s on the very first attempts early iterations retry with a short cooldown instead of the old flat 15000ms [E]",
+    "00:18 +640 -12: C:/Users/karth/Desktop/appclad/test/local_order_delivery_regression_test.dart: start-dispatch: no-match retry no longer flatly waits 15s on the very first attempts the slower 15s cooldown still exists as the eventual fallback for a genuinely empty area [E]",
+    "00:18 +641 -13: C:/Users/karth/Desktop/appclad/test/local_order_delivery_regression_test.dart: start-dispatch: no-match retry no longer flatly waits 15s on the very first attempts matching/eligibility rules are untouched by the timing fix [E]",
+    "00:18 +642 -14: C:/Users/karth/Desktop/appclad/test/local_order_delivery_regression_test.dart: start-dispatch: no-match retry no longer flatly waits 15s on the very first attempts assignments are still upserted (never plain inserted) so re-matching cannot duplicate a row [E]",
+    "00:19 +680 -15: C:/Users/karth/Desktop/appclad/test/local_ride_driver_distance_regression_test.dart: Test 12 -- Driver -> Pickup distance rider_assignments.distance_km really is populated by start-dispatch at assignment-creation time (no new API call needed in the widget) [E]",
+    "00:34 +1120 -16: C:/Users/karth/Desktop/appclad/test/phase2_intercity_notification_detail_and_chat_routing_regression_test.dart: 1. The complete message already exists in storage/push -- this is a presentation/tap fix only, nothing was truncated before storage send-push-notification/index.ts forwards the full title/body into the FCM notification block verbatim -- never sliced/truncated [E]",
+    "00:38 +1320 -17: C:/Users/karth/Desktop/appclad/test/production_control_system_regression_test.dart: 9. Server-side enforcement (the critical gap a Flutter-only flag cannot close) send-push-notification enforces notifications_enabled at the single, central outbound-push delivery point [E]",
+    "00:38 +1323 -18: C:/Users/karth/Desktop/appclad/test/production_control_system_regression_test.dart: 9. Server-side enforcement (the critical gap a Flutter-only flag cannot close) send-push-notification returns 200 (not an error status) when skipped -- the caller (deliver_push_notification_http_fnc) is fire-and-forget pg_net and never inspects the body, so a skip must not be logged as a delivery failure [E]",
+    "00:38 +1327 -19: C:/Users/karth/Desktop/appclad/test/production_control_system_regression_test.dart: 9. Server-side enforcement (the critical gap a Flutter-only flag cannot close) notifications_enabled=false does NOT stop the notifications row insert/in-app inbox -- documented as push-delivery-only, since the row is written before this Edge Function is ever called [E]",
+    "00:38 +1330 -20: C:/Users/karth/Desktop/appclad/test/production_control_system_regression_test.dart: 9. Server-side enforcement (the critical gap a Flutter-only flag cannot close) the flag check runs AFTER the AUTH block completes, not before -- consistent with every other business-logic check in this function; an unauthenticated caller must never get a substantive response before being authorized [E]",
+    "00:49 +1769 -21: C:/Users/karth/Desktop/appclad/test/send_push_notification_token_cache_regression_test.dart: send-push-notification -- getAccessToken() caches the Google OAuth token the token is never logged, persisted to the DB, or included in a response body [E]",
+    "00:49 +1769 -22: C:/Users/karth/Desktop/appclad/test/send_push_notification_token_cache_regression_test.dart: send-push-notification -- getAccessToken() caches the Google OAuth token FCM payload construction and notification DB flow are unchanged [E]"
+  ],
+  "logs": {
+    "native": {
+      "path": ".dart_tool/waydrop-local-runtime/blocker-native.log",
+      "sha256": "68f97303a6c0cf84b98700facaaad4cdfe19b4ccfc2985f81c49f9a842765fa0"
+    },
+    "edge": {
+      "path": ".dart_tool/waydrop-local-runtime/blocker-edge.log",
+      "sha256": "9409aed0baeb477768a4d35388aed2f2dc4ba6628553c608aabbfb04bf34bde5"
+    },
+    "flutter": {
+      "path": ".dart_tool/waydrop-local-runtime/blocker-flutter-final.log",
+      "sha256": "269d43e94cb7395876216afad7651ff49bdc8c6bfb8496c8809a34262d7249f9"
+    },
+    "analyzer": {
+      "path": ".dart_tool/waydrop-local-runtime/blocker-flutter-analyze.log",
+      "sha256": "1f567a09aaca6cbe2cd783b081afd5f13676186f3c461b52d274e51626dfc1af"
+    },
+    "typecheck": {
+      "path": ".dart_tool/waydrop-local-runtime/blocker-deno-check-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acceptance_typecheck": {
+      "path": ".dart_tool/waydrop-local-runtime/blocker-accept-check.log",
+      "sha256": "6d432641032ea43c2dd93544f797eba83393dbe9a55befe6b60569836d449873"
+    },
+    "initial_flutter": {
+      "path": ".dart_tool/waydrop-local-runtime/blocker-flutter.log",
+      "sha256": "93d7ac1be99bb5b73d740d1ceef7a7b356c60f1092352067f20151a412c21452"
+    },
+    "focused_flutter": {
+      "path": ".dart_tool/waydrop-local-runtime/blocker-contracts.log",
+      "sha256": "2223642b532d3bbcc2c4ee85d56d3e4d6df53b86120cd712c42bafbd59c9164b"
+    },
+    "last_targeted": {
+      "path": ".dart_tool/waydrop-local-runtime/blocker-distance-final.log",
+      "sha256": "75a93d673932500804f39281da6127e56e19aacecc06c2cc0f760689350ea82f"
+    },
+    "analyzer_crash": {
+      "path": ".dart_tool/waydrop-local-runtime/blocker-analyzer-final.log",
+      "sha256": "4ee987a4056f533c934957ab6f305d5a6a2cf06ce239a96716e69b438decd496"
+    }
+  },
+  "coordinated_candidate_files_sha256": {
+    "supabase/migrations/20261102044001_waydrop_dispatch_fencing_and_delivery_outbox.sql": "584ab8ec4c75b3ada57f0a634b270a7b1e79793dc9ee9b6a2ac639e5377ec02e",
+    "docs/performance/blocker-resolution/CUTOVER.candidate.sql": "4dd3af140b6a93b0cfcf2380f722f2b6f977f7bda0c89b82f641a64873bda92b",
+    "supabase/functions/start-dispatch/index.ts": "ef05a5270c1887812f4f402aa79a9cb75084d69a158a5a5e1424191d8baa50eb",
+    "supabase/functions/start-dispatch/durable_dispatch.ts": "15bb6ecc8321af1cadd80f27b2254b5e9d6198f0ad1610922e345d0d1df05dcc",
+    "supabase/functions/send-push-notification/index.ts": "2e68c038229fc8b8360d6fd3051344c29fa68356aeb20c71b866c1a6ac4168b4",
+    "supabase/functions/send-push-notification/delivery_result.ts": "ffe96c43f2084b2644e222aeb7e651e4dd89a3e16d70d46e4aa05b0864275c6e",
+    "supabase/functions/send-push-notification/fcm_result.ts": "b4313366db3ed8ac98ecc38afe689ce214e70332c6aaac1d29146b21400ba30f",
+    "supabase/functions/_shared/http.ts": "b6ad86a2d790df47aaeb328f05abf71489ee61ad77fa6941c03a1f8686686c53",
+    "supabase/functions/_shared/production_config_cache.ts": "9994144024984b6a40a0abdc66fb98991bc008322b28fee552e0e54f9f87f40a",
+    "supabase/functions/accept-order/index.ts": "2f80cc2ded9c0b1c939baa8858b372d0bc52c411c0a071f7e29267b37dba62d1",
+    "supabase/functions/accept-order/atomic_acceptance.ts": "f48d37c3daa08f65254a70e2501444d409bf7f47eb145015e172b2326fe4bce1",
+    "supabase/functions/accept-order/acceptance_sql.ts": "c6354370544716d4e2df8164565ce8c8669de1c6c4edff095cacbca986c4143e",
+    "supabase/functions/accept-order/deno.json": "c2c31e1095f24de9c5d085611f9302d2aa12f48efaf2ea995bb1271e3de80e9d",
+    "docs/production-performance/edge-only/deno.lock": "107979eb09b0162c885f1b4d584397fed1c3c1c0849e95ae3220cfdc8124f3b3",
+    "docs/production-performance/local-tests/deno-runtime.json": "7aec10f4e17d93fbe1087ae64e904ff9e51dc1595a9969746ad151abf3d51733",
+    "docs/production-performance/local-tests/deno.lock": "b48275a31d72f0947b0e5b7d9c4538d457ba65a059dc7b03dbfd09818de6f311"
+  },
+  "review_artifacts_sha256": {
+    "docs/performance/blocker-resolution/ACCEPTANCE_CAPTURE.json": "06f3e6b6f0babacdb107f175cb986ce1d7c33e53400f53ffaf749a4fb1dcd0af",
+    "docs/performance/blocker-resolution/ACCEPTANCE_SQL.review.sql": "d4e69700a3440f536dacc7b4ed4a5dd3cbf30831a8f2aa642844a6f8fc4bd214",
+    "docs/performance/blocker-resolution/CUTOVER.candidate.sql": "4dd3af140b6a93b0cfcf2380f722f2b6f977f7bda0c89b82f641a64873bda92b",
+    "docs/performance/blocker-resolution/deno.json": "5a7b3a696c9eded4dc14f26f756e78a1db73e0a6b04c67fee57d25ad669e3e47",
+    "docs/performance/blocker-resolution/edge_test.ts": "38232f1a7e74c8c586b242d7714c70de4a538e82cb7c2579a0bf0bca9c1af384",
+    "docs/performance/blocker-resolution/NATIVE_RESULTS.json": "d88e5f7a8c67b8f6c0b24853d451276f9c46535af539c34e28d60091e67cab67",
+    "docs/performance/blocker-resolution/native_test.py": "491b9d4db9d798309d295ac15ffcd3a39234371744cf90b193334e59524647cc",
+    "docs/performance/blocker-resolution/prepare_fixture.py": "b883d3e029c74953fcaa026f5191321dd71a8fd110a462f2f8eaefc9b9b37b04",
+    "docs/performance/blocker-resolution/README.md": "7764e85c43d95b09a2f6fc11f825e6f21cb097ab9d2fda6eddbed6e367e0d379",
+    "docs/performance/blocker-resolution/SYNTHETIC_BASE.sql": "e5c0b5a189421ab6b0f8e95c16a3003f62657d4bea79d9e2929e666c80bf13f5",
+    "docs/performance/blocker-resolution/SOURCE_LOCATIONS.json": "a1b5e2473bbfcaff8e5cdcdaac8c37fce41d58169be1e1ebbcd9af62fc151c6a",
+    "docs/performance/blocker-resolution/TEST_EVIDENCE.txt": "216125a2b4969e8766aa11a13009f955bbd2c36fc5e89c5e1925002afb1508ec"
+  },
+  "release": {
+    "flutter": "CONDITIONAL GO",
+    "sql": "LOCAL VERIFIED / PRODUCTION NO-GO",
+    "edge": "LOCAL VERIFIED / PRODUCTION NO-GO"
+  },
+  "limitations": [
+    "No managed Supabase integration environment",
+    "Intercity legacy native transaction is a stub; captured production body preserved by wrapper",
+    "No real FCM device/provider receipt; ambiguous sending quarantined, possible non-delivery",
+    "No production matched-load/host-resource measurements",
+    "Historical incident initiating cause remains unproven",
+    "Old acceptance-only frozen manifest superseded for changed acceptance payload"
+  ],
+  "source_locations": "docs/performance/blocker-resolution/SOURCE_LOCATIONS.json"
+}

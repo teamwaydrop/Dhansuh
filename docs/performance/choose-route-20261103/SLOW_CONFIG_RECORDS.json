@@ -1,0 +1,52 @@
+{
+  "window_utc": [
+    "2026-11-03T04:24:00Z",
+    "2026-11-03T04:34:00Z"
+  ],
+  "evidence": {
+    "result": [
+      {
+        "ms": 15350,
+        "path": "/rest/v1/pricing_config",
+        "source": "edge_logs",
+        "status": "200",
+        "timestamp": "2026-11-03T04:31:49.441000"
+      },
+      {
+        "ms": 13763,
+        "path": "/rest/v1/pricing_zones",
+        "source": "edge_logs",
+        "status": "200",
+        "timestamp": "2026-11-03T04:31:49.441000"
+      },
+      {
+        "ms": 13500,
+        "path": "/rest/v1/pricing_zones",
+        "source": "edge_logs",
+        "status": "200",
+        "timestamp": "2026-11-03T04:31:49.451000"
+      },
+      {
+        "ms": 13786,
+        "path": "/rest/v1/pricing_config",
+        "source": "edge_logs",
+        "status": "200",
+        "timestamp": "2026-11-03T04:31:49.451000"
+      },
+      {
+        "ms": 15993,
+        "path": "/rest/v1/pricing_config",
+        "source": "edge_logs",
+        "status": "200",
+        "timestamp": "2026-11-03T04:31:49.599000"
+      },
+      {
+        "ms": 13925,
+        "path": "/rest/v1/pricing_zones",
+        "source": "edge_logs",
+        "status": "200",
+        "timestamp": "2026-11-03T04:31:49.603000"
+      }
+    ]
+  }
+}

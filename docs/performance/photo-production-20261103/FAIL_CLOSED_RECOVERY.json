@@ -1,0 +1,12 @@
+{
+  "project_id": "yvwpchffctiagevpqgwy",
+  "name": "process-verification-photo",
+  "entrypoint_path": "functions/process-verification-photo/index.ts",
+  "verify_jwt": false,
+  "files": [
+    {
+      "name": "functions/process-verification-photo/index.ts",
+      "content": "import { serve } from \"https://deno.land/std@0.168.0/http/server.ts\";\nconst cors={\"Access-Control-Allow-Origin\":\"*\",\"Access-Control-Allow-Headers\":\"authorization, x-client-info, apikey, content-type\"};\nserve((req:Request)=>req.method===\"OPTIONS\"?new Response(\"ok\",{headers:cors}):new Response(JSON.stringify({success:false,error:\"Photo verification temporarily unavailable. Please retry later.\"}),{status:503,headers:{...cors,\"Content-Type\":\"application/json\"}}));\n"
+    }
+  ]
+}

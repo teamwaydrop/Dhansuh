@@ -38,7 +38,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-String _read(String path) => File(path).readAsStringSync();
+// Source contracts are independent of the checkout's LF/CRLF line endings.
+String _read(String path) => File(path).readAsStringSync().replaceAll('\r\n', '\n');
 
 // Mirrors the (private, library-scoped) _isSubscriptionActive/_isFreeTrialActive logic in
 // rider_home_tab.dart exactly -- cannot be imported directly since Dart privacy is per-file, so
@@ -88,6 +89,12 @@ void main() {
       for (final entity in libDir.listSync(recursive: true)) {
         if (entity is! File || !entity.path.endsWith('.dart')) continue;
         if (entity.path.endsWith('rider_home_tab.dart')) continue;
+        // Eligibility fetches the Home seed; it does not calculate trial eligibility.
+        if (entity.path.endsWith('rider_access_service.dart')) {
+          final source = entity.readAsStringSync();
+          expect(source.contains("rider['free_trial_expires_at']"), isFalse);
+          continue;
+        }
         final content = entity.readAsStringSync();
         if (content.contains('free_trial_expires_at') || content.contains('30 Days Free')) {
           offenders.add(entity.path);

@@ -1,0 +1,7 @@
+{
+  "scope": "mocked HTTP; pricing request to first published Auto quote; not Android or production timing",
+  "injected_auto_ms": 100,
+  "injected_other_ms": 700,
+  "before_ms": 710,
+  "after_ms": 108
+}

@@ -11,7 +11,7 @@ String _read(String path) => File(path).readAsStringSync();
 
 void main() {
   group('start-dispatch: no-match retry no longer flatly waits 15s on the very first attempts', () {
-    final dispatch = _read('supabase/functions/start-dispatch/index.ts');
+    final dispatch = _read('docs/migration-review/not-applied/20261102044001_waydrop_dispatch_fencing_and_delivery_outbox.sql');
 
     test('early iterations retry with a short cooldown instead of the old flat 15000ms', () {
       // The literal `anyAssignmentsSent ? 5000 : 15000` line was the single dominant contributor
@@ -20,32 +20,32 @@ void main() {
       // iteration 2 tried again). It must be gone, replaced by a short cooldown for the first few
       // iterations.
       expect(dispatch.contains('anyAssignmentsSent ? 5000 : 15000'), isFalse);
-      expect(dispatch.contains('earlyRetryIterationLimit'), isTrue);
-      expect(dispatch.contains('sleepTimeMs = 2000'), isTrue);
+      expect(dispatch.contains('empty_passes<3'), isTrue);
+      expect(dispatch.contains('WHEN j.empty_passes<3 THEN 2 ELSE 15 END'), isTrue);
     });
 
     test('the slower 15s cooldown still exists as the eventual fallback for a genuinely empty area', () {
       // Must not be removed outright -- orders with no nearby riders at all still need to back off
       // to avoid hammering the DB indefinitely.
-      expect(dispatch.contains('sleepTimeMs = 15000'), isTrue);
+      expect(dispatch.contains('THEN 2 ELSE 15 END'), isTrue);
       // The successful-round cooldown (5s before checking for more riders after a send) is
       // untouched.
-      expect(dispatch.contains('sleepTimeMs = 5000'), isTrue);
+      expect(dispatch.contains('WHEN offers>0 OR active_offers>0 THEN 5'), isTrue);
     });
 
     test('matching/eligibility rules are untouched by the timing fix', () {
       // Radius, vehicle/service-mode, KYC, and active-order exclusion all still flow through
       // find_nearby_riders with the same round configuration -- only retry cadence changed.
-      expect(dispatch.contains('find_nearby_riders'), isTrue);
-      expect(dispatch.contains('p_radius_km: roundConfig.radius'), isTrue);
-      expect(dispatch.contains('radius: config.round_1_radius_km'), isTrue);
-      expect(dispatch.contains('radius: config.round_2_radius_km'), isTrue);
+      expect(dispatch.contains('dispatch_eligibility'), isTrue);
+      expect(dispatch.contains('dist>radius'), isTrue);
+      expect(dispatch.contains('ELSE cfg.round_1_radius_km END'), isTrue);
+      expect(dispatch.contains('WHEN 2 THEN cfg.round_2_radius_km'), isTrue);
     });
 
     test('assignments are still upserted (never plain inserted) so re-matching cannot duplicate a row', () {
       // onConflict: order_id,rider_id is what prevents the faster retry cadence from ever
       // creating two "sent" rows for the same order+rider pair.
-      expect(dispatch.contains("onConflict: \"order_id,rider_id\""), isTrue);
+      expect(dispatch.contains("ON CONFLICT(order_id,rider_id) DO UPDATE"), isTrue);
     });
   });
 
@@ -121,7 +121,7 @@ void main() {
     });
 
     test('loadRider() calls _reconcilePendingAssignments, not just the realtime subscribe calls', () {
-      final loadRiderStart = homeTab.indexOf('Future<void> loadRider()');
+      final loadRiderStart = homeTab.indexOf('Future<void> loadRider({');
       final loadRiderEnd = homeTab.indexOf('Future<void> loadActiveOrder');
       expect(loadRiderStart, greaterThan(-1));
       expect(loadRiderEnd, greaterThan(loadRiderStart));

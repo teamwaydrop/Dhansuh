@@ -1,0 +1,95 @@
+{
+  "database": "waydrop_part4_synthetic",
+  "host": "127.0.0.1:54329",
+  "managed_auth": false,
+  "provider_network": false,
+  "tests": [
+    {
+      "test": "captured INSERT policy allows participant to forge sender (rolled back)",
+      "passed": true,
+      "before_forged_inserts_allowed": 1
+    },
+    {
+      "test": "captured INSERT policy allows unsolicited other-user support message (rolled back)",
+      "passed": true
+    },
+    {
+      "test": "candidate denies unsolicited other-user support message",
+      "passed": true
+    },
+    {
+      "test": "candidate preserves own support thread",
+      "passed": true
+    },
+    {
+      "test": "candidate denies forged sender",
+      "passed": true
+    },
+    {
+      "test": "candidate denies foreign order",
+      "passed": true
+    },
+    {
+      "test": "candidate preserves passenger",
+      "passed": true
+    },
+    {
+      "test": "candidate preserves rider",
+      "passed": true
+    },
+    {
+      "test": "candidate preserves support own identity",
+      "passed": true
+    },
+    {
+      "test": "candidate preserves trusted server",
+      "passed": true
+    },
+    {
+      "test": "12 competing identical UUID INSERTs commit one message/notification/enqueue",
+      "passed": true,
+      "attempts": 12,
+      "max_parallel_clients": 8,
+      "committed": 1,
+      "rows": [
+        1,
+        1,
+        1
+      ],
+      "elapsed_ms": 393.531
+    },
+    {
+      "test": "real statement timeout cancels full chat/notification/enqueue transaction",
+      "passed": true,
+      "sqlstate": "57014",
+      "new_committed_rows": 0
+    },
+    {
+      "test": "ordinary enqueue exception preserves chat/inbox and records failure, not a chat 500",
+      "passed": true,
+      "rows": [
+        2,
+        2,
+        1,
+        1
+      ]
+    },
+    {
+      "test": "actual pre-acceptance trigger still blocks passenger chat",
+      "passed": true
+    }
+  ],
+  "chain_round_trip_ms_including_psql_startup": [
+    106.744,
+    98.944,
+    116.392,
+    78.02,
+    73.698,
+    74.506,
+    235.423,
+    273.639,
+    142.262,
+    90.379
+  ],
+  "measurement_limit": "Synthetic mechanism checks only. No before/after trigger optimization or production latency measurement."
+}

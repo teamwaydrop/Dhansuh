@@ -1,0 +1,24 @@
+{
+  "query": "BEGIN READ ONLY; SET LOCAL statement_timeout='2000ms'; SELECT jsonb_build_object('function',(SELECT jsonb_build_object('definition_md5',md5(pg_get_functiondef(p.oid)),'owner',pg_get_userbyid(proowner),'security_definer',prosecdef,'settings',proconfig,'acl',proacl::text,'anon_execute',has_function_privilege('anon',p.oid,'EXECUTE'),'authenticated_execute',has_function_privilege('authenticated',p.oid,'EXECUTE'),'service_execute',has_function_privilege('service_role',p.oid,'EXECUTE')) FROM pg_proc p WHERE p.oid='public.redispatch_stalled_searching_orders()'::regprocedure),'dispatch_work_exists',EXISTS(SELECT 1 FROM public.orders o WHERE o.order_status='searching' AND o.order_type NOT IN('intercity_ride','intercity_parcel') AND COALESCE(o.dispatch_worker_running,false)=false AND(o.dispatch_worker_started_at IS NULL OR o.dispatch_worker_started_at<now()-interval'20 seconds')),'terminal_cleanup_exists',EXISTS(SELECT 1 FROM public.orders o WHERE o.dispatch_worker_running=true AND o.order_status!='searching' AND o.dispatch_worker_started_at IS NOT NULL AND o.dispatch_worker_started_at<now()-interval'120 seconds'),'observed_at',clock_timestamp()) AS preflight; COMMIT;",
+  "evidence": [
+    {
+      "preflight": {
+        "function": {
+          "acl": "{postgres=X/postgres,service_role=X/postgres}",
+          "owner": "postgres",
+          "settings": [
+            "search_path=public"
+          ],
+          "anon_execute": false,
+          "definition_md5": "b486cd2e7650778ba2a41fe3eac5ea0a",
+          "service_execute": true,
+          "security_definer": true,
+          "authenticated_execute": false
+        },
+        "observed_at": "2026-11-03T01:50:59.579995+05:30",
+        "dispatch_work_exists": false,
+        "terminal_cleanup_exists": false
+      }
+    }
+  ]
+}
