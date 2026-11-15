@@ -1174,63 +1174,95 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
     try {
       setState(() => processing = true);
 
-      final response = await supabase.functions.invoke(
-        'accept-order',
-        body: {
-          'order_id': orderId,
-          'rider_id': riderId!,
-        },
-      );
+      // At most ONE location-refresh retry. The `processing` guard above already
+      // prevents concurrent/duplicate accepts; this just recovers a single stale
+      // GPS rejection before surfacing it to the rider.
+      var retriedForLocation = false;
+      while (true) {
+        try {
+          final response = await supabase.functions.invoke(
+            'accept-order',
+            body: {
+              'order_id': orderId,
+              'rider_id': riderId!,
+            },
+          );
 
-      if (response.data == null || response.data['success'] != true) {
-        throw Exception(response.data?['message'] ?? 'Failed to accept order');
-      }
+          if (response.data == null || response.data['success'] != true) {
+            throw Exception(response.data?['message'] ?? 'Failed to accept order');
+          }
 
-      if (!mounted) return;
-      // Amplification-reduction pass: accept-order's response already carries the full, fresh
-      // order row (post-acceptance) -- hand it to RiderActiveOrderScreen instead of letting it
-      // re-fetch the identical row a moment later. Falls back to the screen's own full fetch
-      // automatically if the response shape ever changes (initialOrder stays null).
-      final acceptedOrder = response.data['order'];
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => RiderActiveOrderScreen(
-            orderId: orderId,
-            initialOrder: acceptedOrder is Map
-                ? Map<String, dynamic>.from(acceptedOrder)
-                : null,
-          ),
-        ),
-      );
-    } catch (e, stackTrace) {
-      final errorMsg = _getExceptionMessage(e);
-      if (errorMsg.contains('no longer available') ||
-          errorMsg.contains('already accepted') ||
-          errorMsg.contains('already handled') ||
-          errorMsg.contains('Assignment not found') ||
-          errorMsg.contains('Assignment already handled')) {
-        // Add to session rejected map permanently for this session so it gets removed immediately
-        setState(() {
-          rejectedOrderIds[orderId] = DateTime.now().add(const Duration(hours: 24));
-        });
-        await fetchSearchingOrders();
-        if (mounted) {
-          showAppSnackBar(context, 'This order has already been accepted by another rider!', type: SnackBarType.error);
-        }
-      } else {
-        // Phase 5 F2: non-fatal Crashlytics report for a genuinely unexpected acceptance failure
-        // (the routine "another rider already took it" race above is expected business behavior,
-        // not reported here to avoid noise) -- purely additive, does not affect the existing
-        // SnackBar behavior below.
-        FirebaseCrashlytics.instance.recordError(
-          e,
-          stackTrace,
-          reason: 'accept-order failed',
-          information: ['orderId: $orderId', 'riderId: $riderId'],
-        );
-        if (mounted) {
-          showAppSnackBar(context, errorMsg, type: SnackBarType.error);
+          if (!mounted) return;
+          // Amplification-reduction pass: accept-order's response already carries the full, fresh
+          // order row (post-acceptance) -- hand it to RiderActiveOrderScreen instead of letting it
+          // re-fetch the identical row a moment later. Falls back to the screen's own full fetch
+          // automatically if the response shape ever changes (initialOrder stays null).
+          final acceptedOrder = response.data['order'];
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => RiderActiveOrderScreen(
+                orderId: orderId,
+                initialOrder: acceptedOrder is Map
+                    ? Map<String, dynamic>.from(acceptedOrder)
+                    : null,
+              ),
+            ),
+          );
+          return;
+        } catch (e, stackTrace) {
+          // LOCATION_STALE recovery: the backend rejected eligibility only because
+          // this rider's last_location_updated_at aged past the freshness window
+          // (common when a backend slowdown delayed the GPS heartbeat). Push ONE
+          // genuinely fresh GPS fix and retry acceptance exactly once. Every other
+          // eligibility/security check is re-run server-side by that retry; no
+          // check is bypassed. Genuine rejections (wrong mode, busy, already
+          // accepted, expired) never reach this branch.
+          if (!retriedForLocation && _getExceptionCode(e) == 'LOCATION_STALE') {
+            retriedForLocation = true;
+            final refreshed = await LocationCacheService.forceFreshLocationUpdate();
+            if (!mounted) return;
+            if (refreshed) {
+              continue; // retry the accept exactly once with a fresh location
+            }
+            showAppSnackBar(
+              context,
+              'Could not refresh your GPS location. Make sure location is on, then try again.',
+              type: SnackBarType.error,
+            );
+            return;
+          }
+
+          final errorMsg = _getExceptionMessage(e);
+          if (errorMsg.contains('no longer available') ||
+              errorMsg.contains('already accepted') ||
+              errorMsg.contains('already handled') ||
+              errorMsg.contains('Assignment not found') ||
+              errorMsg.contains('Assignment already handled')) {
+            // Add to session rejected map permanently for this session so it gets removed immediately
+            setState(() {
+              rejectedOrderIds[orderId] = DateTime.now().add(const Duration(hours: 24));
+            });
+            await fetchSearchingOrders();
+            if (mounted) {
+              showAppSnackBar(context, 'This order has already been accepted by another rider!', type: SnackBarType.error);
+            }
+          } else {
+            // Phase 5 F2: non-fatal Crashlytics report for a genuinely unexpected acceptance failure
+            // (the routine "another rider already took it" race above is expected business behavior,
+            // not reported here to avoid noise) -- purely additive, does not affect the existing
+            // SnackBar behavior below.
+            FirebaseCrashlytics.instance.recordError(
+              e,
+              stackTrace,
+              reason: 'accept-order failed',
+              information: ['orderId: $orderId', 'riderId: $riderId'],
+            );
+            if (mounted) {
+              showAppSnackBar(context, errorMsg, type: SnackBarType.error);
+            }
+          }
+          return;
         }
       }
     } finally {
@@ -1294,6 +1326,28 @@ class RiderOrdersScreenState extends State<RiderOrdersScreen> with SingleTickerP
       }
     }
     return e.toString().replaceAll('Exception:', '').trim();
+  }
+
+  /// Extracts the machine-readable `code` (e.g. LOCATION_STALE) from an
+  /// accept-order FunctionException body, or null if absent.
+  String? _getExceptionCode(Object e) {
+    if (e is FunctionException) {
+      final details = e.details;
+      if (details is Map && details['code'] != null) {
+        return details['code'].toString();
+      }
+      if (details is String) {
+        try {
+          final decoded = jsonDecode(details);
+          if (decoded is Map && decoded['code'] != null) {
+            return decoded['code'].toString();
+          }
+        } catch (_) {
+          return null;
+        }
+      }
+    }
+    return null;
   }
 
   // =========================================================

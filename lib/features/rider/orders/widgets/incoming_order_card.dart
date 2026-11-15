@@ -279,32 +279,59 @@ class _IncomingOrderCardState extends State<IncomingOrderCard> {
   }
 
   Future<void> acceptOrder() async {
+    // The `processing` guard prevents concurrent/duplicate accept taps.
     if (processing) return;
     HapticFeedback.mediumImpact();
-    try {
-      setState(() => processing = true);
-      final riderId = widget.assignment['rider_id'];
-      final orderId = widget.assignment['order_id'];
-      
-      final response = await supabase.functions.invoke(
-        'accept-order',
-        body: {'order_id': orderId, 'rider_id': riderId},
-      );
+    setState(() => processing = true);
+    final riderId = widget.assignment['rider_id'];
+    final orderId = widget.assignment['order_id'];
 
-      if (response.data != null && response.data['success'] != true) {
-        throw Exception(response.data['message'] ?? 'Failed to accept order');
-      }
-
-      widget.onAccepted();
-    } catch (e) {
-      if (mounted) {
-        final errorMsg = _getExceptionMessage(e);
-        showAppSnackBar(
-          context,
-          errorMsg.isEmpty ? 'Failed to accept order' : errorMsg,
-          type: SnackBarType.error,
+    // At most ONE location-refresh retry.
+    var retriedForLocation = false;
+    while (true) {
+      try {
+        final response = await supabase.functions.invoke(
+          'accept-order',
+          body: {'order_id': orderId, 'rider_id': riderId},
         );
-        setState(() => processing = false);
+
+        if (response.data != null && response.data['success'] != true) {
+          throw Exception(response.data['message'] ?? 'Failed to accept order');
+        }
+
+        widget.onAccepted();
+        return;
+      } catch (e) {
+        // LOCATION_STALE recovery: push ONE genuinely fresh GPS fix and retry
+        // acceptance exactly once. Every other eligibility/security check is
+        // re-run server-side by that retry; genuine rejections (wrong mode,
+        // busy, already accepted, expired) never reach this branch.
+        if (!retriedForLocation && _getExceptionCode(e) == 'LOCATION_STALE') {
+          retriedForLocation = true;
+          final refreshed = await LocationCacheService.forceFreshLocationUpdate();
+          if (!mounted) return;
+          if (refreshed) {
+            continue; // retry the accept exactly once with a fresh location
+          }
+          showAppSnackBar(
+            context,
+            'Could not refresh your GPS location. Make sure location is on, then try again.',
+            type: SnackBarType.error,
+          );
+          setState(() => processing = false);
+          return;
+        }
+
+        if (mounted) {
+          final errorMsg = _getExceptionMessage(e);
+          showAppSnackBar(
+            context,
+            errorMsg.isEmpty ? 'Failed to accept order' : errorMsg,
+            type: SnackBarType.error,
+          );
+          setState(() => processing = false);
+        }
+        return;
       }
     }
   }
@@ -336,6 +363,28 @@ class _IncomingOrderCardState extends State<IncomingOrderCard> {
       }
     }
     return e.toString().replaceAll('Exception:', '').replaceAll('FunctionException:', '').trim();
+  }
+
+  /// Extracts the machine-readable `code` (e.g. LOCATION_STALE) from an
+  /// accept-order FunctionException body, or null if absent.
+  String? _getExceptionCode(Object e) {
+    if (e is FunctionException) {
+      final details = e.details;
+      if (details is Map && details['code'] != null) {
+        return details['code'].toString();
+      }
+      if (details is String) {
+        try {
+          final decoded = jsonDecode(details);
+          if (decoded is Map && decoded['code'] != null) {
+            return decoded['code'].toString();
+          }
+        } catch (_) {
+          return null;
+        }
+      }
+    }
+    return null;
   }
 
   String _getAreaName(dynamic address) {

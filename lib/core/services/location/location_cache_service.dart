@@ -391,6 +391,39 @@ class LocationCacheService {
     }
   }
 
+  /// Forces a GENUINELY fresh GPS fix and writes it to the rider row, refreshing
+  /// `last_location_updated_at`. Returns true only when a live position was read
+  /// AND the DB write succeeded. Used by the accept flow to recover from a
+  /// backend LOCATION_STALE rejection (common when a slowdown delayed the
+  /// periodic heartbeat). Never stamps a cached/last-known fix as fresh: it
+  /// reads a live position via getCurrentPosition. Returns false (no throw) when
+  /// location services are off, permission is denied, the GPS read fails, or the
+  /// DB write fails, so the caller can stop and show an appropriate message.
+  static Future<bool> forceFreshLocationUpdate() async {
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) return false;
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return false;
+      }
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 8),
+      );
+      _cachePosition(position);
+      final ok = await updateRiderLocation(position);
+      if (ok) {
+        lastUploadedPosition = position;
+        lastDbUpdateTime = DateTime.now();
+      }
+      return ok;
+    } catch (e) {
+      debugPrint('FORCE FRESH LOCATION ERROR => $e');
+      return false;
+    }
+  }
+
   // =====================================================
   // START TRACKING
   // =====================================================
