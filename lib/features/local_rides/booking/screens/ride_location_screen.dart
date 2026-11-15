@@ -298,8 +298,30 @@ class _RideLocationScreenState extends State<RideLocationScreen>
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1800),
       vsync: this,
-    )..repeat();
+    );
     _initialize();
+  }
+
+  // [PERF] Single source of truth for the pulsing center pin's visibility, used
+  // by build() to render and by _syncPulse() to start/stop the controller.
+  bool get _showCenterPin =>
+      (_activeField != null) &&
+      mapLoaded &&
+      !(pickupLat != null &&
+          pickupLng != null &&
+          destinationLat != null &&
+          destinationLng != null);
+
+  // [PERF] Drive the pulse from state transitions, never from build(). Idempotent
+  // and mounted-guarded. Called from _updateMarkers() (covers every map-load,
+  // selection, clear and drag-confirm path) and _onFocusChange() (active field).
+  void _syncPulse() {
+    if (!mounted) return;
+    if (_showCenterPin) {
+      if (!_pulseController.isAnimating) _pulseController.repeat();
+    } else if (_pulseController.isAnimating) {
+      _pulseController.stop();
+    }
   }
 
   Future<void> _initialize() async {
@@ -394,6 +416,7 @@ class _RideLocationScreenState extends State<RideLocationScreen>
         _destinationWasPrefilled = false;
       }
     }
+    _syncPulse();
   }
 
   void _onPickupTextChanged() {
@@ -498,6 +521,7 @@ class _RideLocationScreenState extends State<RideLocationScreen>
   void _initWebView() {
     if (_useMockMap) {
       setState(() => mapLoaded = true);
+      _syncPulse();
       return;
     }
     try {
@@ -532,6 +556,7 @@ class _RideLocationScreenState extends State<RideLocationScreen>
     } catch (e) {
       debugPrint('Failed to initialize WebView: $e');
       setState(() => mapLoaded = true);
+      _syncPulse();
     }
   }
 
@@ -1048,6 +1073,10 @@ class _RideLocationScreenState extends State<RideLocationScreen>
   // =====================================================
 
   Future<void> _updateMarkers() async {
+    // [PERF] Common funnel for all coord/map-load/selection/clear/drag paths;
+    // sync the pulse here so every state transition that affects the center pin
+    // starts/stops the controller.
+    _syncPulse();
     if (webController == null) return;
     try {
       await webController!.runJavaScript('''
@@ -1726,7 +1755,12 @@ class _RideLocationScreenState extends State<RideLocationScreen>
           .toList();
 
       if (mounted) {
-        setState(() => nearbyRiders = riders);
+        // [PERF] No setState: `nearbyRiders` is never read in build() -- it is
+        // pushed to the map via _updateRidersOnMap()/JS below. Wrapping this in
+        // setState would rebuild the whole ~1,350-line build() every ~5s for a
+        // value nothing on-screen reads. If a Flutter widget ever renders
+        // `nearbyRiders`, restore setState here.
+        nearbyRiders = riders;
       }
       await _updateRidersOnMap(filterType: selectedVehicle);
     } catch (e) {
@@ -2583,13 +2617,7 @@ class _RideLocationScreenState extends State<RideLocationScreen>
         destinationFocus.hasFocus && destinationController.text.isNotEmpty;
     final isSearching = isSearchingPickup || isSearchingDestination;
 
-    final showCenterPin =
-        (_activeField != null) &&
-        mapLoaded &&
-        !(pickupLat != null &&
-            pickupLng != null &&
-            destinationLat != null &&
-            destinationLng != null);
+    final showCenterPin = _showCenterPin;
 
     final bool isIntercityRide =
         widget.orderType == 'intercity_ride' ||

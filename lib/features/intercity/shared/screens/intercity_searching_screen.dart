@@ -20,6 +20,7 @@ import 'dart:convert';
 import 'dart:math' show Random;
 import 'dart:ui' show ImageFilter;
 
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:waydrop/core/config/env.dart';
@@ -223,29 +224,36 @@ class _IntercitySearchingScreenState extends State<IntercitySearchingScreen> wit
 
   void _syncOrderMap(TransportOrder obj) {
     if (!mounted) return;
+    final newOrder = <String, dynamic>{
+      'id': obj.id,
+      'order_code': obj.orderCode,
+      'order_status': obj.orderStatus,
+      'order_type': obj.orderType,
+      'vehicle_type': obj.vehicleType,
+      'pickup_address': obj.pickupAddress,
+      'pickup_lat': obj.pickupLat,
+      'pickup_lng': obj.pickupLng,
+      'destination_address': obj.destinationAddress,
+      'destination_lat': obj.destinationLat,
+      'destination_lng': obj.destinationLng,
+      'current_fare': obj.currentFare,
+      'actual_fare': obj.actualFare,
+      'boost_percentage': obj.boostPercentage,
+      'payment_mode': obj.paymentMode,
+      'pickup_city': obj.pickupCity,
+      'destination_city': obj.destinationCity,
+      'travel_date': obj.travelDate?.toIso8601String(),
+    };
+    final bool fareChanged = (localFare == 0.0 || obj.currentFare > localFare);
+    // [PERF] The searching-phase fallback poll fires this every ~5s and
+    // TransportOrder has no `==`, so most ticks carry identical order data. Skip
+    // the full-screen rebuild when nothing rendered changed. All values are
+    // primitives, so mapEquals is a sound comparison.
+    if (!fareChanged && !loading && mapEquals(order, newOrder)) return;
     // Update the widget state to trigger a UI rebuild with the new variables
     setState(() {
-      order = {
-        'id': obj.id,
-        'order_code': obj.orderCode,
-        'order_status': obj.orderStatus,
-        'order_type': obj.orderType,
-        'vehicle_type': obj.vehicleType,
-        'pickup_address': obj.pickupAddress,
-        'pickup_lat': obj.pickupLat,
-        'pickup_lng': obj.pickupLng,
-        'destination_address': obj.destinationAddress,
-        'destination_lat': obj.destinationLat,
-        'destination_lng': obj.destinationLng,
-        'current_fare': obj.currentFare,
-        'actual_fare': obj.actualFare,
-        'boost_percentage': obj.boostPercentage,
-        'payment_mode': obj.paymentMode,
-        'pickup_city': obj.pickupCity,
-        'destination_city': obj.destinationCity,
-        'travel_date': obj.travelDate?.toIso8601String(),
-      };
-      if (localFare == 0.0 || obj.currentFare > localFare) {
+      order = newOrder;
+      if (fareChanged) {
         localFare = obj.currentFare;
       }
       loading = false;

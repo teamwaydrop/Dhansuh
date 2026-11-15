@@ -77,7 +77,11 @@ class _TransportMapWidgetState extends State<TransportMapWidget> with AutomaticK
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
-    )..repeat();
+    );
+    // [PERF] The pulse ring is only rendered on the mock-map placeholder
+    // (desktop/web). On real devices the WebView map is used and this animation
+    // is never built, so only drive the controller on the mock path.
+    if (_useMockMap) _pulseController.repeat();
 
     if (!_useMockMap) {
       try {

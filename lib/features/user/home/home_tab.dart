@@ -114,6 +114,23 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
   bool _isLocationPromptShowing = false;
   BuildContext? _locationPromptContext;
 
+  // [PERF] Location-bar rebuild scope: GPS/address updates used to setState the
+  // whole ~900-line Home build(). Only the location selector bar renders location
+  // data, so the hot path now bumps this version notifier (no setState) and the
+  // bar rebuilds from an immutable snapshot. A full parent rebuild still happens
+  // only when serviceability flips (it gates the not-serviceable branch).
+  final ValueNotifier<int> _locationBarVersion = ValueNotifier<int>(0);
+  _LocationBarData? _lastLocationBarSnapshot;
+
+  _LocationBarData _computeLocationBarData() => _LocationBarData(
+        address: _currentAddress,
+        elapsedText: _locationElapsedText,
+        mockAddressActive: _mockAddress != null,
+        gpsEnabled: _gpsEnabled,
+        hasPermission: _hasLocationPermission,
+        isServiceable: _isLocationServiceable,
+      );
+
   // Manual location overrides (mock values)
   double? get _mockLatitude => LocationCacheService.manualMockLat;
   double? get _mockLongitude => LocationCacheService.manualMockLng;
@@ -203,14 +220,28 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
 
   void _onLocationCacheUpdated() {
     if (!mounted) return;
-    // Update the widget state to trigger a UI rebuild with the new variables
-    setState(() {
-      _currentPosition = LocationCacheService.cachedPosition;
-      _isLocationServiceable = LocationCacheService.isServiceable;
-      _hasLocationPermission = LocationCacheService.cachedPosition != null;
-      _gpsEnabled = LocationCacheService.cachedPosition != null;
-      _lastLocationUpdateTime = LocationCacheService.lastUpdated;
-    });
+    // [PERF] Update the fields directly instead of a whole-tab setState. The GPS
+    // hot path (position/address ticks) must not rebuild the entire Home tree.
+    final bool wasServiceable = _isLocationServiceable;
+    _currentPosition = LocationCacheService.cachedPosition;
+    _isLocationServiceable = LocationCacheService.isServiceable;
+    _hasLocationPermission = LocationCacheService.cachedPosition != null;
+    _gpsEnabled = LocationCacheService.cachedPosition != null;
+    _lastLocationUpdateTime = LocationCacheService.lastUpdated;
+
+    // Cheap: refresh only the location selector bar, and only when the data it
+    // actually renders changed (identical fixes don't rebuild it).
+    final snapshot = _computeLocationBarData();
+    if (snapshot != _lastLocationBarSnapshot) {
+      _lastLocationBarSnapshot = snapshot;
+      _locationBarVersion.value++;
+    }
+
+    // Structural: the not-serviceable branch in build() is gated on
+    // serviceability, so a full parent rebuild is only needed when it flips.
+    if (wasServiceable != _isLocationServiceable) {
+      setState(() {});
+    }
 
     if (_isLocationPromptShowing &&
         LocationCacheService.cachedPosition != null &&
@@ -253,6 +284,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
     _locationCheckTimer?.cancel();
     _cooldownTimer?.cancel();
     _cooldownTicker.dispose();
+    _locationBarVersion.dispose();
     // Unregister lifecycle observers to prevent callbacks when the widget is dead
     WidgetsBinding.instance.removeObserver(this);
     if (channel != null) {
@@ -1506,8 +1538,18 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
                     const SizedBox(height: 20),
 
                     // ── Location Selector Bar ───────────────────────────────
+                    // [PERF] Only this bar re-renders on GPS/address updates,
+                    // driven by _locationBarVersion instead of a whole-tab setState.
                     _animateEntrance(
-                      _buildLocationSelectorBar(isDark, textColor, borderColor),
+                      ValueListenableBuilder<int>(
+                        valueListenable: _locationBarVersion,
+                        builder: (context, _, child) => _buildLocationSelectorBar(
+                          _computeLocationBarData(),
+                          isDark,
+                          textColor,
+                          borderColor,
+                        ),
+                      ),
                       80,
                       disableAnimations,
                     ),
@@ -1774,15 +1816,16 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
   }
 
   Widget _buildLocationSelectorBar(
+    _LocationBarData data,
     bool isDark,
     Color textColor,
     Color borderColor,
   ) {
-    String displayAddress = _currentAddress;
+    String displayAddress = data.address;
 
-    final bool isUnserviceableOrGpsUnavailable = _mockAddress == null
-        ? (!_gpsEnabled || !_hasLocationPermission || !_isLocationServiceable)
-        : !_isLocationServiceable;
+    final bool isUnserviceableOrGpsUnavailable = !data.mockAddressActive
+        ? (!data.gpsEnabled || !data.hasPermission || !data.isServiceable)
+        : !data.isServiceable;
 
     final bool isGenericAddress =
         displayAddress == 'Location services disabled' ||
@@ -1790,7 +1833,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
         displayAddress == 'Fetching location...' ||
         displayAddress.isEmpty;
 
-    if (_mockAddress == null && isGenericAddress) {
+    if (!data.mockAddressActive && isGenericAddress) {
       displayAddress = 'Select pickup point';
     }
 
@@ -1864,7 +1907,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
                     ),
                     const SizedBox(height: 1),
                     Text(
-                      _locationElapsedText,
+                      data.elapsedText,
                       style: TextStyle(
                         fontSize: 9.5,
                         color: isDark ? const Color(0xFF64748B) : Colors.grey.shade400,
@@ -3210,4 +3253,47 @@ class _HomeTabState extends ConsumerState<HomeTab> with WidgetsBindingObserver {
           delay: delayMs.ms,
         );
   }
+}
+
+/// Immutable snapshot of exactly the location data the Home location selector bar
+/// renders. Lets the bar rebuild from a value object on the GPS hot path instead
+/// of a whole-tab setState. Value equality skips rebuilds when nothing it shows
+/// has changed (e.g. repeated identical GPS fixes).
+@immutable
+class _LocationBarData {
+  const _LocationBarData({
+    required this.address,
+    required this.elapsedText,
+    required this.mockAddressActive,
+    required this.gpsEnabled,
+    required this.hasPermission,
+    required this.isServiceable,
+  });
+
+  final String address;
+  final String elapsedText;
+  final bool mockAddressActive;
+  final bool gpsEnabled;
+  final bool hasPermission;
+  final bool isServiceable;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _LocationBarData &&
+      other.address == address &&
+      other.elapsedText == elapsedText &&
+      other.mockAddressActive == mockAddressActive &&
+      other.gpsEnabled == gpsEnabled &&
+      other.hasPermission == hasPermission &&
+      other.isServiceable == isServiceable;
+
+  @override
+  int get hashCode => Object.hash(
+        address,
+        elapsedText,
+        mockAddressActive,
+        gpsEnabled,
+        hasPermission,
+        isServiceable,
+      );
 }

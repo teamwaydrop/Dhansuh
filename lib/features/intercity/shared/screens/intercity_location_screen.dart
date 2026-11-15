@@ -204,8 +204,30 @@ class _IntercityLocationScreenState
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1800),
       vsync: this,
-    )..repeat();
+    );
     _initialize();
+  }
+
+  // [PERF] Single source of truth for the pulsing center pin's visibility, used
+  // by build() to render and by _syncPulse() to start/stop the controller.
+  bool get _showCenterPin =>
+      (_activeField != null) &&
+      mapLoaded &&
+      !(pickupLat != null &&
+          pickupLng != null &&
+          destinationLat != null &&
+          destinationLng != null);
+
+  // [PERF] Drive the pulse from state transitions, never from build(). Idempotent
+  // and mounted-guarded. Called from _updateMarkers() (covers every map-load,
+  // selection, clear and drag-confirm path) and _onFocusChange() (active field).
+  void _syncPulse() {
+    if (!mounted) return;
+    if (_showCenterPin) {
+      if (!_pulseController.isAnimating) _pulseController.repeat();
+    } else if (_pulseController.isAnimating) {
+      _pulseController.stop();
+    }
   }
 
   Future<void> _initialize()
@@ -285,6 +307,7 @@ class _IntercityLocationScreenState
         });
       }
     }
+    _syncPulse();
   }
 
   void _onPickupTextChanged() {
@@ -422,6 +445,7 @@ class _IntercityLocationScreenState
       debugPrint('Failed to initialize WebView: $e');
       // Update the widget state to trigger a UI rebuild with the new variables
       setState(() => mapLoaded = true);
+      _syncPulse();
     }
   }
 
@@ -1024,6 +1048,10 @@ class _IntercityLocationScreenState
   // =====================================================
 
   Future<void> _updateMarkers() async {
+    // [PERF] Common funnel for all coord/map-load/selection/clear/drag paths;
+    // sync the pulse here so every state transition that affects the center pin
+    // starts/stops the controller. Runs before the early-return below.
+    _syncPulse();
     if (webController == null) return;
     try {
       await webController!.runJavaScript('''
@@ -1642,7 +1670,7 @@ class _IntercityLocationScreenState
     final isSearchingDestination = destinationFocus.hasFocus && destinationController.text.isNotEmpty;
     final isSearching = isSearchingPickup || isSearchingDestination;
 
-    final showCenterPin = (_activeField != null) && mapLoaded && !(pickupLat != null && pickupLng != null && destinationLat != null && destinationLng != null);
+    final showCenterPin = _showCenterPin;
 
     final String submitButtonText = widget.orderType.contains('parcel')
         ? 'Confirm & Add Details'

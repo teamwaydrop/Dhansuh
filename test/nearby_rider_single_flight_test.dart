@@ -102,9 +102,14 @@ void main() {
           contains('return _nearbyRiderRefresh.run(_fetchNearbyRidersOnce);'),
         );
         expect(method, contains('if (!mounted'));
+        // Invariant: the stale/disposed guard (pickupLat != originLat) must run
+        // before nearbyRiders is committed. The commit is a plain assignment (no
+        // setState) because nearbyRiders is never read in build() -- it is pushed
+        // to the map via _updateRidersOnMap()/JS. See the [PERF] comment at the
+        // assignment site.
         expect(
           method.indexOf('!= originLat'),
-          lessThan(method.indexOf('setState(() => nearbyRiders')),
+          lessThan(method.indexOf('nearbyRiders = riders')),
         );
         expect(method, contains('final originLat ='));
         expect(method, contains('final originLng ='));

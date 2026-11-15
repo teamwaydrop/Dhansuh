@@ -78,8 +78,23 @@ class _HomeLocationScreenState extends State<HomeLocationScreen>
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1800),
       vsync: this,
-    )..repeat();
+    );
     _initialize();
+  }
+
+  // [PERF] Single source of truth for whether the pulsing center pin is visible.
+  // Used by build() to render and by _syncPulse() to start/stop the controller.
+  bool get _showCenterPin => _isPickerActive && mapLoaded;
+
+  // [PERF] Drive the pulse controller from state transitions, never from build().
+  // Idempotent and mounted-guarded, so duplicate or post-dispose calls are safe.
+  void _syncPulse() {
+    if (!mounted) return;
+    if (_showCenterPin) {
+      if (!_pulseController.isAnimating) _pulseController.repeat();
+    } else if (_pulseController.isAnimating) {
+      _pulseController.stop();
+    }
   }
 
   Future<void> _initialize() async {
@@ -112,6 +127,7 @@ class _HomeLocationScreenState extends State<HomeLocationScreen>
       setState(() {
         _isPickerActive = true;
       });
+      _syncPulse();
     }
   }
 
@@ -174,6 +190,7 @@ class _HomeLocationScreenState extends State<HomeLocationScreen>
   Future<void> _initWebView() async {
     if (_useMockMap) {
       setState(() => mapLoaded = true);
+      _syncPulse();
       return;
     }
     try {
@@ -206,6 +223,7 @@ class _HomeLocationScreenState extends State<HomeLocationScreen>
             onPageFinished: (url) async {
               if (!mounted) return;
               setState(() => mapLoaded = true);
+              _syncPulse();
               await _injectMap();
               await _updateMarkers();
             },
@@ -216,6 +234,7 @@ class _HomeLocationScreenState extends State<HomeLocationScreen>
       debugPrint('Failed to initialize WebView: $e');
       if (!mounted) return;
       setState(() => mapLoaded = true);
+      _syncPulse();
     }
   }
 
@@ -790,7 +809,7 @@ class _HomeLocationScreenState extends State<HomeLocationScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSearching =
         locationFocus.hasFocus && locationController.text.isNotEmpty;
-    final showCenterPin = _isPickerActive && mapLoaded;
+    final showCenterPin = _showCenterPin;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
